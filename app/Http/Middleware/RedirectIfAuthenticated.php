@@ -7,23 +7,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class RedirectIfNotAuthenticated
+class RedirectIfAuthenticated
 {
     /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next,$guard = null): Response
+    public function handle(Request $request, Closure $next, $guard = null): Response
     {
-        if (!Auth::guard(name: $guard)->check()) {
-            if ($guard === 'admin') {
-                return redirect()->route('dashboard.login');
+        if (Auth::guard($guard)->check()) {
+            if($guard == "admin" && $request->route()->named("dashboard.login")) {
+                return to_route("admin.dashboard");
             }
-
-            return redirect()->route('login');
         }
-
         return $next($request);
     }
 }

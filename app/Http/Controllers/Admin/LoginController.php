@@ -18,4 +18,8 @@ class LoginController extends Controller
     public function logedIn(Request $request){
         return $this->adminRepository->logedIn($request);
     }
+    public function logOut(){
+         $this->adminRepository->logOut();
+         return to_route("dashboard.login");
+    }
 }

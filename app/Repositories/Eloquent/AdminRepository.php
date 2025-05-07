@@ -7,9 +7,15 @@ use App\Repositories\Contracts\AdminRepositoryInterface;
 class AdminRepository implements AdminRepositoryInterface{
     public function logedIn($request){
         $credentials = $request->only("email","password");
-        if (Auth::guard('admin')->attempt($credentials)) {
+        $remember = $request->filled('remember');
+
+        if (Auth::guard('admin')->attempt($credentials, $remember)) {
             return redirect()->route('admin.dashboard');
         }
         return back()->withErrors(['email' => 'Invalid credentials']);
+    }
+
+    public function logOut(){
+        return Auth::guard('admin')->logout();
     }
 }

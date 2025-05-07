@@ -44,8 +44,8 @@
                                 <div class="extra mt-3 row justify-content-between">
                                     <div class="col-6">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value=""
-                                                id="RememberPassword">
+                                            <input class="form-check-input" type="checkbox"
+                                                id="RememberPassword" name="remember">
                                             <label class="form-check-label" for="RememberPassword">
                                                 Remember me
                                             </label>

@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
-use App\Repositories\Contracts\AdminRepositoryInterface;
-use App\Repositories\Eloquent\AdminRepository;
+use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
+use App\Repositories\Eloquent\AdminRepository;
+use App\Repositories\Contracts\AdminRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        RateLimiter::for('global', function (Request $request) {
+            return Limit::perMinute(60);
+        });
     }
 }
