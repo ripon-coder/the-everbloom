@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('slug')->unique()->nullable();
+            $table->string('thumbnail')->nullable();
             $table->unsignedBigInteger('parent_id')->references('id')->on('categories')->onDelete('cascade');
             $table->text('description')->nullable();
             $table->enum('status', ['active','inactive'])->default('active');

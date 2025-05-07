@@ -8,6 +8,8 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Repositories\Eloquent\AdminRepository;
 use App\Repositories\Contracts\AdminRepositoryInterface;
+use App\Repositories\Contracts\BrandRespositoryInterface;
+use App\Repositories\Eloquent\BrandRespository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(AdminRepositoryInterface::class,AdminRepository::class);
+        $this->app->bind(BrandRespositoryInterface::class,BrandRespository::class);
+
     }
 
     /**
