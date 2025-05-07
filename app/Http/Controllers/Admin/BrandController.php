@@ -20,7 +20,8 @@ class BrandController extends Controller
      */
     public function index()
     {
-        return view("admin.brand.index");
+        $brands = $this->brand_respository->pagination(5);
+        return view("admin.brand.index",compact("brands"));
     }
 
     /**
@@ -36,7 +37,8 @@ class BrandController extends Controller
      */
     public function store(CreateBrandRequest $request)
     {
-        return $request->all();
+        $this->brand_respository->store($request->all());
+        return back()->with("success","Created Successfully!");
     }
 
     /**
@@ -52,7 +54,8 @@ class BrandController extends Controller
      */
     public function edit(Brand $brand)
     {
-        //
+        $brand = $this->brand_respository->idBy($brand->id);
+        return view('admin.brand.edit',compact('brand'));
     }
 
     /**
@@ -60,7 +63,8 @@ class BrandController extends Controller
      */
     public function update(Request $request, Brand $brand)
     {
-        //
+        $this->brand_respository->update($request->all(),$brand->id);
+        return back()->with("success","Updated Successfully!");
     }
 
     /**

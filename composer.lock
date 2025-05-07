@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "42375cf8b6b964e0398fa8aa81811bff",
+    "content-hash": "bbf7354578b121b13acc2a451f5c792e",
     "packages": [
         {
             "name": "brick/math",
@@ -3349,6 +3349,54 @@
                 }
             ],
             "time": "2024-04-27T21:32:50+00:00"
+        },
+        {
+            "name": "riponcoder/file-upload",
+            "version": "0.01",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ripon-coder/File-Upload.git",
+                "reference": "d5739e92a4aa11f1811098b10f315a3f6b4d3450"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ripon-coder/File-Upload/zipball/d5739e92a4aa11f1811098b10f315a3f6b4d3450",
+                "reference": "d5739e92a4aa11f1811098b10f315a3f6b4d3450",
+                "shasum": ""
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "ImageAble": "RiponCoder\\FileUpload\\ImageAbble",
+                        "FileUpload": "RiponCoder\\FileUpload\\FileUpload"
+                    },
+                    "providers": [
+                        "RiponCoder\\FileUpload\\FileUploadServiceProvide"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "RiponCoder\\FileUpload\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ripon",
+                    "email": "coderripon@gmail.com"
+                }
+            ],
+            "description": "Fileupload local and database",
+            "support": {
+                "issues": "https://github.com/ripon-coder/File-Upload/issues",
+                "source": "https://github.com/ripon-coder/File-Upload/tree/0.01"
+            },
+            "time": "2023-09-14T20:20:32+00:00"
         },
         {
             "name": "symfony/clock",

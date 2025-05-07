@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Brand;
 use Illuminate\Http\Request;
+use App\Observers\BrandObserver;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -36,5 +38,7 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('active', function ($expression) {
             return "<?php echo request()->is({$expression}) ? 'active' : ''; ?>";
         });
+
+        Brand::observe(BrandObserver::class);
     }
 }

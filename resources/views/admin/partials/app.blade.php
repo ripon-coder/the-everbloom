@@ -25,13 +25,14 @@
     <!-- App CSS -->
     <link id="theme-style" rel="stylesheet" href="{{ asset('assets/admin/assets/css/portal.css') }}">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
 </head>
 
 <body class="app">
     @include('admin.partials.header')
 
     <div class="app-wrapper">
-
         @yield('content')
 
         @include('admin.partials.footer')

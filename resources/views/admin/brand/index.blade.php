@@ -1,11 +1,11 @@
-@extends('admin.partials.app')
+@extends('admin.partials.app',['title'=>'Brands'])
 @section('content')
     <div class="app-content pt-3 p-md-3 p-lg-4">
         <div class="container-xl">
 
             <div class="row g-3 mb-4 align-items-center justify-content-between">
                 <div class="col-auto">
-                    <h1 class="app-page-title mb-0">Products</h1>
+                    <h1 class="app-page-title mb-0">Brands</h1>
                 </div>
                 <div class="col-auto">
                     <div class="page-utilities">
@@ -45,11 +45,13 @@
                                 </a>
                             </div>
                             <div class="col-auto">
-                                <a class="btn app-btn-secondary" href="{{route('admin.brand.create')}}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle me-1" viewBox="0 0 16 16">
-                                        <path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zM8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0z"/>
-                                        <path d="M8 4a.5.5 0 0 1 .5.5V7.5H11.5a.5.5 0 0 1 0 1H8.5V11.5a.5.5 0 0 1-1 0V8.5H4.5a.5.5 0 0 1 0-1H7.5V4.5A.5.5 0 0 1 8 4z"/>
-                                      </svg>
+                                <a class="btn app-btn-secondary" href="{{ route('admin.brand.create') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"
+                                        fill="currentColor" class="bi bi-plus-circle me-1" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zM8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0z" />
+                                        <path
+                                            d="M8 4a.5.5 0 0 1 .5.5V7.5H11.5a.5.5 0 0 1 0 1H8.5V11.5a.5.5 0 0 1-1 0V8.5H4.5a.5.5 0 0 1 0-1H7.5V4.5A.5.5 0 0 1 8 4z" />
+                                    </svg>
                                     New Brand
                                 </a>
                             </div>
@@ -57,96 +59,36 @@
                     </div><!--//table-utilities-->
                 </div><!--//col-auto-->
             </div><!--//row-->
-
-
-
             <div class="app-card app-card-orders-table shadow-sm mb-5">
                 <div class="app-card-body">
                     <div class="table-responsive">
                         <table class="table app-table-hover mb-0 text-left">
                             <thead>
                                 <tr>
-                                    <th class="cell">Order</th>
-                                    <th class="cell">Product</th>
-                                    <th class="cell">Customer</th>
+                                    <th class="cell">ID</th>
+                                    <th class="cell">Name</th>
+                                    <th class="cell">Image</th>
                                     <th class="cell">Date</th>
                                     <th class="cell">Status</th>
-                                    <th class="cell">Total</th>
                                     <th class="cell"></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="cell">#15346</td>
-                                    <td class="cell"><span class="truncate">Lorem ipsum dolor sit amet eget
-                                            volutpat erat</span></td>
-                                    <td class="cell">John Sanders</td>
-                                    <td class="cell"><span>17 Oct</span><span class="note">2:16 PM</span></td>
-                                    <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                    <td class="cell">$259.35</td>
-                                    <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="cell">#15345</td>
-                                    <td class="cell"><span class="truncate">Consectetur adipiscing elit</span>
-                                    </td>
-                                    <td class="cell">Dylan Ambrose</td>
-                                    <td class="cell"><span class="cell-data">16 Oct</span><span class="note">03:16
-                                            AM</span></td>
-                                    <td class="cell"><span class="badge bg-warning">Pending</span></td>
-                                    <td class="cell">$96.20</td>
-                                    <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="cell">#15344</td>
-                                    <td class="cell"><span class="truncate">Pellentesque diam imperdiet</span>
-                                    </td>
-                                    <td class="cell">Teresa Holland</td>
-                                    <td class="cell"><span class="cell-data">16 Oct</span><span class="note">01:16
-                                            AM</span></td>
-                                    <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                    <td class="cell">$123.00</td>
-                                    <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td class="cell">#15343</td>
-                                    <td class="cell"><span class="truncate">Vestibulum a accumsan lectus sed
-                                            mollis ipsum</span></td>
-                                    <td class="cell">Jayden Massey</td>
-                                    <td class="cell"><span class="cell-data">15 Oct</span><span class="note">8:07
-                                            PM</span></td>
-                                    <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                    <td class="cell">$199.00</td>
-                                    <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
-                                </tr>
-
-                                <tr>
-                                    <td class="cell">#15342</td>
-                                    <td class="cell"><span class="truncate">Justo feugiat neque</span></td>
-                                    <td class="cell">Reina Brooks</td>
-                                    <td class="cell"><span class="cell-data">12 Oct</span><span class="note">04:23
-                                            PM</span></td>
-                                    <td class="cell"><span class="badge bg-danger">Cancelled</span></td>
-                                    <td class="cell">$59.00</td>
-                                    <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
-                                </tr>
-
-                                <tr>
-                                    <td class="cell">#15341</td>
-                                    <td class="cell"><span class="truncate">Morbi vulputate lacinia neque et
-                                            sollicitudin</span></td>
-                                    <td class="cell">Raymond Atkins</td>
-                                    <td class="cell"><span class="cell-data">11 Oct</span><span class="note">11:18
-                                            AM</span></td>
-                                    <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                    <td class="cell">$678.26</td>
-                                    <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
-                                </tr>
-
+                                @foreach ($brands as $item)
+                                    <tr>
+                                        <td class="cell">{{ $item->id }}</td>
+                                        <td class="cell"><span class="truncate">{{ $item->name }}</span></td>
+                                        <td class="cell">
+                                            @isset($item->thumbnail)
+                                                <img src="{{ asset('dynamic-assets/brand/' . $item->thumbnail) }}" width="50">
+                                            @endisset
+                                        </td>
+                                        <td class="cell">{{ $item->created_at }}</td>
+                                        <td class="cell"><span class="badge {{$item->status->badgeClass()}}">{{$item->status->label()}}</span></td>
+                                        <td class="cell"><a class="btn-sm app-btn-secondary" href="{{route('admin.brand.edit',$item)}}">Edit</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div><!--//table-responsive-->
@@ -155,15 +97,7 @@
             </div><!--//app-card-->
             <nav class="app-pagination">
                 <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">Next</a>
-                    </li>
+                    {{ $brands->links('pagination::bootstrap-4') }}
                 </ul>
             </nav><!--//app-pagination-->
         </div><!--//container-fluid-->
