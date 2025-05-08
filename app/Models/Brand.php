@@ -10,10 +10,12 @@ use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 // #[ObservedBy(BrandObserver::class)]
 class Brand extends Model
 {
-    use HasSlug;
+    use HasSlug,SoftDeletes;
     protected $fillable = ["name", "slug", "thumbnail", "description", "status"];
     protected $casts = [
         "status" => BrandEnum::class,

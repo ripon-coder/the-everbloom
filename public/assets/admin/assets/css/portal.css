@@ -10489,6 +10489,16 @@ button.close:focus {
     border: 1px solid #15a362;
     background: #fff;
 }
+.app-btn-danger {
+    background: #d94343;
+    color: #fff;
+    border: 1px solid #d1473d;
+}
+.app-btn-danger:hover {
+    color: #fff;
+    border: 1px solid #15a362;
+    background: #8c331b;
+}
 .btn-light {
     background: #f5f6fe;
     color: #15a362;

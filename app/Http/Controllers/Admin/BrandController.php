@@ -1,14 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
-use App\Helper\Helper;
-use App\Helper\SlugUnique;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateBrandRequest;
 use App\Models\Brand;
 use App\Repositories\Contracts\BrandRespositoryInterface;
-use Illuminate\Http\Request;
 
 class BrandController extends Controller
 {
@@ -74,6 +70,7 @@ class BrandController extends Controller
      */
     public function destroy(Brand $brand)
     {
-        //
+        $this->brand_respository->destroy($brand->id);
+        return back()->with("success", "Deleted Successfully!");
     }
 }

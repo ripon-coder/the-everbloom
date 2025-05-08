@@ -11,8 +11,10 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Repositories\Eloquent\AdminRepository;
 use App\Repositories\Eloquent\BrandRespository;
+use App\Repositories\Eloquent\CategoryRespository;
 use App\Repositories\Contracts\AdminRepositoryInterface;
 use App\Repositories\Contracts\BrandRespositoryInterface;
+use App\Repositories\Contracts\CategoryRespositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(AdminRepositoryInterface::class,AdminRepository::class);
         $this->app->bind(BrandRespositoryInterface::class,BrandRespository::class);
+        $this->app->bind(CategoryRespositoryInterface::class,CategoryRespository::class);
 
     }
 

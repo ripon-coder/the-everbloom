@@ -1,20 +1,23 @@
 <?php
 namespace App\Repositories\Eloquent;
 
-use App\Helper\SlugUnique;
 use RiponCoder\FileUpload\FileUpload;
-use App\Repositories\Contracts\BrandRespositoryInterface;
+use App\Repositories\Contracts\CategoryRespositoryInterface;
 
-class BrandRespository implements BrandRespositoryInterface
+class CategoryRespository implements CategoryRespositoryInterface
 {
     protected $model;
     public function __construct()
     {
-        $this->model = new \App\Models\Brand();
+        $this->model = new \App\Models\Category();
     }
     public function idBy($id)
     {
         return $this->model->where("id", $id)->first();
+    }
+    public function category()
+    {
+        return $this->model->with('childrenRecursive')->whereNull('parent_id')->get();
     }
     public function pagination($limit = 20)
     {
@@ -23,7 +26,7 @@ class BrandRespository implements BrandRespositoryInterface
     public function store(array $data)
     {
         if (isset($data['thumbnail'])) {
-            $data['thumbnail'] = FileUpload::path("dynamic-assets/brand")->uploadFile($data['thumbnail']);
+            $data['thumbnail'] = FileUpload::path("dynamic-assets/category")->uploadFile($data['thumbnail']);
         }
         return $this->model->create($data);
     }
@@ -31,7 +34,7 @@ class BrandRespository implements BrandRespositoryInterface
     {
         $brand = $this->idBy($id);
         if (isset($data['thumbnail'])) {
-            $data['thumbnail'] = FileUpload::path("dynamic-assets/brand")->removeFile($brand->thumbnail ?? '')->uploadFile($data['thumbnail']);
+            $data['thumbnail'] = FileUpload::path("dynamic-assets/category")->removeFile($brand->thumbnail ?? '')->uploadFile($data['thumbnail']);
         }
         return $brand->update($data);
     }
