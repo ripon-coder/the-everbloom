@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helper\Helper;
+use App\Helper\SlugUnique;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateBrandRequest;
 use App\Models\Brand;
@@ -21,7 +23,7 @@ class BrandController extends Controller
     public function index()
     {
         $brands = $this->brand_respository->pagination(5);
-        return view("admin.brand.index",compact("brands"));
+        return view("admin.brand.index", compact("brands"));
     }
 
     /**
@@ -38,7 +40,7 @@ class BrandController extends Controller
     public function store(CreateBrandRequest $request)
     {
         $this->brand_respository->store($request->all());
-        return back()->with("success","Created Successfully!");
+        return back()->with("success", "Created Successfully!");
     }
 
     /**
@@ -55,16 +57,16 @@ class BrandController extends Controller
     public function edit(Brand $brand)
     {
         $brand = $this->brand_respository->idBy($brand->id);
-        return view('admin.brand.edit',compact('brand'));
+        return view('admin.brand.edit', compact('brand'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Brand $brand)
+    public function update(CreateBrandRequest $request, Brand $brand)
     {
-        $this->brand_respository->update($request->all(),$brand->id);
-        return back()->with("success","Updated Successfully!");
+        $this->brand_respository->update($request->all(), $brand->id);
+        return back()->with("success", "Updated Successfully!");
     }
 
     /**

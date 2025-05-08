@@ -39,6 +39,6 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo request()->is({$expression}) ? 'active' : ''; ?>";
         });
 
-        Brand::observe(BrandObserver::class);
+        //Brand::observe(BrandObserver::class);
     }
 }

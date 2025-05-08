@@ -1,6 +1,7 @@
 <?php
 namespace App\Repositories\Eloquent;
 
+use App\Helper\SlugUnique;
 use RiponCoder\FileUpload\FileUpload;
 use App\Repositories\Contracts\BrandRespositoryInterface;
 
@@ -15,8 +16,9 @@ class BrandRespository implements BrandRespositoryInterface
     {
         return $this->model->where("id", $id)->first();
     }
-    public function pagination($limit =20){
-        return $this->model->paginate($limit);
+    public function pagination($limit = 20)
+    {
+        return $this->model->orderBy('id', 'desc')->paginate($limit);
     }
     public function store(array $data)
     {
@@ -25,7 +27,8 @@ class BrandRespository implements BrandRespositoryInterface
         }
         return $this->model->create($data);
     }
-    public function update(array $data, $id){
+    public function update(array $data, $id)
+    {
         $brand = $this->idBy($id);
         if (isset($data['thumbnail'])) {
             $data['thumbnail'] = FileUpload::path("dynamic-assets/brand")->removeFile($brand->thumbnail ?? '')->uploadFile($data['thumbnail']);

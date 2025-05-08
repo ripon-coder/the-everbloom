@@ -1,7 +1,10 @@
 <?php
 namespace App\Helper;
 class Helper{
-    public function DateFormat($date){
+    public static function slug(): string{
+        return "slug";
+    }
+    public static function DateFormat($date){
         return date("d-m-Y", strtotime($date));
     }
 }

@@ -10,21 +10,37 @@ class BrandObserver
     /**
      * Handle the Brand "created" event.
      */
+    public function creating(Brand $brand): void
+    {
+        $slug = Str::slug($brand->name);
+        $total_count = Brand::where("slug", $slug)->count();
+        $brand->slug = $total_count > 0 ? "{$slug}-{$total_count}" : $slug;
+    }
+
     public function created(Brand $brand): void
     {
-        $brand->slug = Str::slug($brand->name);
-        $brand->save();
+        // $slug = Str::slug($brand->name);
+        // $brand->slug = Brand::where("slug",$slug)->exists() ? "{$slug}-{$brand->id}" : $slug;
     }
 
     /**
      * Handle the Brand "updated" event.
      */
+    public function updating(Brand $brand): void
+    {
+        if ($brand->isDirty('name')) {
+            $slug = Str::slug($brand->name);
+            $total_count = Brand::where("slug", $slug)->count() + 1;
+            $brand->slug = Brand::where("slug", $slug)->exists() ? "{$slug}-{$total_count}" : $slug;
+        }
+    }
     public function updated(Brand $brand): void
     {
-        if($brand->isDirty('name')){
-            $brand->slug = Str::slug($brand->name);
-            $brand->save();
-        }
+        // if ($brand->isDirty('name')) {
+        //     $slug = Str::slug($brand->name);
+        //     $brand->slug = Brand::where("slug", $slug)->exists() ? "{$slug}-{$brand->id}" : $slug;
+        //     $brand->save();
+        // }
     }
 
     /**
