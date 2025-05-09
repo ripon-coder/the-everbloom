@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use App\CategoryEnum;
 use Carbon\Carbon;
+use App\CategoryEnum;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Builder;
 
 class Category extends Model
 {
@@ -23,6 +24,11 @@ class Category extends Model
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
     }
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', CategoryEnum::ACTIVE);
+    }
+
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id');

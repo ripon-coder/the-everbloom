@@ -1,9 +1,8 @@
 <?php 
 namespace App\Repositories\Contracts;
-interface BrandRespositoryInterface{
+interface AttributeRespositoryInterface{
     public function idBy($id);
     public function pagination($limit =20);
-    public function brand();
     public function store(array $data);
     public function update(array $data, $id);
     public function destroy($id);

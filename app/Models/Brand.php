@@ -26,6 +26,10 @@ class Brand extends Model
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
     }
+    public function scopeActive($query)
+    {
+        return $query->where('status', BrandEnum::ACTIVE);
+    }
 
     protected function createdAt(): Attribute
     {

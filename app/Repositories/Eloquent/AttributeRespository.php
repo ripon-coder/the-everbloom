@@ -1,15 +1,14 @@
 <?php
 namespace App\Repositories\Eloquent;
-
 use RiponCoder\FileUpload\FileUpload;
-use App\Repositories\Contracts\ProductRespositoryInterface;
+use App\Repositories\Contracts\AttributeRespositoryInterface;
 
-class ProductRespository implements ProductRespositoryInterface
+class AttributeRespository implements AttributeRespositoryInterface
 {
     protected $model;
     public function __construct()
     {
-        $this->model = new \App\Models\Products();
+        $this->model = new \App\Models\Attribute();
     }
     public function idBy($id)
     {
@@ -22,21 +21,20 @@ class ProductRespository implements ProductRespositoryInterface
     public function store(array $data)
     {
         if (isset($data['thumbnail'])) {
-            $data['thumbnail'] = FileUpload::path("dynamic-assets/product-thumbnail")->uploadFile($data['thumbnail']);
+            $data['thumbnail'] = FileUpload::path("dynamic-assets/brand")->uploadFile($data['thumbnail']);
         }
         return $this->model->create($data);
     }
     public function update(array $data, $id)
     {
-        $brand = $this->idBy($id);
+        $attribute = $this->idBy($id);
         if (isset($data['thumbnail'])) {
-            $data['thumbnail'] = FileUpload::path("dynamic-assets/product-thumbnail")->removeFile($brand->thumbnail ?? '')->uploadFile($data['thumbnail']);
+            $data['thumbnail'] = FileUpload::path("dynamic-assets/brand")->removeFile($attribute->thumbnail ?? '')->uploadFile($data['thumbnail']);
         }
-        return $brand->update($data);
+        return $attribute->update($data);
     }
-    public function destroy($id)
-    {
-        $brand = $this->idBy($id);
-        return $brand->delete();
+    public function destroy($id){
+        $attribute = $this->idBy($id);
+        return $attribute->delete();
     }
 }

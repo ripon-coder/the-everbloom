@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('attribute_id')->constrained()->onDelete('cascade');
             $table->string('value'); // e.g., Red, 128GB
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

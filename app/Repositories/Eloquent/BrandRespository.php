@@ -1,7 +1,5 @@
 <?php
 namespace App\Repositories\Eloquent;
-
-use App\Helper\SlugUnique;
 use RiponCoder\FileUpload\FileUpload;
 use App\Repositories\Contracts\BrandRespositoryInterface;
 
@@ -19,6 +17,10 @@ class BrandRespository implements BrandRespositoryInterface
     public function pagination($limit = 20)
     {
         return $this->model->orderBy('id', 'desc')->paginate($limit);
+    }
+    public function brand()
+    {
+        return $this->model->active()->orderBy('name', 'asc')->get();
     }
     public function store(array $data)
     {
@@ -39,4 +41,5 @@ class BrandRespository implements BrandRespositoryInterface
         $brand = $this->idBy($id);
         return $brand->delete();
     }
+
 }

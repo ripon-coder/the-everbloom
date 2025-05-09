@@ -17,7 +17,7 @@ class CategoryRespository implements CategoryRespositoryInterface
     }
     public function category()
     {
-        return $this->model->with('childrenRecursive')->whereNull('parent_id')->get();
+        return $this->model->active()->with('childrenRecursive')->whereNull('parent_id')->get();
     }
     public function pagination($limit = 20)
     {

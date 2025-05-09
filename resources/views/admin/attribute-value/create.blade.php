@@ -1,44 +1,32 @@
-@extends('admin.partials.app', ['title' => 'Create Category'])
+@extends('admin.partials.app', ['title' => 'Create Attribute Value'])
 @section('content')
     <div class="app-content pt-3 p-md-3 p-lg-4">
         <div class="container-xl">
             <div class="app-card app-card-settings shadow-sm p-4">
                 <div class="app-card-body">
-                    <form class="settings-form" action="{{ route('admin.category.store') }}" method="POST"
-                        enctype="multipart/form-data">
+                    <form class="settings-form" action="{{ route('admin.attribute-value.store') }}" method="POST">
                         @csrf
+
                         <div class="mb-3">
-                            <label for="parent_id" class="form-label">Parent Category</label>
-                            <select id="parent_id" name="parent_id" class="form-control">
-                                <option value="">None</option>
-                                @include('components.category-select', [
-                                    'categories' => $categories,
-                                    'prefix' => '',
-                                ])
+                            <label for="attribute_id" class="form-label">Select Attribute</label>
+                            <select id="attribute_id" name="attribute_id" class="form-control">
+                                @foreach ($attributes as $item)
+                                    <option value="{{$item->id}}">{{$item->name}}</option>
+                                @endforeach
                             </select>
                         </div>
-
-
                         <div class="mb-3">
-                            <label for="name" class="form-label">Name*</label>
-                            <input type="text" class="form-control  @error('name') is-invalid @enderror" id="name"
-                                name="name" value="{{ old('name') }}">
-                            @error('name')
+                            <label for="value" class="form-label">Value*</label>
+                            <input type="text" class="form-control @error('value') is-invalid @enderror" id="value"
+                                name="value" value="{{ old('value') }}">
+                            @error('value')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label for="thumbnail" class="form-label">Thumbnail</label>
-                            <input type="file" class="form-control  @error('thumbnail') is-invalid @enderror"
-                                id="thumbnail" name="thumbnail" accept="image/*">
-                            @error('thumbnail')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label for="setting-input-3" class="form-label">Status*</label>
+                            <label for="status" class="form-label">Status*</label>
                             <select class="form-select w-auto" name="status">
-                                @foreach (\App\CategoryEnum::cases() as $filter)
+                                @foreach (\App\AttributeEnum::cases() as $filter)
                                     <option value="{{ $filter->value }}"
                                         {{ old('status') === $filter->value ? 'selected' : '' }}>
                                         {{ $filter->label() }}
@@ -48,7 +36,6 @@
                             @error('status')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
-
                         </div>
                         <button type="submit" class="btn app-btn-primary">Save Changes</button>
                     </form>
@@ -68,9 +55,9 @@
 
     <script>
         $(document).ready(function() {
-            $('#parent_id').select2({
+            $('#attribute_id').select2({
                 theme: 'bootstrap-5',
-                placeholder: 'Select a parent category',
+                placeholder: 'Select an attribute',
                 allowClear: true
             });
         });
