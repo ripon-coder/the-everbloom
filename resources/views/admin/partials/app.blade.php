@@ -26,6 +26,8 @@
     <link id="theme-style" rel="stylesheet" href="{{ asset('assets/admin/assets/css/portal.css') }}">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/admin/assets/css/custom.css') }}">
+
     @yield('stylesheet')
 </head>
 

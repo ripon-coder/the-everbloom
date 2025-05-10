@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('discount_price', 10, 2)->nullable();
             $table->decimal('price', 10, 2);
             $table->integer('stock')->default(0);
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->enum('v_status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Products extends Model
 {
-    use HasSlug, SoftDeletes;
+    use HasSlug;
     protected $fillable = ["brand_id", "categorie_id", "slug", "name", "thumbnail"," images", "description","price", "feature", "status"];
     protected $casts = [
         "status" => AttributeEnum::class,

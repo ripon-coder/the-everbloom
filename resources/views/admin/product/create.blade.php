@@ -68,7 +68,7 @@
                         <div class="mb-3">
                             <label for="setting-input-3" class="form-label">Status*</label>
                             <select class="form-select w-auto" name="status">
-                                @foreach (\App\CategoryEnum::cases() as $filter)
+                                @foreach (\App\AttributeEnum::cases() as $filter)
                                     <option value="{{ $filter->value }}"
                                         {{ old('status') === $filter->value ? 'selected' : '' }}>
                                         {{ $filter->label() }}
@@ -78,9 +78,23 @@
                             @error('status')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
-
                         </div>
-                        <button type="submit" class="btn app-btn-primary">Save Changes</button>
+                        <div class="mb-3">
+                            <label for="setting-input-3" class="form-label">Product Feature*</label>
+                            <select class="form-select w-auto" name="feature">
+                                @foreach (\App\ProductFeatureEnum::cases() as $filter)
+                                    <option value="{{ $filter->value }}"
+                                        {{ old('feature') === $filter->value ? 'selected' : '' }}>
+                                        {{ $filter->label() }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('feature')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        @include("components.product-variant")
+                        <button type="submit" class="btn app-btn-primary mt-4">Save Changes</button>
                     </form>
                 </div>
             </div>
