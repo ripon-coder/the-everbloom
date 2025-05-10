@@ -93,7 +93,7 @@
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
-                        @include("components.product-variant")
+                        @include('components.product-variant')
                         <button type="submit" class="btn app-btn-primary mt-4">Save Changes</button>
                     </form>
                 </div>
@@ -142,5 +142,35 @@
             });
 
         });
+        document.addEventListener('DOMContentLoaded', function() {
+            const addVariantBtn = document.querySelector('.variant_add_btn a');
+            addVariantBtn.addEventListener("click", function(e) {
+                e.preventDefault();
+                const firstVariant = document.querySelector(".each_div");
+                const clone = firstVariant.cloneNode(true);
+                clone.querySelectorAll('input').forEach(input => {
+                    input.value = '';
+                });
+                clone.querySelectorAll('select').forEach(select => {
+                    select.selectedIndex = 0;
+                });
+                document.querySelector('.variant_middle_div').appendChild(clone);
+            })
+
+            const mainVariantDiv = document.querySelector('.variant_middle_div');
+            mainVariantDiv.addEventListener("click", function(e) {
+                const removeBtn = e.target.closest('.rm_button_variant a');
+                if (removeBtn) {
+                    e.preventDefault();
+                    const allVariants = mainVariantDiv.querySelectorAll('.each_div');
+                    const targetDiv = removeBtn.closest('.each_div');
+                    if (targetDiv === allVariants[0]) {
+                        alert("You can't delete the first variant.");
+                        return;
+                    }
+                    targetDiv.remove();
+                }
+            })
+        })
     </script>
 @endsection
