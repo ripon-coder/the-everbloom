@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateProductRequest;
 use App\Models\Products;
+use App\Repositories\Contracts\AttributeRespositoryInterface;
 use App\Repositories\Contracts\BrandRespositoryInterface;
 use App\Repositories\Contracts\CategoryRespositoryInterface;
 use App\Repositories\Contracts\ProductRespositoryInterface;
@@ -28,11 +29,12 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(CategoryRespositoryInterface $categoryRespository,BrandRespositoryInterface $brandRespository)
+    public function create(CategoryRespositoryInterface $categoryRespository,BrandRespositoryInterface $brandRespository,AttributeRespositoryInterface $attributeRespository)
     {
         $brands = $brandRespository->brand();
         $categories = $categoryRespository->category();
-        return view("admin.product.create", compact("brands","categories"));
+        $attributes = $attributeRespository->attribute();
+        return view("admin.product.create", compact("brands","categories","attributes"));
     }
 
     /**

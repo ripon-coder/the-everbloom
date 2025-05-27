@@ -93,7 +93,7 @@
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
-                        @include('components.product-variant')
+                        @include('components.product-variant', ['attributes' => $attributes])
                         <button type="submit" class="btn app-btn-primary mt-4">Save Changes</button>
                     </form>
                 </div>
@@ -142,18 +142,30 @@
             });
 
         });
+        //Add variant
         document.addEventListener('DOMContentLoaded', function() {
             const addVariantBtn = document.querySelector('.variant_add_btn a');
             addVariantBtn.addEventListener("click", function(e) {
                 e.preventDefault();
                 const firstVariant = document.querySelector(".each_div");
                 const clone = firstVariant.cloneNode(true);
+
                 clone.querySelectorAll('input').forEach(input => {
                     input.value = '';
                 });
                 clone.querySelectorAll('select').forEach(select => {
                     select.selectedIndex = 0;
                 });
+
+                const cloneAttributes = clone.querySelectorAll(".attribute_for_variant");
+                if (cloneAttributes.length > 1) {
+                    cloneAttributes.forEach((attribute, index) => {
+                        if (index > 0) {
+                            attribute.remove();
+                        }
+                    });
+                }
+
                 document.querySelector('.variant_middle_div').appendChild(clone);
             })
 
@@ -171,6 +183,109 @@
                     targetDiv.remove();
                 }
             })
+            // End variant
+
+            // Add attribute inside a variant
+            document.addEventListener("click", function(e) {
+                if (e.target.closest(".add_attribute a")) {
+                    e.preventDefault();
+                    const btn = e.target.closest(".add_attribute a");
+                    const attributeContainer = btn.closest(".attribute_parent");
+                    const firstAttribute = attributeContainer.querySelector(".attribute_for_variant");
+                    const clone = firstAttribute.cloneNode(true);
+                    clone.querySelectorAll('input').forEach(input => input.value = '');
+                    clone.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+                    const addBtn = clone.querySelector(".add_attribute");
+                    if (addBtn) addBtn.remove();
+
+                    attributeContainer.appendChild(clone);
+                }
+            });
+
+            // Remove attribute inside a variant
+            document.addEventListener("click", function(e) {
+                if (e.target.closest(".remove-attribute a")) {
+                    e.preventDefault();
+                    const btn = e.target.closest(".remove-attribute a");
+                    const attributeContainer = btn.closest(".attribute_parent");
+                    const attributeItems = attributeContainer.querySelectorAll(
+                        ".attribute_for_variant");
+                    const target = btn.closest(".attribute_for_variant");
+
+                    if (attributeItems.length <= 1 || target === attributeItems[0]) {
+                        alert("You can't delete the first attribute.");
+                        return;
+                    }
+                    target.remove();
+                }
+            });
+            //Attribute select
+            document.addEventListener("change", function(e) {
+                // When attribute name is changed
+                if (e.target.classList.contains("attribute_name")) {
+                    const currentSelect = e.target;
+                    const currentWrapper = currentSelect.closest(".attribute_for_variant");
+                    const variantContainer = currentWrapper.closest(".attribute_parent");
+                    const attribute_id = currentSelect.value;
+
+                    const valueSelect = currentWrapper.querySelector(".attribute_value_select");
+                    valueSelect.innerHTML = "<option selected value=''>Select Attribute Value</option>";
+
+                    if (attribute_id) {
+                        $.ajax({
+                            url: "{{ route('admin.get-attribute-value') }}",
+                            type: "GET",
+                            data: {
+                                attribute_id: attribute_id
+                            },
+                            success: function(data) {
+                                data.forEach(function(item) {
+                                    const option = document.createElement("option");
+                                    option.value = item.id;
+                                    option.textContent = item.value;
+                                    valueSelect.appendChild(option);
+                                });
+                            }
+                        });
+                    }
+                }
+
+                // When attribute value is changed
+                if (e.target.classList.contains("attribute_value_select")) {
+                    const currentWrapper = e.target.closest(".attribute_for_variant");
+                    const variantContainer = currentWrapper.closest(".attribute_parent");
+
+                    const allAttributes = variantContainer.querySelectorAll(".attribute_for_variant");
+
+                    const selectedPairs = [];
+
+                    let isDuplicate = false;
+
+                    allAttributes.forEach(attr => {
+                        const attrSelect = attr.querySelector(".attribute_name");
+                        const valSelect = attr.querySelector(".attribute_value_select");
+
+                        const attrId = attrSelect?.value;
+                        const valId = valSelect?.value;
+
+                        if (attrId && valId) {
+                            const pair = `${attrId}_${valId}`;
+                            if (selectedPairs.includes(pair)) {
+                                isDuplicate = true;
+                                // Remove this duplicate attribute section
+                                attr.remove();
+                            } else {
+                                selectedPairs.push(pair);
+                            }
+                        }
+                    });                    
+                    if (isDuplicate) {
+                        alert(
+                            "Same attribute with same value is already selected in this variant. Removed duplicate."
+                        );
+                    }
+                }
+            });
         })
     </script>
 @endsection

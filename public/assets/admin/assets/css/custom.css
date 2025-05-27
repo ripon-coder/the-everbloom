@@ -15,12 +15,15 @@ position: relative;
     right: 40%;
     padding-top: 5px;
 }
-.attribute_main{
 
-}
 .attribute_for_variant {
     display: flex;
-    justify-content: center;
+    justify-content: start;
     gap: 9px;
     align-items: self-end;
+    padding: 10px;
+}
+
+.attribute_option,.attribute_value{
+    width: 35%;
 }

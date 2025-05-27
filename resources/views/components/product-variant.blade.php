@@ -56,28 +56,39 @@
                 @enderror
             </div>
             <div class="attribute_main p-4">
-                <div class="attribute_for_variant border p-3">
-                    <div class="attribute_option">
-                        <label for="price" class="form-label">Attribute</label>
-                        <input type="text" class="form-control">
+                <div class="attribute_parent border text-center p-3">
+                    <div class="attribute_for_variant">
+                        <div class="attribute_option">
+                            <label for="attribute_id" class="form-label">Attribute</label>
+                            <select id="attribute_id" class="attribute_name form-select" name="attribute_id">
+                                <option selected value="">Select Attribute</option>
+                                @foreach ($attributes as $attribute)
+                                    <option value="{{ $attribute->id }}"
+                                        {{ old('attribute_id') === $attribute->id ? 'selected' : '' }}>
+                                        {{ $attribute->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="attribute_value">
+                            <label for="attribute_value_id" class="form-label">Attribute Value</label>
+                            <select id="attribute_value_id" class="attribute_value_select form-select"  name="attribute_value_id">
+                                <option value="">Select Attribute Value</option>
+                            </select>
+                        </div>
+                        <div class="remove-attribute"><a class="btn app-btn-danger" href="#"><svg xmlns="http://www.w3.org/2000/svg"
+                                    width="1em" height="1em" fill="currentColor" class="bi bi-trash-fill"
+                                    viewBox="0 0 16 16">
+                                    <path
+                                        d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+                                </svg></a></div>
+                        <div class="add_attribute"><a class="btn app-btn-primary" href="#"> <svg
+                                    xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                                    class="bi bi-plus-circle me-1" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zM8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0z" />
+                                    <path
+                                        d="M8 4a.5.5 0 0 1 .5.5V7.5H11.5a.5.5 0 0 1 0 1H8.5V11.5a.5.5 0 0 1-1 0V8.5H4.5a.5.5 0 0 1 0-1H7.5V4.5A.5.5 0 0 1 8 4z" />
+                                </svg></a></div>
                     </div>
-                    <div class="attribute_value">
-                        <label for="price" class="form-label">Attribute Value</label>
-                        <input type="text" class="form-control">
-                    </div>
-                    <div><a class="btn app-btn-danger" href="#"><svg xmlns="http://www.w3.org/2000/svg"
-                                width="1em" height="1em" fill="currentColor" class="bi bi-trash-fill"
-                                viewBox="0 0 16 16">
-                                <path
-                                    d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
-                            </svg></a></div>
-                    <div ><a class="btn app-btn-primary" href="#"> <svg xmlns="http://www.w3.org/2000/svg"
-                                width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle me-1"
-                                viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zM8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0z" />
-                                <path
-                                    d="M8 4a.5.5 0 0 1 .5.5V7.5H11.5a.5.5 0 0 1 0 1H8.5V11.5a.5.5 0 0 1-1 0V8.5H4.5a.5.5 0 0 1 0-1H7.5V4.5A.5.5 0 0 1 8 4z" />
-                            </svg></a></div>
                 </div>
             </div>
         </div>

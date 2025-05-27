@@ -1,5 +1,7 @@
 <?php
 namespace App\Repositories\Eloquent;
+
+use App\Models\AttributeValue;
 use RiponCoder\FileUpload\FileUpload;
 use App\Repositories\Contracts\AttributeRespositoryInterface;
 
@@ -13,6 +15,10 @@ class AttributeRespository implements AttributeRespositoryInterface
     public function idBy($id)
     {
         return $this->model->where("id", $id)->first();
+    }
+    public function attribute()
+    {
+        return $this->model->active()->orderBy('name', 'asc')->get();
     }
     public function pagination($limit = 20)
     {
@@ -36,5 +42,11 @@ class AttributeRespository implements AttributeRespositoryInterface
     public function destroy($id){
         $attribute = $this->idBy($id);
         return $attribute->delete();
+    }
+
+    public function getAttributeValueById($id)
+    {
+        $attributeValue = new AttributeValue();
+        return $attributeValue->active()->where('attribute_id', $id)->get();
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\CreateAttributeRequest;
 use App\Models\Attribute;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Http\Requests\CreateAttributeRequest;
 use App\Repositories\Contracts\AttributeRespositoryInterface;
 
 class AttributeController extends Controller
@@ -75,5 +76,11 @@ class AttributeController extends Controller
     {
         $this->attribute_respository->destroy($attribute->id);
         return back()->with("success", "Deleted Successfully!");
+    }
+
+    public function getAttributeValueById(Request $request)
+    {
+        $attributeValue = $this->attribute_respository->getAttributeValueById($request->attribute_id);
+        return response()->json($attributeValue);
     }
 }
