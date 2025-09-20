@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\Auth\AuthController;
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->as("admin.")->group(function () {
@@ -14,5 +15,6 @@ Route::prefix('admin')->as("admin.")->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+        Route::resource("products",ProductController::class);
     });
 });

@@ -59,33 +59,7 @@
 
     <!-- Main content wrapper -->
     <div id="main-content" class="sm:ml-64 pt-16 min-h-screen content-z relative">
-        <!-- Dashboard Header -->
-        <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center py-6">
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Analytics Dashboard</h1>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Real-time insights and performance metrics</p>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <!-- Date Range Selector -->
-                        <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <option>Last 7 days</option>
-                            <option>Last 30 days</option>
-                            <option>Last 90 days</option>
-                            <option>This year</option>
-                        </select>
-                        <!-- Export Button -->
-                        <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            Export
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Page Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -93,9 +67,6 @@
         </main>
     </div>
 
-    <!-- Flowbite JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-    
     <!-- Simple Mobile Sidebar Toggle -->
     <script>
         // Mobile sidebar toggle (hamburger menu)
@@ -115,6 +86,7 @@
             }
         });
     </script>
+    
 
     <!-- Vite JS (Load after other scripts) -->
     @vite(['resources/js/app.js'])
