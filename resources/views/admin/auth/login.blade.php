@@ -11,7 +11,7 @@
   <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
     <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Sign in to Dashboard</h2>
     
-    <form action="{{ route('login') }}" method="POST" class="space-y-6">
+    <form action="{{ route('admin.login.post') }}" method="POST" class="space-y-6">
       @csrf
       <!-- Email -->
       <div>
@@ -45,7 +45,7 @@
           <input id="remember" name="remember" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
           <label for="remember" class="ml-2 block text-sm text-gray-900"> Remember me </label>
         </div>
-        <a href="{{ route('password.request') }}" class="text-sm font-medium text-indigo-600 hover:underline">Forgot password?</a>
+        <a href="#" class="text-sm font-medium text-indigo-600 hover:underline">Forgot password?</a>
       </div>
 
       <!-- Submit -->
@@ -59,7 +59,7 @@
     <!-- Register Link -->
     <p class="mt-6 text-sm text-center text-gray-600">
       Don’t have an account? 
-      <a href="{{ route('register') }}" class="text-indigo-600 hover:underline">Sign up</a>
+      <a href="#" class="text-indigo-600 hover:underline">Sign up</a>
     </p>
   </div>
 
