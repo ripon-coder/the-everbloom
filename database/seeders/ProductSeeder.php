@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Constants\ProductStatus;
 use App\Models\Product;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -21,7 +22,7 @@ class ProductSeeder extends Seeder
                 'price' => 199.99,
                 'sku' => 'WBH-001',
                 'slug' => 'wireless-bluetooth-headphones',
-                'is_active' => true,
+                'status' => ProductStatus::ACTIVE,
             ],
             [
                 'name' => 'Smart Fitness Watch',
@@ -29,7 +30,7 @@ class ProductSeeder extends Seeder
                 'price' => 299.99,
                 'sku' => 'SFW-002',
                 'slug' => 'smart-fitness-watch',
-                'is_active' => true,
+                'status' => ProductStatus::ACTIVE,
             ],
             [
                 'name' => 'Portable Laptop Stand',
@@ -37,7 +38,7 @@ class ProductSeeder extends Seeder
                 'price' => 49.99,
                 'sku' => 'PLS-003',
                 'slug' => 'portable-laptop-stand',
-                'is_active' => true,
+                'status' => ProductStatus::ACTIVE,
             ],
             [
                 'name' => 'USB-C Hub Multi-Port Adapter',
@@ -45,7 +46,7 @@ class ProductSeeder extends Seeder
                 'price' => 79.99,
                 'sku' => 'UCH-004',
                 'slug' => 'usb-c-hub-multi-port-adapter',
-                'is_active' => true,
+                'status' => ProductStatus::ACTIVE,
             ],
             [
                 'name' => 'Wireless Charging Pad',
@@ -53,7 +54,7 @@ class ProductSeeder extends Seeder
                 'price' => 39.99,
                 'sku' => 'WCP-005',
                 'slug' => 'wireless-charging-pad',
-                'is_active' => true,
+                'status' => ProductStatus::ACTIVE,
             ],
             [
                 'name' => 'Bluetooth Mechanical Keyboard',
@@ -61,7 +62,7 @@ class ProductSeeder extends Seeder
                 'price' => 149.99,
                 'sku' => 'BMK-006',
                 'slug' => 'bluetooth-mechanical-keyboard',
-                'is_active' => true,
+                'status' => ProductStatus::ACTIVE,
             ],
             [
                 'name' => '4K Webcam',
@@ -69,7 +70,7 @@ class ProductSeeder extends Seeder
                 'price' => 129.99,
                 'sku' => '4KW-007',
                 'slug' => '4k-webcam',
-                'is_active' => true,
+                'status' => ProductStatus::ACTIVE,
             ],
             [
                 'name' => 'Smartphone Camera Lens Kit',
@@ -77,7 +78,7 @@ class ProductSeeder extends Seeder
                 'price' => 89.99,
                 'sku' => 'SCL-008',
                 'slug' => 'smartphone-camera-lens-kit',
-                'is_active' => true,
+                'status' => ProductStatus::ACTIVE,
             ],
             [
                 'name' => 'Wireless Gaming Mouse',
@@ -85,7 +86,7 @@ class ProductSeeder extends Seeder
                 'price' => 79.99,
                 'sku' => 'WGM-009',
                 'slug' => 'wireless-gaming-mouse',
-                'is_active' => true,
+                'status' => ProductStatus::ACTIVE,
             ],
             [
                 'name' => 'Portable Power Bank',
@@ -93,7 +94,7 @@ class ProductSeeder extends Seeder
                 'price' => 59.99,
                 'sku' => 'PPB-010',
                 'slug' => 'portable-power-bank',
-                'is_active' => true,
+                'status' => ProductStatus::ACTIVE,
             ],
         ];
 
@@ -101,17 +102,5 @@ class ProductSeeder extends Seeder
         foreach ($products as $product) {
             Product::create($product);
         }
-
-        // Create additional random products using the factory
-        Product::factory()->count(20)->create();
-        
-        // Create some inactive products
-        Product::factory()->count(5)->inactive()->create();
-        
-        // Create some premium products
-        Product::factory()->count(10)->priceRange(500, 2000)->active()->create();
-        
-        // Create some budget products
-        Product::factory()->count(15)->priceRange(10, 50)->active()->create();
     }
 }

@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Repositories\Contracts\BrandRepository;
 use App\Repositories\Contracts\ProductRepository;
+use App\Repositories\Eloquent\BrandEloquent;
 use App\Repositories\Eloquent\ProductEloquent;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        app()->bind(BrandRepository::class,BrandEloquent::class);
         app()->bind(ProductRepository::class,ProductEloquent::class);
     }
 
@@ -21,6 +25,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Illuminate\Pagination\Paginator::useTailwind();
+        // Create Blade directive for active state checking
+        Blade::directive('active', function ($expression) {
+            return "<?php echo request()->is($expression) ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'; ?>";
+        });
+
+        // Create Blade directive for active route checking
+        Blade::directive('activeRoute', function ($expression) {
+            return "<?php echo request()->routeIs($expression) ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'; ?>";
+        });
+
+        // Create Blade directive for active state with wildcard
+        Blade::directive('activeWildcard', function ($expression) {
+            return "<?php echo request()->is($expression) || request()->is($expression . '/*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'; ?>";
+        });
     }
 }

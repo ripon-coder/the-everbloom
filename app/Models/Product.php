@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\ProductStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,7 +21,7 @@ class Product extends Model
         'price',
         'sku',
         'slug',
-        'is_active',
+        'status',
     ];
 
     /**
@@ -30,7 +31,6 @@ class Product extends Model
      */
     protected $casts = [
         'price' => 'decimal:2',
-        'is_active' => 'boolean',
     ];
 
     /**
@@ -38,6 +38,6 @@ class Product extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('status', ProductStatus::ACTIVE);
     }
 }

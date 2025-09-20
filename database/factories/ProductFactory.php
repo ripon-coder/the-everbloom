@@ -26,7 +26,7 @@ class ProductFactory extends Factory
             'price' => $this->faker->randomFloat(2, 10, 1000),
             'sku' => $this->faker->unique()->numerify('PRD-####'),
             'slug' => \Illuminate\Support\Str::slug($name) . '-' . $this->faker->unique()->randomNumber(4),
-            'is_active' => ProductStatus::ACTIVE,
+            'status' => ProductStatus::ACTIVE,
         ];
     }
 }

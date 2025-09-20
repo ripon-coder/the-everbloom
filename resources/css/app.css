@@ -1,3 +1,4 @@
+@import "flowbite/dist/flowbite.css"; /* ✅ correct path */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

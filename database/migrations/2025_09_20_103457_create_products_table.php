@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->string('sku')->unique()->nullable();
             $table->string('slug')->unique();
-            $table->boolean('is_active')->default(ProductStatus::ACTIVE);
+            $table->string('status')->default(ProductStatus::ACTIVE);
             $table->timestamps();
         });
     }

@@ -67,11 +67,7 @@
                     <td class="px-6 py-4 text-right">
                         <div class="flex justify-end space-x-2">
                             <a href="{{ route('admin.products.edit', $product->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                            <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this product?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline">Delete</button>
-                            </form>
+                            <button onclick="showDeleteModal('brand', '{{ route('admin.products.destroy', $product->id) }}', '{{ $product->name }}')" class="font-medium text-red-600 dark:text-red-500 hover:underline">Delete</button>
                         </div>
                     </td>
                 </tr>

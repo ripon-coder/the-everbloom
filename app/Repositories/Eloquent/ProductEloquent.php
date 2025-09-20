@@ -1,7 +1,13 @@
 <?php 
 namespace App\Repositories\Eloquent;
-interface ProductEloquent{
 
-    public function all()
-    public function store();
+use App\Repositories\Contracts\ProductRepository;
+class ProductEloquent implements ProductRepository{
+
+    public function all(){
+
+    }
+    public function store(){
+        
+    }
 }
