@@ -29,17 +29,6 @@
                     @endforeach
                 </select>
             </div>
-            <div class="flex-1 min-w-[200px]">
-                <label for="product_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Product</label>
-                <select name="product_id" id="product_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option value="">All Products</option>
-                    @foreach ($products as $product)
-                        <option value="{{ $product->id }}" {{ request('product_id') == $product->id ? 'selected' : '' }}>
-                            {{ $product->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
             <div class="flex gap-2">
                 <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                     Filter
@@ -58,10 +47,9 @@
                 <tr>
                     <th scope="col" class="px-6 py-3">ID</th>
                     <th scope="col" class="px-6 py-3">Attribute</th>
-                    <th scope="col" class="px-6 py-3">Product</th>
                     <th scope="col" class="px-6 py-3">Value</th>
-                    <th scope="col" class="px-6 py-3">Type</th>
-                    <th scope="col" class="px-6 py-3">Created</th>
+                    <th scope="col" class="px-6 py-3">Status</th>
+                    <th scope="col" class="px-6 py-3">Created At</th>
                     <th scope="col" class="px-6 py-3 text-right">Actions</th>
                 </tr>
             </thead>
@@ -73,57 +61,24 @@
                         </td>
                         <td class="px-6 py-4">
                             @if($attributeValue->attribute)
-                                <div>
-                                    <span class="font-medium">{{ $attributeValue->attribute->name }}</span>
-                                    <br>
-                                    <span class="text-xs text-gray-500">{{ $attributeValue->attribute->type_name }}</span>
-                                </div>
+                                <span class="font-medium">{{ $attributeValue->attribute->name }}</span>
                             @else
                                 <span class="text-gray-400">N/A</span>
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            @if($attributeValue->product)
-                                <div>
-                                    <span class="font-medium">{{ $attributeValue->product->name }}</span>
-                                </div>
-                            @else
-                                <span class="text-gray-400">N/A</span>
-                            @endif
+                            {{ $attributeValue->value ?: '<span class="text-gray-400">Empty</span>' }}
                         </td>
                         <td class="px-6 py-4">
-                            <div class="max-w-xs">
-                                @if($attributeValue->values && is_array($attributeValue->values))
-                                    <span class="inline-flex flex-wrap gap-1">
-                                        @foreach($attributeValue->values as $value)
-                                            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                                                {{ $value }}
-                                            </span>
-                                        @endforeach
-                                    </span>
-                                @else
-                                    {{ $attributeValue->value ?: '<span class="text-gray-400">Empty</span>' }}
-                                @endif
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            @if($attributeValue->attribute)
-                                <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                                    {{ $attributeValue->attribute->type_name }}
-                                </span>
-                            @endif
+                            <span class="px-2 py-1 text-xs {{ $attributeValue->status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' }} rounded-full">
+                                {{ ucfirst($attributeValue->status) }}
+                            </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {{ $attributeValue->created_at->format('Y-m-d H:i') }}
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex justify-end gap-2">
-                                <a href="{{ route('admin.attribute-values.show', $attributeValue->id) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                    </svg>
-                                </a>
                                 <a href="{{ route('admin.attribute-values.edit', $attributeValue->id) }}" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -139,7 +94,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                             No attribute values found.
                         </td>
                     </tr>

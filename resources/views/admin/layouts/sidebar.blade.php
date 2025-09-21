@@ -158,20 +158,20 @@
                 <!-- Products Dropdown -->
                 <li>
                     <button type="button" onclick="toggleDropdown('products-dropdown')"
-                        class="flex items-center w-full p-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg group transition-all duration-200" id="products-button">
+                        class="flex items-center w-full p-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg group transition-all duration-200 {{ request()->is('admin/products*') || request()->is('admin/brands*') || request()->is('admin/attributes*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : '' }}" id="products-button">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path
                                 d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z">
                             </path>
                         </svg>
                         <span class="ml-3 font-medium flex-1 text-left">Products</span>
-                        <svg class="w-4 h-4 transition-transform duration-300" fill="none" viewBox="0 0 10 6"
+                        <svg class="w-4 h-4 transition-transform duration-300 {{ request()->is('admin/products*') || request()->is('admin/brands*') || request()->is('admin/attributes*') ? 'rotate-180' : '' }}" fill="none" viewBox="0 0 10 6"
                             id="arrow-products-dropdown">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                 stroke-width="2" d="m1 1 4 4 4-4" />
                         </svg>
                     </button>
-                    <ul id="products-dropdown" class="hidden py-2 space-y-1 ml-4">
+                    <ul id="products-dropdown" class="{{ request()->is('admin/products*') || request()->is('admin/brands*') || request()->is('admin/attributes*') ? '' : 'hidden' }} py-2 space-y-1 ml-4" data-initial-state="{{ request()->is('admin/products*') || request()->is('admin/brands*') || request()->is('admin/attributes*') ? 'expanded' : 'collapsed' }}">
                         <li>
                             <a href="{{route("admin.products.index")}}"
                                 class="flex items-center p-2 @activeWildcard('admin/products') rounded-lg transition-all duration-200">
@@ -181,6 +181,20 @@
                                         clip-rule="evenodd"></path>
                                 </svg>
                                 Products
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{route('admin.categories.index')}}"
+                                class="flex items-center p-2 @activeWildcard('admin/categories') rounded-lg transition-all duration-200">
+                                <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z">
+                                    </path>
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                Categories
                             </a>
                         </li>
                         <li>
@@ -197,16 +211,34 @@
                                 Brands
                             </a>
                         </li>
+
                         <li>
-                            <a href="#"
-                                class="flex items-center p-2 text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-all duration-200">
+                            <a href="{{route('admin.attributes.index')}}"
+                                class="flex items-center p-2 @activeWildcard('admin/attributes') rounded-lg transition-all duration-200">
                                 <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z">
+                                    </path>
                                     <path fill-rule="evenodd"
-                                        d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
                                         clip-rule="evenodd"></path>
-                                    <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z"></path>
                                 </svg>
-                                Orders
+                                Attribute
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{{route('admin.attribute-values.index')}}"
+                                class="flex items-center p-2 @activeWildcard('admin/attribute-values') rounded-lg transition-all duration-200">
+                                <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z">
+                                    </path>
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                Attribute Values
                             </a>
                         </li>
                         <li>
@@ -355,7 +387,3 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
     </svg>
 </button>
-
-
-
-

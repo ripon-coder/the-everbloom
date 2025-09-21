@@ -93,24 +93,3 @@
     </div>
 
 @endsection
-
-@section('scripts')
-    <script>
-        function showDeleteModal(type, url, name) {
-            const modal = document.getElementById('deleteModal');
-            const message = document.getElementById('modal-message');
-            const confirmBtn = document.getElementById('confirmDelete');
-
-            message.textContent = `Are you sure you want to delete the "${name}" ${type}? This action cannot be undone.`;
-            confirmBtn.onclick = function() {
-                window.location.href = url;
-            };
-
-            modal.classList.remove('hidden');
-        }
-
-        function hideDeleteModal() {
-            document.getElementById('deleteModal').classList.add('hidden');
-        }
-    </script>
-@endsection

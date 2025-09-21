@@ -23,10 +23,9 @@ class StoreAttributeValueRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'attribute_id' => 'required|integer|exists:attributes,id',
+            'attribute_id' => 'required|exists:attributes,id',
             'value' => 'required|string|max:255',
-            'additional_price' => 'required|numeric|min:0|max:999999.99',
-            'status' => 'required|string|in:active,inactive',
+            'status' => 'required|in:active,inactive',
         ];
     }
 
@@ -45,13 +44,7 @@ class StoreAttributeValueRequest extends FormRequest
             'value.string' => 'The value must be a string.',
             'value.max' => 'The value may not be greater than 255 characters.',
 
-            'additional_price.required' => 'The additional price is required.',
-            'additional_price.numeric' => 'The additional price must be a number.',
-            'additional_price.min' => 'The additional price must be at least 0.',
-            'additional_price.max' => 'The additional price may not be greater than 99999999.99.',
-
             'status.required' => 'The status is required.',
-            'status.string' => 'The status must be a string.',
             'status.in' => 'The status must be either active or inactive.',
         ];
     }

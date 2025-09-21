@@ -173,18 +173,24 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Check current URL and open products dropdown if on products or brands pages
+    // Check current URL and open products dropdown if on products, brands, or attributes pages
     const currentPath = window.location.pathname;
     const productsDropdown = document.getElementById("products-dropdown");
     const productsArrow = document.getElementById("arrow-products-dropdown");
     const productsButton = document.getElementById("products-button");
 
     if (productsDropdown) {
-        // Check if current path contains /admin/products or /admin/brands
-        if (
-            currentPath.includes("/admin/products") ||
-            currentPath.includes("/admin/brands")
-        ) {
+        // Check if current path contains /admin/products, /admin/brands, or /admin/attributes
+        // Also respect the server-side initial state
+        const serverInitialState = productsDropdown.getAttribute('data-initial-state');
+        const isRelevantPath = currentPath.includes("/admin/products") || 
+                              currentPath.includes("/admin/brands") || 
+                              currentPath.includes("/admin/attributes")|| 
+                              currentPath.includes("/admin/categories") ||
+                              currentPath.includes("/admin/attribute-values")
+                              ;
+        
+        if (serverInitialState === 'expanded' || isRelevantPath) {
             productsDropdown.classList.remove("hidden");
             productsDropdown.classList.add("show");
             productsDropdown.classList.add("keep-open");

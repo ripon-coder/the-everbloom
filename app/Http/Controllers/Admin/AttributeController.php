@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAttributeRequest;
 use App\Http\Requests\UpdateAttributeRequest;
-use App\Models\Category;
 use App\Services\AttributeService;
 use Illuminate\Http\Request;
 
@@ -23,8 +22,7 @@ class AttributeController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
-        $attributes = $this->attributeService->getAll($perPage);
+        $attributes = $this->attributeService->getAll();
         
         return view('admin.attributes.index', compact('attributes'));
     }
@@ -34,10 +32,7 @@ class AttributeController extends Controller
      */
     public function create()
     {
-        $categories = Category::active()->ordered()->get();
-        $types = $this->attributeService->getTypes();
-        
-        return view('admin.attributes.create', compact('categories', 'types'));
+        return view('admin.attributes.create');
     }
 
     /**
@@ -78,18 +73,13 @@ class AttributeController extends Controller
     public function edit(string $id)
     {
         $attribute = $this->attributeService->findById($id);
-        $categories = Category::active()->ordered()->get();
-        $types = $this->attributeService->getTypes();
-        
+
         if (!$attribute) {
             return redirect()->route('admin.attributes.index')
                 ->with('error', 'Attribute not found.');
         }
         
-        // Prepare options for form display
-        $attribute->options = $this->attributeService->prepareOptionsForForm($attribute->options);
-        
-        return view('admin.attributes.edit', compact('attribute', 'categories', 'types'));
+        return view('admin.attributes.edit', compact('attribute'));
     }
 
     /**
@@ -127,53 +117,6 @@ class AttributeController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('admin.attributes.index')
                 ->with('error', 'Error deleting attribute: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Update sort order.
-     */
-    public function updateSortOrder(Request $request)
-    {
-        try {
-            $result = $this->attributeService->updateSortOrder($request->all());
-            
-            if ($result) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Sort order updated successfully.'
-                ]);
-            }
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error updating sort order.'
-            ], 400);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error updating sort order: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Get attributes by category ID (AJAX).
-     */
-    public function getByCategory($categoryId)
-    {
-        try {
-            $attributes = $this->attributeService->getByCategoryId($categoryId, true);
-            
-            return response()->json([
-                'success' => true,
-                'attributes' => $attributes
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error fetching attributes.'
-            ], 500);
         }
     }
 }

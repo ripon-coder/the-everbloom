@@ -6,50 +6,32 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAttributeValueRequest;
 use App\Http\Requests\UpdateAttributeValueRequest;
 use App\Models\Attribute;
-use App\Services\AttributeValueService;
 use Illuminate\Http\Request;
 
 class AttributeValueController extends Controller
 {
-    protected $attributeValueService;
-
-    public function __construct(AttributeValueService $attributeValueService)
-    {
-        $this->attributeValueService = $attributeValueService;
-    }
 
     /**
      * Display a listing of attribute values.
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
-        $search = $request->input('search');
-        $attributeId = $request->input('attribute_id');
-
-        try {
-            if ($search) {
-                $attributeValues = $this->attributeValueService->searchByValue($search, $perPage);
-            } elseif ($attributeId) {
-                $attributeValues = $this->attributeValueService->getByAttributeId($attributeId);
-                // Convert collection to paginator for consistent view handling
-                $attributeValues = new \Illuminate\Pagination\LengthAwarePaginator(
-                    $attributeValues,
-                    $attributeValues->count(),
-                    $perPage,
-                    $request->input('page', 1),
-                    ['path' => $request->url(), 'query' => $request->query()]
-                );
-            } else {
-                $attributeValues = $this->attributeValueService->getAll($perPage);
-            }
-
-            $attributes = Attribute::active()->ordered()->get();
-
-            return view('admin.attribute-values.index', compact('attributeValues', 'attributes'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error fetching attribute values.');
+        $query = \App\Models\AttributeValue::with('attribute');
+        
+        // Apply search filter
+        if ($request->filled('search')) {
+            $query->where('value', 'like', '%' . $request->search . '%');
         }
+        
+        // Apply attribute filter
+        if ($request->filled('attribute_id')) {
+            $query->where('attribute_id', $request->attribute_id);
+        }
+        
+        $attributeValues = $query->latest()->paginate(10);
+        $attributes = \App\Models\Attribute::active()->ordered()->get();
+        
+        return view('admin.attribute-values.index', compact('attributeValues', 'attributes'));
     }
 
     /**
@@ -72,7 +54,7 @@ class AttributeValueController extends Controller
     public function store(StoreAttributeValueRequest $request)
     {
         try {
-            $attributeValue = $this->attributeValueService->create($request->all());
+            \App\Models\AttributeValue::create($request->validated());
 
             return redirect()->route('admin.attribute-values.index')
                 ->with('success', 'Attribute value created successfully.');
@@ -84,37 +66,12 @@ class AttributeValueController extends Controller
     }
 
     /**
-     * Display the specified attribute value.
-     */
-    public function show($id)
-    {
-        try {
-            $attributeValue = $this->attributeValueService->findById($id);
-
-            if (!$attributeValue) {
-                return redirect()->route('admin.attribute-values.index')
-                    ->with('error', 'Attribute value not found.');
-            }
-
-            return view('admin.attribute-values.show', compact('attributeValue'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error showing attribute value.');
-        }
-    }
-
-    /**
      * Show the form for editing the specified attribute value.
      */
     public function edit($id)
     {
         try {
-            $attributeValue = $this->attributeValueService->findById($id);
-
-            if (!$attributeValue) {
-                return redirect()->route('admin.attribute-values.index')
-                    ->with('error', 'Attribute value not found.');
-            }
-
+            $attributeValue = \App\Models\AttributeValue::findOrFail($id);
             $attributes = Attribute::active()->ordered()->get();
 
             return view('admin.attribute-values.edit', compact('attributeValue', 'attributes'));
@@ -129,7 +86,8 @@ class AttributeValueController extends Controller
     public function update(UpdateAttributeValueRequest $request, $id)
     {
         try {
-            $attributeValue = $this->attributeValueService->update($id, $request->all());
+            $attributeValue = \App\Models\AttributeValue::findOrFail($id);
+            $attributeValue->update($request->validated());
 
             return redirect()->route('admin.attribute-values.index')
                 ->with('success', 'Attribute value updated successfully.');
@@ -146,15 +104,11 @@ class AttributeValueController extends Controller
     public function destroy($id)
     {
         try {
-            $result = $this->attributeValueService->delete($id);
+            $attributeValue = \App\Models\AttributeValue::findOrFail($id);
+            $attributeValue->delete();
 
-            if ($result) {
-                return redirect()->route('admin.attribute-values.index')
-                    ->with('success', 'Attribute value deleted successfully.');
-            } else {
-                return redirect()->route('admin.attribute-values.index')
-                    ->with('error', 'Attribute value not found.');
-            }
+            return redirect()->route('admin.attribute-values.index')
+                ->with('success', 'Attribute value deleted successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error deleting attribute value.');
         }

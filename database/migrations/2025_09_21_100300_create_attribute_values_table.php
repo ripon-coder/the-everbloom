@@ -15,8 +15,7 @@ return new class extends Migration
         Schema::create('attribute_values', function (Blueprint $table) {
             $table->id();
             $table->foreignId('attribute_id')->constrained()->onDelete('cascade');
-            $table->string('value'); // e.g., Red, Blue, S, M
-            $table->decimal('additional_price', 10, 2)->default(0.00);
+            $table->string('value')->nullable(); // e.g., Red, Blue, S, M
             $table->enum('status', [AttributeValueStatus::ACTIVE, AttributeValueStatus::INACTIVE])->default(AttributeValueStatus::ACTIVE);
             $table->timestamps();
             $table->softDeletes();

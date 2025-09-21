@@ -10,22 +10,13 @@ interface AttributeRepository
     /**
      * Get all attributes with pagination.
      */
-    public function getAll(int $perPage = 10): LengthAwarePaginator;
-
-    /**
-     * Get all attributes by category ID.
-     */
-    public function getByCategoryId(int $categoryId, bool $onlyActive = true);
+    public function getAll(): LengthAwarePaginator;
 
     /**
      * Find an attribute by ID.
      */
     public function findById(int $id): ?Attribute;
 
-    /**
-     * Find an attribute by slug.
-     */
-    public function findBySlug(string $slug): ?Attribute;
 
     /**
      * Create a new attribute.
@@ -42,13 +33,4 @@ interface AttributeRepository
      */
     public function delete(int $id): bool;
 
-    /**
-     * Get attribute types.
-     */
-    public function getTypes(): array;
-
-    /**
-     * Update attribute sort order.
-     */
-    public function updateSortOrder(array $data): bool;
 }

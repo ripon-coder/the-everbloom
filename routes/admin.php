@@ -25,13 +25,5 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::resource("attributes",AttributeController::class);
         Route::resource("attribute-values",AttributeValueController::class);
         
-        // Attribute specific routes
-        Route::post('attributes/update-sort-order', [AttributeController::class, 'updateSortOrder'])->name('attributes.update-sort-order');
-        Route::get('attributes/category/{categoryId}', [AttributeController::class, 'getByCategory'])->name('attributes.by-category');
-        
-        // Attribute value specific routes
-        Route::get('attribute-values/product/{productId}', [AttributeValueController::class, 'getProductAttributes'])->name('attribute-values.product-attributes');
-        Route::post('attribute-values/bulk-update/{productId}', [AttributeValueController::class, 'bulkUpdate'])->name('attribute-values.bulk-update');
-        Route::get('attribute-values/unique-values/{attributeId}', [AttributeValueController::class, 'getUniqueValues'])->name('attribute-values.unique-values');
     });
 });
