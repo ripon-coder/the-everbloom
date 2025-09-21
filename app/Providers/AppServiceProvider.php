@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Repositories\Contracts\BrandRepository;
+use App\Repositories\Contracts\CategoryRepository;
 use App\Repositories\Contracts\ProductRepository;
 use App\Repositories\Eloquent\BrandEloquent;
+use App\Repositories\Eloquent\CategoryEloquent;
 use App\Repositories\Eloquent\ProductEloquent;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -18,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
     {
         app()->bind(BrandRepository::class,BrandEloquent::class);
         app()->bind(ProductRepository::class,ProductEloquent::class);
+        app()->bind(CategoryRepository::class,CategoryEloquent::class);
     }
 
     /**

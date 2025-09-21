@@ -10,8 +10,22 @@ class BrandService
     {
         $this->brandRepository = $brandRepository;
     }
-    public function all()
+
+    public function create(array $validated)
     {
-        return $this->brandRepository->all();
+        $brand = $this->brandRepository->create($validated);
+        if (array_key_exists("logo", $validated) && $validated['logo']) {
+            $brand->uploadImage($validated['logo'], "brand_logo");
+        }
+        return $brand;
+    }
+
+    public function update($id, array $validated)
+    {
+        $brand = $this->brandRepository->update($id, $validated);
+        if (array_key_exists("logo", $validated) && $validated['logo']) {
+            $brand->uploadImage($validated['logo'], "brand_logo");
+        }
+        return $brand;
     }
 }

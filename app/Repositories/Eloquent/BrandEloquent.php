@@ -14,7 +14,7 @@ class BrandEloquent implements BrandRepository
     }
     public function All()
     {
-        return Brand::orderByDesc("id")->paginate(20);
+        return Brand::with("media")->orderByDesc("id")->paginate(20);
     }
 
     public function DeleteFindBuyId($id){
@@ -23,7 +23,7 @@ class BrandEloquent implements BrandRepository
 
     public function create(array $data)
     {
-        return Brand::create($data);
+        return Brand::create(attributes: $data);
     }
 
     public function update($id, array $data)

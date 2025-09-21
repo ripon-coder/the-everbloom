@@ -158,7 +158,7 @@
                 <!-- Products Dropdown -->
                 <li>
                     <button type="button" onclick="toggleDropdown('products-dropdown')"
-                        class="flex items-center w-full p-3 @activeWildcard('admin/products') || @activeWildcard('admin/brands') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' rounded-lg group transition-all duration-200">
+                        class="flex items-center w-full p-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg group transition-all duration-200" id="products-button">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path
                                 d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z">
@@ -171,7 +171,7 @@
                                 stroke-width="2" d="m1 1 4 4 4-4" />
                         </svg>
                     </button>
-                    <ul id="products-dropdown" class="@activeWildcard('admin/products') || @activeWildcard('admin/brands') ? 'show' : 'hidden' py-2 space-y-1 ml-4">
+                    <ul id="products-dropdown" class="hidden py-2 space-y-1 ml-4">
                         <li>
                             <a href="{{route("admin.products.index")}}"
                                 class="flex items-center p-2 @activeWildcard('admin/products') rounded-lg transition-all duration-200">
@@ -356,179 +356,6 @@
     </svg>
 </button>
 
-<!-- Simple, direct JavaScript for sidebar functionality -->
-<script>
-    function toggleSidebar() {
-        console.log('Toggle sidebar clicked');
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('main-content');
-        const expandBtn = document.getElementById('expand-sidebar-btn');
 
-        if (sidebar) {
-            sidebar.classList.toggle('hidden');
-            console.log('Sidebar hidden:', sidebar.classList.contains('hidden'));
 
-            // Show/hide expand button based on sidebar state
-            if (expandBtn) {
-                if (sidebar.classList.contains('hidden')) {
-                    expandBtn.classList.remove('hidden');
-                    expandBtn.style.display = 'flex';
-                    console.log('Expand button shown');
-                } else {
-                    expandBtn.classList.add('hidden');
-                    expandBtn.style.display = 'none';
-                    console.log('Expand button hidden');
-                }
-            }
 
-            if (mainContent) {
-                if (sidebar.classList.contains('hidden')) {
-                    mainContent.classList.remove('sm:ml-64');
-                    mainContent.classList.add('sm:ml-0');
-                } else {
-                    mainContent.classList.remove('sm:ml-0');
-                    mainContent.classList.add('sm:ml-64');
-                }
-            }
-        }
-    }
-
-    function toggleDropdown(dropdownId) {
-        console.log('Toggle dropdown clicked:', dropdownId);
-        const dropdown = document.getElementById(dropdownId);
-        const arrow = document.getElementById('arrow-' + dropdownId);
-
-        if (dropdown) {
-            // Close all other dropdowns and reset their arrows
-            document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
-                if (d !== dropdown) {
-                    d.classList.remove('show');
-                    d.classList.add('hidden');
-                    // Reset arrow for this specific dropdown
-                    const otherArrow = document.getElementById('arrow-' + d.id);
-                    if (otherArrow) {
-                        otherArrow.classList.remove('rotate-180');
-                    }
-                }
-            });
-
-            // Toggle current dropdown
-            const isCurrentlyHidden = dropdown.classList.contains('hidden');
-            if (isCurrentlyHidden) {
-                dropdown.classList.remove('hidden');
-                dropdown.classList.add('show');
-            } else {
-                dropdown.classList.remove('show');
-                dropdown.classList.add('hidden');
-            }
-            console.log('Dropdown show:', dropdown.classList.contains('show'));
-            console.log('Dropdown hidden:', dropdown.classList.contains('hidden'));
-
-            // Rotate arrow if exists (only if we're opening the dropdown)
-            if (arrow) {
-                if (isCurrentlyHidden) {
-                    arrow.classList.add('rotate-180');
-                } else {
-                    arrow.classList.remove('rotate-180');
-                }
-            }
-        }
-    }
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('button[onclick]') && !e.target.closest('[id^="dropdown-"]')) {
-            document.querySelectorAll('[id^="dropdown-"]').forEach(dropdown => {
-                dropdown.classList.remove('show');
-                dropdown.classList.add('hidden');
-            });
-            document.querySelectorAll('[id^="arrow-dropdown-"]').forEach(arrow => {
-                arrow.classList.remove('rotate-180');
-            });
-        }
-    });
-
-    // Initialize expand button state on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('sidebar');
-        const expandBtn = document.getElementById('expand-sidebar-btn');
-
-        if (sidebar && expandBtn) {
-            if (sidebar.classList.contains('hidden')) {
-                expandBtn.classList.remove('hidden');
-                expandBtn.style.display = 'flex';
-            } else {
-                expandBtn.classList.add('hidden');
-                expandBtn.style.display = 'none';
-            }
-        }
-
-        // Initialize dropdown arrows for dropdowns that are open by default
-        document.querySelectorAll('[id^="dropdown-"].show').forEach(dropdown => {
-            const arrow = document.getElementById('arrow-' + dropdown.id);
-            if (arrow) {
-                arrow.classList.add('rotate-180');
-            }
-        });
-    });
-</script>
-
-<style>
-    /* Make sidebar visible by default and handle mobile responsiveness */
-    #sidebar {
-        transform: translateX(0);
-        display: block !important;
-    }
-
-    /* Hide sidebar on mobile screens */
-    @media (max-width: 767px) {
-        #sidebar {
-            transform: translateX(-100%);
-        }
-
-        #sidebar.show {
-            transform: translateX(0);
-        }
-
-        /* Hide PC collapse button on mobile */
-        #pc-collapse-button {
-            display: none !important;
-        }
-    }
-
-    /* Hide sidebar when toggled on desktop */
-    #sidebar.hidden {
-        transform: translateX(-100%);
-        display: block !important;
-    }
-
-    /* Show PC collapse button on desktop */
-    @media (min-width: 768px) {
-        #pc-collapse-button {
-            display: flex !important;
-        }
-    }
-
-    /* Dropdown styles */
-    [id^="dropdown-"] {
-        display: none;
-    }
-
-    [id^="dropdown-"].show {
-        display: block !important;
-    }
-
-    /* Ensure hidden class works for dropdowns */
-    .hidden {
-        display: none !important;
-    }
-
-    /* Professional expand button styles */
-    #expand-sidebar-btn {
-        display: none !important;
-    }
-
-    #expand-sidebar-btn:not(.hidden) {
-        display: flex !important;
-    }
-</style>

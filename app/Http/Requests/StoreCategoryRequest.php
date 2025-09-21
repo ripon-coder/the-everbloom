@@ -2,18 +2,18 @@
 
 namespace App\Http\Requests;
 
-use App\Constants\BrandStatus;
+use App\Constants\CategoryStatus;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreBrandRequest extends FormRequest
+class StoreCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true; // allow creating brands
+        return true; // allow creating categories
     }
 
     /**
@@ -24,17 +24,18 @@ class StoreBrandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:brands,name',
+            'name' => 'required|string|max:255|unique:categories,name',
             'slug' => [
                 'required',
                 'string',
                 'max:255',
                 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
-                Rule::unique('brands', 'slug'),
+                Rule::unique('categories', 'slug'),
             ],
-            'logo' =>"nullable|image|max:2048",
+            'parent_id' => 'nullable|exists:categories,id',
+            'image' => 'nullable|image|max:2048',
             'description' => 'nullable|string|max:1000',
-            'status' => 'required|in:' . BrandStatus::ACTIVE . ',' . BrandStatus::INACTIVE,
+            'status' => 'required|in:' . CategoryStatus::ACTIVE . ',' . CategoryStatus::INACTIVE,
             'options' => 'nullable|array',
             'options.*' => 'nullable|string',
         ];
@@ -48,16 +49,18 @@ class StoreBrandRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'The brand name is required.',
-            'name.string' => 'The brand name must be a string.',
-            'name.max' => 'The brand name may not be greater than 255 characters.',
-            'name.unique' => 'The brand name has already been taken.',
+            'name.required' => 'The category name is required.',
+            'name.string' => 'The category name must be a string.',
+            'name.max' => 'The category name may not be greater than 255 characters.',
+            'name.unique' => 'The category name has already been taken.',
 
             'slug.required' => 'The slug is required.',
             'slug.string' => 'The slug must be a string.',
             'slug.max' => 'The slug may not be greater than 255 characters.',
             'slug.unique' => 'The slug has already been taken.',
             'slug.regex' => 'The slug may only contain lowercase letters, numbers, and hyphens.',
+
+            'parent_id.exists' => 'The selected parent category is invalid.',
 
             'description.string' => 'The description must be a string.',
             'description.max' => 'The description may not be greater than 1000 characters.',

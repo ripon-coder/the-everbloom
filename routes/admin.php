@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\Auth\AuthController;
 use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,5 +19,6 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
         Route::resource("products",ProductController::class);
         Route::resource("brands",BrandController::class);
+        Route::resource("categories",CategoryController::class);
     });
 });

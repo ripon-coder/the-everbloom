@@ -41,12 +41,8 @@ class BrandController extends Controller
     public function store(StoreBrandRequest $request)
     {
         $validated = $request->validated();
-        
-        // Create the brand using the service or repository
-        $brand = $this->brandRepository->create($validated);
-        
-        return redirect()->route('admin.brands.index')
-            ->with('success', 'Brand created successfully!');
+        $brand = $this->brandService->create($validated);
+        return redirect()->route('admin.brands.index')->with('success', 'Brand created successfully!');
     }
 
     /**
@@ -72,12 +68,8 @@ class BrandController extends Controller
     public function update(UpdateBrandRequest $request, string $id)
     {
         $validated = $request->validated();
-        
-        // Update the brand using the service or repository
-        $brand = $this->brandRepository->update($id, $validated);
-        
-        return redirect()->route('admin.brands.index')
-            ->with('success', 'Brand updated successfully!');
+        $brand = $this->brandService->update($id, $validated);
+        return redirect()->back()->with('success', 'Brand updated successfully!');
     }
 
     /**

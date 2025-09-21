@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AdminSeeder::class,
-            BrandSeeder::class
+            BrandSeeder::class,
+            CategorySeeder::class
         ]);
 
         Product::factory(10)->create();

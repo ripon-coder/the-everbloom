@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('status')->default(ProductStatus::ACTIVE);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

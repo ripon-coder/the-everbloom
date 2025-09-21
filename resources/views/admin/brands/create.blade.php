@@ -40,7 +40,11 @@
             </div>
             <div>
                 <label for="logo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Brand Logo</label>
-                <input type="file" name="logo" id="logo" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 @error('logo') border-red-500 @enderror" accept="image/*">
+                <input type="file" name="logo" id="logo" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 @error('logo') border-red-500 @enderror" accept="image/*" onchange="previewLogo(this)">
+                <div class="mt-2 flex items-center space-x-3">
+                    <img id="logo-preview" src="{{ asset('images/default-logo.png') }}" alt="Brand Logo Preview" class="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600">
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Default logo (will be replaced when you upload an image)</span>
+                </div>
                 @error('logo')
                     <p class="mt-2 text-sm text-red-600 dark:text-red-500"><span class="font-medium">Oops!</span> {{ $message }}</p>
                 @enderror
@@ -93,5 +97,16 @@ document.addEventListener('DOMContentLoaded', function() {
         this.setAttribute('data-original', this.value);
     });
 });
+
+// Function to preview logo image
+function previewLogo(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('logo-preview').src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 </script>
 @endsection
