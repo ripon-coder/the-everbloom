@@ -71,4 +71,12 @@ class Category extends Model implements HasMedia
     {
         return $query->whereNull('parent_id');
     }
+
+    /**
+     * Scope a query to order by sort order and name.
+     */
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('name');
+    }
 }

@@ -104,6 +104,33 @@
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Optional: Provide a brief description about the category.</p>
         </div>
 
+        <!-- Attributes Section -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Category Attributes</h3>
+                <button type="button" onclick="addAttribute()" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Add Attribute
+                </button>
+            </div>
+            
+            <div id="attributes-container" class="space-y-3">
+                <!-- Default empty attribute row -->
+                <div class="attribute-row flex gap-3 items-center">
+                    <input type="text" name="attributes[]" placeholder="Attribute name" class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <button type="button" onclick="removeAttribute(this)" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 p-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Optional: Add custom attributes for this category (e.g., Color, Size, Material).</p>
+        </div>
+
         <div class="flex justify-end space-x-3">
             <a href="{{ route('admin.categories.index') }}" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
                 Cancel
@@ -150,6 +177,30 @@ function previewImage(input) {
             document.getElementById('image-preview').src = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Function to add new attribute row
+function addAttribute() {
+    const container = document.getElementById('attributes-container');
+    const newRow = document.createElement('div');
+    newRow.className = 'attribute-row flex gap-3 items-center';
+    newRow.innerHTML = `
+        <input type="text" name="attributes[]" placeholder="Attribute name" class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <button type="button" onclick="removeAttribute(this)" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 p-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+        </button>
+    `;
+    container.appendChild(newRow);
+}
+
+// Function to remove attribute row
+function removeAttribute(button) {
+    const container = document.getElementById('attributes-container');
+    if (container.children.length > 1) {
+        button.closest('.attribute-row').remove();
     }
 }
 </script>

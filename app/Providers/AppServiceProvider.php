@@ -2,9 +2,13 @@
 
 namespace App\Providers;
 
+use App\Repositories\Contracts\AttributeRepository;
+use App\Repositories\Contracts\AttributeValueRepository;
 use App\Repositories\Contracts\BrandRepository;
 use App\Repositories\Contracts\CategoryRepository;
 use App\Repositories\Contracts\ProductRepository;
+use App\Repositories\Eloquent\AttributeEloquent;
+use App\Repositories\Eloquent\AttributeValueEloquent;
 use App\Repositories\Eloquent\BrandEloquent;
 use App\Repositories\Eloquent\CategoryEloquent;
 use App\Repositories\Eloquent\ProductEloquent;
@@ -18,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        app()->bind(AttributeRepository::class,AttributeEloquent::class);
+        app()->bind(AttributeValueRepository::class,AttributeValueEloquent::class);
         app()->bind(BrandRepository::class,BrandEloquent::class);
         app()->bind(ProductRepository::class,ProductEloquent::class);
         app()->bind(CategoryRepository::class,CategoryEloquent::class);
