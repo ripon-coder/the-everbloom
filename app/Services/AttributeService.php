@@ -23,15 +23,13 @@ class AttributeService
     }
 
     /**
-     * Get all attributes by category ID.
-     *
-    /**
      * Find an attribute by ID.
      */
     public function findById(int $id): ?Attribute
     {
         return $this->attributeRepository->findById($id);
     }
+
     /**
      * Create a new attribute.
      */
@@ -55,5 +53,4 @@ class AttributeService
     {
         return $this->attributeRepository->delete($id);
     }
-
 }

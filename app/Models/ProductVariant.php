@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\ProductVariantStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,16 +13,16 @@ class ProductVariant extends Model
 
     protected $fillable = [
         'product_id',
-        'name',
         'sku',
         'price',
         'stock',
-        'image'
+        'status'
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
-        'stock' => 'integer'
+        'stock' => 'integer',
+        'status' => ProductVariantStatus::class
     ];
 
     /**

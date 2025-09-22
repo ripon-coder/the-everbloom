@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\BrandStatus;
 use App\Trait\HasImage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,5 +20,10 @@ class Brand extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('brand_logo')->singleFile();
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', BrandStatus::ACTIVE);
     }
 }

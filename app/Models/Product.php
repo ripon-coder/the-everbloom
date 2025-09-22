@@ -5,10 +5,11 @@ namespace App\Models;
 use App\Constants\ProductStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -16,11 +17,12 @@ class Product extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'brand_id',
+        'category_id',
         'name',
+        'slug',
         'description',
         'price',
-        'sku',
-        'slug',
         'status',
     ];
 
@@ -31,14 +33,23 @@ class Product extends Model
      */
     protected $casts = [
         'price' => 'decimal:2',
+        'status' => ProductStatus::class,
     ];
 
     /**
-     * Get the attribute values for the product.
+     * Get the brand that owns the product.
      */
-    public function attributeValues()
+    public function brand()
     {
-        return $this->hasMany(AttributeValue::class);
+        return $this->belongsTo(Brand::class);
+    }
+
+    /**
+     * Get the category that owns the product.
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     /**

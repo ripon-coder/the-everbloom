@@ -9,9 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     @vite(['resources/css/app.css'])
-    @vite(['resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('assets/custom.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900">
@@ -23,6 +21,13 @@
             @yield('content')
         </main>
     </div>
+    
+    <!-- Load jQuery first -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Load Vite assets after jQuery -->
+    @vite(['resources/js/app.js'])
     <script src="{{ asset('assets/custom.js') }}"></script>
     @include('admin.lib.confirm-delete-modal')
     @yield('scripts')

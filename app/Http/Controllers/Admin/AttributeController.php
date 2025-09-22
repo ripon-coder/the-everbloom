@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAttributeRequest;
 use App\Http\Requests\UpdateAttributeRequest;
+use App\Models\Attribute;
 use App\Services\AttributeService;
 use Illuminate\Http\Request;
 
@@ -20,10 +21,9 @@ class AttributeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
         $attributes = $this->attributeService->getAll();
-        
         return view('admin.attributes.index', compact('attributes'));
     }
 
@@ -118,5 +118,14 @@ class AttributeController extends Controller
             return redirect()->route('admin.attributes.index')
                 ->with('error', 'Error deleting attribute: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get attribute values for the specified attribute.
+     */
+    public function getValues(Attribute $attribute)
+    {
+        $values = $attribute->attributeValues()->active()->get(['id', 'value']);
+        return response()->json($values);
     }
 }
