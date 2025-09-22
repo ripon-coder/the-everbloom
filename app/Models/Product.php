@@ -42,6 +42,22 @@ class Product extends Model
     }
 
     /**
+     * Get the product variants for the product.
+     */
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    /**
+     * Get the images for the product.
+     */
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
+    /**
      * Get the products that are active.
      */
     public function scopeActive($query)

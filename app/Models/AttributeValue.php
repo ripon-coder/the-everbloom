@@ -30,6 +30,14 @@ class AttributeValue extends Model
     }
 
     /**
+     * Get the variant attributes for this attribute value.
+     */
+    public function variantAttributes()
+    {
+        return $this->hasMany(VariantAttribute::class);
+    }
+
+    /**
      * Scope a query to only include active values.
      */
     public function scopeActive($query)

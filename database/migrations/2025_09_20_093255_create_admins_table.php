@@ -14,6 +14,8 @@ return new class extends Migration
     {
         Schema::create('admins', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger("admin_id")->nullable();
+            $table->foreign("admin_id")->references("id")->on("admins")->onDelete("cascade");
             $table->string('name');
             $table->string('email')->unique();
             $table->string("mobile")->nullable();
