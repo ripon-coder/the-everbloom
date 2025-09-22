@@ -1,43 +1,14 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Attribute Values')
+@section('title', 'Manage Attribute Values')
 
 @section('content')
 <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg">
     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Attribute Values</h2>
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Attribute Value List</h2>
         <a href="{{ route('admin.attribute-values.create') }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
             Add New Attribute Value
         </a>
-    </div>
-
-    <!-- Filters -->
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-        <form method="GET" action="{{ route('admin.attribute-values.index') }}" class="flex flex-wrap gap-4 items-end">
-            <div class="flex-1 min-w-[200px]">
-                <label for="search" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Search</label>
-                <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Search by value..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-            </div>
-            <div class="flex-1 min-w-[200px]">
-                <label for="attribute_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Attribute</label>
-                <select name="attribute_id" id="attribute_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option value="">All Attributes</option>
-                    @foreach ($attributes as $attribute)
-                        <option value="{{ $attribute->id }}" {{ request('attribute_id') == $attribute->id ? 'selected' : '' }}>
-                            {{ $attribute->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="flex gap-2">
-                <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                    Filter
-                </button>
-                <a href="{{ route('admin.attribute-values.index') }}" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
-                    Clear
-                </a>
-            </div>
-        </form>
     </div>
 
     <!-- Attribute Values Table -->
@@ -56,9 +27,9 @@
             <tbody>
                 @forelse ($attributeValues as $attributeValue)
                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {{ $attributeValue->id }}
-                        </td>
+                        </th>
                         <td class="px-6 py-4">
                             @if($attributeValue->attribute)
                                 <span class="font-medium">{{ $attributeValue->attribute->name }}</span>
@@ -66,36 +37,39 @@
                                 <span class="text-gray-400">N/A</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4">
-                            {{ $attributeValue->value ?: '<span class="text-gray-400">Empty</span>' }}
+                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                            {{ $attributeValue->value }}
                         </td>
                         <td class="px-6 py-4">
-                            <span class="px-2 py-1 text-xs {{ $attributeValue->status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' }} rounded-full">
-                                {{ ucfirst($attributeValue->status) }}
-                            </span>
+                            @if ($attributeValue->status == \App\Constants\AttributeValueStatus::ACTIVE)
+                                <span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Active</span>
+                            @else
+                                <span class="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">Inactive</span>
+                            @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4">
                             {{ $attributeValue->created_at->format('Y-m-d H:i') }}
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <div class="flex justify-end gap-2">
-                                <a href="{{ route('admin.attribute-values.edit', $attributeValue->id) }}" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                    </svg>
-                                </a>
-                                <button type="button" onclick="event.preventDefault(); showDeleteModal('attribute value', '{{ route('admin.attribute-values.destroy', $attributeValue->id) }}', 'ID #{{ $attributeValue->id }}')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                    </svg>
-                                </button>
+                            <div class="flex justify-end space-x-2">
+                                <a href="{{ route('admin.attribute-values.edit', $attributeValue->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                                <button type="button" onclick="showDeleteModal('attribute value', '{{ route('admin.attribute-values.destroy', $attributeValue->id) }}', 'ID #{{ $attributeValue->id }}')" class="font-medium text-red-600 dark:text-red-500 hover:underline">Delete</button>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                            No attribute values found.
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                            <div class="flex flex-col items-center justify-center space-y-3">
+                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <p class="text-lg font-medium">No attribute values found</p>
+                                <p class="text-sm">Get started by creating your first attribute value.</p>
+                                <a href="{{ route('admin.attribute-values.create') }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                                    Create Attribute Value
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 @endforelse
@@ -104,8 +78,8 @@
     </div>
 
     <!-- Pagination -->
-    @if($attributeValues->hasPages())
-        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+    @if($attributeValues->count() > 0)
+        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-center items-center">
             {{ $attributeValues->links() }}
         </div>
     @endif
