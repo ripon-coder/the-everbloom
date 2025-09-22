@@ -15,6 +15,7 @@ class Attribute extends Model
         'name',
         'description',
         'type',
+        'is_image',
         'options',
         'status'
     ];
@@ -56,11 +57,4 @@ class Attribute extends Model
         return $query->orderBy('created_at', 'desc');
     }
 
-    /**
-     * Get the type name as a formatted string.
-     */
-    public function getTypeNameAttribute()
-    {
-        return ucfirst(str_replace('_', ' ', $this->type));
-    }
 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
+            $table->boolean('is_image')->default(0);
             $table->enum('status', [AttributeStatus::ACTIVE, AttributeStatus::INACTIVE])->default(AttributeStatus::ACTIVE);
             $table->timestamps();
             $table->softDeletes();

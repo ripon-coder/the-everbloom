@@ -27,6 +27,7 @@ class UpdateAttributeRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
+            'is_image' => 'nullable|boolean',
             'status' => 'required|string|in:active,inactive',
         ];
     }
@@ -45,6 +46,8 @@ class UpdateAttributeRequest extends FormRequest
 
             'description.string' => 'The description must be a string.',
             'description.max' => 'The description may not be greater than 1000 characters.',
+
+            'is_image.boolean' => 'The is_image field must be true or false.',
 
             'status.required' => 'The status is required.',
             'status.string' => 'The status must be a string.',
