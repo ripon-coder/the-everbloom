@@ -18,11 +18,6 @@ interface AttributeValueRepository
     public function getByProductId(int $productId);
 
     /**
-     * Get attribute values by attribute ID.
-     */
-    public function getByAttributeId(int $attributeId);
-
-    /**
      * Find an attribute value by ID.
      */
     public function findById(int $id): ?AttributeValue;
@@ -42,18 +37,5 @@ interface AttributeValueRepository
      */
     public function delete(int $id): bool;
 
-    /**
-     * Get attribute values for a specific product and attribute.
-     */
-    public function getByProductAndAttribute(int $productId, int $attributeId);
 
-    /**
-     * Bulk create attribute values for a product.
-     */
-    public function bulkCreate(int $productId, array $attributeValues): bool;
-
-    /**
-     * Update attribute values for a product.
-     */
-    public function updateProductAttributes(int $productId, array $attributeValues): bool;
 }
