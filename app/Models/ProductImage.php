@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class ProductImage extends Model
+class ProductImage extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -16,7 +18,6 @@ class ProductImage extends Model
      */
     protected $fillable = [
         'product_id',
-        'image',
         'is_default',
     ];
 
@@ -35,5 +36,79 @@ class ProductImage extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /**
+     * Register the media collections for the model.
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('product_images')
+            ->useDisk('public')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+            ->onlyKeepLatest(10) // Keep only latest 10 images per product image record
+            ->registerMediaConversions(function () {
+                $this->addMediaConversion('thumb')
+                    ->width(150)
+                    ->height(150)
+                    ->sharpen(10);
+
+                $this->addMediaConversion('medium')
+                    ->width(400)
+                    ->height(400)
+                    ->sharpen(10);
+
+                $this->addMediaConversion('large')
+                    ->width(800)
+                    ->height(800)
+                    ->sharpen(10);
+            });
+    }
+
+    /**
+     * Get the URL of the image.
+     *
+     * @param string $conversion
+     * @return string|null
+     */
+    public function getImageUrl($conversion = '')
+    {
+        $media = $this->getFirstMedia('product_images');
+        
+        if (!$media) {
+            return asset('/images/default-logo.png');
+        }
+
+        return $conversion ? $media->getUrl($conversion) : $media->getUrl();
+    }
+
+    /**
+     * Get the thumbnail URL.
+     *
+     * @return string|null
+     */
+    public function getThumbnailUrl()
+    {
+        return $this->getImageUrl('thumb');
+    }
+
+    /**
+     * Get the medium image URL.
+     *
+     * @return string|null
+     */
+    public function getMediumUrl()
+    {
+        return $this->getImageUrl('medium');
+    }
+
+    /**
+     * Get the large image URL.
+     *
+     * @return string|null
+     */
+    public function getLargeUrl()
+    {
+        return $this->getImageUrl('large');
     }
 }

@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('product_variant_images', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_variant_id')->constrained()->onDelete('cascade');
-            $table->string('image');
             $table->boolean('is_default')->default(false);
             $table->timestamps();
             

@@ -13,19 +13,24 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Repositories\Contracts\ProductRepository;
+use App\Services\ProductService;
 
 class ProductController extends Controller
 {
+    protected $productRepository;
+    protected $productService;
+    public function __construct(ProductRepository $productRepository, ProductService $productService){
+        $this->productService = $productService;
+        $this->productRepository = $productRepository;
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $products = Product::with(['brand', 'category', 'variants'])
-            ->latest()
-            ->paginate(10);
-
-        return view("admin.products.index", compact('products'));
+        $data["products"] = $this->productRepository->index();
+        return view("admin.products.index", $data);
     }
 
     /**
@@ -33,10 +38,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $brands = Brand::active()->get();
-        $categories = Category::active()->get();
-         $attributes = Attribute::with('attributeValues')->get(); // <-- important
-        return view("admin.products.create", compact('brands', 'categories','attributes'));
+        $data = $this->productRepository->create();
+        return view("admin.products.create", $data);
     }
 
     /**
@@ -72,12 +75,12 @@ class ProductController extends Controller
             // Handle product images
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $image) {
-                    $path = $image->store('products', 'public');
-                    
-                    $product->images()->create([
-                        'image' => $path,
+                    $productImage = $product->images()->create([
                         'is_default' => $index === 0, // First image is default
                     ]);
+                    
+                    $productImage->addMedia($image)
+                        ->toMediaCollection('product_images');
                 }
             }
 
@@ -105,12 +108,12 @@ class ProductController extends Controller
                     if (isset($variantData['images']) && is_array($variantData['images'])) {
                         foreach ($variantData['images'] as $index => $image) {
                             if ($image instanceof \Illuminate\Http\UploadedFile) {
-                                $path = $image->store('product-variants', 'public');
-                                
-                                $variant->images()->create([
-                                    'image' => $path,
+                                $variantImage = $variant->images()->create([
                                     'is_default' => $index === 0,
                                 ]);
+                                
+                                $variantImage->addMedia($image)
+                                    ->toMediaCollection('variant_images');
                             }
                         }
                     }
@@ -191,18 +194,18 @@ class ProductController extends Controller
             if ($request->hasFile('images')) {
                 // Delete existing images
                 foreach ($product->images as $image) {
-                    Storage::disk('public')->delete($image->image);
+                    $image->clearMediaCollection('product_images');
                     $image->delete();
                 }
 
                 // Add new images
                 foreach ($request->file('images') as $index => $image) {
-                    $path = $image->store('products', 'public');
-                    
-                    $product->images()->create([
-                        'image' => $path,
+                    $productImage = $product->images()->create([
                         'is_default' => $index === 0,
                     ]);
+                    
+                    $productImage->addMedia($image)
+                        ->toMediaCollection('product_images');
                 }
             }
 
@@ -219,7 +222,7 @@ class ProductController extends Controller
                     if ($variant) {
                         // Delete variant images
                         foreach ($variant->images as $image) {
-                            Storage::disk('public')->delete($image->image);
+                            $image->clearMediaCollection('variant_images');
                             $image->delete();
                         }
                         // Delete variant attributes
@@ -267,19 +270,19 @@ class ProductController extends Controller
                         if ($hasNewImages) {
                             // Delete existing images
                             foreach ($variant->images as $image) {
-                                Storage::disk('public')->delete($image->image);
+                                $image->clearMediaCollection('variant_images');
                                 $image->delete();
                             }
 
                             // Add new images
                             foreach ($variantData['images'] as $index => $image) {
                                 if ($image instanceof \Illuminate\Http\UploadedFile) {
-                                    $path = $image->store('product-variants', 'public');
-                                    
-                                    $variant->images()->create([
-                                        'image' => $path,
+                                    $variantImage = $variant->images()->create([
                                         'is_default' => $index === 0,
                                     ]);
+                                    
+                                    $variantImage->addMedia($image)
+                                        ->toMediaCollection('variant_images');
                                 }
                             }
                         }
@@ -311,14 +314,14 @@ class ProductController extends Controller
         try {
             // Delete product images
             foreach ($product->images as $image) {
-                Storage::disk('public')->delete($image->image);
+                $image->clearMediaCollection('product_images');
                 $image->delete();
             }
 
             // Delete variant images and variants
             foreach ($product->variants as $variant) {
                 foreach ($variant->images as $image) {
-                    Storage::disk('public')->delete($image->image);
+                    $image->clearMediaCollection('variant_images');
                     $image->delete();
                 }
                 $variant->variantAttributes()->delete();
@@ -365,14 +368,14 @@ class ProductController extends Controller
         try {
             // Delete product images permanently
             foreach ($product->images as $image) {
-                Storage::disk('public')->delete($image->image);
+                $image->clearMediaCollection('product_images');
                 $image->forceDelete();
             }
 
             // Delete variant images and variants permanently
             foreach ($product->variants as $variant) {
                 foreach ($variant->images as $image) {
-                    Storage::disk('public')->delete($image->image);
+                    $image->clearMediaCollection('variant_images');
                     $image->forceDelete();
                 }
                 $variant->variantAttributes()->forceDelete();

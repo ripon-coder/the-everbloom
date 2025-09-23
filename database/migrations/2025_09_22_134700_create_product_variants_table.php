@@ -16,7 +16,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->string('sku')->unique();
-            $table->decimal('price', 10, 2)->nullable();
+            $table->decimal('buying_price', 10, 2)->default(0)->comment('Buying price of the variant');
+            $table->decimal('sell_price', 10, 2)->default(0)->comment('Selling price of the variant');
+            $table->decimal('discount_price', 10, 2)->default(0)->comment('Discount price of the variant');
+            $table->decimal('discount_amount', 10, 2)->default(0)->comment('Discount amount or percentage applied');
             $table->integer('stock')->default(0);
             $table->string('status')->default(ProductVariantStatus::ACTIVE);
 
