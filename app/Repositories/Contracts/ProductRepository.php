@@ -4,5 +4,5 @@ interface ProductRepository{
 
     public function index();
     public function create();
-    public function store();
+    public function store(array $data);
 }

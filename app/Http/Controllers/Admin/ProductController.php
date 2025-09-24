@@ -47,7 +47,8 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        DB::beginTransaction();
+        return $this->productService->store($request->validated());
+       
 
         try {
             // Create slug from name
