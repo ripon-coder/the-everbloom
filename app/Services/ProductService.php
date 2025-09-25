@@ -43,7 +43,9 @@ class ProductService
         
         // Handle product variants
         if(isset($data['variants'])) {
-            dd($data['variants']);
+            foreach ($data['variants']as $variantData) {
+                dd($variantData);
+            }
         }
         DB::commit();
 
