@@ -14,13 +14,17 @@ class ProductVariant extends Model
     protected $fillable = [
         'product_id',
         'sku',
-        'price',
+        'buying_price',
+        'sell_price',
+        'discount_price',
         'stock',
         'status'
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
+        'buying_price' => 'decimal:2',
+        'sell_price' => 'decimal:2',
+        'discount_price' => 'decimal:2',
         'stock' => 'integer',
         'status' => ProductVariantStatus::class
     ];
