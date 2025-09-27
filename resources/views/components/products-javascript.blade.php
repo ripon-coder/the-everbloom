@@ -1086,70 +1086,63 @@
             console.log('displayVariantErrors called. laravelErrors:', laravelErrors);
             if (!laravelErrors) {
                 console.log('No laravelErrors object found.');
-                return; // No errors at all
+                return;
             }
 
-            // Laravel's error bag for array inputs is usually flattened.
-            // e.g., "variants.0.attributes.0.attribute_id"
+            // Configuration map for finding DOM elements based on error field paths
+            const fieldConfig = {
+                'sku': { selector: 'input[name$="[sku]"]' },
+                'stock': { selector: 'input[name$="[stock]"]' },
+                'buying_price': { selector: 'input[name$="[buying_price]"]' },
+                'sell_price': { selector: 'input[name$="[sell_price]"]' },
+                'discount_price': { selector: 'input[name$="[discount_price]"]' },
+                'status': { selector: 'select[name$="[status]"]' },
+                'attributes': {
+                    // Special handler for attributes, as it requires nested parsing
+                    handler: (variantContainer, pathParts) => {
+                        const [attrIndex, attrFieldName] = pathParts;
+                        const attributeItem = variantContainer.querySelector(`.attributes-container .attribute-item[data-attribute-index="${attrIndex}"]`);
+                        if (!attributeItem) return null;
+                        return attributeItem.querySelector(`select[name$="[attributes][${attrIndex}][${attrFieldName}]"]`);
+                    }
+                }
+            };
+
             const variantErrorPattern = /^variants\.(\d+)\.(.+)$/;
-            
+
             Object.keys(laravelErrors).forEach(errorKey => {
                 const match = errorKey.match(variantErrorPattern);
-                if (match) {
-                    const variantIndex = match[1];
-                    const fieldPath = match[2]; // e.g., "attributes.0.attribute_id" or "sku"
-                    
-                    console.log(`Processing error key: ${errorKey} for variant index ${variantIndex}, fieldPath: ${fieldPath}`);
-                    
-                    const variantContainer = document.querySelector(`[data-variant="${variantIndex}"]`);
-                    if (!variantContainer) {
-                        console.warn(`Variant container for index ${variantIndex} not found for error display.`);
-                        return; // Skip to next error key
-                    }
+                if (!match) return; // Skip if not a variant error
 
-                    const errorMessage = laravelErrors[errorKey][0]; // Get the first error message
-                    let targetElement = null;
+                const [, variantIndex, fieldPath] = match;
+                const variantContainer = document.querySelector(`[data-variant="${variantIndex}"]`);
+                if (!variantContainer) {
+                    console.warn(`Variant container for index ${variantIndex} not found.`);
+                    return;
+                }
 
-                    // Check for basic variant fields (sku, stock, etc.)
-                    if (fieldPath === 'sku') {
-                        targetElement = variantContainer.querySelector('input[name$="[sku]"]');
-                    } else if (fieldPath === 'stock') {
-                        targetElement = variantContainer.querySelector('input[name$="[stock]"]');
-                    } else if (fieldPath === 'buying_price') {
-                        targetElement = variantContainer.querySelector('input[name$="[buying_price]"]');
-                    } else if (fieldPath === 'sell_price') {
-                        targetElement = variantContainer.querySelector('input[name$="[sell_price]"]');
-                    } else if (fieldPath === 'discount_price') {
-                        targetElement = variantContainer.querySelector('input[name$="[discount_price]"]');
-                    } else if (fieldPath === 'status') {
-                        targetElement = variantContainer.querySelector('select[name$="[status]"]');
-                    } else if (fieldPath.startsWith('attributes.')) {
-                        // Handle attribute fields: "attributes.0.attribute_id"
-                        const attributeErrorPattern = /^attributes\.(\d+)\.(attribute_id|attribute_value_id)$/;
-                        const attrMatch = fieldPath.match(attributeErrorPattern);
-                        if (attrMatch) {
-                            const attrIndex = attrMatch[1];
-                            const attrFieldName = attrMatch[2]; // "attribute_id" or "attribute_value_id"
-                            
-                            const attributeItem = variantContainer.querySelector(`.attributes-container .attribute-item[data-attribute-index="${attrIndex}"]`);
-                            if (attributeItem) {
-                                if (attrFieldName === 'attribute_id') {
-                                    targetElement = attributeItem.querySelector(`select[name$="[attributes][${attrIndex}][attribute_id]"]`);
-                                } else if (attrFieldName === 'attribute_value_id') {
-                                    targetElement = attributeItem.querySelector(`select[name$="[attributes][${attrIndex}][attribute_value_id]"]`);
-                                }
-                            } else {
-                                console.warn(`Attribute item for index ${attrIndex} in variant ${variantIndex} not found.`);
-                            }
-                        }
+                const errorMessage = laravelErrors[errorKey][0];
+                let targetElement = null;
+                
+                // Determine the root of the field path (e.g., 'sku', 'attributes')
+                const [rootKey, ...pathParts] = fieldPath.split('.');
+
+                if (fieldConfig[rootKey]) {
+                    const config = fieldConfig[rootKey];
+                    if (config.handler) {
+                        // Use the special handler for complex fields like attributes
+                        targetElement = config.handler(variantContainer, pathParts);
+                    } else if (config.selector) {
+                        // Use the standard selector for simple fields
+                        targetElement = variantContainer.querySelector(config.selector);
                     }
-                    
-                    if (targetElement) {
-                        console.log(`Displaying error for field ${fieldPath} in variant ${variantIndex}:`, errorMessage);
-                        displayErrorOnField(targetElement, errorMessage);
-                    } else {
-                        console.warn(`Could not find target element for error key: ${errorKey}`);
-                    }
+                }
+
+                if (targetElement) {
+                    console.log(`Displaying error for ${fieldPath} in variant ${variantIndex}:`, errorMessage);
+                    displayErrorOnField(targetElement, errorMessage);
+                } else {
+                    console.warn(`Could not find target element for error key: ${errorKey}`);
                 }
             });
         }
