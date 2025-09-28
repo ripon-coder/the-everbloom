@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId("admin_id")->constrained("admins")->nullable();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->decimal('price', 10, 2);
+            $table->decimal('price', 10, 2)->nullable();
             $table->string('sku')->unique()->nullable();
             $table->string('slug')->unique();
             $table->string('status')->default(ProductStatus::ACTIVE);

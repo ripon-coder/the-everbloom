@@ -33,7 +33,39 @@ class UpdateProductRequest extends FormRequest
             'images' => ['nullable', 'array'],
             'images.*' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
             'variants' => ['nullable', 'array'],
-            'variants.*.sku' => ['required_with:variants', 'string', 'max:255', 'unique:product_variants,sku,' . $productId . ',id,product_id,' . $productId],
+            'variants.*.sku' => ['required_with:variants', 'string', 'max:255', function ($attribute, $value, $fail) use ($productId) {
+                // Check if SKU already exists for this product but exclude current variant being edited
+                $skuCheck = \App\Models\ProductVariant::where('sku', $value)
+                    ->where('product_id', $productId)
+                    ->exists();
+                
+                // If SKU exists for this product, we need to check if it's the current variant being updated
+                if ($skuCheck) {
+                    // Extract the variant index from the attribute name (e.g., "variants.0.sku" -> "0")
+                    $variantIndex = explode('.', $attribute)[1];
+                    $variantId = $this->input("variants.{$variantIndex}.id");
+                    
+                    // Check if there's a variant with this SKU and ID (meaning it's the same variant being updated)
+                    $existingVariant = \App\Models\ProductVariant::where('sku', $value)
+                        ->where('product_id', $productId)
+                        ->where('id', $variantId)
+                        ->first();
+                    
+                    // If no existing variant found with this ID, then it's a duplicate SKU
+                    if (!$existingVariant) {
+                        $fail('The SKU has already been taken for this product.');
+                    }
+                }
+                
+                // Check if SKU exists for other products
+                $otherProductSku = \App\Models\ProductVariant::where('sku', $value)
+                    ->where('product_id', '!=', $productId)
+                    ->exists();
+                    
+                if ($otherProductSku) {
+                    $fail('The SKU has already been taken by another product.');
+                }
+            }],
             'variants.*.price' => ['nullable', 'numeric', 'min:0', 'decimal:0,2'],
             'variants.*.stock' => ['required_with:variants', 'integer', 'min:0'],
             'variants.*.status' => ['required_with:variants', 'string', 'in:active,inactive'],

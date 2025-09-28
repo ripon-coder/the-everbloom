@@ -147,14 +147,9 @@
                                         <div class="flex flex-wrap gap-2">
                                             @foreach($variant->images as $variantImage)
                                                 <div class="relative">
-                                                    <img src="{{ asset('storage/' . $variantImage->image) }}" 
+                                                    <img src="{{ $variantImage->getImageUrl() }}" 
                                                          alt="Variant image" 
                                                          class="w-16 h-16 object-cover rounded-lg">
-                                                    @if($variantImage->is_default)
-                                                        <span class="absolute -top-1 -right-1 inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                            Default
-                                                        </span>
-                                                    @endif
                                                 </div>
                                             @endforeach
                                         </div>
@@ -184,9 +179,9 @@
                     <div class="space-y-3">
                         @foreach($product->images as $image)
                             <div class="relative group">
-                                <img src="{{ asset('storage/' . $image->image) }}" 
+                                <img src="{{ $image->getImageUrl() }}" 
                                      alt="{{ $product->name }}" 
-                                     class="w-full h-48 object-cover rounded-lg">
+                                     class="w-full h-48 object-cover ">
                                 @if($image->is_default)
                                     <span class="absolute top-2 right-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                         Default

@@ -43,26 +43,7 @@ class ProductVariantImage extends Model implements HasMedia
      */
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('variant_images')
-            ->useDisk('public')
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-            ->onlyKeepLatest(10) // Keep only latest 10 images per variant image record
-            ->registerMediaConversions(function () {
-                $this->addMediaConversion('thumb')
-                    ->width(150)
-                    ->height(150)
-                    ->sharpen(10);
-
-                $this->addMediaConversion('medium')
-                    ->width(400)
-                    ->height(400)
-                    ->sharpen(10);
-
-                $this->addMediaConversion('large')
-                    ->width(800)
-                    ->height(800)
-                    ->sharpen(10);
-            });
+        $this->addMediaCollection('variant_images')->singleFile();
     }
 
     /**
@@ -71,7 +52,7 @@ class ProductVariantImage extends Model implements HasMedia
      * @param string $conversion
      * @return string|null
      */
-    public function getImageUrl($conversion = '')
+    public function getImageUrl()
     {
         $media = $this->getFirstMedia('variant_images');
         
@@ -79,7 +60,7 @@ class ProductVariantImage extends Model implements HasMedia
             return asset('/images/default-logo.png');
         }
 
-        return $conversion ? $media->getUrl($conversion) : $media->getUrl();
+        return $media->getUrl();
     }
 
     /**

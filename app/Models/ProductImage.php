@@ -43,43 +43,17 @@ class ProductImage extends Model implements HasMedia
      */
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('product_images')
-            ->useDisk('public')
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-            ->onlyKeepLatest(10) // Keep only latest 10 images per product image record
-            ->registerMediaConversions(function () {
-                $this->addMediaConversion('thumb')
-                    ->width(150)
-                    ->height(150)
-                    ->sharpen(10);
-
-                $this->addMediaConversion('medium')
-                    ->width(400)
-                    ->height(400)
-                    ->sharpen(10);
-
-                $this->addMediaConversion('large')
-                    ->width(800)
-                    ->height(800)
-                    ->sharpen(10);
-            });
+        $this->addMediaCollection('product_images')->singleFile();
     }
-
-    /**
-     * Get the URL of the image.
-     *
-     * @param string $conversion
-     * @return string|null
-     */
-    public function getImageUrl($conversion = '')
+    public function getImageUrl()
     {
-        $media = $this->getFirstMedia('product_images');
-        
+        $media = $this->getFirstMedia( 'product_images');
+
         if (!$media) {
             return asset('/images/default-logo.png');
         }
 
-        return $conversion ? $media->getUrl($conversion) : $media->getUrl();
+        return $media->getUrl();
     }
 
     /**

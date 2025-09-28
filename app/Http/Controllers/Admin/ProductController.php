@@ -47,92 +47,7 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        return $this->productService->store($request->validated());
-       
-
-        try {
-            // Create slug from name
-            $slug = Str::slug($request->name);
-            
-            // Ensure unique slug
-            $originalSlug = $slug;
-            $counter = 1;
-            while (Product::where('slug', $slug)->exists()) {
-                $slug = $originalSlug . '-' . $counter;
-                $counter++;
-            }
-
-            // Create product
-            $product = Product::create([
-                'brand_id' => $request->brand_id,
-                'category_id' => $request->category_id,
-                'name' => $request->name,
-                'slug' => $slug,
-                'description' => $request->description,
-                'price' => $request->price,
-                'status' => $request->status,
-            ]);
-
-            // Handle product images
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $index => $image) {
-                    $productImage = $product->images()->create([
-                        'is_default' => $index === 0, // First image is default
-                    ]);
-                    
-                    $productImage->addMedia($image)
-                        ->toMediaCollection('product_images');
-                }
-            }
-
-            // Handle product variants
-            if ($request->has('variants')) {
-                foreach ($request->variants as $variantData) {
-                    $variant = $product->variants()->create([
-                        'sku' => $variantData['sku'],
-                        'price' => $variantData['price'] ?? $product->price,
-                        'stock' => $variantData['stock'],
-                        'status' => $variantData['status'] ?? 'active',
-                    ]);
-
-                    // Handle variant attributes
-                    if (isset($variantData['attributes'])) {
-                        foreach ($variantData['attributes'] as $attributeData) {
-                            $variant->variantAttributes()->create([
-                                'attribute_id' => $attributeData['attribute_id'],
-                                'attribute_value_id' => $attributeData['attribute_value_id'],
-                            ]);
-                        }
-                    }
-
-                    // Handle variant images
-                    if (isset($variantData['images']) && is_array($variantData['images'])) {
-                        foreach ($variantData['images'] as $index => $image) {
-                            if ($image instanceof \Illuminate\Http\UploadedFile) {
-                                $variantImage = $variant->images()->create([
-                                    'is_default' => $index === 0,
-                                ]);
-                                
-                                $variantImage->addMedia($image)
-                                    ->toMediaCollection('variant_images');
-                            }
-                        }
-                    }
-                }
-            }
-
-            DB::commit();
-
-            return redirect()->route('admin.products.index')
-                ->with('success', 'Product created successfully.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Error creating product: ' . $e->getMessage());
-        }
+        return $this->productService->store($request->all());
     }
 
     /**
@@ -211,7 +126,7 @@ class ProductController extends Controller
             }
 
             // Handle product variants
-            if ($request->has('variants')) {
+            if ($request->has('variants') && is_array($request->variants) && !empty($request->variants)) {
                 // Get existing variant SKUs to track which ones to keep
                 $existingVariantSkus = $product->variants()->pluck('sku')->toArray();
                 $newVariantSkus = collect($request->variants)->pluck('sku')->toArray();
@@ -222,9 +137,11 @@ class ProductController extends Controller
                     $variant = $product->variants()->where('sku', $skuToDelete)->first();
                     if ($variant) {
                         // Delete variant images
-                        foreach ($variant->images as $image) {
-                            $image->clearMediaCollection('variant_images');
-                            $image->delete();
+                        if ($variant->images) {
+                            foreach ($variant->images as $image) {
+                                $image->clearMediaCollection('variant_images');
+                                $image->delete();
+                            }
                         }
                         // Delete variant attributes
                         $variant->variantAttributes()->delete();
@@ -234,14 +151,36 @@ class ProductController extends Controller
 
                 // Update or create variants
                 foreach ($request->variants as $variantData) {
-                    $variant = $product->variants()->updateOrCreate(
-                        ['sku' => $variantData['sku']],
-                        [
-                            'price' => $variantData['price'] ?? $product->price,
-                            'stock' => $variantData['stock'],
-                            'status' => $variantData['status'] ?? 'active',
-                        ]
-                    );
+                    // Check if variant ID is provided (for existing variants)
+                    if (!empty($variantData['id'])) {
+                        $variant = $product->variants()->find($variantData['id']);
+                        if ($variant) {
+                            $variant->update([
+                                'sku' => $variantData['sku'],
+                                'price' => $variantData['price'] ?? $product->price,
+                                'stock' => $variantData['stock'],
+                                'status' => $variantData['status'] ?? 'active',
+                            ]);
+                        } else {
+                            // If ID is provided but variant not found, create new variant
+                            $variant = $product->variants()->create([
+                                'sku' => $variantData['sku'],
+                                'price' => $variantData['price'] ?? $product->price,
+                                'stock' => $variantData['stock'],
+                                'status' => $variantData['status'] ?? 'active',
+                            ]);
+                        }
+                    } else {
+                        // For new variants, use updateOrCreate with SKU
+                        $variant = $product->variants()->updateOrCreate(
+                            ['sku' => $variantData['sku']],
+                            [
+                                'price' => $variantData['price'] ?? $product->price,
+                                'stock' => $variantData['stock'],
+                                'status' => $variantData['status'] ?? 'active',
+                            ]
+                        );
+                    }
 
                     // Handle variant attributes
                     if (isset($variantData['attributes'])) {
@@ -320,13 +259,17 @@ class ProductController extends Controller
             }
 
             // Delete variant images and variants
-            foreach ($product->variants as $variant) {
-                foreach ($variant->images as $image) {
-                    $image->clearMediaCollection('variant_images');
-                    $image->delete();
+            if ($product->variants) {
+                foreach ($product->variants as $variant) {
+                    if ($variant->images) {
+                        foreach ($variant->images as $image) {
+                            $image->clearMediaCollection('variant_images');
+                            $image->delete();
+                        }
+                    }
+                    $variant->variantAttributes()->delete();
+                    $variant->delete();
                 }
-                $variant->variantAttributes()->delete();
-                $variant->delete();
             }
 
             // Soft delete product
@@ -374,13 +317,17 @@ class ProductController extends Controller
             }
 
             // Delete variant images and variants permanently
-            foreach ($product->variants as $variant) {
-                foreach ($variant->images as $image) {
-                    $image->clearMediaCollection('variant_images');
-                    $image->forceDelete();
+            if ($product->variants) {
+                foreach ($product->variants as $variant) {
+                    if ($variant->images) {
+                        foreach ($variant->images as $image) {
+                            $image->clearMediaCollection('variant_images');
+                            $image->forceDelete();
+                        }
+                    }
+                    $variant->variantAttributes()->forceDelete();
+                    $variant->forceDelete();
                 }
-                $variant->variantAttributes()->forceDelete();
-                $variant->forceDelete();
             }
 
             // Force delete product

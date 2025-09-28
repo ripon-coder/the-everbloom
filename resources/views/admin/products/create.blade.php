@@ -292,10 +292,5 @@
             </div>
         </form>
     </div>
-
-    <script>
-        window.oldVariantsData = @json(old('variants'));
-        window.laravelErrors = @json($errors->getMessages());
-    </script>
-    @include('components.products-javascript')
+    @include('components.products-create-js')
 @endsection
