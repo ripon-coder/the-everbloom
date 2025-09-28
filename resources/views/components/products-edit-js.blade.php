@@ -522,61 +522,96 @@
     });
 
 
-    // Preview variant image (single file)
-    function previewVariantImage(input, variantIndex) {
-        const previewContainer = document.getElementById(`variant-image-preview-${variantIndex}`);
-        const files = input.files;
+        // Preview variant image (single file)
+        function previewVariantImage(input, variantIndex) {
+            const previewContainer = document.getElementById(`variant-image-preview-${variantIndex}`);
+            const files = input.files;
 
-        // Clear all existing previews (including existing images from database)
-        previewContainer.innerHTML = '';
+            // Clear all existing previews (including existing images from database)
+            previewContainer.innerHTML = '';
 
-        if (files && files.length > 0) {
-            // Only take the first file (single image)
-            const file = files[0];
-            
-            // Validate file type
-            if (!file.type.startsWith('image/')) {
-                console.error('Invalid file type:', file.type);
-                return;
-            }
-            
-            // Validate file size (2MB max)
-            if (file.size > 2 * 1024 * 1024) {
-                console.error('File too large:', file.size);
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const div = document.createElement('div');
-                div.className = 'image-preview relative group inline-block';
-                div.innerHTML = `
-                    <div class="relative inline-block">
-                        <img src="${e.target.result}" alt="Variant Preview" class="w-32 h-32 object-cover rounded-lg shadow-md border-2 border-gray-200">
-                        <button type="button" class="remove-variant-image absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg" title="Remove image">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="text-xs text-gray-500 mt-1 truncate max-w-32 text-center">${file.name}</div>
-                `;
+            if (files && files.length > 0) {
+                // Only take the first file (single image)
+                const file = files[0];
                 
-                const removeBtn = div.querySelector('.remove-variant-image');
-                removeBtn.addEventListener('click', function() {
-                    div.remove();
-                    // Clear the file input
-                    input.value = '';
-                });
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    console.error('Invalid file type:', file.type);
+                    return;
+                }
                 
-                previewContainer.appendChild(div);
-            };
-            reader.onerror = function() {
-                console.error('Error reading file:', file.name);
-            };
-            reader.readAsDataURL(file);
+                // Validate file size (2MB max)
+                if (file.size > 2 * 1024 * 1024) {
+                    console.error('File too large:', file.size);
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'image-preview relative group inline-block';
+                    div.innerHTML = `
+                        <div class="relative inline-block">
+                            <img src="${e.target.result}" alt="Variant Preview" class="w-32 h-32 object-cover rounded-lg shadow-md border-2 border-gray-200">
+                            <button type="button" class="remove-variant-image absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg" title="Remove image">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1 truncate max-w-32 text-center">${file.name}</div>
+                    `;
+                    
+                    const removeBtn = div.querySelector('.remove-variant-image');
+                    removeBtn.addEventListener('click', function() {
+                        div.remove();
+                        // Clear the file input by creating a new one
+                        const newInput = document.createElement('input');
+                        newInput.type = 'file';
+                        newInput.name = input.name;
+                        newInput.accept = 'image/*';
+                        newInput.className = input.className;
+                        newInput.id = input.id;
+                        newInput.onchange = input.onchange;
+                        input.parentNode.replaceChild(newInput, input);
+                        
+                        // Find and mark existing database images for deletion
+                        markExistingImagesForDeletion(variantIndex);
+                    });
+                    
+                    previewContainer.appendChild(div);
+                };
+                reader.onerror = function() {
+                    console.error('Error reading file:', file.name);
+                };
+                reader.readAsDataURL(file);
+            }
         }
-    }
+
+        // Function to mark existing images for deletion when a new image is uploaded or removed
+        function markExistingImagesForDeletion(variantIndex) {
+            const variantContainer = document.querySelector(`[data-variant="${variantIndex}"]`);
+            if (!variantContainer) return;
+            
+            // Find all existing image containers that have database IDs
+            const existingImageContainers = variantContainer.querySelectorAll('.variant-existing-image');
+            
+            existingImageContainers.forEach(container => {
+                const imageId = container.dataset.imageId;
+                if (imageId) {
+                    // Find the hidden delete input for this image
+                    const deleteInput = document.getElementById(`delete-image-${imageId}`);
+                    if (deleteInput) {
+                        // Mark this image for deletion
+                        deleteInput.value = imageId;
+                        
+                        // Visually indicate the image will be deleted
+                        container.style.opacity = '0.5';
+                        container.style.border = '2px dashed red';
+                    }
+                }
+            });
+        }
 
     // Remove variant image preview
     function removeVariantImage(button) {

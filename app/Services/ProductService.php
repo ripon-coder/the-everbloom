@@ -348,7 +348,8 @@ class ProductService
         DB::beginTransaction();
 
         try {
-            $product = $this->productRepository->destroy($id);
+            // Get the product first before deletion
+            $product = \App\Models\Product::findOrFail($id);
 
             // Delete product images
             foreach ($product->images as $image) {
@@ -369,6 +370,9 @@ class ProductService
                     $variant->delete();
                 }
             }
+
+            // Now delete the product
+            $product->delete();
 
             DB::commit();
 
@@ -401,7 +405,8 @@ class ProductService
         DB::beginTransaction();
 
         try {
-            $product = $this->productRepository->forceDelete($id);
+            // Get the product first before deletion
+            $product = \App\Models\Product::withTrashed()->findOrFail($id);
 
             // Delete product images permanently
             foreach ($product->images as $image) {
@@ -422,6 +427,9 @@ class ProductService
                     $variant->forceDelete();
                 }
             }
+
+            // Now force delete the product
+            $product->forceDelete();
 
             DB::commit();
 
