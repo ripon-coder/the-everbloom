@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Mobile sidebar toggle (hamburger menu)
     const mobileToggleBtn = document.querySelector(
-        '[data-drawer-toggle="sidebar-multi-level-sidebar"]'
+        '[data-drawer-toggle="sidebar"]'
     );
     const sidebar = document.getElementById("sidebar");
 
@@ -49,12 +49,38 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             e.stopPropagation();
             sidebar.classList.toggle("show");
+            
+            // Add overlay for mobile
+            let overlay = document.getElementById("sidebar-overlay");
+            if (!overlay) {
+                overlay = document.createElement("div");
+                overlay.id = "sidebar-overlay";
+                overlay.className = "fixed inset-0 bg-black bg-opacity-50 z-30 sm:hidden";
+                overlay.addEventListener("click", () => {
+                    sidebar.classList.remove("show");
+                    overlay.remove();
+                });
+                document.body.appendChild(overlay);
+            } else {
+                overlay.remove();
+            }
         });
+    }
+
+    // Initialize expand button state on page load
+    const expandBtn = document.getElementById("expand-sidebar-btn");
+    if (sidebar && expandBtn) {
+        if (sidebar.classList.contains("hidden")) {
+            expandBtn.classList.remove("hidden");
+            expandBtn.style.display = "flex";
+        } else {
+            expandBtn.classList.add("hidden");
+            expandBtn.style.display = "none";
+        }
     }
 });
 
-// SideBar section
-
+// Sidebar toggle function
 function toggleSidebar() {
     console.log("Toggle sidebar clicked");
     const sidebar = document.getElementById("sidebar");
@@ -90,6 +116,7 @@ function toggleSidebar() {
     }
 }
 
+// Dropdown toggle function
 function toggleDropdown(dropdownId) {
     console.log("Toggle dropdown clicked:", dropdownId);
     const dropdown = document.getElementById(dropdownId);
@@ -147,72 +174,49 @@ document.addEventListener("click", function (e) {
         !e.target.closest('[id^="dropdown-"]')
     ) {
         document.querySelectorAll('[id^="dropdown-"]').forEach((dropdown) => {
-            dropdown.classList.remove("show");
-            dropdown.classList.add("hidden");
+            // Don't close dropdowns that should stay open
+            if (!dropdown.classList.contains("keep-open")) {
+                dropdown.classList.remove("show");
+                dropdown.classList.add("hidden");
+            }
         });
         document
             .querySelectorAll('[id^="arrow-dropdown-"]')
             .forEach((arrow) => {
-                arrow.classList.remove("rotate-180");
+                // Don't reset arrows for dropdowns that should stay open
+                const dropdownId = arrow.id.replace("arrow-", "");
+                const dropdown = document.getElementById(dropdownId);
+                if (!dropdown || !dropdown.classList.contains("keep-open")) {
+                    arrow.classList.remove("rotate-180");
+                }
             });
     }
 });
 
-// Initialize expand button state on page load
+// Initialize active states for dropdowns
 document.addEventListener("DOMContentLoaded", function () {
-    const sidebar = document.getElementById("sidebar");
-    const expandBtn = document.getElementById("expand-sidebar-btn");
-
-    if (sidebar && expandBtn) {
-        if (sidebar.classList.contains("hidden")) {
-            expandBtn.classList.remove("hidden");
-            expandBtn.style.display = "flex";
-        } else {
-            expandBtn.classList.add("hidden");
-            expandBtn.style.display = "none";
-        }
-    }
-
-    // Check current URL and open products dropdown if on products, brands, or attributes pages
     const currentPath = window.location.pathname;
+
+    // Handle Products dropdown
     const productsDropdown = document.getElementById("products-dropdown");
     const productsArrow = document.getElementById("arrow-products-dropdown");
     const productsButton = document.getElementById("products-button");
 
     if (productsDropdown) {
-        // Check if current path contains /admin/products, /admin/brands, or /admin/attributes
-        // Also respect the server-side initial state
-        const serverInitialState = productsDropdown.getAttribute('data-initial-state');
+        // Check if current path is relevant to products dropdown
         const isRelevantPath = currentPath.includes("/admin/products") || 
                               currentPath.includes("/admin/brands") || 
-                              currentPath.includes("/admin/attributes")|| 
+                              currentPath.includes("/admin/attributes") || 
                               currentPath.includes("/admin/categories") ||
-                              currentPath.includes("/admin/attribute-values")
-                              ;
+                              currentPath.includes("/admin/attribute-values");
         
-        if (serverInitialState === 'expanded' || isRelevantPath) {
+        if (isRelevantPath) {
             productsDropdown.classList.remove("hidden");
             productsDropdown.classList.add("show");
             productsDropdown.classList.add("keep-open");
 
             if (productsArrow) {
                 productsArrow.classList.add("rotate-180");
-            }
-
-            // Add active styling to products button
-            if (productsButton) {
-                productsButton.classList.remove(
-                    "text-gray-600",
-                    "dark:text-gray-300",
-                    "hover:bg-gray-100",
-                    "dark:hover:bg-gray-800"
-                );
-                productsButton.classList.add(
-                    "text-blue-600",
-                    "bg-blue-50",
-                    "dark:text-blue-400",
-                    "dark:bg-blue-900/20"
-                );
             }
         } else {
             productsDropdown.classList.add("hidden");
@@ -222,62 +226,29 @@ document.addEventListener("DOMContentLoaded", function () {
             if (productsArrow) {
                 productsArrow.classList.remove("rotate-180");
             }
-
-            // Remove active styling from products button
-            if (productsButton) {
-                productsButton.classList.remove(
-                    "text-blue-600",
-                    "bg-blue-50",
-                    "dark:text-blue-400",
-                    "dark:bg-blue-900/20"
-                );
-                productsButton.classList.add(
-                    "text-gray-600",
-                    "dark:text-gray-300",
-                    "hover:bg-gray-100",
-                    "dark:hover:bg-gray-800"
-                );
-            }
         }
     }
 
-    // Check current URL and open marketing dropdown if on marketing-related pages
+    // Handle Marketing dropdown
     const marketingDropdown = document.getElementById("dropdown-marketing");
     const marketingArrow = document.getElementById("arrow-dropdown-marketing");
     const marketingButton = document.getElementById("marketing-button");
 
     if (marketingDropdown) {
-        // Check if current path contains marketing-related routes
-        // Also respect the server-side initial state
-        const marketingServerInitialState = marketingDropdown.getAttribute('data-initial-state');
+        // Check if current path is relevant to marketing dropdown
         const isMarketingRelevantPath = currentPath.includes("/admin/coupons") || 
+                                      currentPath.includes("/admin/flash-sales") || 
                                       currentPath.includes("/admin/campaigns") || 
                                       currentPath.includes("/admin/promotions") || 
                                       currentPath.includes("/admin/discounts");
         
-        if (marketingServerInitialState === 'expanded' || isMarketingRelevantPath) {
+        if (isMarketingRelevantPath) {
             marketingDropdown.classList.remove("hidden");
             marketingDropdown.classList.add("show");
             marketingDropdown.classList.add("keep-open");
 
             if (marketingArrow) {
                 marketingArrow.classList.add("rotate-180");
-            }
-
-            // Add active styling to marketing button
-            if (marketingButton) {
-                marketingButton.classList.remove(
-                    "text-gray-600",
-                    "dark:text-gray-300",
-                    "hover:bg-gray-100",
-                    "dark:hover:bg-gray-800"
-                );
-                marketingButton.classList.add(
-                    "text-blue-600",
-                    "bg-blue-50",
-                    "dark:text-blue-400",
-                    "dark:bg-blue-900/20"
-                );
             }
         } else {
             marketingDropdown.classList.add("hidden");
@@ -286,22 +257,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (marketingArrow) {
                 marketingArrow.classList.remove("rotate-180");
-            }
-
-            // Remove active styling from marketing button
-            if (marketingButton) {
-                marketingButton.classList.remove(
-                    "text-blue-600",
-                    "bg-blue-50",
-                    "dark:text-blue-400",
-                    "dark:bg-blue-900/20"
-                );
-                marketingButton.classList.add(
-                    "text-gray-600",
-                    "dark:text-gray-300",
-                    "hover:bg-gray-100",
-                    "dark:hover:bg-gray-800"
-                );
             }
         }
     }
