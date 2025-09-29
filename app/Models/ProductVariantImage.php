@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class ProductVariantImage extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
@@ -45,7 +45,13 @@ class ProductVariantImage extends Model implements HasMedia
     {
         $this->addMediaCollection('variant_images')->singleFile();
     }
-
+    public function registerMediaConversions(Media $media = null): void
+    {
+        $this->addMediaConversion('webp')
+            ->format('webp')
+            ->quality(80)
+            ->performOnCollections('variant_images');
+    }
     /**
      * Get the URL of the image.
      *
@@ -55,41 +61,18 @@ class ProductVariantImage extends Model implements HasMedia
     public function getImageUrl()
     {
         $media = $this->getFirstMedia('variant_images');
-        
+
         if (!$media) {
             return asset('/images/default-logo.png');
         }
 
-        return $media->getUrl();
+        // Try to get WebP version first, fallback to original
+        try {
+            return $media->getUrl('webp');
+        } catch (\Exception $e) {
+            // Fallback to original if WebP conversion doesn't exist or fails
+            return $media->getUrl();
+        }
     }
 
-    /**
-     * Get the thumbnail URL.
-     *
-     * @return string|null
-     */
-    public function getThumbnailUrl()
-    {
-        return $this->getImageUrl('thumb');
-    }
-
-    /**
-     * Get the medium image URL.
-     *
-     * @return string|null
-     */
-    public function getMediumUrl()
-    {
-        return $this->getImageUrl('medium');
-    }
-
-    /**
-     * Get the large image URL.
-     *
-     * @return string|null
-     */
-    public function getLargeUrl()
-    {
-        return $this->getImageUrl('large');
-    }
 }

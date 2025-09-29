@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+
 class Brand extends Model implements HasMedia
 {
     use HasFactory, SoftDeletes, InteractsWithMedia, HasImage;
@@ -20,6 +22,31 @@ class Brand extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('brand_logo')->singleFile();
+    }
+
+    public function registerMediaConversions(Media $media = null): void
+    {
+        $this->addMediaConversion('webp')
+            ->format('webp')
+            ->quality(80)
+            ->performOnCollections('brand_logo');
+    }
+
+    public function getImageUrl()
+    {
+        $media = $this->getFirstMedia('brand_logo');
+
+        if (!$media) {
+            return asset('/images/default-logo.png');
+        }
+
+        // Try to get WebP version first, fallback to original
+        try {
+            return $media->getUrl('webp');
+        } catch (\Exception $e) {
+            // Fallback to original if WebP conversion doesn't exist or fails
+            return $media->getUrl();
+        }
     }
 
     public function scopeActive($query)

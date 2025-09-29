@@ -8,17 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Category extends Model implements HasMedia
 {
     use HasFactory, SoftDeletes, InteractsWithMedia, HasImage;
-    
+
     protected $fillable = [
-        "parent_id", 
-        "slug", 
-        "name", 
-        "description", 
-        "options", 
+        "parent_id",
+        "slug",
+        "name",
+        "description",
+        "options",
         "status"
     ];
 
@@ -30,6 +31,31 @@ class Category extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('category_image')->singleFile();
+    }
+
+    public function registerMediaConversions(Media $media = null): void
+    {
+        $this->addMediaConversion('webp')
+            ->format('webp')
+            ->quality(80)
+            ->performOnCollections('category_image');
+    }
+
+    public function getImageUrl()
+    {
+        $media = $this->getFirstMedia('category_image');
+
+        if (!$media) {
+            return asset('/images/default-logo.png');
+        }
+
+        // Try to get WebP version first, fallback to original
+        try {
+            return $media->getUrl('webp');
+        } catch (\Exception $e) {
+            // Fallback to original if WebP conversion doesn't exist or fails
+            return $media->getUrl();
+        }
     }
 
     /**

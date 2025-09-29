@@ -16,7 +16,7 @@ class ProductService
     {
         $this->productRepository = $productRepository;
     }
-    
+
     public function store(array $data)
     {
         try {
@@ -50,7 +50,7 @@ class ProductService
 
                             $productImage->addMedia($image)
                                 ->toMediaCollection('product_images');
-                            
+
                             Log::info('Image uploaded successfully: ' . $image->getClientOriginalName());
                         } catch (\Exception $e) {
                             Log::error('Error uploading image: ' . $e->getMessage());
@@ -104,7 +104,7 @@ class ProductService
 
                                     $variantImage->addMedia($image)
                                         ->toMediaCollection('variant_images');
-                                    
+
                                     Log::info('Variant image uploaded successfully: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
                                 } catch (\Exception $e) {
                                     Log::error('Error uploading variant image: ' . $e->getMessage() . ' for variant: ' . $variantData['sku']);
@@ -131,7 +131,7 @@ class ProductService
         }
 
     }
-    
+
     public function update(int $id, array $data)
     {
         DB::beginTransaction();
@@ -146,7 +146,7 @@ class ProductService
                 'price' => $data['price'],
                 'status' => $data['status'],
             ];
-            
+
             $product = $this->productRepository->update($id, $productData);
 
             // Handle product images
@@ -172,7 +172,7 @@ class ProductService
 
                             $productImage->addMedia($image)
                                 ->toMediaCollection('product_images');
-                            
+
                             Log::info('Image uploaded successfully: ' . $image->getClientOriginalName());
                         } catch (\Exception $e) {
                             Log::error('Error uploading image: ' . $e->getMessage());
@@ -186,7 +186,7 @@ class ProductService
                 // Get existing variant SKUs to track which ones to keep
                 $existingVariantSkus = $product->variants()->pluck('sku')->toArray();
                 $newVariantSkus = collect($data['variants'])->pluck('sku')->toArray();
-                
+
                 // Handle deleted variants (marked for deletion)
                 if (isset($data['delete_variants']) && is_array($data['delete_variants'])) {
                     foreach ($data['delete_variants'] as $variantId) {
@@ -203,7 +203,7 @@ class ProductService
                         }
                     }
                 }
-                
+
                 // Delete variants that are no longer present
                 $variantsToDelete = array_diff($existingVariantSkus, $newVariantSkus);
                 foreach ($variantsToDelete as $skuToDelete) {
@@ -285,7 +285,7 @@ class ProductService
                                 }
                             }
                         }
-                        
+
                         // Only delete and replace images if new ones are uploaded
                         $hasNewImages = false;
                         foreach ($variantData['images'] as $image) {
@@ -317,7 +317,7 @@ class ProductService
 
                                         $variantImage->addMedia($image)
                                             ->toMediaCollection('variant_images');
-                                        
+
                                         Log::info('Variant image uploaded successfully: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
                                     } catch (\Exception $e) {
                                         Log::error('Error uploading variant image: ' . $e->getMessage() . ' for variant: ' . $variantData['sku']);
@@ -336,13 +336,27 @@ class ProductService
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Error updating product: ' . $e->getMessage());
         }
     }
-    
+
+    public function show($product)
+    {
+        return $product->load([
+            'brand:id,name',
+            'category:id,name',
+            'variants:id,product_id,sku,buying_price,sell_price,discount_price,discount_amount,stock,status',
+            'variants.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
+            'variants.variantAttributes.attribute:id,name',
+            'variants.variantAttributes.attributeValue:id,value',
+            'images',
+            'variants.images'
+        ]);
+    }
+
     public function destroy(int $id)
     {
         DB::beginTransaction();
@@ -381,12 +395,12 @@ class ProductService
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return redirect()->back()
                 ->with('error', 'Error deleting product: ' . $e->getMessage());
         }
     }
-    
+
     public function restore(int $id)
     {
         try {
@@ -399,7 +413,7 @@ class ProductService
                 ->with('error', 'Error restoring product: ' . $e->getMessage());
         }
     }
-    
+
     public function forceDelete(int $id)
     {
         DB::beginTransaction();
@@ -438,7 +452,7 @@ class ProductService
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return redirect()->back()
                 ->with('error', 'Error permanently deleting product: ' . $e->getMessage());
         }

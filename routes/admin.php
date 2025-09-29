@@ -34,12 +34,6 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::post('product-variants/{product_variant}/restore', [ProductVariantController::class, 'restore'])->name('product-variants.restore');
         Route::delete('product-variants/{product_variant}/force-delete', [ProductVariantController::class, 'forceDelete'])->name('product-variants.force-delete');
         
-        // Product Images
-        Route::resource("product-images", ProductImageController::class);
-        
-        // Product Variant Images
-        Route::resource("product-variant-images", ProductVariantImageController::class);
-        Route::post('product-variant-images/{product_variant_image}/set-default', [ProductVariantImageController::class, 'setDefault'])->name('product-variant-images.set-default');
         
         // Variant Attributes
         Route::resource("variant-attributes", VariantAttributeController::class);

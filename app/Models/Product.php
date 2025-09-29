@@ -68,6 +68,11 @@ class Product extends Model
         return $this->hasMany(ProductImage::class);
     }
 
+    public function firstImage()
+    {
+        return $this->hasOne(ProductImage::class)->oldestOfMany();
+    }
+
     /**
      * Get the products that are active.
      */

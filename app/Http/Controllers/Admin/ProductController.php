@@ -14,7 +14,7 @@ class ProductController extends Controller
 {
     protected $productRepository;
     protected $productService;
-    
+
     public function __construct(ProductRepository $productRepository, ProductService $productService)
     {
         $this->productRepository = $productRepository;
@@ -52,8 +52,8 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load(['brand', 'category', 'variants.variantAttributes.attribute', 'variants.variantAttributes.attributeValue', 'images', 'variants.images']);
-        
+
+        $this->productService->show($product);
         return view("admin.products.show", compact('product'));
     }
 

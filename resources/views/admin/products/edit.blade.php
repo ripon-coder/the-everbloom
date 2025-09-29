@@ -94,7 +94,7 @@
                                             }
 
                                             $indent = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level);
-                                            $hasChildren = $category->children->count() > 0;
+                                            $hasChildren = $category->children_count > 0;
 
                                             // Simple parent-child indicator
                                             $type = $hasChildren ? 'Parent' : 'Child';
@@ -178,7 +178,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Current Product Images</h2>
                 
-                @if($product->images->count() > 0)
+                @if($product->images_count > 0)
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         @foreach($product->images as $image)
                             <div class="relative group">
@@ -255,7 +255,7 @@
                 </div>
 
                 <!-- Empty State -->
-                <div id="emptyVariantsState" class="{{ $product->variants->count() > 0 ? 'hidden' : '' }} text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-800">
+                <div id="emptyVariantsState" class="{{ $product->variants_count > 0 ? 'hidden' : '' }} text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-800">
                     <svg class="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500 mb-4" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -294,7 +294,7 @@
                 </div>
 
                 <!-- Variants Container -->
-                <div id="variantsContainer" class="{{ $product->variants->count() == 0 ? 'hidden' : '' }} space-y-6">
+                <div id="variantsContainer" class="{{ $product->variants_count == 0 ? 'hidden' : '' }} space-y-6">
                     @foreach($product->variants as $index => $variant)
                         <div class="variant-item bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden" data-variant="{{ $index }}">
                             <!-- Variant Header -->
