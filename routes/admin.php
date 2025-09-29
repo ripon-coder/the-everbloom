@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\FlashSaleController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\ProductImageController;
@@ -48,5 +49,12 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::resource("flash-sales", FlashSaleController::class)->parameters(['flash-sales' => 'flashSale']);
         Route::post('flash-sales/{flashSale}/restore', [FlashSaleController::class, 'restore'])->name('flash-sales.restore');
         Route::delete('flash-sales/{flashSale}/force-delete', [FlashSaleController::class, 'forceDelete'])->name('flash-sales.force-delete');
+
+        // Order Management
+        Route::resource("orders", OrderController::class);
+        Route::post('orders/{order}/restore', [OrderController::class, 'restore'])->name('orders.restore');
+        Route::delete('orders/{order}/force-delete', [OrderController::class, 'forceDelete'])->name('orders.force-delete');
+        Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::post('orders/{order}/update-payment-status', [OrderController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
     });
 });

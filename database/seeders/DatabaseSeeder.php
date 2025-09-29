@@ -17,10 +17,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminSeeder::class,
             BrandSeeder::class,
-            CategorySeeder::class
+            CategorySeeder::class,
+            UserSeeder::class,
+            AttributeSeeder::class,
+            AttributeValueSeeder::class,
+            ProductSeeder::class,
+            ProductVariantSeeder::class,
+            OrderSeeder::class,
         ]);
-
-        Product::factory(10)->create();
-
     }
 }

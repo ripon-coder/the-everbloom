@@ -90,4 +90,22 @@ class Product extends Model
                     ->withPivot('discount_price', 'discount_percentage')
                     ->withTimestamps();
     }
+
+    /**
+     * Get the orders that include this product.
+     */
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_products')
+                    ->withPivot('quantity', 'unit_price', 'total_price', 'discount_amount', 'notes')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get the order products for this product.
+     */
+    public function orderProducts()
+    {
+        return $this->hasMany(OrderProduct::class);
+    }
 }

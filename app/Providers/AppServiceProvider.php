@@ -8,6 +8,7 @@ use App\Repositories\Contracts\BrandRepository;
 use App\Repositories\Contracts\CategoryRepository;
 use App\Repositories\Contracts\CouponRepository;
 use App\Repositories\Contracts\FlashSaleRepository;
+use App\Repositories\Contracts\OrderRepository;
 use App\Repositories\Contracts\ProductRepository;
 use App\Repositories\Eloquent\AttributeEloquent;
 use App\Repositories\Eloquent\AttributeValueEloquent;
@@ -15,6 +16,7 @@ use App\Repositories\Eloquent\BrandEloquent;
 use App\Repositories\Eloquent\CategoryEloquent;
 use App\Repositories\Eloquent\CouponEloquent;
 use App\Repositories\Eloquent\FlashSaleEloquent;
+use App\Repositories\Eloquent\OrderEloquent;
 use App\Repositories\Eloquent\ProductEloquent;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -31,8 +33,9 @@ class AppServiceProvider extends ServiceProvider
         app()->bind(BrandRepository::class,BrandEloquent::class);
         app()->bind(CategoryRepository::class,CategoryEloquent::class);
         app()->bind(CouponRepository::class,CouponEloquent::class);
-        app()->bind(ProductRepository::class,ProductEloquent::class);
         app()->bind(FlashSaleRepository::class,FlashSaleEloquent::class);
+        app()->bind(OrderRepository::class,OrderEloquent::class);
+        app()->bind(ProductRepository::class,ProductEloquent::class);
     }
 
     /**
