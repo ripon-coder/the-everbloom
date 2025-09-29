@@ -240,4 +240,69 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     }
+
+    // Check current URL and open marketing dropdown if on marketing-related pages
+    const marketingDropdown = document.getElementById("dropdown-marketing");
+    const marketingArrow = document.getElementById("arrow-dropdown-marketing");
+    const marketingButton = document.getElementById("marketing-button");
+
+    if (marketingDropdown) {
+        // Check if current path contains marketing-related routes
+        // Also respect the server-side initial state
+        const marketingServerInitialState = marketingDropdown.getAttribute('data-initial-state');
+        const isMarketingRelevantPath = currentPath.includes("/admin/coupons") || 
+                                      currentPath.includes("/admin/campaigns") || 
+                                      currentPath.includes("/admin/promotions") || 
+                                      currentPath.includes("/admin/discounts");
+        
+        if (marketingServerInitialState === 'expanded' || isMarketingRelevantPath) {
+            marketingDropdown.classList.remove("hidden");
+            marketingDropdown.classList.add("show");
+            marketingDropdown.classList.add("keep-open");
+
+            if (marketingArrow) {
+                marketingArrow.classList.add("rotate-180");
+            }
+
+            // Add active styling to marketing button
+            if (marketingButton) {
+                marketingButton.classList.remove(
+                    "text-gray-600",
+                    "dark:text-gray-300",
+                    "hover:bg-gray-100",
+                    "dark:hover:bg-gray-800"
+                );
+                marketingButton.classList.add(
+                    "text-blue-600",
+                    "bg-blue-50",
+                    "dark:text-blue-400",
+                    "dark:bg-blue-900/20"
+                );
+            }
+        } else {
+            marketingDropdown.classList.add("hidden");
+            marketingDropdown.classList.remove("show");
+            marketingDropdown.classList.remove("keep-open");
+
+            if (marketingArrow) {
+                marketingArrow.classList.remove("rotate-180");
+            }
+
+            // Remove active styling from marketing button
+            if (marketingButton) {
+                marketingButton.classList.remove(
+                    "text-blue-600",
+                    "bg-blue-50",
+                    "dark:text-blue-400",
+                    "dark:bg-blue-900/20"
+                );
+                marketingButton.classList.add(
+                    "text-gray-600",
+                    "dark:text-gray-300",
+                    "hover:bg-gray-100",
+                    "dark:hover:bg-gray-800"
+                );
+            }
+        }
+    }
 });

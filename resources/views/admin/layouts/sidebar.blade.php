@@ -136,6 +136,69 @@
                     </ul>
                 </li>
 
+                <!-- Marketing Dropdown -->
+                <li>
+                    <button type="button" onclick="toggleDropdown('dropdown-marketing')"
+                        class="flex items-center w-full p-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg group transition-all duration-200 {{ request()->is('admin/coupons*') || request()->is('admin/flash-sales*') || request()->is('admin/campaigns*') || request()->is('admin/promotions*') || request()->is('admin/discounts*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : '' }}" id="marketing-button">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-3 font-medium flex-1 text-left">Marketing</span>
+                        <svg class="w-4 h-4 transition-transform duration-300 {{ request()->is('admin/coupons*') || request()->is('admin/flash-sales*') || request()->is('admin/campaigns*') || request()->is('admin/promotions*') || request()->is('admin/discounts*') ? 'rotate-180' : '' }}" fill="none" viewBox="0 0 10 6"
+                            id="arrow-dropdown-marketing">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="m1 1 4 4 4-4" />
+                        </svg>
+                    </button>
+                    <ul id="dropdown-marketing" class="{{ request()->is('admin/coupons*') || request()->is('admin/flash-sales*') || request()->is('admin/campaigns*') || request()->is('admin/promotions*') || request()->is('admin/discounts*') ? '' : 'hidden' }} py-2 space-y-1 ml-4" data-initial-state="{{ request()->is('admin/coupons*') || request()->is('admin/flash-sales*') || request()->is('admin/campaigns*') || request()->is('admin/promotions*') || request()->is('admin/discounts*') ? 'expanded' : 'collapsed' }}">
+                        <li>
+                            <a href="{{route('admin.coupons.index')}}"
+                                class="flex items-center p-2 @activeWildcard('admin/coupons') rounded-lg transition-all duration-200">
+                                <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5 5a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V8a3 3 0 00-3-3H5zm-1 9V8a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1zm6 0V8a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1zm6 0V8a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                Coupons
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{route('admin.flash-sales.index')}}"
+                                class="flex items-center p-2 @activeWildcard('admin/flash-sales') rounded-lg transition-all duration-200">
+                                <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                </svg>
+                                Flash Sales
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                                class="flex items-center p-2 text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-all duration-200">
+                                <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                </svg>
+                                Campaigns
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                                class="flex items-center p-2 text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-all duration-200">
+                                <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                                </svg>
+                                Promotions
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                                class="flex items-center p-2 text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-all duration-200">
+                                <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0v1H8a1 1 0 110 2h1v1a1 1 0 11-2 0v1H6a1 1 0 100 2h1v1a1 1 0 112 0v-1h1a1 1 0 100-2h-1v-1a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                Discounts
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 <!-- Products Dropdown -->
                 <li>
                     <button type="button" onclick="toggleDropdown('products-dropdown')"
@@ -208,18 +271,6 @@
                             </a>
                         </li>
                     </ul>
-                </li>
-
-                <!-- Marketing -->
-                <li>
-                    <a href="#"
-                        class="flex items-center p-3 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 group transition-all duration-200">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="ml-3 font-medium">Marketing</span>
-                        <span class="ml-auto bg-green-500 text-white text-xs px-2 py-1 rounded-full">New</span>
-                    </a>
                 </li>
 
                 <!-- CRM -->

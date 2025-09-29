@@ -80,4 +80,14 @@ class Product extends Model
     {
         return $query->where('status', ProductStatus::ACTIVE);
     }
+
+    /**
+     * Get the flash sales associated with the product.
+     */
+    public function flashSales()
+    {
+        return $this->belongsToMany(FlashSale::class, 'flash_sale_product')
+                    ->withPivot('discount_price', 'discount_percentage')
+                    ->withTimestamps();
+    }
 }

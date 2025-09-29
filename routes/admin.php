@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\FlashSaleController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\ProductImageController;
@@ -29,14 +31,6 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::post('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
         Route::delete('products/{product}/force-delete', [ProductController::class, 'forceDelete'])->name('products.force-delete');
         
-        // Product Variants
-        Route::resource("product-variants", ProductVariantController::class);
-        Route::post('product-variants/{product_variant}/restore', [ProductVariantController::class, 'restore'])->name('product-variants.restore');
-        Route::delete('product-variants/{product_variant}/force-delete', [ProductVariantController::class, 'forceDelete'])->name('product-variants.force-delete');
-        
-        
-        // Variant Attributes
-        Route::resource("variant-attributes", VariantAttributeController::class);
         
         // Other Resources
         Route::resource("brands", BrandController::class);
@@ -44,5 +38,15 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::resource("attributes", AttributeController::class);
         Route::get('attributes/{attribute}/values', [AttributeController::class, 'getValues'])->name('attributes.values');
         Route::resource("attribute-values", AttributeValueController::class);
+        
+        // Coupon Management
+        Route::resource("coupons", CouponController::class);
+        Route::post('coupons/{coupon}/restore', [CouponController::class, 'restore'])->name('coupons.restore');
+        Route::delete('coupons/{coupon}/force-delete', [CouponController::class, 'forceDelete'])->name('coupons.force-delete');
+
+        // Flash Sale Management
+        Route::resource("flash-sales", FlashSaleController::class)->parameters(['flash-sales' => 'flashSale']);
+        Route::post('flash-sales/{flashSale}/restore', [FlashSaleController::class, 'restore'])->name('flash-sales.restore');
+        Route::delete('flash-sales/{flashSale}/force-delete', [FlashSaleController::class, 'forceDelete'])->name('flash-sales.force-delete');
     });
 });
