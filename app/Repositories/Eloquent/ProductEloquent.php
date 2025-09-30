@@ -104,9 +104,9 @@ class ProductEloquent implements ProductRepository
         $offset = ($page - 1) * $perPage;
 
         $data['products'] = Product::active()
-            ->with('firstImage.media')
+            ->with(relations: 'firstImage.media')
             ->skip($offset)
-            ->take($perPage)
+            ->take(value: $perPage)
             ->orderByDesc("updated_at")
             ->get(['id','name','price','slug']);
         $total = Product::active()->count();
