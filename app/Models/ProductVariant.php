@@ -18,8 +18,8 @@ class ProductVariant extends Model
         'sell_price',
         'discount_price',
         'stock',
-        'status',
-        'track_stock'
+        'weight',
+        'status'
     ];
 
     protected $casts = [
@@ -27,8 +27,8 @@ class ProductVariant extends Model
         'sell_price' => 'decimal:2',
         'discount_price' => 'decimal:2',
         'stock' => 'integer',
-        'status' => ProductVariantStatus::class,
-        'track_stock' => 'boolean'
+        'weight' => 'decimal:2',
+        'status' => ProductVariantStatus::class
     ];
 
     /**

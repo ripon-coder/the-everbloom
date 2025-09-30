@@ -26,9 +26,9 @@ class OrderService
     /**
      * Get all orders with pagination and filtering.
      */
-    public function getAllOrders(array $filters = [], int $perPage = 15): LengthAwarePaginator
+    public function getAllOrders(int $perPage = 15): LengthAwarePaginator
     {
-        return $this->orderRepository->getAll($filters, $perPage);
+        return $this->orderRepository->getAll($perPage);
     }
 
     /**
@@ -40,43 +40,11 @@ class OrderService
     }
 
     /**
-     * Create a new order.
-     */
-    public function createOrder(array $data): Order
-    {
-        return $this->orderRepository->create($data);
-    }
-
-    /**
-     * Update an order.
-     */
-    public function updateOrder(int $id, array $data): bool
-    {
-        return $this->orderRepository->update($id, $data);
-    }
-
-    /**
      * Delete an order.
      */
     public function deleteOrder(int $id): bool
     {
         return $this->orderRepository->delete($id);
-    }
-
-    /**
-     * Restore a deleted order.
-     */
-    public function restoreOrder(int $id): bool
-    {
-        return $this->orderRepository->restore($id);
-    }
-
-    /**
-     * Force delete an order.
-     */
-    public function forceDeleteOrder(int $id): bool
-    {
-        return $this->orderRepository->forceDelete($id);
     }
 
     /**
@@ -95,69 +63,6 @@ class OrderService
         return $this->orderRepository->updatePaymentStatus($id, $paymentStatus);
     }
 
-    /**
-     * Get payments for an order.
-     */
-    public function getOrderPayments(int $orderId)
-    {
-        return $this->orderRepository->getPayments($orderId);
-    }
-
-    /**
-     * Create a payment for an order.
-     */
-    public function createOrderPayment(int $orderId, array $paymentData)
-    {
-        return $this->orderRepository->createPayment($orderId, $paymentData);
-    }
-
-    /**
-     * Update a payment.
-     */
-    public function updatePayment(int $paymentId, array $paymentData): bool
-    {
-        return $this->orderRepository->updatePayment($paymentId, $paymentData);
-    }
-
-    /**
-     * Delete a payment.
-     */
-    public function deletePayment(int $paymentId): bool
-    {
-        return $this->orderRepository->deletePayment($paymentId);
-    }
-
-    /**
-     * Get trackings for an order.
-     */
-    public function getOrderTrackings(int $orderId)
-    {
-        return $this->orderRepository->getTrackings($orderId);
-    }
-
-    /**
-     * Create a tracking for an order.
-     */
-    public function createOrderTracking(int $orderId, array $trackingData)
-    {
-        return $this->orderRepository->createTracking($orderId, $trackingData);
-    }
-
-    /**
-     * Update a tracking.
-     */
-    public function updateTracking(int $trackingId, array $trackingData): bool
-    {
-        return $this->orderRepository->updateTracking($trackingId, $trackingData);
-    }
-
-    /**
-     * Delete a tracking.
-     */
-    public function deleteTracking(int $trackingId): bool
-    {
-        return $this->orderRepository->deleteTracking($trackingId);
-    }
 
     /**
      * Get order statistics.

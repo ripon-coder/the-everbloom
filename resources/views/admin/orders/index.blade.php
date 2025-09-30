@@ -7,14 +7,14 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-900">Orders</h1>
-            <a href="{{ route('admin.orders.create') }}"
+            {{-- <a href="{{ route('admin.orders.create') }}"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
                 Add Order
-            </a>
+            </a> --}}
         </div>
 
         <!-- Orders Table -->
@@ -23,14 +23,22 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order #</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order
+                                #</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Payment</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -38,7 +46,8 @@
                             <tr class="hover:bg-gray-50 transition duration-150">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $order->id }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                         {{ $order->order_number }}
                                     </span>
                                 </td>
@@ -49,22 +58,17 @@
                                     ${{ number_format($order->total_amount, 2) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                    {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                       ($order->status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                                       ($order->status === 'shipped' ? 'bg-purple-100 text-purple-800' :
-                                       ($order->status === 'delivered' ? 'bg-green-100 text-green-800' :
-                                       'bg-red-100 text-red-800'))) }}">
-                                        {{ ucfirst($order->status) }}
+                                    <span
+                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                    {{ $order->getStatusColor() }}">
+                                        {{ $order->getStatusText() }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                    {{ $order->payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                       ($order->payment_status === 'paid' ? 'bg-green-100 text-green-800' :
-                                       ($order->payment_status === 'failed' ? 'bg-red-100 text-red-800' :
-                                       'bg-gray-100 text-gray-800')) }}">
-                                        {{ ucfirst($order->payment_status) }}
+                                    <span
+                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                    {{ $order->getPaymentStatusColor() }}">
+                                        {{ $order->getPaymentStatusText() }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -84,7 +88,7 @@
                                                 </path>
                                             </svg>
                                         </a>
-                                        <a href="{{ route('admin.orders.edit', $order->id) }}"
+                                        {{-- <a href="{{ route('admin.orders.edit', $order->id) }}"
                                             class="text-yellow-600 hover:text-yellow-900 transition duration-150"
                                             title="Edit">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -94,46 +98,16 @@
                                                 </path>
                                             </svg>
                                         </a>
-                                        @if ($order->trashed())
-                                            <form action="{{ route('admin.orders.restore', $order->id) }}"
-                                                method="POST" class="inline">
-                                                @csrf
-                                                <button type="submit"
-                                                    class="text-green-600 hover:text-green-900 transition duration-150"
-                                                    title="Restore">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                                                        </path>
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                            <button
-                                                onclick="showDeleteModal('order permanently', '{{ route('admin.orders.force-delete', $order->id) }}', '{{ $order->order_number }}')"
-                                                class="text-red-600 hover:text-red-900 transition duration-150"
-                                                title="Force Delete">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                    </path>
-                                                </svg>
-                                            </button>
-                                        @else
-                                            <button
-                                                onclick="showDeleteModal('order', '{{ route('admin.orders.destroy', $order->id) }}', '{{ $order->order_number }}')"
-                                                class="text-red-600 hover:text-red-900 transition duration-150"
-                                                title="Delete">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                    </path>
-                                                </svg>
-                                            </button>
-                                        @endif
+                                        <button
+                                            onclick="showDeleteModal('order', '{{ route('admin.orders.destroy', $order->id) }}', '{{ $order->order_number }}')"
+                                            class="text-red-600 hover:text-red-900 transition duration-150" title="Delete">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                </path>
+                                            </svg>
+                                        </button> --}}
                                     </div>
                                 </td>
                             </tr>

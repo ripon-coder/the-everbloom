@@ -23,7 +23,7 @@
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
-                    Edit Order
+                    Download Invoice
                 </a>
             </div>
         </div>
@@ -39,12 +39,8 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Order Status</label>
                             <div class="flex items-center space-x-2">
                                 <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full 
-                                    {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                       ($order->status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                                       ($order->status === 'shipped' ? 'bg-purple-100 text-purple-800' :
-                                       ($order->status === 'delivered' ? 'bg-green-100 text-green-800' :
-                                       'bg-red-100 text-red-800'))) }}">
-                                    {{ ucfirst($order->status) }}
+                                    {{ $order->getStatusColor() }}">
+                                    {{ $order->getStatusText() }}
                                 </span>
                                 <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST" class="inline">
                                     @csrf
@@ -62,11 +58,8 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Payment Status</label>
                             <div class="flex items-center space-x-2">
                                 <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full 
-                                    {{ $order->payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                       ($order->payment_status === 'paid' ? 'bg-green-100 text-green-800' :
-                                       ($order->payment_status === 'failed' ? 'bg-red-100 text-red-800' :
-                                       'bg-gray-100 text-gray-800')) }}">
-                                    {{ ucfirst($order->payment_status) }}
+                                    {{ $order->getPaymentStatusColor() }}">
+                                    {{ $order->getPaymentStatusText() }}
                                 </span>
                                 <form action="{{ route('admin.orders.update-payment-status', $order->id) }}" method="POST" class="inline">
                                     @csrf

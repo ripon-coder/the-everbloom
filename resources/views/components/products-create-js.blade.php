@@ -640,11 +640,11 @@
                     </svg>
                     <h4 class="text-md font-semibold text-gray-900 dark:text-white">Variant Details</h4>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <svg class="w-4 h-4 inline mr-1 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.a586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                             </svg>
                             SKU
                         </label>
@@ -658,6 +658,15 @@
                             Stock
                         </label>
                         <input type="number" name="variants[${variantCount}][stock]" value="10" placeholder="0" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <svg class="w-4 h-4 inline mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
+                            </svg>
+                            Weight (kg) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" name="variants[${variantCount}][weight]" step="0.01" min="0" placeholder="0.00" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
                     </div>
                 </div>
                 
@@ -1079,6 +1088,9 @@
 
                         const stockInput = currentVariantElement.querySelector(`input[name$="[stock]"]`);
                         if (stockInput && variantData.stock) stockInput.value = variantData.stock;
+
+                        const weightInput = currentVariantElement.querySelector(`input[name$="[weight]"]`);
+                        if (weightInput && variantData.weight) weightInput.value = variantData.weight;
 
                         const buyingPriceInput = currentVariantElement.querySelector(`input[name$="[buying_price]"]`);
                         if (buyingPriceInput && variantData.buying_price) buyingPriceInput.value = variantData.buying_price;

@@ -118,6 +118,7 @@
                                         <div class="flex items-center space-x-4 mt-1">
                                             <span class="text-sm text-gray-500">Price: ${{ number_format($variant->price ?: $product->price, 2) }}</span>
                                             <span class="text-sm text-gray-500">Stock: {{ $variant->stock }}</span>
+                                            <span class="text-sm text-gray-500">Weight: {{ number_format($variant->weight, 2) }} kg</span>
                                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
                                                 {{ $variant->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                                 {{ ucfirst($variant->status) }}

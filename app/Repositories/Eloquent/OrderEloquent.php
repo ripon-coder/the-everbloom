@@ -24,44 +24,10 @@ class OrderEloquent implements OrderRepository
     /**
      * Get all orders with pagination and filtering.
      */
-    public function getAll(array $filters = [], int $perPage = 15): LengthAwarePaginator
+    public function getAll(int $perPage = 15): LengthAwarePaginator
     {
-        $query = $this->model->with(['user', 'orderProducts.product']);
-
-        // Apply filters
-        if (!empty($filters['status'])) {
-            $query->where('status', $filters['status']);
-        }
-
-        if (!empty($filters['payment_status'])) {
-            $query->where('payment_status', $filters['payment_status']);
-        }
-
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhereHas('user', function ($userQuery) use ($search) {
-                      $userQuery->where('name', 'like', "%{$search}%")
-                               ->orWhere('email', 'like', "%{$search}%");
-                  });
-            });
-        }
-
-        if (!empty($filters['date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['date_from']);
-        }
-
-        if (!empty($filters['date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['date_to']);
-        }
-
-        // Order by
-        $orderBy = $filters['order_by'] ?? 'created_at';
-        $orderDirection = $filters['order_direction'] ?? 'desc';
-        $query->orderBy($orderBy, $orderDirection);
-
-        return $query->paginate($perPage);
+        return $this->model->with(['user', 'orderProducts.product'])->orderByDesc("id")->paginate($perPage);
+  
     }
 
     /**

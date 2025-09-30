@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('product_variants', function (Blueprint $table) {
-            $table->boolean('track_stock')->default(true)->after('status');
+            $table->decimal('weight', 8, 2)->nullable()->after('stock')->comment('Weight in kg');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('product_variants', function (Blueprint $table) {
-            $table->dropColumn(['track_stock']);
+            $table->dropColumn('weight');
         });
     }
 };

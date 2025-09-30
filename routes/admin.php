@@ -52,8 +52,6 @@ Route::prefix('admin')->as("admin.")->group(function () {
 
         // Order Management
         Route::resource("orders", OrderController::class);
-        Route::post('orders/{order}/restore', [OrderController::class, 'restore'])->name('orders.restore');
-        Route::delete('orders/{order}/force-delete', [OrderController::class, 'forceDelete'])->name('orders.force-delete');
         Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::post('orders/{order}/update-payment-status', [OrderController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
     });

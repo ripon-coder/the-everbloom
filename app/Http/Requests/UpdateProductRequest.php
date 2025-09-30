@@ -68,6 +68,7 @@ class UpdateProductRequest extends FormRequest
             }],
             'variants.*.price' => ['nullable', 'numeric', 'min:0', 'decimal:0,2'],
             'variants.*.stock' => ['required_with:variants', 'integer', 'min:0'],
+            'variants.*.weight' => ['required_with:variants', 'numeric', 'min:0', 'decimal:0,2'],
             'variants.*.status' => ['required_with:variants', 'string', 'in:active,inactive'],
             'variants.*.attributes' => ['nullable', 'array'],
             'variants.*.attributes.*.attribute_id' => ['required_with:variants.*.attributes', 'exists:attributes,id'],

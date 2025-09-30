@@ -72,6 +72,7 @@ class ProductService
                         'discount_price' => $variantData['discount_price'],
                         'discount_amount' => "25",
                         'stock' => $variantData['stock'],
+                        'weight' => $variantData['weight'],
                         'status' => $variantData['status'] ?? 'active',
                     ]);
 
@@ -232,6 +233,7 @@ class ProductService
                                 'sell_price' => $variantData['sell_price'] ?? $product->price,
                                 'discount_price' => $variantData['discount_price'] ?? 0,
                                 'stock' => $variantData['stock'],
+                                'weight' => $variantData['weight'] ?? 0,
                                 'status' => $variantData['status'] ?? 'active',
                             ]);
                         } else {
@@ -242,6 +244,7 @@ class ProductService
                                 'sell_price' => $variantData['sell_price'] ?? $product->price,
                                 'discount_price' => $variantData['discount_price'] ?? 0,
                                 'stock' => $variantData['stock'],
+                                'weight' => $variantData['weight'] ?? 0,
                                 'status' => $variantData['status'] ?? 'active',
                             ]);
                         }
@@ -254,6 +257,7 @@ class ProductService
                                 'sell_price' => $variantData['sell_price'] ?? $product->price,
                                 'discount_price' => $variantData['discount_price'] ?? 0,
                                 'stock' => $variantData['stock'],
+                                'weight' => $variantData['weight'] ?? 0,
                                 'status' => $variantData['status'] ?? 'active',
                             ]
                         );
@@ -348,7 +352,7 @@ class ProductService
         return $product->load([
             'brand:id,name',
             'category:id,name',
-            'variants:id,product_id,sku,buying_price,sell_price,discount_price,discount_amount,stock,status',
+            'variants:id,product_id,sku,buying_price,sell_price,discount_price,discount_amount,stock,weight,status',
             'variants.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
             'variants.variantAttributes.attribute:id,name',
             'variants.variantAttributes.attributeValue:id,value',

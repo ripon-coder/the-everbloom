@@ -35,7 +35,7 @@ class ProductEloquent implements ProductRepository
         $data['product'] = Product::with([
             'brand:id,name',
             'category:id,name',
-            'variants:id,product_id,sku,buying_price,sell_price,discount_price,discount_amount,stock,status',
+            'variants:id,product_id,sku,buying_price,sell_price,discount_price,discount_amount,stock,weight,status',
             'variants.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
             'variants.variantAttributes.attribute:id,name',
             'variants.variantAttributes.attributeValue:id,attribute_id,value',
