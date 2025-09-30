@@ -62,7 +62,7 @@ class ProductImage extends Model implements HasMedia
         $media = $this->getFirstMedia('product_images');
 
         if (!$media) {
-            return asset('/images/default-logo.png');
+            return asset('/images/product.webp');
         }
 
         // Try to get WebP version first, fallback to original
