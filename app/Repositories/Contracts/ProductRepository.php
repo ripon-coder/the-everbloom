@@ -10,4 +10,8 @@ interface ProductRepository{
     public function destroy(int $id);
     public function restore(int $id);
     public function forceDelete(int $id);
+
+    // Api
+    public function shopProduct(array $data);
+
 }

@@ -41,7 +41,7 @@ class ProductEloquent implements ProductRepository
             'variants.variantAttributes.attributeValue:id,attribute_id,value',
             'images:id,product_id,is_default',
             'variants.images:id,product_variant_id,is_default'
-        ])->withCount(['variants','images'])->findOrFail($id);
+        ])->withCount(['variants', 'images'])->findOrFail($id);
 
         $data['brands'] = Brand::active()->get(['id', 'name']);
         $data['categories'] = Category::active()->select(['id', 'parent_id', 'name'])
@@ -96,4 +96,28 @@ class ProductEloquent implements ProductRepository
         $product = Product::withTrashed()->findOrFail($id);
         return $product->forceDelete();
     }
+
+    public function shopProduct(array $dataRecive)
+    {
+        $page = $dataRecive['current_page'] ?? 1;
+        $perPage = $dataRecive['per_page'] ?? 20;
+        $offset = ($page - 1) * $perPage;
+
+        $data['products'] = Product::active()
+            ->with('firstImage.media')
+            ->skip($offset)
+            ->take($perPage)
+            ->orderByDesc("updated_at")
+            ->get(['id','name','price','slug']);
+        $total = Product::active()->count();
+
+        $data['pagination'] =[
+            "current_page" => $page,
+            "per_page" => $perPage,
+            "total" => $total,
+            "last_page" => ceil($total / $perPage),
+        ];
+        return $data;
+    }
+
 }

@@ -3,15 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ParentCategoryResource;
+use App\Services\Api\CategoryServiceApi;
 use Illuminate\Http\Request;
 
-class CategoryControllerApi extends Controller
+class CategoryControllerApi extends BaseApiController
 {
 
-    public function __construct(){
-        
+    public $categoryService;
+    public function __construct(CategoryServiceApi $categoryService)
+    {
+        $this->categoryService = $categoryService;
     }
-    public function ParentCategory(){
-        return "parent category";
+    public function ParentCategory()
+    {
+        $category = $this->categoryService->ParentCategory();
+        $data = ParentCategoryResource::collection($category);
+        return $this->successResponse($data, 'Category fetched successfully');
+
     }
 }

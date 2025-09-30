@@ -32,4 +32,7 @@ class CategoryEloquent implements CategoryRepository
         $category->update($data);
         return $category;
     }
+    public function parentCategory(){
+        return Category::with('media')->whereNull("parent_id")->active()->get(['id','name','slug']);
+    }
 }
