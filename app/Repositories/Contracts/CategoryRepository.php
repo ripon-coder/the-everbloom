@@ -7,4 +7,5 @@ interface CategoryRepository{
     public function create(array $data);
     public function update($id, array $data);
     public function parentCategory();
+    public function allCategory();
 }

@@ -32,4 +32,8 @@ class BrandEloquent implements BrandRepository
         $brand->update($data);
         return $brand;
     }
+
+    public function AllBrandApi(){
+        return Brand::orderBy("name")->active()->get(['id','slug','name']);
+    }
 }

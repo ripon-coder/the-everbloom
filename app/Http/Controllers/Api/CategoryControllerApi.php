@@ -20,6 +20,8 @@ class CategoryControllerApi extends BaseApiController
         $category = $this->categoryService->ParentCategory();
         $data = ParentCategoryResource::collection($category);
         return $this->successResponse($data, 'Category fetched successfully');
-
+    }
+    public function AllCategory(){
+        return $this->categoryService->AllCategory();
     }
 }

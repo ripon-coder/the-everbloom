@@ -7,14 +7,15 @@ use Illuminate\Http\Request;
 use App\Services\ProductService;
 use App\Http\Controllers\Controller;
 
-class ProductControllerApi extends Controller
+class ProductControllerApi extends BaseApiController
 {
     public $productService;
     public function __construct(ProductsServiceApi $productService){
         $this->productService = $productService;
     }
     public function ShopProducts(Request $request){
-        return $this->productService->ShopProducts($request->all());
+        $data = $this->productService->ShopProducts($request->all());
+        return $this->successResponse($data,"Shop products");
        
     }
 }

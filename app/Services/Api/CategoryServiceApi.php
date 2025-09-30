@@ -15,4 +15,7 @@ class CategoryServiceApi
     {
         return $this->categoryRepository->parentCategory();
     }
+    public function AllCategory(){
+        return $this->categoryRepository->allCategory();
+    }
 }

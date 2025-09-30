@@ -17,7 +17,8 @@ class CategoryEloquent implements CategoryRepository
         return Category::with("media")->orderByDesc("id")->paginate(15);
     }
 
-    public function DeleteFindBuyId($id){
+    public function DeleteFindBuyId($id)
+    {
         return $this->FindById($id)->delete();
     }
 
@@ -32,7 +33,18 @@ class CategoryEloquent implements CategoryRepository
         $category->update($data);
         return $category;
     }
-    public function parentCategory(){
-        return Category::with('media')->whereNull("parent_id")->active()->get(['id','name','slug']);
+    public function parentCategory()
+    {
+        return Category::with('media')->whereNull("parent_id")->active()->get(['id', 'name', 'slug']);
+    }
+
+    public function allCategory()
+    {
+return Category::with([
+        'parent:id,name,slug',
+        'children:id,parent_id,name,slug'
+    ])
+    ->active()
+    ->get(['id','parent_id','name','slug']);
     }
 }
