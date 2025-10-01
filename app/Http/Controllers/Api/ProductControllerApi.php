@@ -26,4 +26,9 @@ class ProductControllerApi extends BaseApiController
         return $this->successResponse($data, "Shop products");
 
     }
+
+    public function ShopAttribute(Request $request){
+        $data = $this->productService->ShopAttribute($request->all());
+        return $this->successResponse($data, "Shop attribute");
+    }
 }

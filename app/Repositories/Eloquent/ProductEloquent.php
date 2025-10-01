@@ -120,28 +120,46 @@ class ProductEloquent implements ProductRepository
         return $data;
     }
 
-public function ShopFilter(array $data)
-{
-    $category_id = $data['category_id'] ?? null;
-    $OutData = [
-        "attributes" => [],
-        "categories" => [],
-        "brands" => []
-    ];
+    public function ShopFilter(array $data)
+    {
+        $category_slug = $data['category'] ?? null;
+        $category_id = Category::where("slug", $category_slug)->value("id");
+        $OutData = [
+            "attributes" => [],
+            "categories" => [],
+            "brands" => []
+        ];
 
-    $query = Category::with(['parent:id,name,slug', 'children'])
-        ->active();
+        $query = Category::with(['parent:id,name,slug', 'children'])
+            ->active();
 
-    if ($category_id) {
-        $categoryIds = $this->getCategoryWithSiblingLogic($category_id);
-        $query->whereIn('id', $categoryIds);
+        if ($category_id) {
+            $categoryIds = $this->getCategoryWithSiblingLogic($category_id);
+            $query->whereIn('id', $categoryIds);
+        }
+
+        $OutData["categories"] = $query->get(['id', 'parent_id', 'name', 'slug']);
+
+        $OutData["brands"] = Brand::orderBy("name")->active()->get(['id', 'slug', 'name']);
+
+
+
+        return $OutData;
     }
 
-    $OutData["categories"] = $query->get(['id', 'parent_id', 'name', 'slug']);
+public function ShopAttribute(array $data)
+{
+    $category_id = $data['category_id'] ?? null;
 
-    $OutData["brands"] = Brand::orderBy("name")->active()->get(['id', 'slug', 'name']);
+    $OutData = [
+        "attributes" => []
+    ];
 
     if ($category_id) {
+        // Get category + children/sibling ids
+        $categoryIds = $this->getCategoryWithSiblingLogic($category_id);
+
+        // Fetch attributes used only in products of these categories
         $attributesQuery = Attribute::with([
             'attributeValues' => function ($q) use ($categoryIds) {
                 $q->select('id', 'attribute_id', 'value')
@@ -158,6 +176,8 @@ public function ShopFilter(array $data)
 
     return $OutData;
 }
+
+
 
 
     private function getAllChildrenIds($parent_id)
