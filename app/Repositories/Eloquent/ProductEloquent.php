@@ -120,43 +120,45 @@ class ProductEloquent implements ProductRepository
         return $data;
     }
 
-    public function ShopFilter(array $data)
-    {
-        $category_id = $data['category_id'] ?? null;
-        $OutData = [
-            "attributes" => [],
-            "categories" => [],
-            "brands" => []
-        ];
+public function ShopFilter(array $data)
+{
+    $category_id = $data['category_id'] ?? null;
+    $OutData = [
+        "attributes" => [],
+        "categories" => [],
+        "brands" => []
+    ];
 
-        $query = Category::with(['parent:id,name,slug', 'children.children'])
-            ->active();
+    $query = Category::with(['parent:id,name,slug', 'children'])
+        ->active();
 
-        if ($category_id) {
-            $categoryIds = $this->getCategoryWithSiblingLogic($category_id);
-            $query->whereIn('id', $categoryIds);
-        }
-
-        $OutData["categories"] = $query->get(['id', 'parent_id', 'name', 'slug']);
-        $OutData["brands"] = Brand::orderBy("name")->active()->get(['id', 'slug', 'name']);
-
-        if ($category_id) {
-            $attributesQuery = Attribute::with([
-                'attributeValues' => function ($q) use ($categoryIds) {
-                    $q->select('id', 'attribute_id', 'value')
-                        ->whereHas('variantAttributes.productVariant.product', function ($q2) use ($categoryIds) {
-                            $q2->whereIn('category_id', $categoryIds);
-                        });
-                }
-            ])->whereHas('attributeValues.variantAttributes.productVariant.product', function ($q) use ($categoryIds) {
-                $q->whereIn('category_id', $categoryIds);
-            });
-
-            $OutData["attributes"] = $attributesQuery->get(['id', 'name']);
-        }
-
-        return $OutData;
+    if ($category_id) {
+        $categoryIds = $this->getCategoryWithSiblingLogic($category_id);
+        $query->whereIn('id', $categoryIds);
     }
+
+    $OutData["categories"] = $query->get(['id', 'parent_id', 'name', 'slug']);
+
+    $OutData["brands"] = Brand::orderBy("name")->active()->get(['id', 'slug', 'name']);
+
+    if ($category_id) {
+        $attributesQuery = Attribute::with([
+            'attributeValues' => function ($q) use ($categoryIds) {
+                $q->select('id', 'attribute_id', 'value')
+                  ->whereHas('variantAttributes.productVariant.product', function ($q2) use ($categoryIds) {
+                      $q2->whereIn('category_id', $categoryIds);
+                  });
+            }
+        ])->whereHas('attributeValues.variantAttributes.productVariant.product', function ($q) use ($categoryIds) {
+            $q->whereIn('category_id', $categoryIds);
+        });
+
+        $OutData["attributes"] = $attributesQuery->get(['id', 'name']);
+    }
+
+    return $OutData;
+}
+
 
     private function getAllChildrenIds($parent_id)
     {
