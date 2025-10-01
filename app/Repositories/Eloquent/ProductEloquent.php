@@ -123,39 +123,71 @@ class ProductEloquent implements ProductRepository
     public function ShopFilter(array $data)
     {
         $category_id = $data['category_id'] ?? null;
-        $OutData["attributes"] = [];
+        $OutData = [
+            "attributes" => [],
+            "categories" => [],
+            "brands" => []
+        ];
 
-        $query = Category::with([
-            'parent:id,name,slug',
-            'children' => function ($q) {
-                $q->select('id', 'parent_id', 'name', 'slug')->with('children');
-            }
-        ])->active();
-
-        if ($category_id) {
-            $query->where('id', $category_id);
-        }
+        $query = Category::with(['parent:id,name,slug', 'children.children'])
+            ->active();
 
         if ($category_id) {
-            $attributesQuery = Attribute::with([
-                'attributeValues' => function ($q) use ($category_id) {
-                    $q->select('id', 'attribute_id', 'value')
-                        ->whereHas('variantAttributes.productVariant.product', function ($q2) use ($category_id) {
-                            $q2->where('category_id', $category_id);
-                        });
-                }
-            ])->whereHas('attributeValues.variantAttributes.productVariant.product', function ($q) use ($category_id) {
-                $q->where('category_id', $category_id);
-            });
-
-            $OutData["attributes"] = $attributesQuery->get(['id', 'name']);
+            $categoryIds = $this->getCategoryWithSiblingLogic($category_id);
+            $query->whereIn('id', $categoryIds);
         }
 
         $OutData["categories"] = $query->get(['id', 'parent_id', 'name', 'slug']);
         $OutData["brands"] = Brand::orderBy("name")->active()->get(['id', 'slug', 'name']);
 
+        if ($category_id) {
+            $attributesQuery = Attribute::with([
+                'attributeValues' => function ($q) use ($categoryIds) {
+                    $q->select('id', 'attribute_id', 'value')
+                        ->whereHas('variantAttributes.productVariant.product', function ($q2) use ($categoryIds) {
+                            $q2->whereIn('category_id', $categoryIds);
+                        });
+                }
+            ])->whereHas('attributeValues.variantAttributes.productVariant.product', function ($q) use ($categoryIds) {
+                $q->whereIn('category_id', $categoryIds);
+            });
+
+            $OutData["attributes"] = $attributesQuery->get(['id', 'name']);
+        }
+
         return $OutData;
     }
+
+    private function getAllChildrenIds($parent_id)
+    {
+        $ids = Category::where('parent_id', $parent_id)->pluck('id')->toArray();
+
+        foreach ($ids as $childId) {
+            $ids = array_merge($ids, $this->getAllChildrenIds($childId));
+        }
+
+        return $ids;
+    }
+
+    private function getCategoryWithSiblingLogic($category_id)
+    {
+        $category = Category::with('children')->find($category_id);
+
+        if (!$category)
+            return [];
+
+        if ($category->children->isNotEmpty()) {
+            return array_merge([$category_id], $this->getAllChildrenIds($category_id));
+        } elseif ($category->parent_id) {
+            $siblings = Category::where('parent_id', $category->parent_id)->pluck('id')->toArray();
+            return array_merge([$category_id], $siblings);
+        }
+        return [$category_id];
+    }
+
+
+
+
 
 
 }

@@ -10,15 +10,20 @@ use App\Http\Controllers\Controller;
 class ProductControllerApi extends BaseApiController
 {
     public $productService;
-    public function __construct(ProductsServiceApi $productService){
+    public function __construct(ProductsServiceApi $productService)
+    {
         $this->productService = $productService;
     }
-    public function ShopProducts(Request $request){
+    public function ShopProducts(Request $request)
+    {
         $data = $this->productService->ShopProducts($request->all());
-        return $this->successResponse($data,"Shop products");
-       
+        return $this->successResponse($data, "Shop products");
+
     }
-    public function ShopFilter(Request $request){
-        return $this->productService->ShopFilter($request->all());
+    public function ShopFilter(Request $request)
+    {
+        $data = $this->productService->ShopFilter($request->all());
+        return $this->successResponse($data, "Shop products");
+
     }
 }
