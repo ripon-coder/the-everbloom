@@ -147,35 +147,41 @@ class ProductEloquent implements ProductRepository
         return $OutData;
     }
 
-public function ShopAttribute(array $data)
-{
-    $category_id = $data['category_id'] ?? null;
+    public function ShopAttribute(array $data)
+    {
+        $category_id = null;
 
-    $OutData = [
-        "attributes" => []
-    ];
+        if (!empty($data['category_id'])) {
+            $category_id = $data['category_id'];
+        } elseif (!empty($data['category'])) {
+            $category_id = Category::where('slug', $data['category'])->value('id');
+        }
 
-    if ($category_id) {
-        // Get category + children/sibling ids
-        $categoryIds = $this->getCategoryWithSiblingLogic($category_id);
+        $OutData = [
+            "attributes" => []
+        ];
 
-        // Fetch attributes used only in products of these categories
-        $attributesQuery = Attribute::with([
-            'attributeValues' => function ($q) use ($categoryIds) {
-                $q->select('id', 'attribute_id', 'value')
-                  ->whereHas('variantAttributes.productVariant.product', function ($q2) use ($categoryIds) {
-                      $q2->whereIn('category_id', $categoryIds);
-                  });
-            }
-        ])->whereHas('attributeValues.variantAttributes.productVariant.product', function ($q) use ($categoryIds) {
-            $q->whereIn('category_id', $categoryIds);
-        });
+        if ($category_id) {
+            // Get category + children/sibling ids
+            $categoryIds = $this->getCategoryWithSiblingLogic($category_id);
 
-        $OutData["attributes"] = $attributesQuery->get(['id', 'name']);
+            // Fetch attributes used only in products of these categories
+            $attributesQuery = Attribute::with([
+                'attributeValues' => function ($q) use ($categoryIds) {
+                    $q->select('id', 'attribute_id', 'value')
+                        ->whereHas('variantAttributes.productVariant.product', function ($q2) use ($categoryIds) {
+                            $q2->whereIn('category_id', $categoryIds);
+                        });
+                }
+            ])->whereHas('attributeValues.variantAttributes.productVariant.product', function ($q) use ($categoryIds) {
+                $q->whereIn('category_id', $categoryIds);
+            });
+
+            $OutData["attributes"] = $attributesQuery->get(['id', 'name']);
+        }
+
+        return $OutData;
     }
-
-    return $OutData;
-}
 
 
 
