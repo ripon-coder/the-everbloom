@@ -10,6 +10,7 @@ Route::prefix("v1")->group(function(){
     Route::get("parent-category",[CategoryControllerApi::class,'ParentCategory']);
     Route::get("all-category",[CategoryControllerApi::class,'AllCategory']);
     Route::get('shop-products',[ProductControllerApi::class,'ShopProducts']);
+    Route::get('shop-filter',[ProductControllerApi::class,'ShopFilter']);
     Route::get('all-brands',[BrandControllerApi::class,'AllBrand']);
 });
 

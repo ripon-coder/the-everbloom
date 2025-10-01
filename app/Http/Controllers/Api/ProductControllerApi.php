@@ -18,4 +18,7 @@ class ProductControllerApi extends BaseApiController
         return $this->successResponse($data,"Shop products");
        
     }
+    public function ShopFilter(Request $request){
+        return $this->productService->ShopFilter($request->all());
+    }
 }

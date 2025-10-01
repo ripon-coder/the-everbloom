@@ -108,10 +108,10 @@ class ProductEloquent implements ProductRepository
             ->skip($offset)
             ->take(value: $perPage)
             ->orderByDesc("updated_at")
-            ->get(['id','name','price','slug']);
+            ->get(['id', 'name', 'price', 'slug']);
         $total = Product::active()->count();
 
-        $data['pagination'] =[
+        $data['pagination'] = [
             "current_page" => $page,
             "per_page" => $perPage,
             "total" => $total,
@@ -119,5 +119,43 @@ class ProductEloquent implements ProductRepository
         ];
         return $data;
     }
+
+    public function ShopFilter(array $data)
+    {
+        $category_id = $data['category_id'] ?? null;
+        $OutData["attributes"] = [];
+
+        $query = Category::with([
+            'parent:id,name,slug',
+            'children' => function ($q) {
+                $q->select('id', 'parent_id', 'name', 'slug')->with('children');
+            }
+        ])->active();
+
+        if ($category_id) {
+            $query->where('id', $category_id);
+        }
+
+        if ($category_id) {
+            $attributesQuery = Attribute::with([
+                'attributeValues' => function ($q) use ($category_id) {
+                    $q->select('id', 'attribute_id', 'value')
+                        ->whereHas('variantAttributes.productVariant.product', function ($q2) use ($category_id) {
+                            $q2->where('category_id', $category_id);
+                        });
+                }
+            ])->whereHas('attributeValues.variantAttributes.productVariant.product', function ($q) use ($category_id) {
+                $q->where('category_id', $category_id);
+            });
+
+            $OutData["attributes"] = $attributesQuery->get(['id', 'name']);
+        }
+
+        $OutData["categories"] = $query->get(['id', 'parent_id', 'name', 'slug']);
+        $OutData["brands"] = Brand::orderBy("name")->active()->get(['id', 'slug', 'name']);
+
+        return $OutData;
+    }
+
 
 }

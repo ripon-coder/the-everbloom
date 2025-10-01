@@ -17,4 +17,7 @@ class ProductsServiceApi{
         $outData['products'] =  ProductResource::collection($productShop['products']);
         return $outData;
     }
+    public function ShopFilter(array $data){
+       return $this->productRepository->ShopFilter($data);
+    }
 }
