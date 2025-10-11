@@ -8,10 +8,15 @@ use App\Models\Attribute;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\Contracts\ProductRepository;
+use App\Services\Filter\Api\ProductFilter;
 
 class ProductEloquent implements ProductRepository
 {
-
+    protected $productFilter;
+    public function __construct(ProductFilter $productFilter)
+    {
+        $this->productFilter = $productFilter;
+    }
     public function index()
     {
         return Product::select('id', 'name', 'status', 'created_at', 'brand_id', 'category_id')->with(['brand:id,name', 'category:id,name', 'firstImage.media'])->withCount("variants")->latest()->paginate(15);
@@ -103,13 +108,15 @@ class ProductEloquent implements ProductRepository
         $perPage = $dataRecive['per_page'] ?? 20;
         $offset = ($page - 1) * $perPage;
 
-        $data['products'] = Product::active()
+        $query = Product::active()
             ->with(relations: 'firstImage.media')
             ->skip($offset)
             ->take(value: $perPage)
-            ->orderByDesc("updated_at")
-            ->get(['id', 'name', 'price', 'slug']);
-        $total = Product::active()->count();
+            ->orderByDesc("updated_at");
+        $query = $this->productFilter->getResults(contents: ['query' => $query, 'filter' => $dataRecive]);
+
+        $data["products"] = $query->get(['id', 'name', 'price', 'slug']);
+        $total = $query->count();
 
         $data['pagination'] = [
             "current_page" => $page,
@@ -120,7 +127,7 @@ class ProductEloquent implements ProductRepository
         return $data;
     }
 
-    public function ShopFilter(array $data)
+    public function ShopCategoryBrand(array $data)
     {
         $category_slug = $data['category'] ?? null;
         $category_id = Category::where("slug", $category_slug)->value("id");
@@ -162,10 +169,7 @@ class ProductEloquent implements ProductRepository
         ];
 
         if ($category_id) {
-            // Get category + children/sibling ids
             $categoryIds = $this->getCategoryWithSiblingLogic($category_id);
-
-            // Fetch attributes used only in products of these categories
             $attributesQuery = Attribute::with([
                 'attributeValues' => function ($q) use ($categoryIds) {
                     $q->select('id', 'attribute_id', 'value')
@@ -189,11 +193,9 @@ class ProductEloquent implements ProductRepository
     private function getAllChildrenIds($parent_id)
     {
         $ids = Category::where('parent_id', $parent_id)->pluck('id')->toArray();
-
         foreach ($ids as $childId) {
             $ids = array_merge($ids, $this->getAllChildrenIds($childId));
         }
-
         return $ids;
     }
 

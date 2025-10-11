@@ -13,7 +13,7 @@ interface ProductRepository{
 
     // Api
     public function shopProduct(array $data);
-    public function ShopFilter(array $data);
+    public function ShopCategoryBrand(array $data);
     public function ShopAttribute(array $data);
 
 }

@@ -20,9 +20,9 @@ class ProductsServiceApi
         $outData['products'] = ProductResource::collection($productShop['products']);
         return $outData;
     }
-    public function ShopFilter(array $data)
+    public function ShopCategoryBrand(array $data)
     {
-        return $this->productRepository->ShopFilter($data);
+        return $this->productRepository->ShopCategoryBrand($data);
     }
 
     public function ShopAttribute(array $data)
