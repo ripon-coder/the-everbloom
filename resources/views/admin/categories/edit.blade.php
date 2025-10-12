@@ -39,107 +39,15 @@
                     @enderror
                 </div>
                 <div>
-                    <label for="parent_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Parent Category</label>
-                <select name="parent_id" id="parent_id" 
+                    <label for="parent_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Parent
+                        Category</label>
+                    <select name="parent_id" id="parent_id"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('parent_id') border-red-500 @enderror">
-                    <option value="">🏠 None (Main Category)</option>
-                    @php
-                        // Function to build category tree options with simple parent-child indicators
-                        function buildTreeOptions($categories, $currentId = null, $currentParentId = null) {
-                            $options = '';
-                            
-                            // Build a flat list of categories with their level
-                            $categoryList = [];
-                            $processed = [];
-                            
-                            // Special handling: Add children of current category first
-                            if ($currentId) {
-                                foreach ($categories as $cat) {
-                                    if ($cat->parent_id == $currentId) {
-                                        $categoryList[] = [
-                                            'category' => $cat,
-                                            'level' => 1
-                                        ];
-                                        $processed[] = $cat->id;
-                                    }
-                                }
-                            }
-                            
-                            // First pass: add all root categories (parent_id = null)
-                            foreach ($categories as $cat) {
-                                if ($cat->parent_id == null && $cat->id != $currentId) {
-                                    $categoryList[] = [
-                                        'category' => $cat,
-                                        'level' => 0
-                                    ];
-                                    $processed[] = $cat->id;
-                                }
-                            }
-                            
-                            // Second pass: add categories with parents
-                            $added = true;
-                            while ($added) {
-                                $added = false;
-                                foreach ($categories as $cat) {
-                                    if ($cat->id != $currentId && !in_array($cat->id, $processed)) {
-                                        // Check if parent is processed
-                                        $parentProcessed = in_array($cat->parent_id, $processed);
-                                        if ($parentProcessed) {
-                                            // Find parent level
-                                            $parentLevel = 0;
-                                            foreach ($categoryList as $item) {
-                                                if ($item['category']->id == $cat->parent_id) {
-                                                    $parentLevel = $item['level'];
-                                                    break;
-                                                }
-                                            }
-                                            
-                                            $categoryList[] = [
-                                                'category' => $cat,
-                                                'level' => $parentLevel + 1
-                                            ];
-                                            $processed[] = $cat->id;
-                                            $added = true;
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            // Generate options
-                            foreach ($categoryList as $item) {
-                                $cat = $item['category'];
-                                $level = $item['level'];
-                                
-                                $indent = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level);
-                                
-                                // Check if this category has children (excluding current category)
-                                $hasChildren = false;
-                                foreach ($categories as $child) {
-                                    if ($child->parent_id == $cat->id && $child->id != $currentId) {
-                                        $hasChildren = true;
-                                        break;
-                                    }
-                                }
-                                
-                                // Simple parent-child indicator
-                                $type = $hasChildren ? 'Parent' : 'Child';
-                                $prefix = $level > 0 ? '├── ' : '';
-                                
-                                $isSelected = (old('parent_id', $currentParentId) == $cat->id);
-                                $options .= '<option value="' . $cat->id . '" ' . ($isSelected ? 'selected style="background-color: #3b82f6; color: white;"' : '') . '>';
-                                $options .= $indent . $prefix . $cat->name . ' (' . $type . ')';
-                                $options .= '</option>';
-                            }
-                            
-                            return $options;
-                        }
-                        
-                        // Get all categories and build tree
-                        $allCategories = \App\Models\Category::all();
-                        echo buildTreeOptions($allCategories, $category->id, $category->parent_id);
-                    @endphp
-                </select>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Optional: Select a parent category. Categories show as (Parent) or (Child)</p>
+                        <option value="">🏠 None (Main Category)</option>
+                        {!! \App\Helpers\CategoryHelper::BuildTree($parentId = null, $level = 0, $currentId = $category->id) !!}
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Optional: Select a parent category. Categories
+                        show as (Parent) or (Child)</p>
                     @error('parent_id')
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500"><span class="font-medium">Oops!</span>
                             {{ $message }}</p>
@@ -163,32 +71,31 @@
                             {{ $message }}</p>
                     @enderror
                 </div>
-            <div>
-                <label for="image" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category
-                    Image</label>
-                <input type="file" name="image" id="image"
-                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 @error('image') border-red-500 @enderror"
-                    accept="image/*" onchange="previewImage(this)">
-                <div class="mt-2 flex items-center space-x-3">
-                    <img id="image-preview" 
-                        src="{{$category->getImageUrl('category_image')}}"
-                        alt="{{ $category->name }} Image Preview" 
-                        class="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600">
-                    <span class="text-sm text-gray-600 dark:text-gray-400">
-                        @if (isset($category->options['image']) && $category->options['image'])
-                            Current image (upload new image to replace)
-                        @else
-                            Default image (will be replaced when you upload an image)
-                        @endif
-                    </span>
+                <div>
+                    <label for="image" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category
+                        Image</label>
+                    <input type="file" name="image" id="image"
+                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 @error('image') border-red-500 @enderror"
+                        accept="image/*" onchange="previewImage(this)">
+                    <div class="mt-2 flex items-center space-x-3">
+                        <img id="image-preview" src="{{ $category->getImageUrl('category_image') }}"
+                            alt="{{ $category->name }} Image Preview"
+                            class="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">
+                            @if (isset($category->options['image']) && $category->options['image'])
+                                Current image (upload new image to replace)
+                            @else
+                                Default image (will be replaced when you upload an image)
+                            @endif
+                        </span>
+                    </div>
+                    @error('image')
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500"><span class="font-medium">Oops!</span>
+                            {{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Leave empty to keep current image. Allowed
+                        types: jpg, jpeg, png, gif. Max size: 2MB.</p>
                 </div>
-                @error('image')
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-500"><span class="font-medium">Oops!</span>
-                        {{ $message }}</p>
-                @enderror
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Leave empty to keep current image. Allowed
-                    types: jpg, jpeg, png, gif. Max size: 2MB.</p>
-            </div>
             </div>
 
             <div class="mb-6">
@@ -281,7 +188,6 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-
     </script>
 @endsection
 @endsection

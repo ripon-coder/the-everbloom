@@ -12,9 +12,18 @@ class CategoryEloquent implements CategoryRepository
     {
         return Category::findOrFail($id);
     }
-    public function All()
+    public function FindBySlug($slug)
     {
-        return Category::with("media")->orderByDesc("id")->paginate(15);
+        return Category::where("slug", $slug)->first();
+    }
+    public function AllWithPaginate()
+    {
+        
+        return Category::with([
+            'parent:id,name,slug,status,created_at',
+            'children:id,name,slug,status,created_at',
+            'media'
+        ])->orderByDesc(column: "id")->paginate(20,['id','name','slug','status','created_at']);
     }
 
     public function DeleteFindBuyId($id)
@@ -40,11 +49,13 @@ class CategoryEloquent implements CategoryRepository
 
     public function allCategory()
     {
-return Category::with([
-        'parent:id,name,slug',
-        'children:id,parent_id,name,slug'
-    ])
-    ->active()
-    ->get(['id','parent_id','name','slug']);
+        return Category::with([
+            'parent:id,name',
+            'children:id,parent_id,name',
+            'children.children:id,parent_id,name',
+            'children.children.children:id,parent_id,name',
+        ])
+            ->active()
+            ->get(['id', 'parent_id', 'name']);
     }
 }

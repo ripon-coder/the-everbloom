@@ -5,6 +5,7 @@ use App\Models\Brand;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Attribute;
+use App\Repositories\Contracts\BrandRepository;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\Contracts\ProductRepository;
@@ -102,122 +103,93 @@ class ProductEloquent implements ProductRepository
         return $product->forceDelete();
     }
 
-    public function shopProduct(array $dataRecive)
+    public function allChildrenByCategoryId(int $id)
     {
-        $page = $dataRecive['current_page'] ?? 1;
-        $perPage = $dataRecive['per_page'] ?? 20;
-        $offset = ($page - 1) * $perPage;
-
-        $query = Product::active()
-            ->with(relations: 'firstImage.media')
-            ->skip($offset)
-            ->take(value: $perPage)
-            ->orderByDesc("updated_at");
-        $query = $this->productFilter->getResults(contents: ['query' => $query, 'filter' => $dataRecive]);
-
-        $data["products"] = $query->get(['id', 'name', 'price', 'slug']);
-        $total = $query->count();
-
-        $data['pagination'] = [
-            "current_page" => $page,
-            "per_page" => $perPage,
-            "total" => $total,
-            "last_page" => ceil($total / $perPage),
-        ];
-        return $data;
-    }
-
-    public function ShopCategoryBrand(array $data)
-    {
-        $category_slug = $data['category'] ?? null;
-        $category_id = Category::where("slug", $category_slug)->value("id");
-        $OutData = [
-            "attributes" => [],
-            "categories" => [],
-            "brands" => []
-        ];
-
-        $query = Category::with(['parent:id,name,slug', 'children'])
-            ->active();
-
-        if ($category_id) {
-            $categoryIds = $this->getCategoryWithSiblingLogic($category_id);
-            $query->whereIn('id', $categoryIds);
-        }
-
-        $OutData["categories"] = $query->get(['id', 'parent_id', 'name', 'slug']);
-
-        $OutData["brands"] = Brand::orderBy("name")->active()->get(['id', 'slug', 'name']);
-
-
-
-        return $OutData;
-    }
-
-    public function ShopAttribute(array $data)
-    {
-        $category_id = null;
-
-        if (!empty($data['category_id'])) {
-            $category_id = $data['category_id'];
-        } elseif (!empty($data['category'])) {
-            $category_id = Category::where('slug', $data['category'])->value('id');
-        }
-
-        $OutData = [
-            "attributes" => []
-        ];
-
-        if ($category_id) {
-            $categoryIds = $this->getCategoryWithSiblingLogic($category_id);
-            $attributesQuery = Attribute::with([
-                'attributeValues' => function ($q) use ($categoryIds) {
-                    $q->select('id', 'attribute_id', 'value')
-                        ->whereHas('variantAttributes.productVariant.product', function ($q2) use ($categoryIds) {
-                            $q2->whereIn('category_id', $categoryIds);
-                        });
-                }
-            ])->whereHas('attributeValues.variantAttributes.productVariant.product', function ($q) use ($categoryIds) {
-                $q->whereIn('category_id', $categoryIds);
-            });
-
-            $OutData["attributes"] = $attributesQuery->get(['id', 'name']);
-        }
-
-        return $OutData;
-    }
-
-
-
-
-    private function getAllChildrenIds($parent_id)
-    {
-        $ids = Category::where('parent_id', $parent_id)->pluck('id')->toArray();
+        $ids = Category::where('parent_id', $id)->pluck('id')->toArray();
         foreach ($ids as $childId) {
-            $ids = array_merge($ids, $this->getAllChildrenIds($childId));
+            $ids = array_merge($ids, $this->allChildrenByCategoryId($childId));
         }
         return $ids;
     }
-
-    private function getCategoryWithSiblingLogic($category_id)
+    public function getCategoryWithSiblings(int $id)
     {
-        $category = Category::with('children')->find($category_id);
+        $category = Category::with('children')->find($id);
 
         if (!$category)
             return [];
 
         if ($category->children->isNotEmpty()) {
-            return array_merge([$category_id], $this->getAllChildrenIds($category_id));
+            return array_merge([$id], $this->allChildrenByCategoryId($id));
         } elseif ($category->parent_id) {
             $siblings = Category::where('parent_id', $category->parent_id)->pluck('id')->toArray();
-            return array_merge([$category_id], $siblings);
+            return array_merge([$id], $siblings);
         }
-        return [$category_id];
+        return [$id];
     }
 
+    public function shopProduct(?int $page, ?int $perPage, ?int $offset, array $dataRecive)
+    {
+        $query = Product::active()
+            ->with(relations: 'firstImage.media')
+            ->orderByDesc("updated_at");
 
+        $filterQuery = $this->productFilter->getResults(contents: ['query' => $query, 'filter' => $dataRecive]);
 
+        $total = (clone $filterQuery)->count();
 
+        $query = $filterQuery->skip($offset)
+            ->take(value: $perPage);
+
+        $data["products"] = $query->get(['id', 'name', 'price', 'slug']);
+        $data['total'] = $total;
+        return $data;
+    }
+
+    public function ShopCategoryBrand(?int $categoryId, array $categoryIds)
+    {
+
+        $query = Category::with([
+            'parent:id,name,slug',
+            'children:id,parent_id,name,slug',
+            'children.children:id,parent_id,name,slug',
+            'children.children.children:id,parent_id,name,slug'
+        ])
+            ->active();
+
+        if (!empty($categoryIds)) {
+            $query->whereIn('id', $categoryIds);
+        } else {
+            $query->where('id', $categoryId);
+        }
+
+        $OutData["categories"] = $query->get(['id', 'parent_id', 'name', 'slug']);
+
+        $OutData["brands"] = app(BrandRepository::class)->ActiveAllBrand();
+
+        return $OutData;
+    }
+
+    public function ShopAttribute(array $categoryIds)
+    {
+        $attributesQuery = Attribute::with([
+            'attributeValues' => function ($q) use ($categoryIds) {
+                $q->select('id', 'attribute_id', 'value')
+                    ->when(!empty($categoryIds), function ($query) use ($categoryIds) {
+                        $query->whereHas('variantAttributes.productVariant.product', function ($q2) use ($categoryIds) {
+                            $q2->whereIn('category_id', $categoryIds);
+                        });
+                    });
+            }
+        ])
+            ->when(!empty($categoryIds), function ($query) use ($categoryIds) {
+                $query->whereHas('attributeValues.variantAttributes.productVariant.product', function ($q3) use ($categoryIds) {
+                    $q3->whereIn('category_id', $categoryIds);
+                });
+            });
+
+        $attributes = $attributesQuery->get(['id', 'name']);
+        return ['attributes' => $attributes];
+    }
 
 
 }

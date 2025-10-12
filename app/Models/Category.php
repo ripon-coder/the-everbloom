@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Trait\HasImage;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\ExcludeDeletedScope;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Category extends Model implements HasMedia
@@ -24,9 +25,13 @@ class Category extends Model implements HasMedia
     ];
 
     protected $casts = [
-        'options' => 'json',
-        'parent_id' => 'integer',
+        'options' => 'json'
     ];
+
+    // protected static function booted()
+    // {
+    //     static::addGlobalScope(new ExcludeDeletedScope);
+    // }
 
     public function registerMediaCollections(): void
     {

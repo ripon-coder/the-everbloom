@@ -17,7 +17,8 @@ class BrandEloquent implements BrandRepository
         return Brand::with("media")->orderByDesc("id")->paginate(20);
     }
 
-    public function DeleteFindBuyId($id){
+    public function DeleteFindBuyId($id)
+    {
         return $this->FindById($id)->delete();
     }
 
@@ -33,7 +34,13 @@ class BrandEloquent implements BrandRepository
         return $brand;
     }
 
-    public function AllBrandApi(){
-        return Brand::orderBy("name")->active()->get(['id','slug','name']);
+    public function FindBySlug($slug)
+    {
+        return Brand::where("slug", $slug)->first();
+    }
+
+    public function ActiveAllBrand()
+    {
+        return Brand::orderBy("name")->active()->get(['id', 'slug', 'name']);
     }
 }

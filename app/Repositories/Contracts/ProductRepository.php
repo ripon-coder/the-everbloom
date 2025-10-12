@@ -10,10 +10,12 @@ interface ProductRepository{
     public function destroy(int $id);
     public function restore(int $id);
     public function forceDelete(int $id);
+    public function allChildrenByCategoryId(int $id);
+    public function getCategoryWithSiblings(int $id);
 
     // Api
-    public function shopProduct(array $data);
-    public function ShopCategoryBrand(array $data);
-    public function ShopAttribute(array $data);
+    public function shopProduct(?int $page, ?int $perPage, ?int $offset, array $data);
+    public function ShopCategoryBrand(int $categoryId, array $categoryIds);
+    public function ShopAttribute(array $categoryIds);
 
 }

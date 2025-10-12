@@ -25,7 +25,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $data['categories'] = $this->categoryRepository->all();
+        $data['categories'] = $this->categoryRepository->AllWithPaginate();
         return view("admin.categories.index", $data);
     }
 
@@ -34,8 +34,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        $data['parentCategories'] = \App\Models\Category::active()->get();
-        return view("admin.categories.create", $data);
+        return view("admin.categories.create");
     }
 
     /**
@@ -62,9 +61,6 @@ class CategoryController extends Controller
     public function edit(string $id)
     {
         $data['category'] = $this->categoryRepository->FindById($id);
-        $data['parentCategories'] = \App\Models\Category::active()
-            ->where('id', '!=', $id)
-            ->get();
         return view("admin.categories.edit", $data);
     }
 
