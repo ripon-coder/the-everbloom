@@ -34,7 +34,8 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view("admin.categories.create");
+        $data['allCategories'] = $this->categoryRepository->allCategory();
+        return view("admin.categories.create", $data);
     }
 
     /**
@@ -61,6 +62,7 @@ class CategoryController extends Controller
     public function edit(string $id)
     {
         $data['category'] = $this->categoryRepository->FindById($id);
+        $data['allCategories'] = $this->categoryRepository->allCategory();
         return view("admin.categories.edit", $data);
     }
 

@@ -20,7 +20,19 @@ class ProductEloquent implements ProductRepository
     }
     public function index()
     {
-        return Product::select('id', 'name', 'status', 'created_at', 'brand_id', 'category_id')->with(['brand:id,name', 'category:id,name', 'firstImage.media'])->withCount("variants")->latest()->paginate(15);
+        return Product::select([
+            'id',
+            'name',
+            'status',
+            'created_at',
+            'brand_id',
+            'category_id'
+        ])->with([
+                    'brand:id,name',
+                    'category:id,name',
+                    'images',
+                    'firstImage'
+                ])->withCount("variants")->latest()->paginate(15);
     }
 
     public function create()

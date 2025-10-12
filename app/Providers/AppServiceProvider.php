@@ -46,9 +46,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::preventLazyLoading(!app()->isProduction());
-        if (app()->isLocal()) {
-            DB::enableQueryLog();
-        }
 
         // Create Blade directive for active state checking
         Blade::directive('active', function ($expression) {
