@@ -26,13 +26,15 @@ class ProductEloquent implements ProductRepository
             'status',
             'created_at',
             'brand_id',
-            'category_id'
+            'category_id',
+            'price'
         ])->with([
                     'brand:id,name',
                     'category:id,name',
-                    'images',
-                    'firstImage'
-                ])->withCount("variants")->latest()->paginate(15);
+                    'firstImage.media'
+                ])->withCount(['variants', 'images'])
+            ->latest()
+            ->paginate(15);
     }
 
     public function create()

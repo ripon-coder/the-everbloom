@@ -50,7 +50,7 @@
                             <tr class="hover:bg-gray-50 transition duration-150">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $product->id }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @if ($product->images->count() > 0)
+                                    @if ($product->images_count > 0)
                                         <img src="{{ $product->firstImage->getImageUrl() }}" alt="{{ $product->name }}"
                                             class="w-12 h-12 rounded-lg object-cover">
                                     @else
