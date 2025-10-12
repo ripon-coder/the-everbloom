@@ -5,6 +5,7 @@ namespace App\Repositories\Eloquent;
 use App\Models\Attribute;
 use App\Repositories\Contracts\AttributeRepository as AttributeRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class AttributeEloquent implements AttributeRepositoryInterface
 {
@@ -18,11 +19,14 @@ class AttributeEloquent implements AttributeRepositoryInterface
     /**
      * Get all attributes with pagination.
      */
-    public function getAll(): LengthAwarePaginator
+    public function getAllWithPagination(): LengthAwarePaginator
     {
         return $this->model->orderBy('name')->paginate(15);
     }
-
+    public function getAll()
+    {
+        return $this->model->active()->get(["id", "name"]);
+    }
 
     /**
      * Find an attribute by ID.

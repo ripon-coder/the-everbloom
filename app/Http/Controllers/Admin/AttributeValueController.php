@@ -6,31 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAttributeValueRequest;
 use App\Http\Requests\UpdateAttributeValueRequest;
 use App\Models\Attribute;
+use App\Repositories\Contracts\AttributeRepository;
+use App\Repositories\Contracts\AttributeValueRepository;
 use Illuminate\Http\Request;
 
 class AttributeValueController extends Controller
 {
+
+    private $attributeValueRepository;
+    public function __construct(AttributeValueRepository $attributeValueRepository)
+    {
+        $this->attributeValueRepository = $attributeValueRepository;
+    }
 
     /**
      * Display a listing of attribute values.
      */
     public function index(Request $request)
     {
-        $query = \App\Models\AttributeValue::with('attribute');
-        
-        // Apply search filter
-        if ($request->filled('search')) {
-            $query->where('value', 'like', '%' . $request->search . '%');
-        }
-        
-        // Apply attribute filter
-        if ($request->filled('attribute_id')) {
-            $query->where('attribute_id', $request->attribute_id);
-        }
-        
-        $attributeValues = $query->latest()->paginate(10);
-        $attributes = \App\Models\Attribute::active()->ordered()->get();
-        
+        $attributes = app(AttributeRepository::class)->getAll();
+        $attributeValues = $this->attributeValueRepository->getAllWithPagination(20);
         return view('admin.attribute-values.index', compact('attributeValues', 'attributes'));
     }
 
@@ -40,8 +35,7 @@ class AttributeValueController extends Controller
     public function create()
     {
         try {
-            $attributes = Attribute::active()->ordered()->get();
-
+            $attributes = app(AttributeRepository::class)->getAll();
             return view('admin.attribute-values.create', compact('attributes'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error loading form.');
@@ -54,8 +48,7 @@ class AttributeValueController extends Controller
     public function store(StoreAttributeValueRequest $request)
     {
         try {
-            \App\Models\AttributeValue::create($request->validated());
-
+            $this->attributeValueRepository->create($request->validated());
             return redirect()->route('admin.attribute-values.index')
                 ->with('success', 'Attribute value created successfully.');
         } catch (\Exception $e) {
@@ -71,8 +64,8 @@ class AttributeValueController extends Controller
     public function edit($id)
     {
         try {
-            $attributeValue = \App\Models\AttributeValue::findOrFail($id);
-            $attributes = Attribute::active()->ordered()->get();
+            $attributeValue = $this->attributeValueRepository->findById($id);
+            $attributes = app(AttributeRepository::class)->getAll();
 
             return view('admin.attribute-values.edit', compact('attributeValue', 'attributes'));
         } catch (\Exception $e) {
@@ -86,9 +79,7 @@ class AttributeValueController extends Controller
     public function update(UpdateAttributeValueRequest $request, $id)
     {
         try {
-            $attributeValue = \App\Models\AttributeValue::findOrFail($id);
-            $attributeValue->update($request->validated());
-
+            $this->attributeValueRepository->update($id,$request->validated());
             return redirect()->route('admin.attribute-values.index')
                 ->with('success', 'Attribute value updated successfully.');
         } catch (\Exception $e) {
@@ -104,9 +95,7 @@ class AttributeValueController extends Controller
     public function destroy($id)
     {
         try {
-            $attributeValue = \App\Models\AttributeValue::findOrFail($id);
-            $attributeValue->delete();
-
+            $this->attributeValueRepository->delete($id);
             return redirect()->route('admin.attribute-values.index')
                 ->with('success', 'Attribute value deleted successfully.');
         } catch (\Exception $e) {

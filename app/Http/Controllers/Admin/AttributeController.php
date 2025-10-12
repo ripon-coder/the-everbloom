@@ -23,7 +23,7 @@ class AttributeController extends Controller
      */
     public function index()
     {
-        $attributes = $this->attributeService->getAll();
+        $attributes = $this->attributeService->getAllWithPagination();
         return view('admin.attributes.index', compact('attributes'));
     }
 
@@ -41,7 +41,7 @@ class AttributeController extends Controller
     public function store(StoreAttributeRequest $request)
     {
         try {
-            $attribute = $this->attributeService->create($request->all());
+            $this->attributeService->create($request->all());
             
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute created successfully.');
@@ -88,7 +88,7 @@ class AttributeController extends Controller
     public function update(UpdateAttributeRequest $request, string $id)
     {
         try {
-            $attribute = $this->attributeService->update($id, $request->all());
+            $this->attributeService->update($id, $request->all());
             
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute updated successfully.');
@@ -118,14 +118,5 @@ class AttributeController extends Controller
             return redirect()->route('admin.attributes.index')
                 ->with('error', 'Error deleting attribute: ' . $e->getMessage());
         }
-    }
-
-    /**
-     * Get attribute values for the specified attribute.
-     */
-    public function getValues(Attribute $attribute)
-    {
-        $values = $attribute->attributeValues()->active()->get(['id', 'value']);
-        return response()->json($values);
     }
 }

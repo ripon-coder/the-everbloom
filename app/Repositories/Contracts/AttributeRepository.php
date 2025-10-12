@@ -3,6 +3,7 @@
 namespace App\Repositories\Contracts;
 
 use App\Models\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface AttributeRepository
@@ -10,7 +11,9 @@ interface AttributeRepository
     /**
      * Get all attributes with pagination.
      */
-    public function getAll(): LengthAwarePaginator;
+    public function getAllWithPagination(): LengthAwarePaginator;
+
+    public function getAll();
 
     /**
      * Find an attribute by ID.

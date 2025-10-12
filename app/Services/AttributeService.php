@@ -17,9 +17,9 @@ class AttributeService
     /**
      * Get all attributes with pagination.
      */
-    public function getAll()
+    public function getAllWithPagination()
     {
-        return $this->attributeRepository->getAll();
+        return $this->attributeRepository->getAllWithPagination();
     }
 
     /**

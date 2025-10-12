@@ -10,7 +10,7 @@ interface AttributeValueRepository
     /**
      * Get all attribute values with pagination.
      */
-    public function getAll(int $perPage = 10): LengthAwarePaginator;
+    public function getAllWithPagination(int $perPage): LengthAwarePaginator;
 
     /**
      * Get attribute values by product ID.

@@ -20,11 +20,11 @@ class AttributeValueEloquent implements AttributeValueRepository
     /**
      * Get all attribute values with pagination.
      */
-    public function getAll(int $perPage = 10): LengthAwarePaginator
+    public function getAllWithPagination(int $perPage): LengthAwarePaginator
     {
         return $this->model->with(['attribute'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(perPage: $perPage);
+            ->orderBy("attribute_id")
+            ->paginate($perPage);
     }
 
     /**

@@ -44,7 +44,7 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $request)
     {
         $validated = $request->validated();
-        $category = $this->categoryService->create($validated);
+        $this->categoryService->create($validated);
         return redirect()->route('admin.categories.index')->with('success', 'Category created successfully!');
     }
 
@@ -72,7 +72,7 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, string $id)
     {
         $validated = $request->validated();
-        $category = $this->categoryService->update($id, $validated);
+        $this->categoryService->update($id, $validated);
         return redirect()->back()->with('success', 'Category updated successfully!');
     }
 
