@@ -11,7 +11,7 @@ class ProductFilter extends BaseFilter
         return [
             CategoryFilter::class,
             BrandFilter::class,
-            //PriceFilter::class,
+            PriceFilter::class,
         ];
     }
 }

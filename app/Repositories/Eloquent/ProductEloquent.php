@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Eloquent;
 
 use App\Models\Brand;
@@ -205,5 +206,18 @@ class ProductEloquent implements ProductRepository
         return ['attributes' => $attributes];
     }
 
-
+    public function Product($data)
+    {
+        if (!empty($data['slug'])) {
+            $slug = $data['slug'];
+            return Product::active()->where("slug", $slug)->with([
+                'images',
+                'variants:id,product_id,sku,buying_price,sell_price,discount_price,discount_amount,stock,weight',
+                'variants.images',
+                'variants.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
+                'variants.variantAttributes.attribute:id,name,description,is_image',
+                'variants.variantAttributes.attributeValue:id,attribute_id,value'
+            ])->get(['id','name','description','price','slug']);
+        }
+    }
 }

@@ -3,6 +3,8 @@ namespace App\Services\Api;
 
 
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\SingleProductResource;
+use App\Repositories\Contracts\BrandRepository;
 use App\Repositories\Contracts\CategoryRepository;
 use App\Repositories\Contracts\ProductRepository;
 
@@ -46,8 +48,13 @@ class ProductsServiceApi
             if ($category_id) {
                 $categoryIds = $this->productRepository->getCategoryWithSiblings($category_id);
             }
+            $outData["categories"] = $this->productRepository->ShopCategoryBrand($category_id, $categoryIds ?? []);
+
+        } else {
+            $outData["categories"] = $categoryRepository->allCategory();
         }
-        return $this->productRepository->ShopCategoryBrand($category_id, $categoryIds ?? []);
+        $outData["brands"] = app(BrandRepository::class)->ActiveAllBrand();
+        return $outData;
 
     }
 
@@ -63,7 +70,13 @@ class ProductsServiceApi
             if ($category_id) {
                 $categoryIds = $this->productRepository->getCategoryWithSiblings($category_id);
             }
+            return $this->productRepository->ShopAttribute($categoryIds);
         }
-        return $this->productRepository->ShopAttribute($categoryIds);
+
+    }
+
+    public function product(array $data){
+        $singleProduct =  $this->productRepository->Product($data);
+        return SingleProductResource::collection($singleProduct);
     }
 }

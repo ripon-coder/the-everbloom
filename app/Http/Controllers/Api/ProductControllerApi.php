@@ -31,4 +31,8 @@ class ProductControllerApi extends BaseApiController
         $data = $this->productService->ShopAttribute($request->all());
         return $this->successResponse($data, "Category By Attribute");
     }
+
+    public function Product(Request $request){
+        return $data = $this->productService->product($request->all());
+    }
 }
