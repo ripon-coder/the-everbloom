@@ -22,6 +22,8 @@ use App\Repositories\Contracts\AttributeRepository;
 use App\Repositories\Contracts\FlashSaleRepository;
 use App\Repositories\Eloquent\AttributeValueEloquent;
 use App\Repositories\Contracts\AttributeValueRepository;
+use App\Repositories\Contracts\DistrictRepository;
+use App\Repositories\Eloquent\DistrictEloquent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
         app()->bind(FlashSaleRepository::class, FlashSaleEloquent::class);
         app()->bind(OrderRepository::class, OrderEloquent::class);
         app()->bind(ProductRepository::class, ProductEloquent::class);
+        app()->bind(DistrictRepository::class, DistrictEloquent::class);
     }
 
     /**
