@@ -42,7 +42,7 @@ class AttributeController extends Controller
     {
         try {
             $this->attributeService->create($request->all());
-            
+
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute created successfully.');
         } catch (\Exception $e) {
@@ -58,12 +58,12 @@ class AttributeController extends Controller
     public function show(string $id)
     {
         $attribute = $this->attributeService->findById($id);
-        
+
         if (!$attribute) {
             return redirect()->route('admin.attributes.index')
                 ->with('error', 'Attribute not found.');
         }
-        
+
         return view('admin.attributes.show', compact('attribute'));
     }
 
@@ -78,7 +78,7 @@ class AttributeController extends Controller
             return redirect()->route('admin.attributes.index')
                 ->with('error', 'Attribute not found.');
         }
-        
+
         return view('admin.attributes.edit', compact('attribute'));
     }
 
@@ -89,7 +89,7 @@ class AttributeController extends Controller
     {
         try {
             $this->attributeService->update($id, $request->all());
-            
+
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute updated successfully.');
         } catch (\Exception $e) {
@@ -106,17 +106,24 @@ class AttributeController extends Controller
     {
         try {
             $result = $this->attributeService->delete($id);
-            
+
             if ($result) {
                 return redirect()->route('admin.attributes.index')
                     ->with('success', 'Attribute deleted successfully.');
             }
-            
+
             return redirect()->route('admin.attributes.index')
                 ->with('error', 'Attribute not found.');
         } catch (\Exception $e) {
             return redirect()->route('admin.attributes.index')
                 ->with('error', 'Error deleting attribute: ' . $e->getMessage());
         }
+    }
+
+    // For Product Ajax
+    public function getValues(Attribute $attribute)
+    {
+        $values = $attribute->attributeValues()->active()->get(['id', 'value']);
+        return response()->json($values);
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Attribute;
+use App\Models\ProductVariant;
 use App\Repositories\Contracts\BrandRepository;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -217,7 +218,21 @@ class ProductEloquent implements ProductRepository
                 'variants.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
                 'variants.variantAttributes.attribute:id,name,description,is_image',
                 'variants.variantAttributes.attributeValue:id,attribute_id,value'
-            ])->get(['id','name','description','price','slug']);
+            ])->get(['id', 'name', 'description', 'price', 'slug']);
         }
+    }
+
+    public function Variant(array $data)
+    { 
+        $outData = [];
+        if (!empty($data['variant_id'])) {
+            $outData = ProductVariant::active()->where('id', $data['variant_id'])->with([
+                'images',
+                'variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
+                'variantAttributes.attribute:id,name,description,is_image',
+                'variantAttributes.attributeValue:id,attribute_id,value'
+            ])->get();
+        }
+        return $outData;
     }
 }

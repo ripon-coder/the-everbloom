@@ -31,6 +31,10 @@ class ProductVariant extends Model
         'status' => ProductVariantStatus::class
     ];
 
+    public function scopeActive($query){
+         return $query->where('status', ProductVariantStatus::ACTIVE);
+    }
+
     /**
      * Get the product that owns the variant.
      */

@@ -15,6 +15,9 @@ Route::prefix("v1")->group(function(){
     //Route::get('all-brands',[BrandControllerApi::class,'AllBrand']);
     // Single Product
     Route::get('product',[ProductControllerApi::class,'Product']);
+    // variant
+    Route::get('variant',[ProductControllerApi::class,'Variant']);
+
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

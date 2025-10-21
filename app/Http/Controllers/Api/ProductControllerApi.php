@@ -6,6 +6,8 @@ use App\Services\Api\ProductsServiceApi;
 use Illuminate\Http\Request;
 use App\Services\ProductService;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SingleProductVariantResource;
+use App\Repositories\Contracts\ProductRepository;
 
 class ProductControllerApi extends BaseApiController
 {
@@ -33,6 +35,15 @@ class ProductControllerApi extends BaseApiController
     }
 
     public function Product(Request $request){
-        return $data = $this->productService->product($request->all());
+        return $this->productService->product($request->all());
+    }
+
+    public function Variant(Request $request){
+        $data =  app(ProductRepository::class)->Variant($request->all());
+        if(count($data) > 0){
+            return SingleProductVariantResource::collection($data);
+        }else{
+            return [];
+        }
     }
 }

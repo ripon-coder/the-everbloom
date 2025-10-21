@@ -18,5 +18,6 @@ interface ProductRepository{
     public function ShopCategoryBrand(int $categoryId, array $categoryIds);
     public function ShopAttribute(array $categoryIds);
     public function Product(array $data);
+    public function Variant(array $data);
 
 }
