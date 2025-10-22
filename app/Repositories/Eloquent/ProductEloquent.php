@@ -235,4 +235,14 @@ class ProductEloquent implements ProductRepository
         }
         return $outData;
     }
+    public function getVariantInfo(int $productId, ?int $variantId)
+    {
+        $query = ProductVariant::where('product_id', $productId);
+
+        if (!is_null($variantId)) {
+            $query->where('id', $variantId);
+        }
+
+        return $query->first();
+    }
 }

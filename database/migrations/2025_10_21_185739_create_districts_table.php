@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string("name");
             $table->float("delivery_charge",8,2);
+            $table->boolean("have_our_shop")->default(false);
             $table->text("information")->nullable();
             $table->timestamps();
             $table->softDeletes();

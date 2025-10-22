@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\BrandControllerApi;
 use App\Http\Controllers\Api\CategoryControllerApi;
 use App\Http\Controllers\Api\CheckoutApiController;
+use App\Http\Controllers\Api\OrderApiController;
 use App\Http\Controllers\Api\ProductControllerApi;
 use App\Http\Controllers\Api\SaveAddressApiController;
 use Illuminate\Http\Request;
@@ -25,6 +26,9 @@ Route::prefix("v1")->group(function(){
     Route::get('get-address',[SaveAddressApiController::class,'GetAddress']);
     Route::post('save-address',[SaveAddressApiController::class,'SaveAddress']);
     Route::delete('delete-address',[SaveAddressApiController::class,'DeleteAddress']);
+
+    // Order routes will be here
+    Route::post('create-order',[OrderApiController::class,'CreateOrder']);
 
 });
 

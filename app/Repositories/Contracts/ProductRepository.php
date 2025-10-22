@@ -19,5 +19,6 @@ interface ProductRepository{
     public function ShopAttribute(array $categoryIds);
     public function Product(array $data);
     public function Variant(array $data);
+    public function getVariantInfo(int $productId, ?int $variantId);
 
 }

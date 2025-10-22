@@ -23,4 +23,6 @@ interface DistrictRepository
     public function forceDelete(int $id);
 
     public function districtList();
+
+    public function getShippingCharge(int $districtId, float $totalWeight);
 }

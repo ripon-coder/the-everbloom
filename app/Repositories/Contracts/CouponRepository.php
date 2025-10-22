@@ -19,4 +19,6 @@ interface CouponRepository
     public function restore(int $id);
 
     public function forceDelete(int $id);
+
+    public function getDiscountAmount(string $couponCode, float $subTotal): float;
 }

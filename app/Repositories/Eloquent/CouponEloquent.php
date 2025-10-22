@@ -63,4 +63,8 @@ class CouponEloquent implements CouponRepository
         $coupon = Coupon::withTrashed()->findOrFail($id);
         return $coupon->forceDelete();
     }
+
+    public function getDiscountAmount(string $couponCode, float $subTotal): float{
+       // Coupon::
+    }
 }
