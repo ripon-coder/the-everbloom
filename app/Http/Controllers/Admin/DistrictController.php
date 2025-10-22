@@ -22,7 +22,8 @@ class DistrictController extends Controller
      */
     public function index()
     {
-        //
+        $districts = $this->district->index();
+        return view("admin.districts.index",compact('districts'));
     }
 
     /**
@@ -40,7 +41,7 @@ class DistrictController extends Controller
     {
         $data = $this->district->store($request->validated());
         if ($data) {
-            return back()->with("success", "District Created Successfully!");
+            return redirect()->route("admin.district.index")->with("success", "District Created Successfully!");
         }
     }
 
@@ -68,7 +69,7 @@ class DistrictController extends Controller
     {
         $true =  $this->district->update($id, $request->validated());
         if ($true) {
-            return back()->with("success", "District Updated Successfully!");
+             return redirect()->route("admin.district.index")->with("success", "District Updated Successfully!");
         }
     }
 
@@ -77,6 +78,6 @@ class DistrictController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        return redirect()->route("admin.district.index")->with("danger", "District Deleted Error!");
     }
 }

@@ -12,7 +12,9 @@ class DistrictEloquent implements DistrictRepository
         return District::findOrFail($id);
     }
 
-    public function index() {}
+    public function index() {
+        return District::orderBy("name")->paginate(20);
+    }
 
     public function create() {}
 
