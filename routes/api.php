@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\BrandControllerApi;
 use App\Http\Controllers\Api\CategoryControllerApi;
+use App\Http\Controllers\Api\CheckoutApiController;
 use App\Http\Controllers\Api\ProductControllerApi;
+use App\Http\Controllers\Api\SaveAddressApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +19,12 @@ Route::prefix("v1")->group(function(){
     Route::get('product',[ProductControllerApi::class,'Product']);
     // variant
     Route::get('variant',[ProductControllerApi::class,'Variant']);
+
+    // will be auth section
+    Route::get('district-list',[CheckoutApiController::class,'DistrictList']);
+    Route::get('get-address',[SaveAddressApiController::class,'GetAddress']);
+    Route::post('save-address',[SaveAddressApiController::class,'SaveAddress']);
+    Route::delete('delete-address',[SaveAddressApiController::class,'DeleteAddress']);
 
 });
 

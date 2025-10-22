@@ -18,13 +18,12 @@ return new class extends Migration
             $table->decimal('total_amount', 10, 2);
             $table->decimal('subtotal', 10, 2);
             $table->decimal('discount_amount', 10, 2)->default(0);
-            $table->decimal('tax_amount', 10, 2)->default(0);
+            $table->decimal('tax_amount', 10, 2)->nullable();
             $table->decimal('shipping_amount', 10, 2)->default(0);
             $table->string('status')->default('pending');
             $table->string('payment_status')->default('pending');
             $table->string('payment_method')->nullable();
-            $table->text('shipping_address');
-            $table->text('billing_address')->nullable();
+            $table->string('payment_account')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
             $table->softDeletes();

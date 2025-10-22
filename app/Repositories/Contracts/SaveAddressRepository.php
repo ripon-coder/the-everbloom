@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Contracts;
 
-interface DistrictRepository
+interface SaveAddressRepository
 {
     public function byId(int $id);
 
@@ -22,5 +22,6 @@ interface DistrictRepository
 
     public function forceDelete(int $id);
 
-    public function districtList();
+    public function getAddress($address_id, $userId);
+
 }

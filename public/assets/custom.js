@@ -260,4 +260,35 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     }
+
+    // Settings
+
+        // Handle Marketing dropdown
+    const settingsDropdown = document.getElementById("dropdown-settings");
+    const settingsArrow = document.getElementById("arrow-dropdown-settings");
+    const settingsButton = document.getElementById("settings-button");
+
+    if (settingsDropdown) {
+        // Check if current path is relevant to marketing dropdown
+        const isSettingsRelevantPath = currentPath.includes("/admin/district")
+
+        
+        if (isSettingsRelevantPath) {
+            settingsDropdown.classList.remove("hidden");
+            settingsDropdown.classList.add("show");
+            settingsDropdown.classList.add("keep-open");
+
+            if (settingsArrow) {
+                settingsArrow.classList.add("rotate-180");
+            }
+        } else {
+            settingsDropdown.classList.add("hidden");
+            settingsDropdown.classList.remove("show");
+            settingsDropdown.classList.remove("keep-open");
+
+            if (settingsArrow) {
+                settingsArrow.classList.remove("rotate-180");
+            }
+        }
+    }
 });

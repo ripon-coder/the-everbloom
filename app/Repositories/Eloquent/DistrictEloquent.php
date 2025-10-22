@@ -37,4 +37,9 @@ class DistrictEloquent implements DistrictRepository
     public function restore(int $id) {}
 
     public function forceDelete(int $id) {}
+
+    //Api 
+    public function districtList(){
+        return District::orderBy("name")->get(['id','name','delivery_charge','information']);
+    }
 }

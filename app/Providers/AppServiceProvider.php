@@ -13,17 +13,19 @@ use App\Repositories\Eloquent\ProductEloquent;
 use App\Repositories\Contracts\BrandRepository;
 use App\Repositories\Contracts\OrderRepository;
 use App\Repositories\Eloquent\CategoryEloquent;
+use App\Repositories\Eloquent\DistrictEloquent;
 use App\Repositories\Contracts\CouponRepository;
 use App\Repositories\Eloquent\AttributeEloquent;
 use App\Repositories\Eloquent\FlashSaleEloquent;
 use App\Repositories\Contracts\ProductRepository;
 use App\Repositories\Contracts\CategoryRepository;
+use App\Repositories\Contracts\DistrictRepository;
+use App\Repositories\Eloquent\SaveAddressEloquent;
 use App\Repositories\Contracts\AttributeRepository;
 use App\Repositories\Contracts\FlashSaleRepository;
+use App\Repositories\Contracts\SaveAddressRepository;
 use App\Repositories\Eloquent\AttributeValueEloquent;
 use App\Repositories\Contracts\AttributeValueRepository;
-use App\Repositories\Contracts\DistrictRepository;
-use App\Repositories\Eloquent\DistrictEloquent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -41,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
         app()->bind(OrderRepository::class, OrderEloquent::class);
         app()->bind(ProductRepository::class, ProductEloquent::class);
         app()->bind(DistrictRepository::class, DistrictEloquent::class);
+        app()->bind(SaveAddressRepository::class, SaveAddressEloquent::class);
     }
 
     /**
@@ -48,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Model::preventLazyLoading(!app()->isProduction());
+        //Model::preventLazyLoading(!app()->isProduction());
 
         // Create Blade directive for active state checking
         Blade::directive('active', function ($expression) {

@@ -82,6 +82,10 @@ class Order extends Model
                     ->withTimestamps();
     }
 
+    public function orderAddress(){
+        return $this->hasOne(OrderAddress::class);
+    }
+
     /**
      * Get the payments for the order.
      */

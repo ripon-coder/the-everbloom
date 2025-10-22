@@ -26,8 +26,13 @@ class OrderEloquent implements OrderRepository
      */
     public function getAll(int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->with(['user', 'orderProducts.product'])->orderByDesc("id")->paginate($perPage);
-  
+        return Order::with([
+            'user',
+            'orderAddress.district',
+            'orderProducts.product.firstImage',
+            'orderProducts.productVariant'
+        ])->orderByDesc("id")->paginate($perPage);
+
     }
 
     /**
@@ -194,10 +199,10 @@ class OrderEloquent implements OrderRepository
     {
         $order = $this->model->findOrFail($orderId);
         $payment = $order->payments()->create($paymentData);
-        
+
         // Update order payment status based on payment
         $this->updateOrderPaymentStatus($order);
-        
+
         return $payment;
     }
 
@@ -208,10 +213,10 @@ class OrderEloquent implements OrderRepository
     {
         $payment = Payment::findOrFail($paymentId);
         $result = $payment->update($paymentData);
-        
+
         // Update order payment status based on payment changes
         $this->updateOrderPaymentStatus($payment->order);
-        
+
         return $result;
     }
 
@@ -223,10 +228,10 @@ class OrderEloquent implements OrderRepository
         $payment = Payment::findOrFail($paymentId);
         $order = $payment->order;
         $result = $payment->delete();
-        
+
         // Update order payment status based on payment deletion
         $this->updateOrderPaymentStatus($order);
-        
+
         return $result;
     }
 
@@ -236,7 +241,7 @@ class OrderEloquent implements OrderRepository
     private function updateOrderPaymentStatus(Order $order): void
     {
         $calculatedStatus = $order->getCalculatedPaymentStatus();
-        
+
         // Only update if different from current status
         if ($order->payment_status !== $calculatedStatus) {
             $order->payment_status = $calculatedStatus;
@@ -259,10 +264,10 @@ class OrderEloquent implements OrderRepository
     {
         $order = $this->model->findOrFail($orderId);
         $tracking = $order->trackings()->create($trackingData);
-        
+
         // Update order status based on tracking
         $this->updateOrderStatusFromTracking($order);
-        
+
         return $tracking;
     }
 
@@ -273,10 +278,10 @@ class OrderEloquent implements OrderRepository
     {
         $tracking = OrderTracking::findOrFail($trackingId);
         $result = $tracking->update($trackingData);
-        
+
         // Update order status based on tracking changes
         $this->updateOrderStatusFromTracking($tracking->order);
-        
+
         return $result;
     }
 
@@ -288,10 +293,10 @@ class OrderEloquent implements OrderRepository
         $tracking = OrderTracking::findOrFail($trackingId);
         $order = $tracking->order;
         $result = $tracking->delete();
-        
+
         // Update order status based on tracking deletion
         $this->updateOrderStatusFromTracking($order);
-        
+
         return $result;
     }
 
@@ -301,12 +306,12 @@ class OrderEloquent implements OrderRepository
     private function updateOrderStatusFromTracking(Order $order): void
     {
         $latestTracking = $order->latestTracking();
-        
+
         if (!$latestTracking) {
             return;
         }
 
-        $newStatus = match($latestTracking->status) {
+        $newStatus = match ($latestTracking->status) {
             'delivered' => 'delivered',
             'shipped', 'in_transit', 'out_for_delivery' => 'shipped',
             'cancelled' => 'cancelled',
@@ -342,9 +347,9 @@ class OrderEloquent implements OrderRepository
     public function getByUserId(int $userId, int $perPage = 15): LengthAwarePaginator
     {
         return $this->model->where('user_id', $userId)
-                          ->with(['orderProducts.product'])
-                          ->latest()
-                          ->paginate($perPage);
+            ->with(['orderProducts.product'])
+            ->latest()
+            ->paginate($perPage);
     }
 
     /**
@@ -353,8 +358,8 @@ class OrderEloquent implements OrderRepository
     public function getRecent(int $limit = 10): Collection
     {
         return $this->model->with(['user', 'orderProducts.product'])
-                          ->latest()
-                          ->limit($limit)
-                          ->get();
+            ->latest()
+            ->limit($limit)
+            ->get();
     }
 }
