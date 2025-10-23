@@ -7,6 +7,7 @@ use App\Models\OrderProduct;
 use App\Models\Payment;
 use App\Models\OrderTracking;
 use App\Models\Product;
+use App\Repositories\Contracts\CouponRepository;
 use App\Repositories\Contracts\OrderRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -361,5 +362,21 @@ class OrderEloquent implements OrderRepository
             ->latest()
             ->limit($limit)
             ->get();
+    }
+
+    public function createOrder(array $order_info, array $variant_info, array $shipping_address): Order
+    {
+        try {
+            DB::beginTransaction();
+            app(CouponRepository::class)->usedCoupon($order_info['coupon_used'] ?? '');
+            $order = $this->model->create($order_info);
+            $order->orderProducts()->createMany($variant_info);
+            $order->orderAddress()->create($shipping_address);
+            DB::commit();
+            return $order;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 }

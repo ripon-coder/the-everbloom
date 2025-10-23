@@ -64,7 +64,40 @@ class CouponEloquent implements CouponRepository
         return $coupon->forceDelete();
     }
 
-    public function getDiscountAmount(string $couponCode, float $subTotal): float{
-       // Coupon::
+    public function getDiscountAmount($couponCode, float $subTotal): float
+    {
+        if (!$couponCode) {
+            return 0.0;
+        }
+        $coupon = Coupon::where('code', $couponCode)
+            ->where('status', \App\Constants\CouponStatus::ACTIVE)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->where(function ($query) use ($subTotal) {
+                $query->whereNull('min_order_amount')
+                    ->orWhere('min_order_amount', '<=', $subTotal);
+            })
+            ->where(function ($query) {
+                $query->whereNull('usage_limit')
+                    ->orWhereColumn('used_count', '<', 'usage_limit');
+            })
+            ->first();
+
+        if (!$coupon) {
+            return 0.0;
+        }
+
+        if ($coupon && $coupon->type === 'percentage') {
+            return ($coupon->value / 100) * $subTotal;
+        } elseif ($coupon->type === 'fixed_amount') {
+            return min($coupon->value, $subTotal);
+        }
+    }
+    public function usedCoupon(string $couponCode): void
+    {
+        $coupon = Coupon::where('code', $couponCode)->first();
+        if ($coupon) {
+            $coupon->increment('used_count');
+        }
     }
 }

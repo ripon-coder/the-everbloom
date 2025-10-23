@@ -15,11 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('order_number')->unique();
+            $table->decimal('before_discount', 10, 2)->default(0);
             $table->decimal('total_amount', 10, 2);
             $table->decimal('subtotal', 10, 2);
-            $table->decimal('discount_amount', 10, 2)->default(0);
+            $table->decimal('coupon_discount_amount', 10, 2)->default(0);
+            $table->decimal('flash_discount_amount', 10, 2)->default(0);
             $table->decimal('tax_amount', 10, 2)->nullable();
             $table->decimal('shipping_amount', 10, 2)->default(0);
+            $table->decimal('weight', 10, 2)->default(0);
+            $table->string('coupon_used')->nullable()->after('weight');
             $table->string('status')->default('pending');
             $table->string('payment_status')->default('pending');
             $table->string('payment_method')->nullable();

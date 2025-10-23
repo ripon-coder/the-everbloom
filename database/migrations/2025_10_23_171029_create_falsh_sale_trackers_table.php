@@ -11,19 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_products', function (Blueprint $table) {
+        Schema::create('falsh_sale_trackers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_variant_id')->nullable()->constrained()->onDelete('set null');
-            $table->integer('quantity');
-            $table->decimal('weight', 10, 2)->after('quantity')->default(0);
-            $table->decimal('unit_price', 10, 2);
-            $table->decimal('total_price', 10, 2);
-            $table->decimal('discount_amount', 10, 2)->default(0);
-            $table->text('notes')->nullable();
+            $table->decimal('original_price', 10, 2);
+            $table->decimal('discount_amount', 10, 2);
+            $table->decimal('discounted_price', 10, 2);
+            $table->string('discount_type');
+            $table->string('quantity');
+            $table->decimal('total_discounted_price', 10, 2);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_products');
+        Schema::dropIfExists('falsh_sale_trackers');
     }
 };

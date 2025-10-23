@@ -23,6 +23,8 @@ class Order extends Model
         'discount_amount',
         'tax_amount',
         'shipping_amount',
+        'weight',
+        'coupon_used',
         'status',
         'payment_status',
         'payment_method',

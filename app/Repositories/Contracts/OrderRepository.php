@@ -109,4 +109,6 @@ interface OrderRepository
      * Get recent orders.
      */
     public function getRecent(int $limit = 10): Collection;
+
+    public function createOrder(array $order_info, array $variant_info, array $shipping_address): Order;
 }

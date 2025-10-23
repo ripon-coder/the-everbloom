@@ -19,4 +19,6 @@ interface FlashSaleRepository
     public function restore(int $id);
 
     public function forceDelete(int $id);
+
+    public function getFlashSaleDiscounts(array $productIds);
 }

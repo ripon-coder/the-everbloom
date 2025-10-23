@@ -1,9 +1,13 @@
 <?php
 namespace App\Services\Api;
 
+use App\Models\Order;
+use App\Repositories\Contracts\OrderRepository;
 use App\Repositories\Contracts\CouponRepository;
-use App\Repositories\Contracts\DistrictRepository;
 use App\Repositories\Contracts\ProductRepository;
+use App\Repositories\Contracts\DistrictRepository;
+use App\Repositories\Contracts\FlashSaleRepository;
+
 class OrderServiceApi
 {
     public function createOrder(array $data)
@@ -13,20 +17,34 @@ class OrderServiceApi
         $user_id = $data['user_id'];
         $product_list = $data['product_list'];
         $coupon_code = $data['coupon_code'] ?? null;
-        $shipping_address = $data['shipping_address'];
+        $note = $data['notes'] ?? null;
+        $shipping_address = array_merge($data['shipping_address'],[ 'user_id' => $user_id ]);
         $district_id = $shipping_address['district_id'];
         // Logic to create an order
         $variant_info = [];
+
+        $product_ids = []; //flash sale for
+
         foreach ($product_list as $product) {
             $product_id = $product['product_id'];
             $variant_id = $product['variant_id'] ?? null;
             $quantity = $product['quantity'];
+            if(!empty($product['flash_sale'])){
+                $product_ids[$variant_id] = ['product_id'=>$product_id,'variant_id'=>$variant_id,'quantity'=>$quantity,'flash_sale'=>$product['flash_sale']];
+            }
             $variant = app(ProductRepository::class)->getVariantInfo($product_id, $variant_id);
             $variant_info[] = $this->listVariants($variant, $quantity);
 
         }
-        return $this->order($variant_info, $district_id, $coupon_code);
-        //return $variant_info;
+        return $flashSaleDiscount =  $this->flashSale( $product_ids);
+        $order =  $this->order($variant_info, $district_id, $coupon_code,$flashSaleDiscount['total_discounted_price']);
+        $order_info = array_merge($order, [
+            "order_number" => Order::generateOrderNumber(),
+            'user_id' => $user_id,
+            'note' => $note,
+        ]);
+
+      // return app(OrderRepository::class)->createOrder($order_info, $variant_info, $shipping_address);
     }
 
     /**
@@ -44,7 +62,7 @@ class OrderServiceApi
             'weight' => $variant->weight,
             'unit_price' => $variant->discount_price ?? $variant->sell_price,
             'total_price' => ($variant->discount_price ?? $variant->sell_price) * $quantity,
-            'discount_amount' => $variant->discount_amount,
+            'discount_amount' => 0.0,
         ];
     }
     /**
@@ -54,7 +72,7 @@ class OrderServiceApi
      * @param string $coupon_code
      * @return array{discount_amount: float, shipping_amount: mixed, sub_total: float, total_amount: float, total_weight: float, usage_coupon: null}
      */
-    public function order(array $variant_info, int $district_id, string $coupon_code)
+    public function order(array $variant_info, int $district_id, $coupon_code = null,$flashDiscount)
     {
         $sub_total = 0.0;
         $total_weight = 0.0;
@@ -65,16 +83,19 @@ class OrderServiceApi
         $shipping_charge = $this->shippingCharge($district_id, (float) $total_weight);
         $discount_amount = $this->couponDiscount($coupon_code, $sub_total);
         return [
-            'total_weight' => round($total_weight, 2),
-            'sub_total' => round($sub_total, 2),
+            'weight' => round($total_weight, 2),
+            'subtotal' => round($sub_total, 2),
             'shipping_amount' => $shipping_charge,
-            'total_amount' => round($sub_total + $shipping_charge, 2),
-            'usage_coupon' => $coupon_code,
-            'discount_amount' => $discount_amount,
+            'before_discount' => $sub_total + $shipping_charge,
+            'total_amount' => round(($sub_total + $shipping_charge) - ($discount_amount+$flashDiscount), 2),
+            'coupon_used' => $discount_amount > 0 ? $coupon_code : null,
+            'coupon_discount_amount' => $discount_amount,
+            'tax_amount' => 0.0,
+            'flash_discount' => $flashDiscount
         ];
     }
 
-    public function couponDiscount(string $coupon_code, float $sub_total)
+    public function couponDiscount($coupon_code, float $sub_total)
     {
         return app(CouponRepository::class)->getDiscountAmount($coupon_code, $sub_total);
     }
@@ -82,6 +103,11 @@ class OrderServiceApi
     public function shippingCharge(int $district_id, float $totalWeight)
     {
         return app(DistrictRepository::class)->getShippingCharge($district_id, $totalWeight);
+    }
+
+    public function flashSale(array $productIds)
+    {
+        return app(FlashSaleRepository::class)->getFlashSaleDiscounts($productIds);
     }
 
 

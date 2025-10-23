@@ -21,4 +21,6 @@ interface CouponRepository
     public function forceDelete(int $id);
 
     public function getDiscountAmount(string $couponCode, float $subTotal): float;
+
+    public function usedCoupon(string $couponCode): void;
 }
