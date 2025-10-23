@@ -28,7 +28,7 @@ class ProductService
                 $slug = $originalSlug . '-' . $counter;
                 $counter++;
             }
-            $data = array_merge(["slug" => $slug], $data);
+            $data = array_merge($data,["admin_id"=>auth()->guard("admin")->id(),"slug" => $slug]);
             $product = $this->productRepository->store($data);
 
             // Handle product images

@@ -1,6 +1,9 @@
-<?php 
+<?php
+
 namespace App\Repositories\Contracts;
-interface ProductRepository{
+
+interface ProductRepository
+{
 
     public function index();
     public function create();
@@ -12,13 +15,15 @@ interface ProductRepository{
     public function forceDelete(int $id);
     public function allChildrenByCategoryId(int $id);
     public function getCategoryWithSiblings(int $id);
-    
+
     // Api
     public function shopProduct(?int $page, ?int $perPage, ?int $offset, array $data);
     public function ShopCategoryBrand(int $categoryId, array $categoryIds);
     public function ShopAttribute(array $categoryIds);
     public function Product(array $data);
     public function Variant(array $data);
+    public function getProducts(array $ids, array $fetch);
+    public function getVariants(array $ids, array $fetch);
+    public function getProductInfo(int $id, array $fetch);
     public function getVariantInfo(int $productId, ?int $variantId);
-
 }

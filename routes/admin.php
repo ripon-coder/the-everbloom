@@ -56,3 +56,7 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::resource("district",DistrictController::class);
     });
 });
+
+Route::get('/test',function(){
+
+});

@@ -18,6 +18,7 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'order_number',
+        'before_discount',
         'total_amount',
         'subtotal',
         'discount_amount',
@@ -25,6 +26,8 @@ class Order extends Model
         'shipping_amount',
         'weight',
         'coupon_used',
+        'coupon_discount_amount',
+        'flash_discount_amount',
         'status',
         'payment_status',
         'payment_method',

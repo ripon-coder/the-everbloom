@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('sell_price', 10, 2)->default(0)->comment('Selling price of the variant');
             $table->decimal('discount_price', 10, 2)->default(0)->comment('Discount price of the variant');
             $table->decimal('discount_amount', 10, 2)->default(0)->comment('Discount amount or percentage applied');
-            $table->decimal( 'weight', 8, 2)->nullable()->after('stock')->comment('Weight in kg');
+            $table->decimal( 'weight', 8, 2)->nullable()->comment('Weight in kg');
             $table->integer('stock')->default(0);
             $table->string('status')->default(ProductVariantStatus::ACTIVE);
 

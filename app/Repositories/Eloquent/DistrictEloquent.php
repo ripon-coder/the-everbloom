@@ -10,7 +10,7 @@ class DistrictEloquent implements DistrictRepository
 
     public function byId($id)
     {
-        return District::findOrFail($id);
+        return District::find($id);
     }
 
     public function index()
@@ -58,6 +58,9 @@ class DistrictEloquent implements DistrictRepository
 
     public function getShippingCharge(int $districtId, float $totalWeight): float
     {
+        if($totalWeight == 0){
+            return 0.0;
+        }
         $district = $this->byId($districtId);
 
         $baseCharge = $district->delivery_charge ?? 0;

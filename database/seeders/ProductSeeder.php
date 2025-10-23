@@ -115,6 +115,7 @@ class ProductSeeder extends Seeder
             $brand = $brands->random();
             
             $product = Product::create([
+                "admin_id" =>1,
                 'name' => $productData['name'],
                 'slug' => Str::slug($productData['name']),
                 'description' => $productData['description'],
