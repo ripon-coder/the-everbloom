@@ -36,6 +36,7 @@ class OrderEloquent implements OrderRepository
 
     }
 
+
     /**
      * Get an order by ID with relationships.
      */
@@ -364,7 +365,7 @@ class OrderEloquent implements OrderRepository
             ->get();
     }
 
-    public function createOrder(array $order_info, array $variant_info, array $shipping_address): Order
+    public function createOrder(array $order_info, array $variant_info, array $shipping_address,$flashSaleDiscount): Order
     {
         try {
             DB::beginTransaction();
@@ -372,6 +373,7 @@ class OrderEloquent implements OrderRepository
             $order = $this->model->create($order_info);
             $order->orderProducts()->createMany($variant_info);
             $order->orderAddress()->create($shipping_address);
+            $order->flashSale()->createMany($flashSaleDiscount);
             DB::commit();
             return $order;
         } catch (\Exception $e) {

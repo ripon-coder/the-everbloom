@@ -21,6 +21,7 @@ return new class extends Migration
             $table->decimal('unit_price', 10, 2);
             $table->decimal('total_price', 10, 2);
             $table->decimal('discount_amount', 10, 2)->default(0);
+            $table->boolean("is_free_shipping")->default(false);
             $table->text('notes')->nullable();
             $table->timestamps();
             $table->softDeletes();

@@ -3,6 +3,13 @@
 @section('title', 'Order Details - ' . $order->order_number)
 
 @section('content')
+
+    @php
+        $flashSale = collect($order->flashSale ?? [])->isNotEmpty()
+            ? collect($order->flashSale)->keyBy('product_variant_id')->toArray()
+            : [];
+    @endphp
+
     <div class="p-4">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
@@ -116,18 +123,33 @@
                                 @endif
                                 <div class="flex-1">
                                     <h3 class="font-medium text-gray-900">
-                                        {{ $orderProduct->product->name ?? 'Product Deleted' }}</h3>
+                                        {{ $orderProduct->product->name ?? 'Product Deleted' }}
+                                    </h3>
+
                                     @if ($orderProduct->productVariant)
-                                        <p class="text-sm text-gray-500">Variant: {{ $orderProduct->productVariant->name }}
+                                        <p class="text-sm text-gray-500">
+                                            Variant: {{ $orderProduct->productVariant->name }}
                                         </p>
                                     @endif
-                                    <p class="text-sm text-gray-500">Qty: {{ $orderProduct->quantity }} ×
-                                        ${{ number_format($orderProduct->unit_price, 2) }}</p>
-                                    @if ($orderProduct->discount_amount > 0)
-                                        <p class="text-sm text-green-600">Discount:
-                                            ${{ number_format($orderProduct->discount_amount, 2) }}</p>
+
+                                    <p class="text-sm text-gray-500">
+                                        Qty: {{ $orderProduct->quantity }} ×
+                                        ${{ number_format($orderProduct->unit_price, 2) }}
+                                    </p>
+
+                                    @php
+                                        $variantId = $orderProduct->product_variant_id;
+                                        $flashItem = $flashSale[$variantId] ?? null;
+                                    @endphp
+
+                                    @if ($flashItem && isset($flashItem['discounted_price']))
+                                        <p class="text-sm text-green-600">
+                                            Discount ({{$flashItem['flash_sale_slug']}}):
+                                            -${{ number_format($flashItem['discounted_price'] * $orderProduct->quantity, 2) }}
+                                        </p>
                                     @endif
                                 </div>
+
                                 <div class="text-right">
                                     <p class="font-medium text-gray-900">
                                         ${{ number_format($orderProduct->total_price, 2) }}</p>
@@ -181,41 +203,70 @@
                 </div>
 
                 <!-- Order Summary -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-sm">
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-5 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-indigo-500" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 7h18M3 12h18M3 17h18" />
+                        </svg>
+                        Order Summary
+                    </h2>
+
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
                             <span class="text-gray-600">Subtotal:</span>
-                            <span class="font-medium">${{ number_format($order->subtotal, 2) }}</span>
+                            <span class="font-medium text-gray-900">${{ number_format($order->subtotal, 2) }}</span>
                         </div>
-                        @if ($order->discount_amount > 0)
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Discount <span class="bg-yellow-500 text-xs">{{ $order->coupon_used }}</span> :</span>
-                                <span
-                                    class="font-medium text-green-600">-${{ number_format($order->discount_amount, 2) }}</span>
+
+                        @if ($order->coupon_discount_amount > 0)
+                            <div class="flex justify-between items-center bg-green-50 text-green-700 px-3 py-2 rounded-md">
+                                <div class="flex flex-col">
+                                    <span class="font-medium">Coupon Applied</span>
+                                    <span class="text-xs text-green-600">Code: {{ $order->coupon_used }}</span>
+                                </div>
+                                <span class="font-semibold">-
+                                    ${{ number_format($order->coupon_discount_amount, 2) }}</span>
                             </div>
                         @endif
+
+                        @if ($order->flash_discount_amount > 0)
+                            <div
+                                class="flex justify-between items-center bg-yellow-50 text-yellow-700 px-3 py-2 rounded-md">
+                                <div class="flex flex-col">
+                                    <span class="font-medium">Flash Sale Discount</span>
+                                    <span class="text-xs text-yellow-600">Limited Time Offer</span>
+                                </div>
+                                <span class="font-semibold">-
+                                    ${{ number_format($order->flash_discount_amount, 2) }}</span>
+                            </div>
+                        @endif
+
                         @if ($order->tax_amount > 0)
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Tax:</span>
-                                <span class="font-medium">${{ number_format($order->tax_amount, 2) }}</span>
-                            </div>
-                        @endif
-                        @if ($order->shipping_amount > 0)
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Shipping:</span>
-                                <span class="font-medium">${{ number_format($order->shipping_amount, 2) }}</span>
-                            </div>
-                        @endif
-                        <div class="border-t pt-2 mt-2">
                             <div class="flex justify-between">
-                                <span class="text-base font-semibold text-gray-900">Total:</span>
+                                <span class="text-gray-600">Tax:</span>
+                                <span class="font-medium text-gray-900">${{ number_format($order->tax_amount, 2) }}</span>
+                            </div>
+                        @endif
+
+                        @if ($order->shipping_amount > 0)
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Shipping:</span>
                                 <span
-                                    class="text-base font-bold text-gray-900">${{ number_format($order->total_amount, 2) }}</span>
+                                    class="font-medium text-gray-900">${{ number_format($order->shipping_amount, 2) }}</span>
+                            </div>
+                        @endif
+
+                        <div class="border-t pt-3 mt-3">
+                            <div class="flex justify-between">
+                                <span class="text-base font-bold text-gray-900">Total:</span>
+                                <span
+                                    class="text-base font-bold text-indigo-600">${{ number_format($order->total_amount, 2) }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
+
 
                 <!-- Payment Information -->
                 <div class="bg-white rounded-lg shadow p-6">

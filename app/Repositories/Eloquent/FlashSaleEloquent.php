@@ -145,7 +145,7 @@ class FlashSaleEloquent implements FlashSaleRepository
             if (empty($discounts)) {
                 continue;
             }
-            $result = $this->getFlashSaleDiscountsAmounts($discounts);
+            $result = $this->getFlashSaleDiscountsAmounts($discounts,$flashSaleCode);
             $allDiscountResults = array_merge($allDiscountResults, $result['products']);
             $totalDiscountedPrice += $result['total_discounted_price'];
         }
@@ -162,7 +162,7 @@ class FlashSaleEloquent implements FlashSaleRepository
      * @param array $discounts
      * @return array
      */
-    public function getFlashSaleDiscountsAmounts(array $discounts)
+    public function getFlashSaleDiscountsAmounts(array $discounts,$flashSaleCode)
     {
         $results = [];
         $totalDiscountedPrice = 0;
@@ -193,7 +193,8 @@ class FlashSaleEloquent implements FlashSaleRepository
 
             $results[$variant_id] = [
                 'product_id' => $product_id,
-                'variant_id' => $variant_id,
+                'product_variant_id' => $variant_id,
+                'flash_sale_slug'=> $flashSaleCode,
                 'original_price' => $original_price,
                 'discount_amount' => $final_discount,
                 'discounted_price' => $discounted_price,

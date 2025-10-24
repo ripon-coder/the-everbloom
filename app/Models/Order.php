@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\FalshSaleTracker;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
@@ -91,6 +92,9 @@ class Order extends Model
         return $this->hasOne(OrderAddress::class);
     }
 
+    public function flashSale(){
+        return $this->hasMany(FalshSaleTracker::class,'order_id');
+    }
     /**
      * Get the payments for the order.
      */

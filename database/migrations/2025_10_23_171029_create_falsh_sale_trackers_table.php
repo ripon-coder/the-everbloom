@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_variant_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('flash_sale_slug')->nullable();
             $table->decimal('original_price', 10, 2);
             $table->decimal('discount_amount', 10, 2);
             $table->decimal('discounted_price', 10, 2);

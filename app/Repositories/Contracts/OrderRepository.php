@@ -110,5 +110,5 @@ interface OrderRepository
      */
     public function getRecent(int $limit = 10): Collection;
 
-    public function createOrder(array $order_info, array $variant_info, array $shipping_address): Order;
+    public function createOrder(array $order_info, array $variant_info, array $shipping_address,$flashSaleDiscount): Order;
 }

@@ -8,6 +8,7 @@ use App\Repositories\Contracts\CouponRepository;
 use App\Repositories\Contracts\ProductRepository;
 use App\Repositories\Contracts\DistrictRepository;
 use App\Repositories\Contracts\FlashSaleRepository;
+use Exception;
 
 class OrderServiceApi
 {
@@ -27,10 +28,11 @@ class OrderServiceApi
             $product_id = $product['product_id'];
             $variant_id = $product['variant_id'] ?? null;
             $quantity = $product['quantity'];
+            $variant = $variant_all[$variant_id];
+            $this->Quantitycheck($variant, $quantity);
             if (!empty($product['flash_sale'])) {
                 $product_ids[$variant_id] = ['product_id' => $product_id, 'variant_id' => $variant_id, 'quantity' => $quantity, 'flash_sale' => $product['flash_sale']];
             }
-            $variant = $variant_all[$variant_id];
             $variant_info[] = $this->listVariants($variant, $quantity);
         }
         $flashSaleDiscount =  $this->flashSale($product_ids);
@@ -41,7 +43,7 @@ class OrderServiceApi
             'notes' => $note,
         ]);
 
-        return app(OrderRepository::class)->createOrder($order_info, $variant_info, $shipping_address);
+        return app(OrderRepository::class)->createOrder($order_info, $variant_info, $shipping_address,$flashSaleDiscount['products']);
     }
 
     /**
@@ -126,8 +128,15 @@ class OrderServiceApi
     private function VarinatsAll($product_list)
     {
         $variant_ids =  array_column($product_list, 'variant_id');
-        $variant_all =  app(ProductRepository::class)->getVariants($variant_ids, ['product_id', 'id', 'weight', 'discount_price', 'sell_price']);
+        $variant_all =  app(ProductRepository::class)->getVariants($variant_ids, ['product_id', 'id', 'weight', 'discount_price', 'sell_price', 'stock']);
         return collect($variant_all)->keyBy("id")->toArray();
+    }
+
+    private function Quantitycheck($variant, $quantity)
+    {
+        if ($quantity > $variant['stock']) {
+            throw new \Exception("Only {$variant['stock']} items available for product ID {$variant['product_id']} (variant {$variant['id']}).");
+        }
     }
 
     // **************************************************
