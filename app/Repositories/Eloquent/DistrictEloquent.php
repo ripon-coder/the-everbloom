@@ -18,9 +18,7 @@ class DistrictEloquent implements DistrictRepository
         return District::orderBy("name")->paginate(20);
     }
 
-    public function create()
-    {
-    }
+    public function create() {}
 
     public function store(array $data)
     {
@@ -38,17 +36,11 @@ class DistrictEloquent implements DistrictRepository
         return $district->update($data);
     }
 
-    public function destroy(int $id)
-    {
-    }
+    public function destroy(int $id) {}
 
-    public function restore(int $id)
-    {
-    }
+    public function restore(int $id) {}
 
-    public function forceDelete(int $id)
-    {
-    }
+    public function forceDelete(int $id) {}
 
     //Api 
     public function districtList()
@@ -56,43 +48,49 @@ class DistrictEloquent implements DistrictRepository
         return District::orderBy("name")->get(['id', 'name', 'delivery_charge', 'information']);
     }
 
-public function getShippingCharge(int $districtId, float $shippingWeight, float $shippingFreeWeight): array
-{
-    $district = $this->byId($districtId);
+    public function getShippingCharge(int $districtId, float $shippingWeight, float $shippingFreeWeight): array
+    {
+        $district = $this->byId($districtId);
 
-    $baseCharge = $district->delivery_charge ?? 0;
+        $baseCharge = $district->delivery_charge ?? 0;
 
-    $nearRate = (float) env('NEAR_COURIER_CHARGE_KG', 10);
-    $farRate = (float) env('FAR_COURIER_CHARGE_KG', 15);
+        $nearRate = (float) config('eccomerce.near_courier_charge_per_kg');
+        $farRate = (float) config('eccomerce.far_courier_charge_per_kg');
 
-    $rate = $district->have_our_shop ? $nearRate : $farRate;
 
-    $userCharge = 0;
-    $shopCharge = 0;
+        $rate = $district->have_our_shop ? $nearRate : $farRate;
 
-    if ($shippingWeight > 0) {
-        // user_charge = baseCharge + shippingWeight এর অতিরিক্ত weight
-        $userCharge = round($baseCharge + max($shippingWeight - 1, 0) * $rate, 2);
+        $userCharge = 0;
+        $shop_charge = 0;
 
-        // shop_charge = shippingFreeWeight এর যে অংশ shippingWeight এর বাইরে
-        $extraWeight = max(0, $shippingFreeWeight - $shippingWeight);
-        $shopCharge = round($extraWeight * $rate, 2);
+        $shippingWeight = ceil($shippingWeight);
+        $shippingFreeWeight = ceil($shippingFreeWeight);
 
-    } else {
-        // shippingWeight = 0 → পুরো charge shop এর
-        $shopCharge = round($baseCharge + max($shippingFreeWeight - 1, 0) * $rate, 2);
+        if ($shippingWeight > 0) {
+            if ($shippingWeight <= 1) {
+                $userCharge = $baseCharge;
+            } else {
+                $extraWeight = $shippingWeight - 1;
+                $userCharge = $baseCharge + ($extraWeight * $rate);
+            }
+        }
+
+        if ($shippingFreeWeight > 0) {
+            if ($shippingWeight > 0) {
+                $shop_charge = $shippingFreeWeight * $rate;
+            } else {
+                if ($shippingFreeWeight <= 1) {
+                    $shop_charge = $baseCharge;
+                } else {
+                    $extraWeight = $shippingFreeWeight - 1;
+                    $shop_charge = $baseCharge + ($extraWeight * $rate);
+                }
+            }
+        }
+
+        return [
+            'user_charge' => $userCharge,
+            'shop_charge' => $shop_charge,
+        ];
     }
-
-    return [
-        'user_charge' => $userCharge,
-        'shop_charge' => $shopCharge,
-    ];
 }
-
-
-
-
-
-
-}
-

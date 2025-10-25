@@ -142,7 +142,9 @@ class OrderServiceApi
             $sub_total += (float) ($variant['total_price'] ?? 0);
             $total_weight += $weight * $quantity;
         }
-        return $shipping_charge = $this->shippingCharge($district_id, $total_weight_for_shipping_charge, $total_weight_for_free_delivery);
+        //return $shipping_charge = $this->shippingCharge($district_id, $total_weight_for_shipping_charge, $total_weight_for_free_delivery);
+        return $shipping_charge = $this->shippingCharge(1, 1.5, 1);
+
         $discount_amount = $this->couponDiscount($coupon_code, $sub_total);
 
         return [
