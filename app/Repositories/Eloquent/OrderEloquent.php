@@ -40,10 +40,43 @@ class OrderEloquent implements OrderRepository
     /**
      * Get an order by ID with relationships.
      */
-    public function findById(int $id): ?Order
-    {
-        return $this->model->with(['user', 'orderProducts.product', 'payments', 'trackings'])->findOrFail($id);
-    }
+public function findById(int $id): ?Order
+{
+    return $this->model
+        ->select([
+            'id',
+            'user_id',
+            'order_number',
+            'status',
+            'payment_status',
+            'subtotal',
+            'coupon_discount_amount',
+            'flash_discount_amount',
+            'tax_amount',
+            'shipping_amount',
+            'total_amount',
+            'coupon_used',
+            'payment_method',
+            'payment_account',
+            'notes',
+            'created_at'
+        ])
+        ->with([
+            'user:id,name,email',
+            'trackings:id,order_id,status,created_at',
+            'orderAddress:id,order_id,name,address,zone,phone_number,district_id',
+            'orderAddress.district:id,name',
+            'orderProducts:id,order_id,product_id,product_variant_id,quantity,unit_price,total_price,is_free_shipping,buying_price',
+            'orderProducts.product:id,name,slug',
+            'orderProducts.product.firstImage',
+            'orderProducts.productVariant:id,product_id,buying_price',
+            'orderProducts.productVariant.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
+            'orderProducts.productVariant.variantAttributes.attribute:id,name',
+            'orderProducts.productVariant.variantAttributes.attributeValue:id,value',
+        ])
+        ->findOrFail($id);
+}
+
 
     /**
      * Create a new order with products.
@@ -365,7 +398,7 @@ class OrderEloquent implements OrderRepository
             ->get();
     }
 
-    public function createOrder(array $order_info, array $variant_info, array $shipping_address,$flashSaleDiscount): Order
+    public function createOrder(array $order_info, array $variant_info, array $shipping_address, $flashSaleDiscount): Order
     {
         try {
             DB::beginTransaction();

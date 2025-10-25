@@ -20,8 +20,10 @@ class Product extends Model
         'admin_id',
         'brand_id',
         'category_id',
+        'is_free_delivery',
         'name',
         'slug',
+        'short_description',
         'description',
         'price',
         'status',
@@ -35,6 +37,7 @@ class Product extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'status' => ProductStatus::class,
+        'is_free_delivery' => 'boolean',
     ];
 
     /**

@@ -27,12 +27,14 @@ class UpdateProductRequest extends FormRequest
             'brand_id' => ['required', 'exists:brands,id'],
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255', 'unique:products,name,' . $productId],
+            'is_free_delivery' => ["required",'boolean'],
+            'short_description' => ['nullable','max:500'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0', 'decimal:0,2'],
             'status' => ['required', 'string', 'in:active,inactive'],
             'images' => ['nullable', 'array'],
             'images.*' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
-            'variants' => ['nullable', 'array'],
+            'variants' => ['required', 'array','min:1'],
             'variants.*.sku' => ['required_with:variants', 'string', 'max:255', function ($attribute, $value, $fail) use ($productId) {
                 // Check if SKU already exists for this product but exclude current variant being edited
                 $skuCheck = \App\Models\ProductVariant::where('sku', $value)

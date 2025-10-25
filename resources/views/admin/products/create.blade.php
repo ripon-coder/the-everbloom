@@ -24,6 +24,19 @@
 
             <!-- Basic Product Information -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                @if ($errors->any())
+                    <div class="mb-4 rounded-lg bg-red-50 border border-red-200 p-4">
+                        <h3 class="text-sm font-semibold text-red-700 mb-2">
+                            ⚠️ Validation Error
+                        </h3>
+                        <ul class="list-disc list-inside text-sm text-red-600 space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -72,51 +85,10 @@
                         <label for="category_id"
                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category <span
                                 class="text-red-500">*</span></label>
-                        <select id="category_id" name="category_id" required
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('category_id') border-red-500 @enderror">
+                        <select name="category_id" id="category_id"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('parent_id') border-red-500 @enderror">
                             <option value="">🏠 None (Main Category)</option>
-                            @php
-                                // Function to build category tree options with simple parent-child indicators
-                                function buildTreeOptions($categories, $parentId = null, $level = 0, $currentId = null)
-                                {
-                                    $options = '';
-                                    foreach ($categories as $category) {
-                                        if ($category->parent_id == $parentId) {
-                                            // Skip current category in edit mode (circular reference prevention)
-                                            if ($currentId && $category->id == $currentId) {
-                                                continue;
-                                            }
-
-                                            $indent = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level);
-                                            $hasChildren = $category->children->count() > 0;
-
-                                            // Simple parent-child indicator
-                                            $type = $hasChildren ? 'Parent' : 'Child';
-                                            $prefix = $level > 0 ? '├── ' : '';
-
-                                            $options .=
-                                                '<option value="' .
-                                                $category->id .
-                                                '" ' .
-                                                (old('category_id') == $category->id ? 'selected' : '') .
-                                                '>';
-                                            $options .= $indent . $prefix . $category->name . ' (' . $type . ')';
-                                            $options .= '</option>';
-
-                                            // Recursively add children
-                                            $options .= buildTreeOptions(
-                                                $categories,
-                                                $category->id,
-                                                $level + 1,
-                                                $currentId,
-                                            );
-                                        }
-                                    }
-                                    return $options;
-                                }
-
-                                echo buildTreeOptions($categories);
-                            @endphp
+                            {!! \App\Helpers\CategoryHelper::BuildTree($allCategories, $parentId = null, $level = 0, $currentId = null) !!}
                         </select>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Choose the main category for this product
                         </p>
@@ -127,7 +99,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                     <div>
                         <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Price (৳) <span class="text-red-500">*</span>
@@ -142,6 +114,19 @@
 
                     <div>
                         <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Is Free Delivery? <span class="text-red-500">*</span>
+                        </label>
+                        <select id="is_free_delivery" name="is_free_delivery" required
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('is_free_delivery') border-red-500 @enderror">
+                            <option value="0" {{ old('is_free_delivery') == '0' ? 'selected' : '' }}>False</option>
+                            <option value="1" {{ old('is_free_delivery') == '1' ? 'selected' : '' }}>True</option>
+                        </select>
+                        @error('is_free_delivery')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Status <span class="text-red-500">*</span>
                         </label>
                         <select id="status" name="status" required
@@ -154,7 +139,16 @@
                         @enderror
                     </div>
                 </div>
-
+                <div class="mt-6">
+                    <label for="short_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Short Description
+                    </label>
+                    <textarea id="short_description" name="short_description" rows="4"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('description') border-red-500 @enderror">{{ old('short_description') }}</textarea>
+                    @error('short_description')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
                 <div class="mt-6">
                     <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Description

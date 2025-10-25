@@ -8,6 +8,7 @@
         $flashSale = collect($order->flashSale ?? [])->isNotEmpty()
             ? collect($order->flashSale)->keyBy('product_variant_id')->toArray()
             : [];
+        $totalBuyingPrice = 0;
     @endphp
 
     <div class="p-4">
@@ -122,38 +123,79 @@
                                     </div>
                                 @endif
                                 <div class="flex-1">
-                                    <h3 class="font-medium text-gray-900">
-                                        {{ $orderProduct->product->name ?? 'Product Deleted' }}
-                                    </h3>
-
-                                    @if ($orderProduct->productVariant)
-                                        <p class="text-sm text-gray-500">
-                                            Variant: {{ $orderProduct->productVariant->name }}
-                                        </p>
-                                    @endif
-
-                                    <p class="text-sm text-gray-500">
+                                    <div class="flex justify-between">
+                                        <a href="{{ route('admin.products.show', $orderProduct->product->id) }}">
+                                            <h3 class="font-medium text-blue-500 hover:text-blue-700">
+                                                {{ $orderProduct->product->name ?? 'Product Deleted' }}
+                                            </h3>
+                                        </a>
+                                        <div class="text-right">
+                                            <p class="font-medium text-gray-900">
+                                                ${{ number_format($orderProduct->total_price, 2) }}</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">
                                         Qty: {{ $orderProduct->quantity }} ×
                                         ${{ number_format($orderProduct->unit_price, 2) }}
                                     </p>
 
+                                    @if ($orderProduct->productVariant && $orderProduct->productVariant->variantAttributes->count())
+                                        <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-700">
+                                            <span class="font-medium text-gray-600">Variant:</span>
+                                            @foreach ($orderProduct->productVariant->variantAttributes as $attr)
+                                                <span
+                                                    class="inline-flex items-center bg-gray-100 border border-gray-200 rounded-full px-2.5 py-0.5">
+                                                    <span
+                                                        class="text-gray-800 font-medium">{{ $attr->attribute->name }}:</span>
+                                                    <span
+                                                        class="ml-1 text-gray-600">{{ $attr->attributeValue->value }}</span>
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
                                     @php
                                         $variantId = $orderProduct->product_variant_id;
                                         $flashItem = $flashSale[$variantId] ?? null;
+                                        $totalBuyingPrice += (float) $orderProduct->buying_price;
                                     @endphp
 
                                     @if ($flashItem && isset($flashItem['discounted_price']))
-                                        <p class="text-sm text-green-600">
-                                            Discount ({{$flashItem['flash_sale_slug']}}):
-                                            -${{ number_format($flashItem['discounted_price'] * $orderProduct->quantity, 2) }}
-                                        </p>
+                                        <div
+                                            class="mt-2 flex items-center gap-2 text-sm text-emerald-600 font-medium bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span>
+                                                <span class="font-semibold">Flash Sale:</span>
+                                                <span
+                                                    class="text-emerald-700">{{ ucfirst($flashItem['flash_sale_slug']) }}</span>
+                                                —
+                                                <span class="text-emerald-800">-
+                                                    ${{ number_format($flashItem['discounted_price'] * $orderProduct->quantity, 2) }}</span>
+                                            </span>
+                                        </div>
                                     @endif
+
+                                    @if ($orderProduct->is_free_shipping)
+                                        <div
+                                            class="mt-2 flex items-center gap-2 text-sm text-sky-700 font-medium bg-sky-50 border border-sky-200 rounded-lg px-3 py-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-sky-500"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                                stroke-width="2">
+                                                <rect x="1" y="3" width="15" height="13" />
+                                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                                                <circle cx="5.5" cy="18.5" r="1.5" />
+                                                <circle cx="18.5" cy="18.5" r="1.5" />
+                                            </svg>
+                                            <span>Free Shipping Applied</span>
+                                        </div>
+                                    @endif
+
                                 </div>
 
-                                <div class="text-right">
-                                    <p class="font-medium text-gray-900">
-                                        ${{ number_format($orderProduct->total_price, 2) }}</p>
-                                </div>
                             </div>
                         @endforeach
                     </div>
@@ -249,7 +291,7 @@
                             </div>
                         @endif
 
-                        @if ($order->shipping_amount > 0)
+                        @if ($order->shipping_amount)
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Shipping:</span>
                                 <span
@@ -264,6 +306,11 @@
                                     class="text-base font-bold text-indigo-600">${{ number_format($order->total_amount, 2) }}</span>
                             </div>
                         </div>
+                        <div class="flex justify-between border border-red-500 rounded-md p-2">
+                            <span class="text-gray-600">Product Buying Price:</span>
+                            <span class="font-medium text-gray-900">${{ number_format($totalBuyingPrice, 2) }}</span>
+                        </div>
+
                     </div>
                 </div>
 

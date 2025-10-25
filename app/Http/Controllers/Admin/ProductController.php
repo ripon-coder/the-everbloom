@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Repositories\Contracts\CategoryRepository;
 use App\Repositories\Contracts\ProductRepository;
 use App\Services\ProductService;
 
@@ -35,7 +36,9 @@ class ProductController extends Controller
      */
     public function create()
     {
+        $allCategories = app(CategoryRepository::class)->allCategory();
         $data = $this->productRepository->create();
+        $data = array_merge($data, ['allCategories' => $allCategories]);
         return view("admin.products.create", $data);
     }
 
@@ -62,7 +65,9 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
+        $allCategories = app(CategoryRepository::class)->allCategory();
         $data = $this->productRepository->edit($product->id);
+        $data = array_merge($data, ['allCategories' => $allCategories]);
         return view("admin.products.edit", $data);
     }
 
