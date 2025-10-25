@@ -56,33 +56,43 @@ class DistrictEloquent implements DistrictRepository
         return District::orderBy("name")->get(['id', 'name', 'delivery_charge', 'information']);
     }
 
-    public function getShippingCharge(int $districtId, float $totalWeight): float
-    {
-        if($totalWeight == 0){
-            return 0.0;
-        }
-        $district = $this->byId($districtId);
+public function getShippingCharge(int $districtId, float $shippingWeight, float $shippingFreeWeight): array
+{
+    $district = $this->byId($districtId);
 
-        $baseCharge = $district->delivery_charge ?? 0;
+    $baseCharge = $district->delivery_charge ?? 0;
 
-        $nearRate = (float) env('NEAR_COURIER_CHARGE_KG', 10);
-        $farRate = (float) env('FAR_COURIER_CHARGE_KG', 15);
+    $nearRate = (float) env('NEAR_COURIER_CHARGE_KG', 10);
+    $farRate = (float) env('FAR_COURIER_CHARGE_KG', 15);
 
-        $weightCharge = 0;
+    $rate = $district->have_our_shop ? $nearRate : $farRate;
 
-        if ($district->have_our_shop) {
-            if ($totalWeight > 1) {
-                $extraWeight = $totalWeight - 1;
-                $weightCharge = $extraWeight * $nearRate;
-            }
-        } else {
-            if ($totalWeight > 1) {
-                $extraWeight = $totalWeight - 1;
-                $weightCharge = $extraWeight * $farRate;
-            }
-        }
+    $userCharge = 0;
+    $shopCharge = 0;
 
-        return round($baseCharge + $weightCharge, 2);
+    if ($shippingWeight > 0) {
+        // user_charge = baseCharge + shippingWeight এর অতিরিক্ত weight
+        $userCharge = round($baseCharge + max($shippingWeight - 1, 0) * $rate, 2);
+
+        // shop_charge = shippingFreeWeight এর যে অংশ shippingWeight এর বাইরে
+        $extraWeight = max(0, $shippingFreeWeight - $shippingWeight);
+        $shopCharge = round($extraWeight * $rate, 2);
+
+    } else {
+        // shippingWeight = 0 → পুরো charge shop এর
+        $shopCharge = round($baseCharge + max($shippingFreeWeight - 1, 0) * $rate, 2);
     }
+
+    return [
+        'user_charge' => $userCharge,
+        'shop_charge' => $shopCharge,
+    ];
+}
+
+
+
+
+
+
 }
 

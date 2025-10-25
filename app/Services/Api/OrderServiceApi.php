@@ -76,7 +76,7 @@ class OrderServiceApi
             $coupon_code,
             $flashSaleDiscount['total_discounted_price'] ?? 0
         );
-
+        return $order;
         $order_info = array_merge($order, [
             "order_number" => Order::generateOrderNumber(),
             'user_id' => $user_id,
@@ -124,6 +124,7 @@ class OrderServiceApi
         $sub_total = 0.0;
         $total_weight = 0.0;
         $total_weight_for_shipping_charge = 0.0;
+        $total_weight_for_free_delivery = 0.0;
 
         $products = $this->ProductsAllForDeliverCharge($variant_info); // check free delivery
 
@@ -132,15 +133,16 @@ class OrderServiceApi
             $quantity = (int) ($variant['quantity'] ?? 1);
             $product_id = $variant['product_id'] ?? null;
 
-            if (!($products[$product_id]['is_free_delivery'] ?? false)) {
+            if (!($products[$product_id]['is_free_delivery'])) {
                 $total_weight_for_shipping_charge += $weight * $quantity;
+            } else {
+                $total_weight_for_free_delivery += $weight * $quantity;
             }
 
             $sub_total += (float) ($variant['total_price'] ?? 0);
             $total_weight += $weight * $quantity;
         }
-
-        $shipping_charge = $this->shippingCharge($district_id, $total_weight_for_shipping_charge);
+        return $shipping_charge = $this->shippingCharge($district_id, $total_weight_for_shipping_charge, $total_weight_for_free_delivery);
         $discount_amount = $this->couponDiscount($coupon_code, $sub_total);
 
         return [
@@ -162,9 +164,9 @@ class OrderServiceApi
         return app(CouponRepository::class)->getDiscountAmount($coupon_code, $sub_total);
     }
 
-    public function shippingCharge(int $district_id, float $totalWeight)
+    public function shippingCharge(int $district_id, float $shippingWeight, $shippingFreeWeight)
     {
-        return app(DistrictRepository::class)->getShippingCharge($district_id, $totalWeight);
+        return app(DistrictRepository::class)->getShippingCharge($district_id, $shippingWeight, $shippingFreeWeight);
     }
 
     public function flashSale(array $productIds)
@@ -185,7 +187,7 @@ class OrderServiceApi
     private function VarinatsAll($product_list)
     {
         $variant_ids = array_column($product_list, 'variant_id');
-        $variant_all = app(ProductRepository::class)->getVariants($variant_ids, ['product_id', 'id','buying_price', 'weight', 'discount_price', 'sell_price', 'stock']);
+        $variant_all = app(ProductRepository::class)->getVariants($variant_ids, ['product_id', 'id', 'buying_price', 'weight', 'discount_price', 'sell_price', 'stock']);
         return collect($variant_all)->keyBy("id")->toArray();
     }
 

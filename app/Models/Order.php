@@ -25,6 +25,7 @@ class Order extends Model
         'discount_amount',
         'tax_amount',
         'shipping_amount',
+        'admin_shipping_amount',
         'weight',
         'coupon_used',
         'coupon_discount_amount',

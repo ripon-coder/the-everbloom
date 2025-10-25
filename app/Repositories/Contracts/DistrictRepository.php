@@ -24,5 +24,5 @@ interface DistrictRepository
 
     public function districtList();
 
-    public function getShippingCharge(int $districtId, float $totalWeight);
+    public function getShippingCharge(int $districtId, float $totalWeight,float $shippingFreeWeight);
 }
