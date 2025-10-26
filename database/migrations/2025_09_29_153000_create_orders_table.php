@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('tax_amount', 10, 2)->nullable();
             $table->decimal('shipping_amount', 10, 2)->default(0);
             $table->decimal('admin_shipping_amount', 10, 2)->default(0);
+            $table->decimal('profit', 10, 2)->default(0);
             $table->decimal('weight', 10, 2)->default(0);
             $table->string('coupon_used')->nullable();
             $table->string('status')->default('pending');

@@ -131,12 +131,12 @@
                                         </a>
                                         <div class="text-right">
                                             <p class="font-medium text-gray-900">
-                                                ${{ number_format($orderProduct->total_price, 2) }}</p>
+                                                {{ $currency_sign }}{{ number_format($orderProduct->total_price, 2) }}</p>
                                         </div>
                                     </div>
                                     <p class="text-sm text-gray-500 mt-1">
                                         Qty: {{ $orderProduct->quantity }} ×
-                                        ${{ number_format($orderProduct->unit_price, 2) }}
+                                        {{ $currency_sign }}{{ number_format($orderProduct->unit_price, 2) }}
                                     </p>
 
                                     @if ($orderProduct->productVariant && $orderProduct->productVariant->variantAttributes->count())
@@ -157,7 +157,8 @@
                                     @php
                                         $variantId = $orderProduct->product_variant_id;
                                         $flashItem = $flashSale[$variantId] ?? null;
-                                        $totalBuyingPrice += (float) $orderProduct->buying_price;
+                                        $totalBuyingPrice +=
+                                            (float) $orderProduct->buying_price * $orderProduct->quantity;
                                     @endphp
 
                                     @if ($flashItem && isset($flashItem['discounted_price']))
@@ -174,7 +175,7 @@
                                                     class="text-emerald-700">{{ ucfirst($flashItem['flash_sale_slug']) }}</span>
                                                 —
                                                 <span class="text-emerald-800">-
-                                                    ${{ number_format($flashItem['discounted_price'] * $orderProduct->quantity, 2) }}</span>
+                                                    {{ $currency_sign }}{{ number_format($flashItem['discounted_price'] * $orderProduct->quantity, 2) }}</span>
                                             </span>
                                         </div>
                                     @endif
@@ -258,7 +259,7 @@
                     <div class="space-y-3 text-sm">
                         <div class="flex justify-between">
                             <span class="text-gray-600">Subtotal:</span>
-                            <span class="font-medium text-gray-900">${{ number_format($order->subtotal, 2) }}</span>
+                            <span class="font-medium text-gray-900">{{ $currency_sign }}{{ number_format($order->subtotal, 2) }}</span>
                         </div>
 
                         @if ($order->coupon_discount_amount > 0)
@@ -268,7 +269,7 @@
                                     <span class="text-xs text-green-600">Code: {{ $order->coupon_used }}</span>
                                 </div>
                                 <span class="font-semibold">-
-                                    ${{ number_format($order->coupon_discount_amount, 2) }}</span>
+                                    {{ $currency_sign }}{{ number_format($order->coupon_discount_amount, 2) }}</span>
                             </div>
                         @endif
 
@@ -280,14 +281,14 @@
                                     <span class="text-xs text-yellow-600">Limited Time Offer</span>
                                 </div>
                                 <span class="font-semibold">-
-                                    ${{ number_format($order->flash_discount_amount, 2) }}</span>
+                                    {{ $currency_sign }}{{ number_format($order->flash_discount_amount, 2) }}</span>
                             </div>
                         @endif
 
                         @if ($order->tax_amount > 0)
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Tax:</span>
-                                <span class="font-medium text-gray-900">${{ number_format($order->tax_amount, 2) }}</span>
+                                <span class="font-medium text-gray-900">{{ $currency_sign }}{{ number_format($order->tax_amount, 2) }}</span>
                             </div>
                         @endif
 
@@ -295,7 +296,7 @@
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Shipping:</span>
                                 <span
-                                    class="font-medium text-gray-900">${{ number_format($order->shipping_amount, 2) }}</span>
+                                    class="font-medium text-gray-900">{{ $currency_sign }}{{ number_format($order->shipping_amount, 2) }}</span>
                             </div>
                         @endif
 
@@ -303,12 +304,31 @@
                             <div class="flex justify-between">
                                 <span class="text-base font-bold text-gray-900">Total:</span>
                                 <span
-                                    class="text-base font-bold text-indigo-600">${{ number_format($order->total_amount, 2) }}</span>
+                                    class="text-base font-bold text-indigo-600">{{ $currency_sign }}{{ number_format($order->total_amount, 2) }}</span>
                             </div>
                         </div>
-                        <div class="flex justify-between border border-red-500 rounded-md p-2">
-                            <span class="text-gray-600">Product Buying Price:</span>
-                            <span class="font-medium text-gray-900">${{ number_format($totalBuyingPrice, 2) }}</span>
+
+                    </div>
+                </div>
+
+
+                <!-- Profit Calculation -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Profit Calculation</h2>
+
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>Buying Cost ({{ $currency_sign }}):</span>
+                            <span class="text-yellow-600 font-bold">{{ number_format($totalBuyingPrice, 2) }}</span>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span>Shipping (Shop → Customer) ({{ $currency_sign }}):</span>
+                            <span class="text-red-600 font-bold">-{{ number_format($order->admin_shipping_amount, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Estimated Profit ({{ $currency_sign }}):</span>
+                            <span class="text-green-600 font-bold">{{ number_format($order->profit, 2) }}</span>
                         </div>
 
                     </div>

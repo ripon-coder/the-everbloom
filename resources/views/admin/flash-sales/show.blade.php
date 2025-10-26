@@ -159,17 +159,17 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($product->pivot->discount_price)
                                                 <div class="text-sm text-green-600 font-medium">
-                                                    ${{ number_format($product->pivot->discount_price, 2) }}
+                                                    {{ $currency_sign }}{{ number_format($product->pivot->discount_price, 2) }}
                                                 </div>
                                                 <div class="text-xs text-gray-500">
-                                                    Save ${{ number_format($product->pivot->discount_price, 2) }}
+                                                    Save {{ $currency_sign }}{{ number_format($product->pivot->discount_price, 2) }}
                                                 </div>
                                             @elseif($product->pivot->discount_percentage)
                                                 <div class="text-sm text-green-600 font-medium">
                                                     {{ $product->pivot->discount_percentage }}%
                                                 </div>
                                                 <div class="text-xs text-gray-500">
-                                                    Save ${{ number_format($product->price * ($product->pivot->discount_percentage / 100), 2) }}
+                                                    Save {{ $currency_sign }}{{ number_format($product->price * ($product->pivot->discount_percentage / 100), 2) }}
                                                 </div>
                                             @else
                                                 <div class="text-sm text-gray-500">No discount</div>
@@ -177,11 +177,11 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($product->pivot->discount_price)
-                                                <div class="text-sm font-medium text-green-600">${{ number_format($product->price - $product->pivot->discount_price, 2) }}</div>
+                                                <div class="text-sm font-medium text-green-600">{{ $currency_sign }}{{ number_format($product->price - $product->pivot->discount_price, 2) }}</div>
                                             @elseif($product->pivot->discount_percentage)
-                                                <div class="text-sm font-medium text-green-600">${{ number_format($product->price * (1 - $product->pivot->discount_percentage / 100), 2) }}</div>
+                                                <div class="text-sm font-medium text-green-600">{{ $currency_sign }}{{ number_format($product->price * (1 - $product->pivot->discount_percentage / 100), 2) }}</div>
                                             @else
-                                                <div class="text-sm text-gray-900">${{ number_format($product->price, 2) }}</div>
+                                                <div class="text-sm text-gray-900">{{ $currency_sign }}{{ number_format($product->price, 2) }}</div>
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">

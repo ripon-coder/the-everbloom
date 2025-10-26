@@ -39,9 +39,8 @@ class OrderServiceApi
             if (!isset($productAll[$product_id]['status']) || $productAll[$product_id]['status'] == ProductStatus::INACTIVE) {
                 throw new \Exception("Product Not Active or Not Found");
             }
-
             // Variant validation
-            if (!$variant) {
+            if (!$variant || $variant['status'] == "inactive") {
                 throw new \Exception("Variant Not Found");
             }
 
@@ -49,7 +48,9 @@ class OrderServiceApi
             $this->Quantitycheck($variant, $quantity);
 
             // Flash sale logic
-            if (!empty($product['flash_sale'])) {
+            $isFlashSale = !empty($product['flash_sale'] ?? null);
+
+            if ($isFlashSale) {
                 $product_ids[$variant_id] = [
                     'product_id' => $product_id,
                     'variant_id' => $variant_id,
@@ -62,10 +63,10 @@ class OrderServiceApi
             $variant_info[] = $this->listVariants(
                 $variant,
                 $quantity,
-                $productAll[$product_id]['is_free_delivery'] ?? false
+                $productAll[$product_id]['is_free_delivery'] ?? false,
+                $isFlashSale
             );
         }
-
         // Flash sale discount
         $flashSaleDiscount = $this->flashSale($product_ids);
 
@@ -76,7 +77,6 @@ class OrderServiceApi
             $coupon_code,
             $flashSaleDiscount['total_discounted_price'] ?? 0
         );
-        return $order;
         $order_info = array_merge($order, [
             "order_number" => Order::generateOrderNumber(),
             'user_id' => $user_id,
@@ -98,15 +98,16 @@ class OrderServiceApi
      * @param int $quantity
      * @return array{discount_amount: mixed, product_id: mixed, product_variant_id: mixed, quantity: int, total_price: float|int, unit_price: mixed, weight: mixed}
      */
-    public function listVariants(array $variant, int $quantity, $is_free_shipping)
+    public function listVariants(array $variant, int $quantity, $is_free_shipping,bool $isFlashSale)
     {
+        $unit_price = $isFlashSale ? $variant['sell_price'] : ($variant['discount_price'] ?? $variant['sell_price']);
         return [
             'product_id' => $variant['product_id'],
             'product_variant_id' => $variant['id'],
             'quantity' => $quantity,
             'weight' => $variant['weight'],
-            'unit_price' => $variant['discount_price'] ?? $variant['sell_price'],
-            'total_price' => ($variant['discount_price'] ?? $variant['sell_price']) * $quantity,
+            'unit_price' => $unit_price,
+            'total_price' => $unit_price * $quantity,
             'discount_amount' => 0.0,
             'is_free_shipping' => $is_free_shipping,
             "buying_price" => $variant['buying_price'],
@@ -125,6 +126,7 @@ class OrderServiceApi
         $total_weight = 0.0;
         $total_weight_for_shipping_charge = 0.0;
         $total_weight_for_free_delivery = 0.0;
+        $totalBuyingPrice = 0.0;
 
         $products = $this->ProductsAllForDeliverCharge($variant_info); // check free delivery
 
@@ -133,7 +135,7 @@ class OrderServiceApi
             $quantity = (int) ($variant['quantity'] ?? 1);
             $product_id = $variant['product_id'] ?? null;
 
-            if (!($products[$product_id]['is_free_delivery'])) {
+            if (!($products[$product_id]['is_free_delivery'] ?? false)) {
                 $total_weight_for_shipping_charge += $weight * $quantity;
             } else {
                 $total_weight_for_free_delivery += $weight * $quantity;
@@ -141,24 +143,37 @@ class OrderServiceApi
 
             $sub_total += (float) ($variant['total_price'] ?? 0);
             $total_weight += $weight * $quantity;
+
+            // total buying price
+            $totalBuyingPrice += (float) ($variant['buying_price'] ?? 0) * $quantity;
         }
-        //return $shipping_charge = $this->shippingCharge($district_id, $total_weight_for_shipping_charge, $total_weight_for_free_delivery);
-        return $shipping_charge = $this->shippingCharge(1, 1.5, 1);
+
+        $shipping_cost = $this->shippingCharge($district_id, $total_weight_for_shipping_charge, $total_weight_for_free_delivery);
+        $shipping_charge = $shipping_cost['shipping_amount'];
+        $admin_shipping_amount = $shipping_cost['admin_shipping_amount'];
 
         $discount_amount = $this->couponDiscount($coupon_code, $sub_total);
+
+        $total_amount = round(($sub_total + $shipping_charge) - ($discount_amount + $flashDiscount), 2);
+
+        // profit calculation
+        $profit = $total_amount - ($totalBuyingPrice + $shipping_charge + $admin_shipping_amount);
 
         return [
             'weight' => round($total_weight, 2),
             'subtotal' => round($sub_total, 2),
             'shipping_amount' => $shipping_charge,
+            'admin_shipping_amount' => $admin_shipping_amount,
             'before_discount' => $sub_total + $shipping_charge,
-            'total_amount' => round(($sub_total + $shipping_charge) - ($discount_amount + $flashDiscount), 2),
+            'total_amount' => $total_amount,
             'coupon_used' => $discount_amount > 0 ? $coupon_code : null,
             'coupon_discount_amount' => $discount_amount,
             'tax_amount' => 0.0,
-            'flash_discount_amount' => $flashDiscount
+            'flash_discount_amount' => $flashDiscount,
+            'profit' => round($profit, 2)
         ];
     }
+
 
 
     public function couponDiscount($coupon_code, float $sub_total)
@@ -189,7 +204,7 @@ class OrderServiceApi
     private function VarinatsAll($product_list)
     {
         $variant_ids = array_column($product_list, 'variant_id');
-        $variant_all = app(ProductRepository::class)->getVariants($variant_ids, ['product_id', 'id', 'buying_price', 'weight', 'discount_price', 'sell_price', 'stock']);
+        $variant_all = app(ProductRepository::class)->getVariants($variant_ids, ['product_id', 'id', 'buying_price', 'sell_price', 'weight', 'discount_price', 'sell_price', 'stock', 'status']);
         return collect($variant_all)->keyBy("id")->toArray();
     }
 

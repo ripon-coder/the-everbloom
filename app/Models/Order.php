@@ -30,6 +30,7 @@ class Order extends Model
         'coupon_used',
         'coupon_discount_amount',
         'flash_discount_amount',
+        'profit',
         'status',
         'payment_status',
         'payment_method',

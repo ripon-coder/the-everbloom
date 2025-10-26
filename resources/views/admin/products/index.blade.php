@@ -73,7 +73,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $product->category?->name ?: 'N/A' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    ${{ number_format($product->price, 2) }}</td>
+                                    {{ $currency_sign }}{{ number_format($product->price, 2) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span
                                         class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 

@@ -105,7 +105,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                     <div>
                         <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Price (৳) <span class="text-red-500">*</span>
+                            Price ({{ $currency_sign }}) <span class="text-red-500">*</span>
                         </label>
                         <input type="number" id="price" name="price" value="{{ old('price', $product->price) }}"
                             step="0.01" min="0" required
@@ -516,11 +516,11 @@
                                                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
                                                         </path>
                                                     </svg>
-                                                    Buying Price (৳)
+                                                    Buying Price ({{ $currency_sign }})
                                                 </label>
                                                 <div class="relative">
                                                     <span
-                                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">৳</span>
+                                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">{{ $currency_sign }}</span>
                                                     <input type="number"
                                                         name="variants[{{ $index }}][buying_price]" step="0.01"
                                                         min="0" value="{{ $variant->buying_price ?? 0 }}"
@@ -538,11 +538,11 @@
                                                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
                                                         </path>
                                                     </svg>
-                                                    Sell Price (৳)
+                                                    Sell Price ({{ $currency_sign }})
                                                 </label>
                                                 <div class="relative">
                                                     <span
-                                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">৳</span>
+                                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">{{ $currency_sign }}</span>
                                                     <input type="number"
                                                         name="variants[{{ $index }}][sell_price]" step="0.01"
                                                         min="0" value="{{ $variant->sell_price ?? 0 }}"
@@ -561,11 +561,11 @@
                                                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
                                                         </path>
                                                     </svg>
-                                                    Discount Price (৳)
+                                                    Discount Price ({{ $currency_sign }})
                                                 </label>
                                                 <div class="relative">
                                                     <span
-                                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">৳</span>
+                                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">{{ $currency_sign }}</span>
                                                     <input type="number"
                                                         name="variants[{{ $index }}][discount_price]"
                                                         step="0.01" min="0"

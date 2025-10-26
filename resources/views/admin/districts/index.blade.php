@@ -35,7 +35,7 @@
                                 {{ $district->name }}
                             </td>
                             <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                                {{ $district->delivery_charge }} TK
+                                {{ $currency_sign }}{{ $district->delivery_charge }}
                             </td>
                             <td class="px-6 py-4">
                                 {{ $district->created_at->format('Y-m-d H:i') }}

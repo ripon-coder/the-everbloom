@@ -68,18 +68,18 @@
                                 </span>
                             @else
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Fixed Amount (${{ number_format($coupon->value, 2) }})
+                                    Fixed Amount ({{ $currency_sign }}{{ number_format($coupon->value, 2) }})
                                 </span>
                             @endif
                         </p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-500 mb-1">Discount Value</label>
-                        <p class="text-base text-gray-900 font-semibold">${{ number_format($coupon->value, 2) }}</p>
+                        <p class="text-base text-gray-900 font-semibold">{{ $currency_sign }}{{ number_format($coupon->value, 2) }}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-500 mb-1">Minimum Order Amount</label>
-                        <p class="text-base text-gray-900">${{ number_format($coupon->min_order_amount, 2) }}</p>
+                        <p class="text-base text-gray-900">{{ $currency_sign }}{{ number_format($coupon->min_order_amount, 2) }}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-500 mb-1">Usage Limit</label>
@@ -140,34 +140,34 @@
                 
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <p class="text-lg font-medium text-blue-900 mb-3">Example Calculation:</p>
-                    <p class="text-blue-800 mb-3">For an order of <strong>${{ number_format(100, 2) }}</strong>:</p>
+                    <p class="text-blue-800 mb-3">For an order of <strong>{{ $currency_sign }}{{ number_format(100, 2) }}</strong>:</p>
                     <ul class="space-y-2 text-blue-800">
                         @if ($coupon->type == 'percentage')
                             <li class="flex items-start">
                                 <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                 </svg>
-                                <span>Discount: {{ $coupon->value }}% of ${{ number_format(100, 2) }} = ${{ number_format((100 * $coupon->value) / 100, 2) }}</span>
+                                <span>Discount: {{ $coupon->value }}% of {{ $currency_sign }}{{ number_format(100, 2) }} = {{ $currency_sign }}{{ number_format((100 * $coupon->value) / 100, 2) }}</span>
                             </li>
                             @if ($coupon->max_discount_amount)
                                 <li class="flex items-start">
                                     <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                     </svg>
-                                    <span>Maximum discount: ${{ number_format($coupon->max_discount_amount, 2) }}</span>
+                                    <span>Maximum discount: {{ $currency_sign }}{{ number_format($coupon->max_discount_amount, 2) }}</span>
                                 </li>
                                 <li class="flex items-start">
                                     <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                     </svg>
-                                    <span><strong>Final discount: ${{ number_format(min((100 * $coupon->value) / 100, $coupon->max_discount_amount), 2) }}</strong></span>
+                                    <span><strong>Final discount: {{ $currency_sign }}{{ number_format(min((100 * $coupon->value) / 100, $coupon->max_discount_amount), 2) }}</strong></span>
                                 </li>
                             @else
                                 <li class="flex items-start">
                                     <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                     </svg>
-                                    <span><strong>Final discount: ${{ number_format((100 * $coupon->value) / 100, 2) }}</strong></span>
+                                    <span><strong>Final discount: {{ $currency_sign }}{{ number_format((100 * $coupon->value) / 100, 2) }}</strong></span>
                                 </li>
                             @endif
                         @else
@@ -175,17 +175,17 @@
                                 <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                 </svg>
-                                <span>Fixed discount: ${{ number_format($coupon->value, 2) }}</span>
+                                <span>Fixed discount: {{ $currency_sign }}{{ number_format($coupon->value, 2) }}</span>
                             </li>
                             <li class="flex items-start">
                                 <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                 </svg>
-                                <span><strong>Final discount: ${{ number_format(min($coupon->value, 100), 2) }}</strong></span>
+                                <span><strong>Final discount: {{ $currency_sign }}{{ number_format(min($coupon->value, 100), 2) }}</strong></span>
                             </li>
                         @endif
                     </ul>
-                    <p class="text-blue-800 mt-3"><strong>Minimum order required: ${{ number_format($coupon->min_order_amount, 2) }}</strong></p>
+                    <p class="text-blue-800 mt-3"><strong>Minimum order required: {{ $currency_sign }}{{ number_format($coupon->min_order_amount, 2) }}</strong></p>
                 </div>
             </div>
         </div>

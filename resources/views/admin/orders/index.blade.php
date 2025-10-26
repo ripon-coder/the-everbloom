@@ -55,7 +55,7 @@
                                     {{ $order->user->name ?? 'N/A' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    ${{ number_format($order->total_amount, 2) }}
+                                    {{ $currency_sign }}{{ number_format($order->total_amount, 2) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span

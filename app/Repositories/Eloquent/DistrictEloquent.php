@@ -89,8 +89,8 @@ class DistrictEloquent implements DistrictRepository
         }
 
         return [
-            'user_charge' => $userCharge,
-            'shop_charge' => $shop_charge,
+            'shipping_amount' => $userCharge,
+            'admin_shipping_amount' => $shop_charge,
         ];
     }
 }

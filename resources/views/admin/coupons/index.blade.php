@@ -51,15 +51,15 @@
                                         </span>
                                     @else
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            ${{ number_format($coupon->value, 2) }}
+                                            {{ $currency_sign }}{{ number_format($coupon->value, 2) }}
                                         </span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    ${{ number_format($coupon->value, 2) }}
+                                    {{ $currency_sign }}{{ number_format($coupon->value, 2) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    ${{ number_format($coupon->min_order_amount, 2) }}
+                                    {{ $currency_sign }}{{ number_format($coupon->min_order_amount, 2) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     @if ($coupon->usage_limit)

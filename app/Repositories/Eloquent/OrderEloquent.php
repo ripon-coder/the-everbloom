@@ -40,42 +40,44 @@ class OrderEloquent implements OrderRepository
     /**
      * Get an order by ID with relationships.
      */
-public function findById(int $id): ?Order
-{
-    return $this->model
-        ->select([
-            'id',
-            'user_id',
-            'order_number',
-            'status',
-            'payment_status',
-            'subtotal',
-            'coupon_discount_amount',
-            'flash_discount_amount',
-            'tax_amount',
-            'shipping_amount',
-            'total_amount',
-            'coupon_used',
-            'payment_method',
-            'payment_account',
-            'notes',
-            'created_at'
-        ])
-        ->with([
-            'user:id,name,email',
-            'trackings:id,order_id,status,created_at',
-            'orderAddress:id,order_id,name,address,zone,phone_number,district_id',
-            'orderAddress.district:id,name',
-            'orderProducts:id,order_id,product_id,product_variant_id,quantity,unit_price,total_price,is_free_shipping,buying_price',
-            'orderProducts.product:id,name,slug',
-            'orderProducts.product.firstImage',
-            'orderProducts.productVariant:id,product_id,buying_price',
-            'orderProducts.productVariant.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
-            'orderProducts.productVariant.variantAttributes.attribute:id,name',
-            'orderProducts.productVariant.variantAttributes.attributeValue:id,value',
-        ])
-        ->findOrFail($id);
-}
+    public function findById(int $id): ?Order
+    {
+        return $this->model
+            ->select([
+                'id',
+                'user_id',
+                'order_number',
+                'status',
+                'payment_status',
+                'subtotal',
+                'coupon_discount_amount',
+                'flash_discount_amount',
+                'tax_amount',
+                'shipping_amount',
+                'admin_shipping_amount',
+                'profit',
+                'total_amount',
+                'coupon_used',
+                'payment_method',
+                'payment_account',
+                'notes',
+                'created_at'
+            ])
+            ->with([
+                'user:id,name,email',
+                'trackings:id,order_id,status,created_at',
+                'orderAddress:id,order_id,name,address,zone,phone_number,district_id',
+                'orderAddress.district:id,name',
+                'orderProducts:id,order_id,product_id,product_variant_id,quantity,unit_price,total_price,is_free_shipping,buying_price',
+                'orderProducts.product:id,name,slug',
+                'orderProducts.product.firstImage',
+                'orderProducts.productVariant:id,product_id,buying_price',
+                'orderProducts.productVariant.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
+                'orderProducts.productVariant.variantAttributes.attribute:id,name',
+                'orderProducts.productVariant.variantAttributes.attributeValue:id,value',
+            ])
+            ->findOrFail($id);
+    }
 
 
     /**
@@ -398,20 +400,45 @@ public function findById(int $id): ?Order
             ->get();
     }
 
-    public function createOrder(array $order_info, array $variant_info, array $shipping_address, $flashSaleDiscount): Order
+    public function createOrder(array $order_info, array $variant_info, array $shipping_address, $flashSaleDiscount)
     {
         try {
             DB::beginTransaction();
+
+            // 1️⃣ Coupon update
             app(CouponRepository::class)->usedCoupon($order_info['coupon_used'] ?? '');
+
+            // 2️⃣ Order create
             $order = $this->model->create($order_info);
+
+            // 3️⃣ Order products create
             $order->orderProducts()->createMany($variant_info);
+
+            // 4️⃣ Shipping address create
             $order->orderAddress()->create($shipping_address);
-            $order->flashSale()->createMany($flashSaleDiscount);
+
+            // 5️⃣ Flash Sale info create
+            if (!empty($flashSaleDiscount)) {
+                $order->flashSale()->createMany($flashSaleDiscount);
+            }
+
+            // 6️⃣ Now decrease stock for all product variants
+            foreach ($variant_info as $variant) {
+                if (!empty($variant['product_variant_id']) && !empty($variant['quantity'])) {
+                    DB::table('product_variants')
+                        ->where('id', $variant['product_variant_id'])
+                        ->where('stock', '>=', $variant['quantity'])
+                        ->decrement('stock', $variant['quantity']);
+                }
+            }
+
             DB::commit();
             return $order;
+
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
         }
     }
+
 }
