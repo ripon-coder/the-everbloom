@@ -24,6 +24,7 @@ class SingleProductVariantResource extends JsonResource
             'discount_amount' => $this->discount_amount,
             'stock' => $this->stock,
             'weight' => $this->weight,
+            'status' => $this->status,
             "images" => $this->when($this->images->isNotEmpty(), function () {
                 return $this->images->map(fn($image) => $image->getImageUrl());
             }),
