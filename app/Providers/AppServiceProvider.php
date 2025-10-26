@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\Contracts\UserRepository;
+use App\Repositories\Eloquent\UserEloquent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Blade;
@@ -45,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
         app()->bind(ProductRepository::class, ProductEloquent::class);
         app()->bind(DistrictRepository::class, DistrictEloquent::class);
         app()->bind(SaveAddressRepository::class, SaveAddressEloquent::class);
+        app()->bind(UserRepository::class, UserEloquent::class);
     }
 
     /**
@@ -55,7 +58,7 @@ class AppServiceProvider extends ServiceProvider
         Model::preventLazyLoading(!app()->isProduction());
 
         // Money Sign Pass
-         View::share('currency_sign', config('eccomerce.currency_sign'));
+        View::share('currency_sign', config('eccomerce.currency_sign'));
 
         // Create Blade directive for active state checking
         Blade::directive('active', function ($expression) {

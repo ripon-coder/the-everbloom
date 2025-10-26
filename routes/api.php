@@ -6,10 +6,15 @@ use App\Http\Controllers\Api\CheckoutApiController;
 use App\Http\Controllers\Api\OrderApiController;
 use App\Http\Controllers\Api\ProductControllerApi;
 use App\Http\Controllers\Api\SaveAddressApiController;
+use App\Http\Controllers\Api\UserApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix("v1")->group(function(){
+
+    // User Login
+    Route::post('login',[UserApiController::class,'Login']);
+
     //Route::get("parent-category",[CategoryControllerApi::class,'ParentCategory']);
     //Route::get("all-category",[CategoryControllerApi::class,'AllCategory']);
     Route::get('shop-products',[ProductControllerApi::class,'ShopProducts']);
