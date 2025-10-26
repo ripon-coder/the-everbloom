@@ -23,6 +23,7 @@ interface ProductRepository
     public function Product(array $data);
     public function Variant(array $data);
     public function getProducts(array $ids, array $fetch);
+    public function getVariantsWithAttribute(array $ids);
     public function getVariants(array $ids, array $fetch);
     public function getProductInfo(int $id, array $fetch);
     public function getVariantInfo(int $productId, ?int $variantId);

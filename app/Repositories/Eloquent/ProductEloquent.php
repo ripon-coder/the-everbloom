@@ -31,10 +31,10 @@ class ProductEloquent implements ProductRepository
             'category_id',
             'price'
         ])->with([
-                    'brand:id,name',
-                    'category:id,name',
-                    'firstImage.media'
-                ])->withCount(['variants', 'images'])
+            'brand:id,name',
+            'category:id,name',
+            'firstImage.media'
+        ])->withCount(['variants', 'images'])
             ->latest()
             ->paginate(15);
     }
@@ -223,7 +223,7 @@ class ProductEloquent implements ProductRepository
     }
 
     public function Variant(array $data)
-    { 
+    {
         $outData = [];
         if (!empty($data['variant_id'])) {
             $outData = ProductVariant::active()->where('id', $data['variant_id'])->with([
@@ -236,15 +236,27 @@ class ProductEloquent implements ProductRepository
         return $outData;
     }
 
-    public function getProducts(array $ids,array $fetch){
-         return Product::whereIn("id",$ids)->get($fetch)->toArray();
+    public function getProducts(array $ids, array $fetch)
+    {
+        return Product::whereIn("id", $ids)->get($fetch)->toArray();
     }
 
-    public function getVariants(array $ids,array $fetch){
+    public function getVariants(array $ids, array $fetch)
+    {
         return ProductVariant::whereIn('id', $ids)->get($fetch)->toArray();
     }
+    public function getVariantsWithAttribute(array $ids)
+    {
+        return ProductVariant::active()->whereIn('id', $ids)->with([
+            'images',
+            'variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
+            'variantAttributes.attribute:id,name,description,is_image',
+            'variantAttributes.attributeValue:id,attribute_id,value'
+        ])->get();
+    }
 
-    public function getProductInfo(int $id,array $fetch){
+    public function getProductInfo(int $id, array $fetch)
+    {
         return Product::select($fetch)->find($id);
     }
     public function getVariantInfo(int $productId, ?int $variantId)
