@@ -25,6 +25,7 @@ Route::prefix("v1")->group(function(){
     Route::get('product',[ProductControllerApi::class,'Product']);
     // variant
     Route::get('variant',[ProductControllerApi::class,'Variant']);
+    Route::get('variants',[ProductControllerApi::class,'Variants']);
 
     // will be auth section
     Route::get('district-list',[CheckoutApiController::class,'DistrictList']);

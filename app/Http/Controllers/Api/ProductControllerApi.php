@@ -46,4 +46,9 @@ class ProductControllerApi extends BaseApiController
             return [];
         }
     }
+    public function Variants(Request $request){
+        $ids = $request->ids;
+        $data = app(ProductRepository::class)->getVariants($ids,['id','product_id','sku','sell_price','discount_price','weight','stock','status']);
+        return $this->successResponse($data, "variants");
+    }
 }
