@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use Exception;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SaveAddressRequest;
+use App\Http\Requests\Api\SaveAddressRequest;
 use Illuminate\Validation\ValidationException;
 use App\Repositories\Contracts\SaveAddressRepository;
 
