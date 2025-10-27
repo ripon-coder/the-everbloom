@@ -27,7 +27,8 @@ class SaveAddressRequest extends FormRequest
             "phone_number" => "required|numeric",
             "district_id" => ["required",Rule::exists("districts",'id')],
             "zone" => "nullable|max:200",
-            "address" => "nullable|max:500"
+            "address" => "nullable|max:500",
+            "type_address" => ["required", Rule::in(['home', 'office','other'])],
         ];
     }
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)

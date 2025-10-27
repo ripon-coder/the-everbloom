@@ -16,5 +16,10 @@ class SaveAddress extends Model
         'district_id',
         'zone',
         'address',
+        'type_address',
     ];
+
+    public function district(){
+        return $this->belongsTo(District::class);
+    }
 }

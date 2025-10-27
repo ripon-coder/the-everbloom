@@ -16,7 +16,7 @@ interface SaveAddressRepository
 
     public function update(int $id, array $data);
 
-    public function destroy(int $id);
+    public function destroy(int $id,int $user_id);
 
     public function restore(int $id);
 

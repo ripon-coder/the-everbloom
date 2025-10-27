@@ -38,9 +38,9 @@ class SaveAddressEloquent implements SaveAddressRepository
 
     }
 
-    public function destroy(int $id)
+    public function destroy(int $id,$user_id)
     {
-        return SaveAddress::destroy($id);
+        return SaveAddress::where('user_id', $user_id)->where('id',$id)->delete();
     }
 
     public function restore(int $id)
@@ -53,11 +53,11 @@ class SaveAddressEloquent implements SaveAddressRepository
 
     public function getAddress($address_id, $userId)
     {
-        $query = SaveAddress::where('user_id', $userId);
+        $query = SaveAddress::where('user_id', $userId)->with('district:id,name,information');
         if (!empty($address_id)) {
             $query->where('id', $address_id);
         }
-        return $query->get();
+        return $query->get(['id','name','phone_number','district_id','zone','address','type_address']);
     }
 
 }

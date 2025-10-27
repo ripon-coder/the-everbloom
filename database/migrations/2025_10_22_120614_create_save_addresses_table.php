@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId("district_id")->constrained("districts")->onDelete("cascade");
             $table->string("zone")->nullable();
             $table->text("address")->nullable();
+            $table->enum("type_address",['home','office','other']);
             $table->timestamps();
         });
     }
