@@ -27,7 +27,7 @@ class OrderServiceApi
 
         // Fetch all products and variants
         $productAll = $this->ProductAll(array_unique(array_column($product_list, 'product_id')));
-        $variant_all = $this->VarinatsAll($product_list);
+        $variant_all = $this->VariantsAll($product_list);
 
         foreach ($product_list as $product) {
             $product_id = $product['product_id'];
@@ -201,7 +201,7 @@ class OrderServiceApi
         return $products = collect($products)->keyBy('id')->toArray();
     }
 
-    private function VarinatsAll($product_list)
+    private function VariantsAll($product_list)
     {
         $variant_ids = array_column($product_list, 'variant_id');
         $variant_all = app(ProductRepository::class)->getVariants($variant_ids, ['product_id', 'id', 'buying_price', 'sell_price', 'weight', 'discount_price', 'sell_price', 'stock', 'status']);

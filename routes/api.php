@@ -32,12 +32,14 @@ Route::prefix("v1")->group(function () {
 
     // Order routes will be here
     Route::post('create-order', [OrderApiController::class, 'CreateOrder']);
-
 });
 
 Route::middleware('auth:sanctum')->prefix("v1")->group(function () {
+    // Save Address routes will be here
     Route::get('get-address', [SaveAddressApiController::class, 'GetAddress']);
     Route::post('save-address', [SaveAddressApiController::class, 'SaveAddress']);
     Route::delete('delete-address', [SaveAddressApiController::class, 'DeleteAddress']);
-});
 
+    // Checkout routes will be here
+    Route::post('checkout-calculate', [CheckoutApiController::class, 'Calculate']);
+});
