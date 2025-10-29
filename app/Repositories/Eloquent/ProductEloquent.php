@@ -218,7 +218,7 @@ class ProductEloquent implements ProductRepository
                 'variants.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
                 'variants.variantAttributes.attribute:id,name,description,is_image',
                 'variants.variantAttributes.attributeValue:id,attribute_id,value'
-            ])->get(['id', 'name', 'description', 'price', 'slug']);
+            ])->get(['id', 'name', 'description','short_description', 'price', 'slug']);
         }
     }
 

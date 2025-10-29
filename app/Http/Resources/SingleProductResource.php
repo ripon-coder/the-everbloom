@@ -18,6 +18,7 @@ class SingleProductResource extends JsonResource
             "id" => $this->id,
             "name" => $this->name,
             "description" => $this->description,
+            "short_description" => $this->short_description,
             "price" => $this->price,
             "slug" => $this->slug,
             "images" => $this->when($this->images->isNotEmpty(), function () {

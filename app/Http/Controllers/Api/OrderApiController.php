@@ -19,11 +19,14 @@ class OrderApiController extends BaseApiController
     }
     public function CreateOrder(Request $request)
     {
-        $user_id = 1;
+        $user_id = auth()->guard('sanctum')->id();
+        $data = array_merge($request->all(),['user_id' => $user_id]);
+        try {
+            $order = $this->orderService->createOrder($data);
+            return $this->successResponse($order, 'Order created successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to create order', 500, $e->getMessage());
+        }
 
-        return $this->orderService->createOrder(array_merge(
-            $request->all(),
-            ['user_id' => $user_id]
-        ));
     }
 }
