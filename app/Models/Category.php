@@ -76,7 +76,7 @@ class Category extends Model implements HasMedia
      */
     public function children()
     {
-        return $this->hasMany(Category::class, 'parent_id')->with('children');
+        return $this->hasMany(Category::class, 'parent_id');
     }
 
     /**

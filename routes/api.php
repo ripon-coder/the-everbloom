@@ -32,6 +32,11 @@ Route::prefix("v1")->group(function () {
 });
 
 Route::middleware('auth:sanctum')->prefix("v1")->group(function () {
+
+    // User routes will be here
+    Route::get('user', [UserApiController::class, 'GetUser']);
+    Route::post('update-user', [UserApiController::class, 'UpdateUser']);
+    
     // Save Address routes will be here
     Route::get('get-address', [SaveAddressApiController::class, 'GetAddress']);
     Route::post('save-address', [SaveAddressApiController::class, 'SaveAddress']);

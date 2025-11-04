@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Repositories\Eloquent;
 
-use App\Repositories\Contracts\UserRepository;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Repositories\Contracts\UserRepository;
 
 class UserEloquent implements UserRepository
 {
@@ -23,6 +25,22 @@ class UserEloquent implements UserRepository
             'token_type' => 'Bearer',
             'user' => $user,
         ];
-
+    }
+    public function CurrentUser()
+    {
+        $id = auth()->guard('sanctum')->id();
+        return User::find($id);
+    }
+    public function GetUser($user_id){
+        return User::where('id', $user_id)->first();
+    }
+    public function UserUpdate($user_id, $data)
+    {
+        $user = User::find($user_id);
+        $user->update($data);
+        if ($data['profile_thumbnail'] != null) {
+            $user->uploadImage($data['profile_thumbnail'], "profile_thumbnail");
+        }
+        return $user;
     }
 }
