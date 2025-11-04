@@ -29,9 +29,6 @@ Route::prefix("v1")->group(function () {
 
     // will be auth section
     Route::get('district-list', [CheckoutApiController::class, 'DistrictList']);
-
-    // Order routes will be here
-    Route::post('create-order', [OrderApiController::class, 'CreateOrder']);
 });
 
 Route::middleware('auth:sanctum')->prefix("v1")->group(function () {
@@ -42,4 +39,8 @@ Route::middleware('auth:sanctum')->prefix("v1")->group(function () {
 
     // Checkout routes will be here
     Route::post('checkout-calculate', [CheckoutApiController::class, 'Calculate']);
+    // Order routes will be here
+    Route::post('create-order', [OrderApiController::class, 'CreateOrder']);
+    Route::post('get-orders',[OrderApiController::class,'GetOrder']);
+    Route::post('get-order-details',[OrderApiController::class,'GetOrderDetails']);
 });

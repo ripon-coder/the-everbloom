@@ -33,7 +33,6 @@ class OrderEloquent implements OrderRepository
             'orderProducts.product.firstImage',
             'orderProducts.productVariant'
         ])->orderByDesc("id")->paginate($perPage);
-
     }
 
 
@@ -434,11 +433,55 @@ class OrderEloquent implements OrderRepository
 
             DB::commit();
             return $order;
-
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
         }
     }
 
+    public function getOrder($user_id, $current_page, $per_page)
+    {
+        $offset = ($current_page - 1) * $per_page;
+
+        $baseQuery = $this->model->where('user_id', $user_id);
+
+        $total = (clone $baseQuery)->count();
+
+        $orders = (clone $baseQuery)
+            ->select([
+                'id',
+                'user_id',
+                'order_number',
+                'total_amount',
+                'status',
+                'created_at',
+            ])
+            ->withCount('orderProducts')
+            ->latest()
+            ->skip($offset)
+            ->take($per_page)
+            ->get();
+
+        return [
+            'orders' => $orders,
+            'total' => $total,
+        ];
+    }
+
+
+    public function getOrderDetails($order_id, $user_id)
+    {
+        return $this->model->where('user_id', $user_id)->where('id', $order_id)->with([
+            'orderProducts',
+            'orderAddress',
+            'orderProducts.product',
+            'orderProducts.product.firstImage',
+            'orderProducts.productVariant.images',
+            'orderProducts.productVariant.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
+            'orderProducts.productVariant.variantAttributes.attribute:id,name',
+            'orderProducts.productVariant.variantAttributes.attributeValue:id,value',
+            'flashSale',
+            'trackings'
+        ])->first();
+    }
 }

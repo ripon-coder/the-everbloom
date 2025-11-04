@@ -111,4 +111,8 @@ interface OrderRepository
     public function getRecent(int $limit = 10): Collection;
 
     public function createOrder(array $order_info, array $variant_info, array $shipping_address,$flashSaleDiscount);
+
+    public function getOrder($user_id, $current_page, $per_page);
+
+    public function getOrderDetails($order_id, $user_id);
 }
