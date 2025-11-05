@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\OrderApiController;
 use App\Http\Controllers\Api\ProductControllerApi;
 use App\Http\Controllers\Api\SaveAddressApiController;
 use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\Api\WishlistApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,11 +33,11 @@ Route::prefix("v1")->group(function () {
 });
 
 Route::middleware('auth:sanctum')->prefix("v1")->group(function () {
-
+    
     // User routes will be here
     Route::get('user', [UserApiController::class, 'GetUser']);
     Route::post('update-user', [UserApiController::class, 'UpdateUser']);
-    
+
     // Save Address routes will be here
     Route::get('get-address', [SaveAddressApiController::class, 'GetAddress']);
     Route::post('save-address', [SaveAddressApiController::class, 'SaveAddress']);
@@ -44,8 +45,22 @@ Route::middleware('auth:sanctum')->prefix("v1")->group(function () {
 
     // Checkout routes will be here
     Route::post('checkout-calculate', [CheckoutApiController::class, 'Calculate']);
+
     // Order routes will be here
     Route::post('create-order', [OrderApiController::class, 'CreateOrder']);
-    Route::post('get-orders',[OrderApiController::class,'GetOrder']);
-    Route::post('get-order-details',[OrderApiController::class,'GetOrderDetails']);
+    Route::post('get-orders', [OrderApiController::class, 'GetOrder']);
+    Route::post('get-order-details', [OrderApiController::class, 'GetOrderDetails']);
+
+    // Wishlist routes will be here
+    Route::post('add-wishlist', [WishlistApiController::class, 'AddWishlist']);
+    Route::delete('delete-wishlist', [WishlistApiController::class, 'DeleteWishlist']);
+    Route::post('get-wishlist', [WishlistApiController::class, 'GetWishlist']);
+
+    // Changed Password routes will be here
+    Route::post('change-password', [UserApiController::class, 'ChangePassword']);
+
+    // Forgot Password routes will be here
+    Route::post('forgot-password', [UserApiController::class, 'ForgotPassword']);
+    Route::post('reset-password', [UserApiController::class, 'ResetPassword']);
+    
 });

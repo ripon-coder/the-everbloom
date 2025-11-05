@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Repositories\Contracts\UserRepository;
 
 class UserEloquent implements UserRepository
@@ -26,21 +27,59 @@ class UserEloquent implements UserRepository
             'user' => $user,
         ];
     }
+    public function LogOut()
+    {
+        $user = auth()->guard('sanctum')->user();
+
+        if ($user && $user->currentAccessToken()) {
+            $user->currentAccessToken()->delete();
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Logged out successfully',
+        ]);
+    }
+
     public function CurrentUser()
     {
         $id = auth()->guard('sanctum')->id();
         return User::find($id);
     }
-    public function GetUser($user_id){
+    public function GetUser($user_id)
+    {
         return User::where('id', $user_id)->first();
     }
     public function UserUpdate($user_id, $data)
     {
         $user = User::find($user_id);
         $user->update($data);
-        if ($data['profile_thumbnail'] != null) {
+        if (isset($data['profile_thumbnail']) && $data['profile_thumbnail'] != null) {
             $user->uploadImage($data['profile_thumbnail'], "profile_thumbnail");
         }
         return $user;
+    }
+    public function ChangePassword($user_id, $data)
+    {
+        $user = User::findOrFail($user_id);
+        if (!Hash::check($data['current_password'], $user->password)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Current password is incorrect.',
+            ], 400);
+        }
+
+        if ($data['current_password'] === $data['new_password']) {
+            return response()->json([
+                'status' => false,
+                'message' => 'New password cannot be the same as the old one.',
+            ], 400);
+        }
+        $user->password = Hash::make($data['new_password']);
+        $user->save();
+        return response()->json([
+            'status' => true,
+            'message' => 'Password updated successfully.',
+        ], 200);
     }
 }

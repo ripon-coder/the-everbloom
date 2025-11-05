@@ -15,4 +15,9 @@ class UserServiceApi
     {
         return $this->userRepository->UserUpdate($user_id,$data);
     }
+
+    public function ChangePassword($user_id,$data)
+    {
+        return $this->userRepository->ChangePassword($user_id,$data);
+    }
 }

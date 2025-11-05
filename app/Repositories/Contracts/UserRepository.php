@@ -6,6 +6,7 @@ interface UserRepository{
     public function CurrentUser();
     public function GetUser($user_id);
     public function UserUpdate($user_id,$data);
+    public function ChangePassword($user_id,$data);
 
 
 }

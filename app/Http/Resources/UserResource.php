@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\Api;
+namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,7 +19,7 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
-            'profile_image' => $this->getImageUrl('profile_image'),
+            'profile_image' => $this->getImageUrl('profile_thumbnail'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'email_verified_at' => $this->email_verified_at,

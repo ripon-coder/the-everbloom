@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Wishlist;
 use App\Repositories\Contracts\UserRepository;
 use App\Repositories\Eloquent\UserEloquent;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,8 @@ use App\Repositories\Contracts\FlashSaleRepository;
 use App\Repositories\Contracts\SaveAddressRepository;
 use App\Repositories\Eloquent\AttributeValueEloquent;
 use App\Repositories\Contracts\AttributeValueRepository;
+use App\Repositories\Contracts\WishlistRepository;
+use App\Repositories\Eloquent\WishlistEloquent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -48,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
         app()->bind(DistrictRepository::class, DistrictEloquent::class);
         app()->bind(SaveAddressRepository::class, SaveAddressEloquent::class);
         app()->bind(UserRepository::class, UserEloquent::class);
+        app()->bind(WishlistRepository::class, WishlistEloquent::class);
     }
 
     /**

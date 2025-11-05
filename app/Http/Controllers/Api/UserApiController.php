@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\UpdateUserRequest;
-use App\Http\Resources\Api\UserResource;
-use App\Models\User;
+use App\Http\Resources\UserResource;
 use App\Services\Api\UserServiceApi;
+use App\Http\Requests\Api\UpdateUserRequest;
 use App\Repositories\Contracts\UserRepository;
+use App\Http\Requests\Api\ChangedPasswordRequest;
 
 class UserApiController extends BaseApiController
 {
@@ -36,6 +37,11 @@ class UserApiController extends BaseApiController
     public function UpdateUser(UpdateUserRequest $request){
         $user_id = auth()->guard('sanctum')->id();
         $user = app(UserServiceApi::class)->UserUpdate($user_id,$request->all());
-        $this->successResponse($user,"User Updated Successfully",200);
+        return $this->successResponse($user,"User Updated Successfully",200);
+    }
+
+    public function ChangePassword(ChangedPasswordRequest $request){
+        $user_id = auth()->guard('sanctum')->id();
+        return app(UserServiceApi::class)->ChangePassword($user_id,$request->all());
     }
 }
