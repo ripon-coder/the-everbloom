@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->prefix("v1")->group(function () {
     // User routes will be here
     Route::get('user', [UserApiController::class, 'GetUser']);
     Route::post('update-user', [UserApiController::class, 'UpdateUser']);
+    Route::post('logout', [UserApiController::class, 'Logout']);
 
     // Save Address routes will be here
     Route::get('get-address', [SaveAddressApiController::class, 'GetAddress']);

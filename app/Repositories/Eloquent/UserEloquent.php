@@ -33,12 +33,9 @@ class UserEloquent implements UserRepository
 
         if ($user && $user->currentAccessToken()) {
             $user->currentAccessToken()->delete();
+            return true;
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Logged out successfully',
-        ]);
+        return false;
     }
 
     public function CurrentUser()

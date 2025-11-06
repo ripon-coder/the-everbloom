@@ -7,7 +7,7 @@ trait HasImage
     {
         if (!$image)
             return;
-
+        $this->clearMediaCollection($name);
         $this->addMedia($image)
             ->usingName($name)
             ->toMediaCollection($name);

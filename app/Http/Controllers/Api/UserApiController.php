@@ -28,6 +28,15 @@ class UserApiController extends BaseApiController
         }
     }
 
+    public function LogOut(){
+        $logout = $this->userRepository->LogOut();
+        if($logout){
+            return $this->successResponse(null,"Logout Successfully",200);
+        }else{
+            return $this->errorResponse("Logout Failed",401);
+        }
+    }
+
     public function GetUser(){
         $user_id = auth()->guard('sanctum')->id();
         $user = UserResource::make($this->userRepository->GetUser($user_id));

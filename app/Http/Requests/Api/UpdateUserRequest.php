@@ -38,9 +38,8 @@ class UpdateUserRequest extends FormRequest
                     ->whereNotNull('phone_verified_at'),
             ],
 
-            'profile_image' => [
+            'profile_thumbnail' => [
                 'nullable',
-                'file',
                 'image',
                 'mimes:jpeg,png,jpg,gif,svg',
                 'max:2048',

@@ -6,17 +6,18 @@ use App\Models\Brand;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Attribute;
-use App\Models\ProductVariant;
-use App\Repositories\Contracts\BrandRepository;
 use Illuminate\Support\Str;
+use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
+use App\Constants\ProductVariantStatus;
+use App\Services\Filter\Api\BaseProductFilter;
+use App\Repositories\Contracts\BrandRepository;
 use App\Repositories\Contracts\ProductRepository;
-use App\Services\Filter\Api\ProductFilter;
 
 class ProductEloquent implements ProductRepository
 {
     protected $productFilter;
-    public function __construct(ProductFilter $productFilter)
+    public function __construct(BaseProductFilter $productFilter)
     {
         $this->productFilter = $productFilter;
     }
@@ -146,7 +147,10 @@ class ProductEloquent implements ProductRepository
     public function shopProduct(?int $page, ?int $perPage, ?int $offset, array $dataRecive)
     {
         $query = Product::active()
-            ->with(relations: 'firstImage.media')
+            ->with(['firstImage.media'])
+            ->whereHas('variants', function ($q) {
+                $q->where('status', ProductVariantStatus::ACTIVE);
+            })
             ->orderByDesc("updated_at");
 
         $filterQuery = $this->productFilter->getResults(contents: ['query' => $query, 'filter' => $dataRecive]);
