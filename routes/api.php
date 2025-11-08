@@ -33,7 +33,7 @@ Route::prefix("v1")->group(function () {
     Route::get('district-list', [CheckoutApiController::class, 'DistrictList']);
 
     // Flash Sale Products
-    Route::post('flash-sale-products', [FlashSaleControllerApi::class, 'FlashSaleProducts']);
+    Route::get('flash-sale-products', [FlashSaleControllerApi::class, 'FlashSaleProducts']);
 });
 
 Route::middleware('auth:sanctum')->prefix("v1")->group(function () {

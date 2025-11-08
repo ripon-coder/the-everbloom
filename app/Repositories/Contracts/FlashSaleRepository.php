@@ -22,5 +22,5 @@ interface FlashSaleRepository
 
     public function getFlashSaleDiscounts(array $productIds);
 
-    public function getFlashSaleProducts(string $flashSaleSlug, int $current_page, int $perPage);
+    public function getFlashSaleProducts(array $data);
 }
