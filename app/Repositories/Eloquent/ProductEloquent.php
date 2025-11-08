@@ -150,15 +150,14 @@ class ProductEloquent implements ProductRepository
             ->with(['firstImage.media'])
             ->whereHas('variants', function ($q) {
                 $q->where('status', ProductVariantStatus::ACTIVE);
-            })
-            ->orderByDesc("updated_at");
+            });
 
         $filterQuery = $this->productFilter->getResults(contents: ['query' => $query, 'filter' => $dataRecive]);
 
         $total = (clone $filterQuery)->count();
 
         $query = $filterQuery->skip($offset)
-            ->take(value: $perPage);
+            ->take($perPage);
 
         $data["products"] = $query->get(['id', 'name', 'price', 'slug']);
         $data['total'] = $total;
@@ -222,7 +221,7 @@ class ProductEloquent implements ProductRepository
                 'variants.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
                 'variants.variantAttributes.attribute:id,name,description,is_image',
                 'variants.variantAttributes.attributeValue:id,attribute_id,value'
-            ])->get(['id', 'name', 'description','short_description','is_free_delivery', 'price', 'slug']);
+            ])->get(['id', 'name', 'description', 'short_description', 'is_free_delivery', 'price', 'slug']);
         }
     }
 

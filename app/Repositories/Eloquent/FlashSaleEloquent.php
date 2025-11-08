@@ -1,6 +1,7 @@
 <?php
 namespace App\Repositories\Eloquent;
 
+use App\Models\Product;
 use App\Models\FlashSale;
 use App\Repositories\Contracts\ProductRepository;
 use App\Repositories\Contracts\FlashSaleRepository;
@@ -211,8 +212,28 @@ class FlashSaleEloquent implements FlashSaleRepository
             'total_discounted_price' => $totalDiscountedPrice,
         ];
     }
+    public function getFlashSaleProducts(string $flashSaleSlug, int $current_page, int $perPage)
+    {
+        $offset = ($current_page - 1) * $perPage;
+        $flashSaleInfo = FlashSale::select(['id', 'name', 'slug','banner_image', 'start_date', 'end_date'])->where('slug', $flashSaleSlug)->firstOrFail();
+        $query = Product::whereHas('flashSales', function ($query) use ($flashSaleSlug) {
+            $query->where('slug', $flashSaleSlug)
+                  ->where('status', \App\Constants\FlashSaleStatus::ACTIVE)
+                  ->where('start_date', '<=', now())
+                  ->where('end_date', '>=', now());
+        });
+        $total = (clone $query)->count();
+        $query = $query->with(['flashSales', 'firstImage'])->skip($offset)->take($perPage);
+        $products = $query->get(['id', 'name', 'description', 'short_description', 'is_free_delivery', 'price', 'slug']);
+        return [
+            'flash_sale' => $flashSaleInfo,
+            'products' => $products,
+            'total' => $total,
+        ];
+
+        //$query = FlashSale::where('slug', $flashSaleSlug)->with('products');
 
 
-
+    }
 
 }

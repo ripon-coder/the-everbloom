@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\BrandControllerApi;
 use App\Http\Controllers\Api\CategoryControllerApi;
 use App\Http\Controllers\Api\CheckoutApiController;
+use App\Http\Controllers\Api\FlashSaleControllerApi;
 use App\Http\Controllers\Api\OrderApiController;
 use App\Http\Controllers\Api\ProductControllerApi;
 use App\Http\Controllers\Api\SaveAddressApiController;
@@ -16,7 +17,7 @@ Route::prefix("v1")->group(function () {
     // User Login
     Route::post('login', [UserApiController::class, 'Login']);
 
-    //Route::get("parent-category",[CategoryControllerApi::class,'ParentCategory']);
+    Route::get("parent-category", [CategoryControllerApi::class, 'ParentCategory']);
     //Route::get("all-category",[CategoryControllerApi::class,'AllCategory']);
     Route::get('shop-products', [ProductControllerApi::class, 'ShopProducts']);
     Route::get('shop-category-brand', [ProductControllerApi::class, 'ShopCategoryBrand']);
@@ -30,10 +31,13 @@ Route::prefix("v1")->group(function () {
 
     // will be auth section
     Route::get('district-list', [CheckoutApiController::class, 'DistrictList']);
+
+    // Flash Sale Products
+    Route::post('flash-sale-products', [FlashSaleControllerApi::class, 'FlashSaleProducts']);
 });
 
 Route::middleware('auth:sanctum')->prefix("v1")->group(function () {
-    
+
     // User routes will be here
     Route::get('user', [UserApiController::class, 'GetUser']);
     Route::post('update-user', [UserApiController::class, 'UpdateUser']);
@@ -63,5 +67,4 @@ Route::middleware('auth:sanctum')->prefix("v1")->group(function () {
     // Forgot Password routes will be here
     Route::post('forgot-password', [UserApiController::class, 'ForgotPassword']);
     Route::post('reset-password', [UserApiController::class, 'ResetPassword']);
-    
 });

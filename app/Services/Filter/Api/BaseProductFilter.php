@@ -5,6 +5,7 @@ use App\Services\Filter\Api\BrandFilter;
 use App\Services\Filter\Api\PriceFilter;
 use App\Services\Filter\Api\InStockFilter;
 use App\Services\Filter\Api\CategoryFilter;
+use App\Services\Filter\Api\PriceSortFilter;
 use App\Services\Filter\Api\FreeDeliveryFilter;
 
 class BaseProductFilter extends BaseFilter
@@ -16,7 +17,8 @@ class BaseProductFilter extends BaseFilter
             BrandFilter::class,
             PriceFilter::class,
             InStockFilter::class,
-            FreeDeliveryFilter::class
+            FreeDeliveryFilter::class,
+            PriceSortFilter::class,
         ];
     }
 }

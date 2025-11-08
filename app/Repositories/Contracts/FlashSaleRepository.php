@@ -21,4 +21,6 @@ interface FlashSaleRepository
     public function forceDelete(int $id);
 
     public function getFlashSaleDiscounts(array $productIds);
+
+    public function getFlashSaleProducts(string $flashSaleSlug, int $current_page, int $perPage);
 }
