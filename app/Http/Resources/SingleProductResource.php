@@ -14,6 +14,7 @@ class SingleProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $hasFlashSale = $this->relationLoaded('flashSales') && $this->flashSales->isNotEmpty();
         return [
             "id" => $this->id,
             "name" => $this->name,
@@ -26,7 +27,13 @@ class SingleProductResource extends JsonResource
             "images" => $this->when($this->images->isNotEmpty(), function () {
                 return $this->images->map(fn($image) => $image->getImageUrl());
             }),
+            "is_wishlisted" => $this->is_wishlisted,
             "variants" => SingleProductVariantResource::collection($this->whenLoaded('variants')),
+            "flash_sale_name" => $this->when($hasFlashSale, fn() => $this->flashSales->first()->name),
+            "flash_sale_slug" => $this->when($hasFlashSale, fn() => $this->flashSales->first()->slug),
+            "flash_sale_start_date" => $this->when($hasFlashSale, fn() => $this->flashSales->first()->start_date),
+            "flash_sale_end_date" => $this->when($hasFlashSale, fn() => $this->flashSales->first()->end_date),
+
         ];
     }
 }

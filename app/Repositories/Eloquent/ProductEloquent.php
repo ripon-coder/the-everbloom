@@ -212,18 +212,52 @@ class ProductEloquent implements ProductRepository
 
     public function Product($data)
     {
-        if (!empty($data['slug'])) {
-            $slug = $data['slug'];
-            return Product::active()->where("slug", $slug)->with([
+        $query = Product::active()
+            ->with([
                 'images',
                 'variants:id,product_id,sku,buying_price,sell_price,discount_price,discount_amount,stock,weight',
                 'variants.images',
                 'variants.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
                 'variants.variantAttributes.attribute:id,name,description,is_image',
-                'variants.variantAttributes.attributeValue:id,attribute_id,value'
-            ])->get(['id', 'name', 'description', 'short_description', 'is_free_delivery', 'price', 'slug']);
+                'variants.variantAttributes.attributeValue:id,attribute_id,value',
+                'variants.product'
+            ]);
+
+        if (auth()->guard('sanctum')->check()) {
+            $userId = auth()->guard('sanctum')->id();
+            $query->withExists([
+                'wishlists as is_wishlisted' => function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                }
+            ]);
         }
+
+        if (!empty($data['slug'])) {
+            $query->where('slug', $data['slug']);
+        }
+
+        if (!empty($data['flashsale'])) {
+            $flashsale = $data['flashsale'];
+            $query->whereHas('flashSales', function ($query) use ($flashsale) {
+                $query->where('slug', $flashsale)
+                    ->where('status', \App\Constants\FlashSaleStatus::ACTIVE)
+                    ->where('start_date', '<=', now())
+                    ->where('end_date', '>=', now());
+            })
+                ->with(['flashSales', 'variants.product.flashSales']);
+        }
+
+        return $query->get([
+            'id',
+            'name',
+            'description',
+            'short_description',
+            'is_free_delivery',
+            'price',
+            'slug',
+        ]);
     }
+
 
     public function Variant(array $data)
     {
