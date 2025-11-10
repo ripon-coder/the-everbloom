@@ -282,15 +282,84 @@ class ProductEloquent implements ProductRepository
     {
         return ProductVariant::whereIn('id', $ids)->get($fetch)->toArray();
     }
-    public function getVariantsWithAttribute(array $ids)
+    // public function getVariantsWithAttribute(array $ids)
+    // {
+    //     return ProductVariant::active()->whereIn('id', $ids)->with([
+    //         'images',
+    //         'variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
+    //         'variantAttributes.attribute:id,name,description,is_image',
+    //         'variantAttributes.attributeValue:id,attribute_id,value'
+    //     ])->get();
+    // }
+
+
+    public function getVariantsWithAttribute(array $data)
     {
-        return ProductVariant::active()->whereIn('id', $ids)->with([
-            'images',
-            'variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
-            'variantAttributes.attribute:id,name,description,is_image',
-            'variantAttributes.attributeValue:id,attribute_id,value'
-        ])->get();
+        // সব variant ID বের করে flat array বানাও
+        $ids = collect($data)
+            ->pluck('variants_id')
+            ->flatten()
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        // Variant + Product + FlashSale preload করো
+        $variants = ProductVariant::active()
+            ->whereIn('id', $ids)
+            ->with([
+                'images',
+                'variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
+                'variantAttributes.attribute:id,name,description,is_image',
+                'variantAttributes.attributeValue:id,attribute_id,value',
+                'product.flashSales',
+            ])
+            ->get();
+
+        // প্রতিটা variant এর দাম নির্ধারণ করো
+        return $variants->map(function ($variant) use ($data) {
+            $item = collect($data)->firstWhere('variants_id', (string) $variant->id);
+            $flashSaleSlug = $item['flash_sale'] ?? null;
+
+            $originalPrice = $variant->sell_price;
+            $salePrice = $variant->discount_price ?? $originalPrice;
+
+            $discountPercentage = null;
+
+            if ($flashSaleSlug && $variant->product?->flashSales?->isNotEmpty()) {
+                // flash sale slug match
+                $flashSale = $variant->product->flashSales->firstWhere('slug', $flashSaleSlug);
+
+                if ($flashSale) {
+                    $discountPrice = $flashSale->pivot->discount_price;
+                    $discountPercentage = $flashSale->pivot->discount_percentage;
+
+                    // discount calculation
+                    if ($discountPrice) {
+                        $salePrice = $discountPrice; // fixed price
+                    } elseif ($discountPercentage) {
+                        $salePrice = $originalPrice - ($originalPrice * ($discountPercentage / 100));
+                    }
+                }
+            }
+
+            // Model এর ওপর dynamic attributes বসাও
+            $variant->has_flash_sale = $flashSaleSlug ? true : false;
+            $variant->discount_price = round($salePrice, 2);
+            $variant->discount_percentage = $discountPercentage;
+
+            return $variant;
+        });
     }
+
+
+
+
+
+
+
+
+
 
     public function getProductInfo(int $id, array $fetch)
     {

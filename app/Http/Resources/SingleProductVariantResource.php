@@ -43,6 +43,7 @@ class SingleProductVariantResource extends JsonResource
             'stock' => $this->stock,
             'weight' => $this->weight,
             'status' => $this->status,
+            'has_flash_sale' => $this->has_flash_sale ?? false,
             'images' => $this->when($this->images->isNotEmpty(), fn() => $this->images->map(fn($img) => $img->getImageUrl())),
             'attributes' => SingleProductAttributeResource::collection($this->whenLoaded('variantAttributes')),
         ];

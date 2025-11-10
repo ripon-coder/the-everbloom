@@ -9,6 +9,7 @@ use App\Services\Api\ProductsServiceApi;
 use App\Http\Controllers\Api\BaseApiController;
 use App\Repositories\Contracts\ProductRepository;
 use App\Http\Resources\SingleProductVariantResource;
+use App\Http\Resources\SingleProductVariantResource2;
 
 class ProductControllerApi extends BaseApiController
 {
@@ -50,8 +51,7 @@ class ProductControllerApi extends BaseApiController
     }
     public function Variants(Request $request)
     {
-        $ids = $request->ids;
-        $data = app(ProductRepository::class)->getVariantsWithAttribute($ids);
-        return $this->successResponse(SingleProductVariantResource::collection($data), "Varinat list got");
+        $data = app(ProductRepository::class)->getVariantsWithAttribute($request->all());
+        return $this->successResponse(SingleProductVariantResource2::collection($data), "Varinat list got");
     }
 }
