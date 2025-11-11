@@ -476,6 +476,7 @@ class OrderEloquent implements OrderRepository
             'orderAddress',
             'orderProducts.product',
             'orderProducts.product.firstImage',
+            'orderProducts.productVariant.product',
             'orderProducts.productVariant.images',
             'orderProducts.productVariant.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
             'orderProducts.productVariant.variantAttributes.attribute:id,name',
