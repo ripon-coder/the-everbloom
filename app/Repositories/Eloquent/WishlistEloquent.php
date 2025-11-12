@@ -58,4 +58,9 @@ class WishlistEloquent implements WishlistRepository
     {
         return Wishlist::where('user_id', $user_id)->where('id',$wishlist_id)->delete();
     }
+
+    public function DeleteWishlistByProduct($user_id, $product_id)
+    {
+        return Wishlist::where('user_id', $user_id)->where('product_id',$product_id)->delete();
+    }
 }

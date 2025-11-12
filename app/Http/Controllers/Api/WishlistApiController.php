@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\WishlistResource;
-use App\Models\Wishlist;
+use App\Http\Controllers\Api\BaseApiController;
 use App\Repositories\Contracts\WishlistRepository;
-use Faker\Provider\Base;
-use Illuminate\Http\Request;
+
 
 class WishlistApiController extends BaseApiController
 {
@@ -27,19 +27,19 @@ class WishlistApiController extends BaseApiController
             ]);
         }
         $exists = $this->wishlistRepository->ExistCheck($user_id, $request->product_id);
-
         if ($exists) {
+            $this->wishlistRepository->DeleteWishlistByProduct($user_id, $request->product_id);
             return response()->json([
-                'success' => false,
-                'message' => 'Product already added to wishlist',
+                'success' => true,
+                'message' => 'Wishlist removed successfully',
             ]);
         }
 
-        return $this->wishlistRepository->AddWishlist($user_id, $request->product_id);
+        $this->wishlistRepository->AddWishlist($user_id, $request->product_id);
 
         return response()->json([
             'success' => true,
-            'message' => 'Product added to wishlist successfully',
+            'message' => 'Wishlist added successfully',
         ]);
     }
 

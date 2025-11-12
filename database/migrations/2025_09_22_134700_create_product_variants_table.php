@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('sku')->unique();
             $table->decimal('buying_price', 10, 2)->default(0)->comment('Buying price of the variant');
             $table->decimal('sell_price', 10, 2)->default(0)->comment('Selling price of the variant');
-            $table->decimal('discount_price', 10, 2)->default(0)->comment('Discount price of the variant');
+            $table->decimal('discount_price', 10, 2)->nullable()->comment('Discount price of the variant');
             $table->decimal('discount_amount', 10, 2)->default(0)->comment('Discount amount or percentage applied');
             $table->decimal( 'weight', 8, 2)->nullable()->comment('Weight in kg');
             $table->integer('stock')->default(0);
