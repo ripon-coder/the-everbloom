@@ -54,4 +54,9 @@ class ProductControllerApi extends BaseApiController
         $data = app(ProductRepository::class)->getVariantsWithAttribute($request->all());
         return $this->successResponse(SingleProductVariantResource2::collection($data), "Varinat list got");
     }
+    public function JustForYouProducts(Request $request)
+    {
+        $data = $this->productService->JustForYouProducts($request->all());
+        return $this->successResponse($data, "Just for you products");
+    }
 }

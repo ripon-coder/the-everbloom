@@ -34,6 +34,9 @@ Route::prefix("v1")->group(function () {
 
     // Flash Sale Products
     Route::get('flash-sale-products', [FlashSaleControllerApi::class, 'FlashSaleProducts']);
+
+    // Just for you Products
+    Route::post('just-for-you-products', [ProductControllerApi::class, 'JustForYouProducts']);
 });
 
 Route::middleware('auth:sanctum')->prefix("v1")->group(function () {

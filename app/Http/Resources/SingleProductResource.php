@@ -17,6 +17,8 @@ class SingleProductResource extends JsonResource
         $hasFlashSale = $this->relationLoaded('flashSales') && $this->flashSales->isNotEmpty();
         return [
             "id" => $this->id,
+            "category_id" => $this->category_id,
+            "brand_id" => $this->brand_id,
             "name" => $this->name,
             "description" => $this->description,
             "short_description" => $this->short_description,

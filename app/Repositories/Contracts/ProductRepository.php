@@ -27,4 +27,5 @@ interface ProductRepository
     public function getVariants(array $ids, array $fetch);
     public function getProductInfo(int $id, array $fetch);
     public function getVariantInfo(int $productId, ?int $variantId);
+    public function justForYouProducts(?int $page, ?int $perPage, ?int $offset, array $data);
 }

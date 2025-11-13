@@ -79,4 +79,22 @@ class ProductsServiceApi
         $singleProduct =  $this->productRepository->Product($data);
         return SingleProductResource::collection($singleProduct);
     }
+
+    public function JustForYouProducts(array $data)
+    {
+        $page = $data['current_page'] ?? 1;
+        $perPage = $data['per_page'] ?? 20;
+        $offset = ($page - 1) * $perPage;
+
+        $justForYouProducts = $this->productRepository->justForYouProducts($page, $perPage, $offset, $data);
+        $outData['products'] = ProductResource::collection($justForYouProducts['products']);
+        $total = $justForYouProducts['pagination']['total'] ?? 0;
+        $outData['pagination'] = [
+            "current_page" => $page,
+            "per_page" => $perPage,
+            "total" => $total,
+            "last_page" => ceil($total / $perPage),
+        ];
+        return $outData;
+    }
 }

@@ -249,6 +249,8 @@ class ProductEloquent implements ProductRepository
 
         return $query->get([
             'id',
+            'category_id',
+            'brand_id',
             'name',
             'description',
             'short_description',
@@ -354,13 +356,6 @@ class ProductEloquent implements ProductRepository
 
 
 
-
-
-
-
-
-
-
     public function getProductInfo(int $id, array $fetch)
     {
         return Product::select($fetch)->find($id);
@@ -372,5 +367,37 @@ class ProductEloquent implements ProductRepository
             $query->where('id', $variantId);
         }
         return $query->first();
+    }
+    public function justForYouProducts(?int $page, ?int $perPage, ?int $offset, array $data)
+    {
+        $categoryIds = (is_array($data['category_ids']) && !empty($data['category_ids']))
+            ? $data['category_ids']
+            : [];
+
+
+        $query = Product::active()
+            ->whereIn('category_id', $categoryIds)
+            ->with(['firstImage.media'])
+            ->whereHas('variants', function ($q) {
+                $q->where('status', ProductVariantStatus::ACTIVE);
+            });
+
+        // Apply any specific filters for "Just For You" products here
+        // For example, based on user preferences or browsing history
+        // This is a placeholder for such logic
+
+        $total = (clone $query)->count();
+
+        $query = $query->skip($offset)
+            ->take($perPage);
+
+        $outData["products"] = $query->get(['id', 'name', 'price', 'slug']);
+        $outData["pagination"] = [
+            "current_page" => $page,
+            "per_page" => $perPage,
+            "total" => $total,
+            "last_page" => ceil($total / $perPage),
+        ];
+        return $outData;
     }
 }
