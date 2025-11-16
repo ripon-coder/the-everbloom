@@ -1,33 +1,66 @@
 <?php
+
 namespace App\Helpers;
+
 use Illuminate\Support\Collection;
+
 class CategoryHelper
 {
-
-    public static function BuildTree(Collection $categories, ?int $parentId, int $level, ?int $currentId): string
-    {
-        if ($categories->isEmpty()) {
-            return '<option value="">No categories available</option>';
-        }
+    public static function BuildTree(
+        Collection $categories,
+        ?int $parentId,
+        int $level,
+        int $currentId,
+        ?int $selectedParentId
+    ): string {
 
         $options = '';
+
         foreach ($categories as $category) {
-            if ($category->parent_id == $parentId) {
 
-                $indent = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level);
-                                $hasChildren = $categories->contains('parent_id', $category->id);
-                $type = $hasChildren ? 'Parent' : 'Child';
-                $prefix = $level > 0 ? '├── ' : '';
-
-                $isSelected = (old('parent_id') == $category->id || $currentId == $category->id);
-                $isCurrent = ($category->id == $currentId);
-                
-                $options .= '<option class="' . ($isCurrent ? "bg-red-500" : "") . '" value="' . $category->id . '" ' . ($isSelected ? 'selected' : '') . '>';
-                $options .= $indent . $prefix . $category->name . ' (' . $type . ')';
-                $options .= '</option>';
-                $options .= self::BuildTree($categories, $category->id, $level + 1, $currentId);
+            if ($category->parent_id !== $parentId) {
+                continue;
             }
+
+            $indent = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level);
+            $prefix = $level > 0 ? '├── ' : '';
+            $hasChildren = $categories->contains('parent_id', $category->id);
+            $type = $hasChildren ? 'Parent' : 'Child';
+
+            // 🔥 Parent category highlight (bg-red)
+            $highlightParent = ($category->id == $selectedParentId)
+                ? 'class="bg-red-500 text-white"'
+                : '';
+
+            // 🔥 Selected check
+            $isSelected = (
+                old('parent_id') == $category->id ||
+                $selectedParentId == $category->id
+            );
+
+            // ❌ Current category never gets red & never selectable
+            $disabled = ($category->id == $currentId)
+                ? 'disabled'
+                : '';
+
+            $options .= '<option value="' . $category->id . '" ' .
+                        ($isSelected ? 'selected' : '') . ' ' .
+                        $highlightParent . ' ' .
+                        $disabled . '>';
+
+            $options .= $indent . $prefix . $category->name . ' (' . $type . ')';
+            $options .= '</option>';
+
+            // Recursive children
+            $options .= self::BuildTree(
+                $categories,
+                $category->id,
+                $level + 1,
+                $currentId,
+                $selectedParentId
+            );
         }
+
         return $options;
     }
 }

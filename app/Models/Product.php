@@ -91,8 +91,8 @@ class Product extends Model
     public function flashSales()
     {
         return $this->belongsToMany(FlashSale::class, 'flash_sale_product')
-                    ->withPivot('discount_price', 'discount_percentage')
-                    ->withTimestamps();
+            ->withPivot('discount_price', 'discount_percentage')
+            ->withTimestamps();
     }
 
     /**
@@ -101,8 +101,8 @@ class Product extends Model
     public function orders()
     {
         return $this->belongsToMany(Order::class, 'order_products')
-                    ->withPivot('quantity', 'unit_price', 'total_price', 'discount_amount', 'notes')
-                    ->withTimestamps();
+            ->withPivot('quantity', 'unit_price', 'total_price', 'discount_amount', 'notes')
+            ->withTimestamps();
     }
 
     /**
@@ -111,6 +111,11 @@ class Product extends Model
     public function orderProducts()
     {
         return $this->hasMany(OrderProduct::class);
+    }
+    public function scopePopular($query)
+    {
+        return $query->withCount('orderProducts')
+            ->orderBy('order_products_count', 'desc');
     }
 
     public function wishlists()

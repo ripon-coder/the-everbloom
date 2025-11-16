@@ -368,36 +368,90 @@ class ProductEloquent implements ProductRepository
         }
         return $query->first();
     }
+
     public function justForYouProducts(?int $page, ?int $perPage, ?int $offset, array $data)
     {
-        $categoryIds = (is_array($data['category_ids']) && !empty($data['category_ids']))
+        $categoryIds = (!empty($data['category_ids']) && is_array($data['category_ids']))
             ? $data['category_ids']
             : [];
 
-
-        $query = Product::active()
-            ->whereIn('category_id', $categoryIds)
+        $baseQuery = Product::active()
             ->with(['firstImage.media'])
             ->whereHas('variants', function ($q) {
                 $q->where('status', ProductVariantStatus::ACTIVE);
             });
 
-        // Apply any specific filters for "Just For You" products here
-        // For example, based on user preferences or browsing history
-        // This is a placeholder for such logic
+        $results = collect();
 
-        $total = (clone $query)->count();
+        /*
+    |--------------------------------------------------------------------------
+    | 1. Category Products
+    |--------------------------------------------------------------------------
+    */
+        $categoryProducts = (clone $baseQuery)
+            ->when(!empty($categoryIds), function ($q) use ($categoryIds) {
+                $q->whereIn('category_id', $categoryIds);
+            })
+            ->get(['id', 'name', 'price', 'slug']);
 
-        $query = $query->skip($offset)
-            ->take($perPage);
+        $results = $results->merge($categoryProducts);
 
-        $outData["products"] = $query->get(['id', 'name', 'price', 'slug']);
-        $outData["pagination"] = [
-            "current_page" => $page,
-            "per_page" => $perPage,
-            "total" => $total,
-            "last_page" => ceil($total / $perPage),
+        /*
+    |--------------------------------------------------------------------------
+    | 2. Popular Products (if category < 30)
+    |--------------------------------------------------------------------------
+    */
+        if (count($categoryIds) < 30) {
+            $popularProducts = (clone $baseQuery)
+                ->popular()
+                ->get(['id', 'name', 'price', 'slug']);
+
+            $results = $results->merge($popularProducts);
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | 3. Extra Random Products (if total < 50)
+    |--------------------------------------------------------------------------
+    */
+        if ($results->count() < 50) {
+            $needed = 50 - $results->count();
+
+            $randomProducts = (clone $baseQuery)
+                ->whereNotIn('id', $results->pluck('id'))
+                ->inRandomOrder()
+                ->limit($needed)
+                ->get(['id', 'name', 'price', 'slug']);
+
+            $results = $results->merge($randomProducts);
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Remove Duplicate Items
+    |--------------------------------------------------------------------------
+    */
+        $results = $results->unique('id')->values();
+
+        /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
+        $total = $results->count();
+
+        $products = $results
+            ->slice($offset, $perPage)
+            ->values();
+
+        return [
+            "products" => $products,
+            "pagination" => [
+                "current_page" => $page,
+                "per_page" => $perPage,
+                "total" => $total,
+                "last_page" => ceil($total / $perPage),
+            ]
         ];
-        return $outData;
     }
 }

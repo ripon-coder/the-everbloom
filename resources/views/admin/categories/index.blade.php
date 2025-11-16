@@ -46,11 +46,7 @@
                                     class="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $category->slug }}</span>
                             </td>
                             <td class="px-6 py-4">
-                                @if ($category->parent_id)
-                                    <span class="text-sm">{{ $category->parent->name }}</span>
-                                @else
-                                    <span class="text-sm text-gray-500">Root</span>
-                                @endif
+                                {{ $category->parent ? $category->parent->name : 'Root' }}
                             </td>
                             <td class="px-6 py-4">
                                 @if ($category->status == \App\Constants\CategoryStatus::ACTIVE)

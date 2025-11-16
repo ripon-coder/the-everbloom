@@ -43,7 +43,14 @@
                     <select name="parent_id" id="parent_id"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('parent_id') border-red-500 @enderror">
                         <option value="">🏠 None (Main Category)</option>
-                         {!! \App\Helpers\CategoryHelper::BuildTree($allCategories, $parentId = null, $level = 0, $currentId = null) !!}
+                         {!! \App\Helpers\CategoryHelper::BuildTree(
+                            $allCategories,
+                            $parentId = null,
+                            $level = 0,
+                            $currentId =0,
+                            $selectedParentId = null
+                            ) 
+                        !!}
                     </select>
 
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Optional: Select a parent category. Categories

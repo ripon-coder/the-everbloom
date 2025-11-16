@@ -20,10 +20,10 @@ class CategoryEloquent implements CategoryRepository
     {
 
         return Category::with([
-            'parent:id,name,slug,status,created_at',
-            'children:id,name,slug,status,created_at',
+            'parent:id,parent_id,name,slug,status,created_at',
+            'children:id,parent_id,name,slug,status,created_at',
             'media'
-        ])->orderByDesc(column: "id")->paginate(20, ['id', 'name', 'slug', 'status', 'created_at']);
+        ])->orderByDesc(column: "id")->paginate(20, ['id','parent_id', 'name', 'slug', 'status', 'created_at']);
     }
 
     public function DeleteFindBuyId($id)
