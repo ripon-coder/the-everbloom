@@ -2,10 +2,11 @@
     <div class="bg-white">
         <x-hero />
         
-        <div class="py-12 space-y-16">
-            <x-featured-products />
-            <x-best-selling />
-            <x-new-arrivals />
+        <div class="py-8 space-y-12">
+            <x-featured-products :products="$featuredProducts" />
+            <x-campaign :products="$campaignProducts" />
+            <x-best-selling :products="$bestSellingProducts" />
+            <x-new-arrivals :products="$newArrivals" />
         </div>
     </div>
 </x-layouts.app>

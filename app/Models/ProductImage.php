@@ -62,7 +62,8 @@ class ProductImage extends Model implements HasMedia
         $media = $this->getFirstMedia('product_images');
 
         if (!$media) {
-            return asset('/images/product.webp');
+            $dummyImages = ['image1.jpg', 'image2.jpg'];
+            return asset('images/' . $dummyImages[array_rand($dummyImages)]);
         }
 
         // Try to get WebP version first, fallback to original

@@ -15,7 +15,32 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('pages.home');
+    $featuredProducts = \App\Models\Product::active()
+        ->where('is_featured', true)
+        ->with(['firstImage'])
+        ->latest()
+        ->take(6)
+        ->get();
+
+    $bestSellingProducts = \App\Models\Product::active()
+        ->popular()
+        ->with(['firstImage'])
+        ->take(12)
+        ->get();
+
+    $newArrivals = \App\Models\Product::active()
+        ->latest()
+        ->with(['firstImage'])
+        ->take(6)
+        ->get();
+
+    $campaignProducts = \App\Models\Product::active()
+        ->inRandomOrder()
+        ->with(['firstImage'])
+        ->take(3)
+        ->get();
+
+    return view('pages.home', compact('featuredProducts', 'bestSellingProducts', 'newArrivals', 'campaignProducts'));
 })->name('home');
 
 Route::get('/product/{slug?}', function ($slug = null) {
