@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2)->nullable();
             $table->boolean('is_free_delivery')->default(false);
             $table->string('slug')->unique();
+            $table->boolean('is_featured')->default(false);
             $table->string('status')->default(ProductStatus::ACTIVE);
             $table->timestamps();
             $table->softDeletes();
