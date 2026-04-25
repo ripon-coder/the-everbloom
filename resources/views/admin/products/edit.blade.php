@@ -91,7 +91,7 @@
                         <select name="category_id" id="category_id"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('parent_id') border-red-500 @enderror">
                             <option value="">🏠 None (Main Category)</option>
-                            {!! \App\Helpers\CategoryHelper::BuildTree($allCategories, $parentId = null, $level = 0, $currentId = $product->category_id, $selectedParentId = $product->category_id) !!}
+                            {!! \App\Helpers\CategoryHelper::BuildTree($allCategories, $parentId = null, $level = 0, $currentId = 0, $selectedParentId = old('category_id', $product->category_id)) !!}
                         </select>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Choose the main category for this product
                         </p>
@@ -102,7 +102,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
                     <div>
                         <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Price ({{ $currency_sign }}) <span class="text-red-500">*</span>
@@ -132,6 +132,21 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <div>
+                        <label for="is_featured" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Is Featured? <span class="text-red-500">*</span>
+                        </label>
+                        <select id="is_featured" name="is_featured" required
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('is_featured') border-red-500 @enderror">
+                            <option value="0" {{ old('is_featured', $product->is_featured) == '0' ? 'selected' : '' }}>False</option>
+                            <option value="1" {{ old('is_featured', $product->is_featured) == '1' ? 'selected' : '' }}>True</option>
+                        </select>
+                        @error('is_featured')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <div>
                         <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Status <span class="text-red-500">*</span>

@@ -143,6 +143,7 @@ class ProductService
                 'brand_id' => $data['brand_id'],
                 'category_id' => $data['category_id'],
                 "is_free_delivery" => $data['is_free_delivery'],
+                "is_featured" => $data['is_featured'],
                 'name' => $data['name'],
                 'short_description'=> $data['short_description'],
                 'description' => $data['description'],

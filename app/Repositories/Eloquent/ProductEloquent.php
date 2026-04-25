@@ -30,7 +30,8 @@ class ProductEloquent implements ProductRepository
             'created_at',
             'brand_id',
             'category_id',
-            'price'
+            'price',
+            'is_featured'
         ])->with([
             'brand:id,name',
             'category:id,name',

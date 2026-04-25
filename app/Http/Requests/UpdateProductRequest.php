@@ -28,6 +28,7 @@ class UpdateProductRequest extends FormRequest
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255', 'unique:products,name,' . $productId],
             'is_free_delivery' => ["required",'boolean'],
+            'is_featured' => ["required",'boolean'],
             'short_description' => ['nullable','max:500'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0', 'decimal:0,2'],

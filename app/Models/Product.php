@@ -27,6 +27,7 @@ class Product extends Model
         'description',
         'price',
         'status',
+        'is_featured',
     ];
 
     /**
@@ -38,6 +39,7 @@ class Product extends Model
         'price' => 'decimal:2',
         'status' => ProductStatus::class,
         'is_free_delivery' => 'boolean',
+        'is_featured' => 'boolean',
     ];
 
     /**
