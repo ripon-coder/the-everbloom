@@ -1,5 +1,5 @@
 <x-layouts.app :title="$product->name . ' | Everbloom'">
-    <div class="bg-white pb-12" x-data="productDetails({{ $product->toJson() }})">
+    <div class="bg-white pb-6" x-data="productDetails({{ $product->toJson() }})">
         <!-- Breadcrumbs -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-100">
             <nav class="flex text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -11,7 +11,7 @@
             </nav>
         </div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 md:mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 md:mt-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12">
                 <div class="space-y-3 md:space-y-4">
                     <div class="border border-gray-200 rounded-md overflow-hidden bg-white h-[280px] sm:h-[350px] md:h-[400px] relative cursor-crosshair group"
@@ -53,6 +53,16 @@
                             </div>
                             <span class="text-gray-500">(128)</span>
                             <span class="text-green-600 font-bold">In Stock</span>
+                        </div>
+                        <div class="mt-2 flex flex-wrap gap-3 text-[10px] md:text-xs">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-gray-400 uppercase tracking-tighter">SKU:</span>
+                                <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-medium">{{ $product->sku ?? 'N/A' }}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-gray-400 uppercase tracking-tighter">Category:</span>
+                                <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-medium">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                            </div>
                         </div>
                     </div>
 
@@ -124,12 +134,6 @@
                                 Buy It Now
                             </button>
                         </div>
-                    </div>
-
-                    <!-- Meta -->
-                    <div class="mt-4 md:mt-10 pt-4 md:pt-6 border-t border-gray-100 space-y-1 md:space-y-2 pb-6 md:pb-0">
-                        <p class="text-[10px] md:text-xs text-gray-500"><span class="font-bold text-gray-900 uppercase w-24 inline-block">SKU:</span> {{ $product->sku ?? 'N/A' }}</p>
-                        <p class="text-[10px] md:text-xs text-gray-500"><span class="font-bold text-gray-900 uppercase w-24 inline-block">Category:</span> {{ $product->category->name ?? 'Uncategorized' }}</p>
                     </div>
                 </div>
             </div>
@@ -234,7 +238,7 @@
 
             <!-- Similar Products -->
             @if(isset($relatedProducts) && $relatedProducts->count() > 0)
-                <div class="mt-4 md:mt-8 pt-4 md:pt-8 border-t border-gray-100 pb-16">
+                <div class="mt-4 md:mt-8 pt-4 md:pt-8 border-t border-gray-100 pb-5">
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-xl font-bold text-gray-900 uppercase tracking-widest">Similar Products</h2>
                         <a href="#" class="text-xs font-bold text-red-600 hover:underline uppercase tracking-wider">View All</a>
@@ -250,10 +254,10 @@
 
         <!-- Fixed Bottom Mobile Bar -->
         <div class="fixed bottom-[57px] left-0 right-0 bg-white border-t border-gray-200 p-3 flex gap-2 z-50 md:hidden shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
-            <button class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded text-xs uppercase transition-colors">
+            <button class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded text-[10px] uppercase transition-colors">
                 Add to Cart
             </button>
-            <button class="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-3 px-4 rounded text-xs uppercase transition-colors">
+            <button class="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-3 px-4 rounded text-[10px] uppercase transition-colors">
                 Buy Now
             </button>
         </div>
