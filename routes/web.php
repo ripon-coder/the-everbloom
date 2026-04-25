@@ -44,7 +44,30 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/product/{slug?}', function ($slug = null) {
-    return view('pages.product', compact('slug'));
+    if (!$slug) return redirect()->route('home');
+
+    $product = \App\Models\Product::where('slug', $slug)
+        ->active()
+        ->with(['images', 'variants', 'firstImage', 'category'])
+        ->firstOrFail();
+    
+    $relatedProducts = \App\Models\Product::active()
+        ->where('category_id', $product->category_id)
+        ->where('id', '!=', $product->id)
+        ->with(['firstImage'])
+        ->take(6)
+        ->get();
+
+    if ($relatedProducts->isEmpty()) {
+        $relatedProducts = \App\Models\Product::active()
+            ->where('id', '!=', $product->id)
+            ->with(['firstImage'])
+            ->inRandomOrder()
+            ->take(6)
+            ->get();
+    }
+
+    return view('pages.product', compact('product', 'relatedProducts'));
 })->name('product.show');
 
 // Route::get('/dashboard', function () {
