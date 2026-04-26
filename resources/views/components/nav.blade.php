@@ -44,11 +44,11 @@
                     support@everbloom.com
                 </a>
                 <span class="text-gray-600">|</span>
-                <a href="#" class="hover:text-red-500 transition-colors">Track Order</a>
+                <a href="{{ route('track-order') }}" class="hover:text-red-500 transition-colors">Track Order</a>
                 <span class="text-gray-600">|</span>
-                <a href="#" class="hover:text-red-500 transition-colors">About Us</a>
+                <a href="{{ route('about') }}" class="hover:text-red-500 transition-colors">About Us</a>
                 <span class="text-gray-600">|</span>
-                <a href="#" class="hover:text-red-500 transition-colors">Contact Us</a>
+                <a href="{{ route('contact') }}" class="hover:text-red-500 transition-colors">Contact Us</a>
             </div>
         </div>
     </div>
@@ -82,7 +82,7 @@
                 <div class="hidden lg:block w-px h-8 bg-gray-200 mx-2"></div>
 
                 <!-- Account -->
-                <a href="#" class="flex items-center gap-3 group">
+                <a href="{{ route('account') }}" class="flex items-center gap-3 group">
                     <div class="w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-red-200 group-hover:bg-red-50 transition-all">
                         <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     </div>
@@ -301,8 +301,8 @@
 
             <!-- Links -->
             <nav class="hidden md:flex items-center flex-wrap">
-                <a href="#" class="mx-3 text-red-600 font-black text-sm uppercase tracking-wide py-3 border-b-2 border-red-600">Home</a>
-                <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">Shop</a>
+                <a href="{{ route('home') }}" class="mx-3 text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->routeIs('home') ? 'text-red-600 border-red-600 font-black' : 'text-slate-700 hover:text-red-600 border-transparent font-bold' }}">Home</a>
+                <a href="{{ route('shop') }}" class="mx-3 text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->routeIs('shop') ? 'text-red-600 border-red-600 font-black' : 'text-slate-700 hover:text-red-600 border-transparent font-bold' }}">Shop</a>
                 <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">PC Builder</a>
                 <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">Campaigns</a>
                 <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">Offers</a>
@@ -335,8 +335,8 @@
          <!-- Menu Tab Content -->
          <div x-show="activeTab === 'menu'" style="display: none;" class="flex-1 overflow-y-auto pb-20">
              <ul class="flex flex-col">
-                 <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-red-600 font-bold tracking-wide">Home</a></li>
-                 <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Shop</a></li>
+                 <li class="border-b border-gray-100"><a href="{{ route('home') }}" class="block px-6 py-4 text-[14px] font-bold tracking-wide transition-colors {{ request()->routeIs('home') ? 'text-red-600' : 'text-slate-800 hover:text-red-600' }}">Home</a></li>
+                 <li class="border-b border-gray-100"><a href="{{ route('shop') }}" class="block px-6 py-4 text-[14px] font-bold tracking-wide transition-colors {{ request()->routeIs('shop') ? 'text-red-600' : 'text-slate-800 hover:text-red-600' }}">Shop</a></li>
                  <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">PC Builder</a></li>
                  <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Campaigns</a></li>
                  <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Offers</a></li>
@@ -447,11 +447,11 @@
             <svg class="w-[22px] h-[22px]" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.12.553 4.186 1.602 5.998L.14 23.473l5.59-1.467A11.967 11.967 0 0012.031 24c6.646 0 12.031-5.385 12.031-12.031S18.677 0 12.031 0zM17.9 16.73c-.25.703-1.43 1.343-2.001 1.41-.531.062-1.218.156-3.86-1.023-3.187-1.422-5.265-4.664-5.422-4.882-.156-.219-1.296-1.727-1.296-3.297 0-1.57.812-2.344 1.11-2.656.296-.312.64-.39.86-.39.218 0 .437.008.624.008.188 0 .469-.07.72.547.25.61 1.077 2.624 1.171 2.812.094.187.157.406.032.656-.125.25-.188.406-.375.625-.188.219-.406.453-.562.61-.172.171-.36.359-.14.734.218.375.984 1.625 2.11 2.625 1.453 1.281 2.671 1.671 3.046 1.843.375.172.594.141.813-.11.218-.25.937-1.093 1.187-1.468.25-.375.5-.312.844-.187.344.125 2.187 1.031 2.562 1.218.375.188.625.282.72.438.093.156.093.906-.157 1.609z"/></svg>
             <span class="text-[11px] font-bold">WhatsApp</span>
         </a>
-        <a href="/" class="flex flex-col items-center gap-1 text-slate-700">
+        <a href="{{ route('home') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('home') ? 'text-red-600' : 'text-slate-700 hover:text-red-600' }}">
             <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
             <span class="text-[11px] font-bold">Home</span>
         </a>
-        <a href="#" class="flex flex-col items-center gap-1 text-slate-700">
+        <a href="{{ route('shop') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('shop') ? 'text-red-600' : 'text-slate-700 hover:text-red-600' }}">
             <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
             <span class="text-[11px] font-bold">Shop</span>
         </a>
@@ -494,7 +494,7 @@
              </div>
              <h3 class="text-lg font-bold text-slate-800 mb-1">Your cart is empty</h3>
              <p class="text-sm text-gray-500 mb-6">Looks like you haven't added any items to the cart yet.</p>
-             <button @click="isCartOpen = false" class="bg-slate-900 text-white font-bold uppercase tracking-wide text-[13px] px-8 py-3.5 rounded hover:bg-red-600 transition-colors">Return to Shop</button>
+             <a href="{{ route('shop') }}" @click="isCartOpen = false" class="bg-slate-900 text-white font-bold uppercase tracking-wide text-[13px] px-8 py-3.5 rounded hover:bg-red-600 transition-colors inline-block">Return to Shop</a>
          </div>
 
          <!-- Cart Footer (Sticky) -->
@@ -504,7 +504,7 @@
                  <span class="text-lg font-black text-slate-800">৳ 0.00</span>
              </div>
              <p class="text-xs text-gray-500 mb-4">Taxes and shipping calculated at checkout</p>
-             <a href="#" class="block w-full bg-red-600 text-white text-center font-bold uppercase tracking-wide text-sm px-4 py-3.5 rounded hover:bg-red-700 transition-colors">Checkout</a>
+             <a href="{{ route('checkout') }}" class="block w-full bg-red-600 text-white text-center font-bold uppercase tracking-wide text-sm px-4 py-3.5 rounded hover:bg-red-700 transition-colors">Checkout</a>
          </div>
     </div>
 </header>
