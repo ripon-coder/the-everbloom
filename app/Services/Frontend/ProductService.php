@@ -60,7 +60,13 @@ class ProductService
     {
         return Product::where('slug', $slug)
             ->active()
-            ->with(['images', 'variants', 'firstImage', 'category'])
+            ->with([
+                'images', 
+                'variants.variantAttributes.attribute', 
+                'variants.variantAttributes.attributeValue', 
+                'firstImage', 
+                'category'
+            ])
             ->firstOrFail();
     }
 
