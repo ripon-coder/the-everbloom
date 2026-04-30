@@ -65,10 +65,7 @@
                     @foreach($products as $product)
                         <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3 hover:bg-white/20 transition-all group">
                             <div class="relative pt-[100%] rounded-lg overflow-hidden mb-3">
-                                @php
-                                    $img = $product->firstImage ? $product->firstImage->getImageUrl() : asset('images/image1.jpg');
-                                @endphp
-                                <img src="{{ $img }}" alt="{{ $product->name }}" class="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                <img src="{{ $product->img }}" alt="{{ $product->name }}" class="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                                 <div class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">
                                     SAVE 20%
                                 </div>

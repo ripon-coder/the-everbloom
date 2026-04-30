@@ -11,9 +11,5 @@
         @endforeach
     </div>
 
-    <div class="flex justify-end">
-        <a href="#" class="text-sm font-bold text-slate-700 hover:text-red-600 flex items-center gap-1">
-            See all products <svg class="w-4 h-4 bg-slate-900 text-white rounded-full p-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-        </a>
     </div>
 </section>
