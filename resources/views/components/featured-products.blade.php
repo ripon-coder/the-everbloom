@@ -8,14 +8,7 @@
         </a>
     </div>
 
-    <!-- Subcategories Tabs -->
-    <div class="flex flex-wrap items-center gap-3 mb-6">
-        <button class="px-4 py-1.5 rounded-full border border-red-500 text-red-600 font-bold text-sm bg-red-50">Smartwatch</button>
-        <button class="px-4 py-1.5 rounded-full border border-gray-200 text-slate-600 font-bold text-sm hover:border-red-500 hover:text-red-600 transition-colors">Power Bank</button>
-        <button class="px-4 py-1.5 rounded-full border border-gray-200 text-slate-600 font-bold text-sm hover:border-red-500 hover:text-red-600 transition-colors">Cable & Adapter</button>
-        <button class="px-4 py-1.5 rounded-full border border-gray-200 text-slate-600 font-bold text-sm hover:border-red-500 hover:text-red-600 transition-colors">Router</button>
-        <button class="px-4 py-1.5 rounded-full border border-gray-200 text-slate-600 font-bold text-sm hover:border-red-500 hover:text-red-600 transition-colors">Mobile Accessory</button>
-    </div>
+    <!-- Subcategories Tabs removed -->
 
     <div class="relative group">
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">

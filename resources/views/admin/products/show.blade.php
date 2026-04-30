@@ -286,7 +286,7 @@
 
                         @if ($product->trashed())
                             <form action="{{ route('admin.products.restore', $product->id) }}" method="POST"
-                                class="inline w-full">
+                                class="block w-full">
                                 @csrf
                                 <button type="submit"
                                     class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center"
@@ -302,7 +302,7 @@
                             </form>
 
                             <form action="{{ route('admin.products.force-delete', $product->id) }}" method="POST"
-                                class="inline w-full">
+                                class="block w-full">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
@@ -319,7 +319,7 @@
                             </form>
                         @else
                             <form action="{{ route('admin.products.destroy', $product) }}" method="POST"
-                                class="inline w-full">
+                                class="block w-full">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"

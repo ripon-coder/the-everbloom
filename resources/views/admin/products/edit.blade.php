@@ -629,7 +629,7 @@
                                     </div>
                                     <div
                                         class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition duration-200">
-                                        <input type="file" name="variants[{{ $index }}][images][]"
+                                        <input type="file" name="variants[{{ $index }}][images]"
                                             accept="image/*" class="hidden" id="variant-image-{{ $index }}"
                                             onchange="previewVariantImage(this, {{ $index }})">
                                         <label for="variant-image-{{ $index }}" class="cursor-pointer">

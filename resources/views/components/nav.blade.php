@@ -98,11 +98,11 @@
                 <button @click="isCartOpen = true" class="flex items-center gap-3 group text-left">
                     <div class="relative w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-red-200 group-hover:bg-red-50 transition-all">
                         <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        <span class="absolute -top-1.5 -right-1.5 bg-[#E60000] text-white text-[10px] font-bold w-[20px] h-[20px] flex items-center justify-center rounded-full border-2 border-white shadow-sm transform group-hover:scale-110 transition-transform">0</span>
+                        <span class="absolute -top-1.5 -right-1.5 bg-[#E60000] text-white text-[10px] font-bold w-[20px] h-[20px] flex items-center justify-center rounded-full border-2 border-white shadow-sm transform group-hover:scale-110 transition-transform">3</span>
                     </div>
                     <div class="hidden sm:flex flex-col">
                         <span class="text-[11px] text-gray-500 font-medium uppercase tracking-wider leading-none mb-1">My Cart</span>
-                        <span class="text-[14px] font-black text-slate-800 leading-none group-hover:text-red-600 transition-colors">0 Items</span>
+                        <span class="text-[14px] font-black text-slate-800 leading-none group-hover:text-red-600 transition-colors">3 Items</span>
                     </div>
                 </button>
             </div>
@@ -441,24 +441,24 @@
     <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 flex justify-around items-center py-2 pb-safe shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <a href="tel:+8801720000000" class="flex flex-col items-center gap-1 text-slate-700">
             <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-            <span class="text-[11px] font-bold">Call</span>
+            <span class="text-[11px] font-bold uppercase">Call</span>
         </a>
-        <a href="#" class="flex flex-col items-center gap-1 text-slate-700">
+        <a href="https://wa.me/8801720000000" class="flex flex-col items-center gap-1 text-slate-700">
             <svg class="w-[22px] h-[22px]" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.12.553 4.186 1.602 5.998L.14 23.473l5.59-1.467A11.967 11.967 0 0012.031 24c6.646 0 12.031-5.385 12.031-12.031S18.677 0 12.031 0zM17.9 16.73c-.25.703-1.43 1.343-2.001 1.41-.531.062-1.218.156-3.86-1.023-3.187-1.422-5.265-4.664-5.422-4.882-.156-.219-1.296-1.727-1.296-3.297 0-1.57.812-2.344 1.11-2.656.296-.312.64-.39.86-.39.218 0 .437.008.624.008.188 0 .469-.07.72.547.25.61 1.077 2.624 1.171 2.812.094.187.157.406.032.656-.125.25-.188.406-.375.625-.188.219-.406.453-.562.61-.172.171-.36.359-.14.734.218.375.984 1.625 2.11 2.625 1.453 1.281 2.671 1.671 3.046 1.843.375.172.594.141.813-.11.218-.25.937-1.093 1.187-1.468.25-.375.5-.312.844-.187.344.125 2.187 1.031 2.562 1.218.375.188.625.282.72.438.093.156.093.906-.157 1.609z"/></svg>
-            <span class="text-[11px] font-bold">WhatsApp</span>
+            <span class="text-[11px] font-bold uppercase">WhatsApp</span>
         </a>
         <a href="{{ route('home') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('home') ? 'text-red-600' : 'text-slate-700 hover:text-red-600' }}">
             <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-            <span class="text-[11px] font-bold">Home</span>
+            <span class="text-[11px] font-bold uppercase">Home</span>
         </a>
         <a href="{{ route('shop') }}" class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('shop') ? 'text-red-600' : 'text-slate-700 hover:text-red-600' }}">
             <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-            <span class="text-[11px] font-bold">Shop</span>
+            <span class="text-[11px] font-bold uppercase">Shop</span>
         </a>
         <button @click="isCartOpen = true" class="flex flex-col items-center gap-1 text-slate-700 relative">
             <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            <span class="absolute -top-1 -right-2 bg-red-600 text-white text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">0</span>
-            <span class="text-[11px] font-bold text-slate-800">Cart</span>
+            <span class="absolute -top-1 -right-2 bg-red-600 text-white text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">3</span>
+            <span class="text-[11px] font-bold uppercase text-slate-800">Cart</span>
         </button>
     </div>
 
@@ -480,28 +480,69 @@
              <div class="flex items-center gap-2">
                  <svg class="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                  <h2 class="text-lg font-bold text-slate-800">Your Cart</h2>
-                 <span class="bg-gray-100 text-gray-600 text-[11px] font-bold px-2 py-0.5 rounded-full ml-1">0</span>
+                 <span class="bg-gray-100 text-gray-600 text-[11px] font-bold px-2 py-0.5 rounded-full ml-1">3</span>
              </div>
              <button @click="isCartOpen = false" class="text-gray-400 hover:text-red-600 transition-colors">
                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
              </button>
          </div>
 
-         <!-- Cart Content (Empty State) -->
-         <div class="flex-1 overflow-y-auto flex flex-col items-center justify-center p-6 text-center">
-             <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                 <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+         <!-- Cart Content -->
+         <div class="flex-1 overflow-y-auto px-5 py-6">
+             <!-- Sample Cart Item -->
+             <div class="flex gap-4 mb-6 pb-6 border-b border-gray-100 group">
+                 <div class="w-20 h-20 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
+                     <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                 </div>
+                 <div class="flex-1 flex flex-col justify-between">
+                     <div>
+                         <h4 class="text-[14px] font-bold text-slate-800 leading-tight mb-1 group-hover:text-red-600 transition-colors">Premium Wireless Headphone Z-500</h4>
+                         <p class="text-[12px] text-gray-500 mb-2">Color: Midnight Black</p>
+                         <div class="flex items-center gap-3">
+                             <div class="flex items-center border border-gray-200 rounded-md bg-white">
+                                 <button class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">-</button>
+                                 <span class="px-2 py-1 text-[13px] font-bold text-slate-800 border-x border-gray-200">1</span>
+                                 <button class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">+</button>
+                             </div>
+                             <button class="text-[12px] text-gray-400 hover:text-red-600 underline font-medium">Remove</button>
+                         </div>
+                     </div>
+                     <div class="text-right">
+                         <span class="text-[15px] font-black text-slate-800">৳ 2,450.00</span>
+                     </div>
+                 </div>
              </div>
-             <h3 class="text-lg font-bold text-slate-800 mb-1">Your cart is empty</h3>
-             <p class="text-sm text-gray-500 mb-6">Looks like you haven't added any items to the cart yet.</p>
-             <a href="{{ route('shop') }}" @click="isCartOpen = false" class="bg-slate-900 text-white font-bold uppercase tracking-wide text-[13px] px-8 py-3.5 rounded hover:bg-red-600 transition-colors inline-block">Return to Shop</a>
+
+             <!-- Another Sample Item -->
+             <div class="flex gap-4 mb-6 pb-6 border-b border-gray-100 group">
+                 <div class="w-20 h-20 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
+                     <img src="https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                 </div>
+                 <div class="flex-1 flex flex-col justify-between">
+                     <div>
+                         <h4 class="text-[14px] font-bold text-slate-800 leading-tight mb-1 group-hover:text-red-600 transition-colors">Fast Charging USB-C Cable 2M</h4>
+                         <p class="text-[12px] text-gray-500 mb-2">Length: 2 Meters</p>
+                         <div class="flex items-center gap-3">
+                             <div class="flex items-center border border-gray-200 rounded-md bg-white">
+                                 <button class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">-</button>
+                                 <span class="px-2 py-1 text-[13px] font-bold text-slate-800 border-x border-gray-200">2</span>
+                                 <button class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">+</button>
+                             </div>
+                             <button class="text-[12px] text-gray-400 hover:text-red-600 underline font-medium">Remove</button>
+                         </div>
+                     </div>
+                     <div class="text-right">
+                         <span class="text-[15px] font-black text-slate-800">৳ 850.00</span>
+                     </div>
+                 </div>
+             </div>
          </div>
 
          <!-- Cart Footer (Sticky) -->
          <div class="border-t border-gray-200 p-5 bg-gray-50 mt-auto">
              <div class="flex items-center justify-between mb-4">
                  <span class="text-slate-600 font-medium">Subtotal</span>
-                 <span class="text-lg font-black text-slate-800">৳ 0.00</span>
+                 <span class="text-lg font-black text-slate-800">৳ 4,150.00</span>
              </div>
              <p class="text-xs text-gray-500 mb-4">Taxes and shipping calculated at checkout</p>
              <a href="{{ route('checkout') }}" class="block w-full bg-red-600 text-white text-center font-bold uppercase tracking-wide text-sm px-4 py-3.5 rounded hover:bg-red-700 transition-colors">Checkout</a>

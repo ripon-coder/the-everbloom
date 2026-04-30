@@ -76,8 +76,7 @@ class UpdateProductRequest extends FormRequest
             'variants.*.attributes' => ['nullable', 'array'],
             'variants.*.attributes.*.attribute_id' => ['required_with:variants.*.attributes', 'exists:attributes,id'],
             'variants.*.attributes.*.attribute_value_id' => ['required_with:variants.*.attributes', 'exists:attribute_values,id'],
-            'variants.*.images' => ['nullable', 'array'],
-            'variants.*.images.*' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+            'variants.*.images' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
         ];
     }
 

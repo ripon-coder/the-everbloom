@@ -88,32 +88,29 @@ class ProductService
                     }
 
                     // Handle variant images
-                    if (isset($variantData['images']) && is_array($variantData['images'])) {
-                        foreach ($variantData['images'] as $index => $image) {
-                            // Check if the image is a valid UploadedFile instance
-                            if ($image instanceof \Illuminate\Http\UploadedFile) {
-                                try {
-                                    // Validate the image file
-                                    if (!$image->isValid()) {
-                                        Log::error('Invalid variant image file: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
-                                        continue;
-                                    }
-
+                    if (isset($variantData['images'])) {
+                        $image = $variantData['images'];
+                        // Check if the image is a valid UploadedFile instance
+                        if ($image instanceof \Illuminate\Http\UploadedFile) {
+                            try {
+                                // Validate the image file
+                                if (!$image->isValid()) {
+                                    Log::error('Invalid variant image file: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
+                                } else {
                                     $variantImage = $variant->images()->create([
-                                        'is_default' => $index === 0,
+                                        'is_default' => true,
                                     ]);
 
                                     $variantImage->addMedia($image)
                                         ->toMediaCollection('variant_images');
 
                                     Log::info('Variant image uploaded successfully: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
-                                } catch (\Exception $e) {
-                                    Log::error('Error uploading variant image: ' . $e->getMessage() . ' for variant: ' . $variantData['sku']);
-                                    // Continue with other images even if one fails
                                 }
-                            } else {
-                                Log::warning('Invalid variant image data type for image index: ' . $index . ' for variant: ' . $variantData['sku']);
+                            } catch (\Exception $e) {
+                                Log::error('Error uploading variant image: ' . $e->getMessage() . ' for variant: ' . $variantData['sku']);
                             }
+                        } else {
+                            Log::warning('Invalid variant image data type for variant: ' . $variantData['sku']);
                         }
                     }
 
@@ -281,8 +278,8 @@ class ProductService
                     }
 
                     // Handle variant images
-                    if (isset($variantData['images']) && is_array($variantData['images'])) {
-                        // Handle deleted variant images
+                    if (isset($variantData['images'])) {
+                        // Handle deleted variant images (if any)
                         if (isset($variantData['delete_images']) && is_array($variantData['delete_images'])) {
                             foreach ($variantData['delete_images'] as $imageId) {
                                 $image = $variant->images()->find($imageId);
@@ -293,43 +290,29 @@ class ProductService
                             }
                         }
 
-                        // Only delete and replace images if new ones are uploaded
-                        $hasNewImages = false;
-                        foreach ($variantData['images'] as $image) {
-                            if ($image instanceof \Illuminate\Http\UploadedFile) {
-                                $hasNewImages = true;
-                                break;
-                            }
-                        }
-
-                        if ($hasNewImages) {
+                        $image = $variantData['images'];
+                        if ($image instanceof \Illuminate\Http\UploadedFile) {
                             // Delete existing images
-                            foreach ($variant->images as $image) {
-                                $image->clearMediaCollection('variant_images');
-                                $image->delete();
+                            foreach ($variant->images as $existingImage) {
+                                $existingImage->clearMediaCollection('variant_images');
+                                $existingImage->delete();
                             }
 
-                            // Add new images
-                            foreach ($variantData['images'] as $index => $image) {
-                                if ($image instanceof \Illuminate\Http\UploadedFile) {
-                                    try {
-                                        if (!$image->isValid()) {
-                                            Log::error('Invalid variant image file: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
-                                            continue;
-                                        }
+                            try {
+                                if (!$image->isValid()) {
+                                    Log::error('Invalid variant image file: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
+                                } else {
+                                    $variantImage = $variant->images()->create([
+                                        'is_default' => true,
+                                    ]);
 
-                                        $variantImage = $variant->images()->create([
-                                            'is_default' => $index === 0,
-                                        ]);
+                                    $variantImage->addMedia($image)
+                                        ->toMediaCollection('variant_images');
 
-                                        $variantImage->addMedia($image)
-                                            ->toMediaCollection('variant_images');
-
-                                        Log::info('Variant image uploaded successfully: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
-                                    } catch (\Exception $e) {
-                                        Log::error('Error uploading variant image: ' . $e->getMessage() . ' for variant: ' . $variantData['sku']);
-                                    }
+                                    Log::info('Variant image uploaded successfully: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
                                 }
+                            } catch (\Exception $e) {
+                                Log::error('Error uploading variant image: ' . $e->getMessage() . ' for variant: ' . $variantData['sku']);
                             }
                         }
                     }
