@@ -73,12 +73,13 @@
                                 <span class="text-base md:text-lg text-red-600/70 line-through font-medium">৳ <span x-text="formatPrice(currentOldPrice)">{{ number_format($product->old_price, 2) }}</span></span>
                             </template>
                         </div>
-                        <template x-if="currentOldPrice > 0">
-                            <div class="text-[10px] md:text-xs font-bold text-green-600">
+                        <!-- Savings Info (Fixed height to prevent jumping) -->
+                        <div class="h-4 md:h-5">
+                            <div x-show="currentOldPrice > 0" x-cloak class="text-[10px] md:text-xs font-bold text-green-600">
                                 You Save: ৳ <span x-text="formatPrice(currentOldPrice - currentPrice)">{{ $product->old_price > 0 ? number_format($product->old_price - $product->price, 2) : '0.00' }}</span> 
                                 (<span x-text="currentOldPrice > 0 ? Math.round(((currentOldPrice - currentPrice) / currentOldPrice) * 100) : 0">{{ $product->old_price > 0 ? round((($product->old_price - $product->price) / $product->old_price) * 100) : 0 }}</span>% Off)
                             </div>
-                        </template>
+                        </div>
                     </div>
 
                     <div class="text-sm text-gray-600 mb-4 leading-relaxed line-clamp-2 md:line-clamp-3">
@@ -296,12 +297,22 @@
                 product: productData,
                 quantity: 1,
                 mainImage: '{{ $product->firstImage ? $product->firstImage->getImageUrl() : asset("images/image1.jpg") }}',
-                allImages: [
-                    '{{ $product->firstImage ? $product->firstImage->getImageUrl() : asset("images/image1.jpg") }}',
-                    @foreach($product->images as $image)
-                        '{{ $image->getImageUrl() }}',
-                    @endforeach
-                ].filter((v, i, a) => a.indexOf(v) === i),
+                get allImages() {
+                    const productImages = [
+                        '{{ $product->firstImage ? $product->firstImage->getImageUrl() : asset("images/image1.jpg") }}',
+                        @foreach($product->images as $image)
+                            '{{ $image->getImageUrl() }}',
+                        @endforeach
+                    ];
+
+                    const variant = this.getActiveVariant();
+                    if (variant && variant.images && variant.images.length > 0) {
+                        const variantImages = variant.images.map(img => img.image_url).filter(Boolean);
+                        return [...variantImages, ...productImages].filter((v, i, a) => a.indexOf(v) === i);
+                    }
+
+                    return productImages.filter((v, i, a) => a.indexOf(v) === i);
+                },
                 selectedAttributes: {},
                 zoomStyle: 'transform: scale(1)',
 
@@ -311,7 +322,8 @@
                         const attrs = firstVariant.variant_attributes || firstVariant.variantAttributes;
                         if (attrs) {
                             attrs.forEach(attr => {
-                                this.selectedAttributes[attr.attribute.name] = attr.attribute_value_id;
+                                // Use selectAttribute to trigger image logic
+                                this.selectAttribute(attr.attribute.name, attr.attribute_value_id);
                             });
                         }
                     }
@@ -385,11 +397,19 @@
                         if (key === name) return;
                         
                         const currentVal = this.selectedAttributes[key];
-                        // If current selected value is not compatible with the NEW selection, clear it
                         if (!this.isOptionCompatible(key, currentVal)) {
                             delete this.selectedAttributes[key];
                         }
                     });
+
+                    // Variant wise image change
+                    const variant = this.getActiveVariant();
+                    if (variant && variant.images && variant.images.length > 0) {
+                        const img = variant.images[0];
+                        if (img.image_url) {
+                            this.mainImage = img.image_url;
+                        }
+                    }
                 },
                 
                 handleMouseMove(e) {

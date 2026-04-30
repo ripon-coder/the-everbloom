@@ -64,6 +64,7 @@ class ProductService
                 'images', 
                 'variants.variantAttributes.attribute', 
                 'variants.variantAttributes.attributeValue', 
+                'variants.images',
                 'firstImage', 
                 'category'
             ])

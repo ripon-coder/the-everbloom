@@ -10,6 +10,13 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class ProductVariantImage extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
+    
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return $this->getImageUrl();
+    }
 
     /**
      * The attributes that are mass assignable.
