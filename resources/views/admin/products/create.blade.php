@@ -289,5 +289,5 @@
             </div>
         </form>
     </div>
-    @include('components.products-create-js')
+    @include('admin.products.js._create')
 @endsection

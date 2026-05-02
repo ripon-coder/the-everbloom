@@ -33,7 +33,7 @@ class ProductController extends Controller
         $products = $this->productService->getShopProducts($request->all());
         $categories = $this->productService->getActiveCategories();
 
-        return view('pages.shop', compact('products', 'categories'));
+        return view('pages.shop.index', compact('products', 'categories'));
     }
 
     /**
@@ -51,6 +51,6 @@ class ProductController extends Controller
         $product = $this->productService->getProductBySlug($slug);
         $relatedProducts = $this->productService->getRelatedProducts($product);
 
-        return view('pages.product', compact('product', 'relatedProducts'));
+        return view('pages.product.show', compact('product', 'relatedProducts'));
     }
 }

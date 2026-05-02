@@ -9,35 +9,55 @@
                     <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">Create Account</h2>
                     <p class="text-sm text-gray-500 mb-8">Please fill in the information below to create an account.</p>
                     
-                    <form class="space-y-5">
+                    <form class="space-y-5" method="POST" action="{{ route('register.post') }}">
+                        @csrf
+                        @if($errors->any())
+                            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <ul class="list-disc list-inside text-sm text-red-700 font-medium">
+                                            @foreach($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
                                 <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">First Name *</label>
-                                <input type="text" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="First Name" required>
+                                <input type="text" name="first_name" value="{{ old('first_name') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="First Name" required>
                             </div>
                             <div>
                                 <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Last Name *</label>
-                                <input type="text" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Last Name" required>
+                                <input type="text" name="last_name" value="{{ old('last_name') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Last Name" required>
                             </div>
                         </div>
 
                         <div>
                             <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Email Address *</label>
-                            <input type="email" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Enter your email" required>
+                            <input type="email" name="email" value="{{ old('email') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Enter your email" required>
                         </div>
                         
                         <div>
                             <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Password *</label>
-                            <input type="password" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Create a password" required>
+                            <input type="password" name="password" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Create a password" required>
                         </div>
 
                         <div>
                             <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Confirm Password *</label>
-                            <input type="password" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Confirm your password" required>
+                            <input type="password" name="password_confirmation" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Confirm your password" required>
                         </div>
                         
                         <div class="flex items-start mt-2">
-                            <input type="checkbox" id="terms" class="rounded border-gray-300 text-red-600 focus:ring-red-500 h-4 w-4 mt-0.5" required>
+                            <input type="checkbox" name="terms" id="terms" class="rounded border-gray-300 text-red-600 focus:ring-red-500 h-4 w-4 mt-0.5" required>
                             <label for="terms" class="ml-2 text-sm text-gray-600 font-medium">I agree to the <a href="#" class="text-red-600 hover:underline">Terms of Service</a> and <a href="#" class="text-red-600 hover:underline">Privacy Policy</a>.</label>
                         </div>
 

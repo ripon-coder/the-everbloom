@@ -30,7 +30,7 @@
             @endphp
 
             @foreach($products as $p)
-                <x-product-card :product="$p" />
+                <x-ui.product-card :product="$p" />
             @endforeach
         </div>
         

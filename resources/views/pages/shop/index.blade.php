@@ -82,7 +82,7 @@
                         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                             @foreach($products as $product)
                                 <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                                    <x-product-card :product="$product" />
+                                    <x-ui.product-card :product="$product" />
                                 </div>
                             @endforeach
                         </div>

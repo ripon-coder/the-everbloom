@@ -9,10 +9,28 @@
                     <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">Welcome Back</h2>
                     <p class="text-sm text-gray-500 mb-8">Sign in to your account to continue.</p>
                     
-                    <form class="space-y-5">
+                    <form class="space-y-5" method="POST" action="{{ route('login.post') }}">
+                        @csrf
+                        @if($errors->any())
+                            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-red-700 font-medium">
+                                            {{ $errors->first() }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
                         <div>
                             <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Email Address</label>
-                            <input type="email" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Enter your email" required>
+                            <input type="email" name="email" value="{{ old('email') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Enter your email" required>
                         </div>
                         
                         <div>
@@ -20,11 +38,11 @@
                                 <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Password</label>
                                 <a href="{{ route('password.request') }}" class="text-[11px] font-bold text-red-600 hover:text-red-700 transition-colors">Forgot Password?</a>
                             </div>
-                            <input type="password" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Enter your password" required>
+                            <input type="password" name="password" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Enter your password" required>
                         </div>
                         
                         <div class="flex items-center">
-                            <input type="checkbox" id="remember" class="rounded border-gray-300 text-red-600 focus:ring-red-500 h-4 w-4">
+                            <input type="checkbox" name="remember" id="remember" class="rounded border-gray-300 text-red-600 focus:ring-red-500 h-4 w-4">
                             <label for="remember" class="ml-2 text-sm text-gray-600 font-medium">Remember me</label>
                         </div>
 

@@ -29,7 +29,7 @@
                     ];
                 @endphp
                 @foreach($mustHaves as $product)
-                    <x-product-card :product="$product" />
+                    <x-ui.product-card :product="$product" />
                 @endforeach
             </div>
             

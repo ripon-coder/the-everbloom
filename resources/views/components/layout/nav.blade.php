@@ -1,4 +1,49 @@
-<header class="w-full bg-white font-sans border-b border-gray-200" x-data="{ isOpen: false, activeTab: 'categories', isCartOpen: false }">
+<header class="w-full bg-white font-sans border-b border-gray-200" 
+    x-data="{ 
+        isOpen: false, 
+        activeTab: 'categories', 
+        isCartOpen: false,
+        cart: [],
+        init() {
+            this.loadCart();
+            window.addEventListener('cart-updated', () => {
+                this.loadCart();
+                this.isCartOpen = true; // Open drawer when added
+            });
+            window.addEventListener('cart-updated-internal', () => {
+                this.loadCart();
+            });
+        },
+        loadCart() {
+            this.cart = JSON.parse(localStorage.getItem('cart')) || [];
+        },
+        get cartCount() {
+            return this.cart.reduce((total, item) => total + parseInt(item.quantity), 0);
+        },
+        get cartTotal() {
+            return this.cart.reduce((total, item) => total + (parseFloat(item.price) * parseInt(item.quantity)), 0);
+        },
+        updateQuantity(index, delta) {
+            let newQuantity = parseInt(this.cart[index].quantity) + delta;
+            if (newQuantity > 0) {
+                this.cart[index].quantity = newQuantity;
+                this.saveCart();
+            } else if (newQuantity === 0) {
+                this.removeItem(index);
+            }
+        },
+        removeItem(index) {
+            this.cart.splice(index, 1);
+            this.saveCart();
+        },
+        saveCart() {
+            localStorage.setItem('cart', JSON.stringify(this.cart));
+            window.dispatchEvent(new CustomEvent('cart-updated-internal'));
+        },
+        formatPrice(price) {
+            return parseFloat(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+    }">
     <!-- Mobile Header -->
     <div class="md:hidden bg-black text-white px-4 py-3 flex items-center justify-between">
         <button @click="isOpen = true" class="text-gray-300 hover:text-white">
@@ -8,8 +53,18 @@
             <div class="border-[2.5px] border-white text-white px-2 py-0.5 rounded-sm font-black text-xl italic tracking-tighter leading-none">SHEI</div>
             <div class="font-black text-xl tracking-tighter text-white leading-none">TECH</div>
         </a>
-        <a href="#" class="text-gray-300 hover:text-white">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        <a href="{{ Auth::check() ? route('account') : route('login') }}" class="text-gray-300 hover:text-white relative">
+            @auth
+                @if(Auth::user()->profile_image)
+                    <img src="{{ Auth::user()->profile_image }}" class="w-7 h-7 rounded-full object-cover border border-white">
+                @else
+                    <div class="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-[11px] font-bold text-white border border-white">
+                        {{ substr(Auth::user()->name, 0, 1) }}
+                    </div>
+                @endif
+            @else
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            @endauth
         </a>
     </div>
 
@@ -82,15 +137,55 @@
                 <div class="hidden lg:block w-px h-8 bg-gray-200 mx-2"></div>
 
                 <!-- Account -->
-                <a href="{{ route('account') }}" class="flex items-center gap-3 group">
-                    <div class="w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-red-200 group-hover:bg-red-50 transition-all">
-                        <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                @auth
+                    <div class="relative" x-data="{ accountOpen: false }" @mouseenter="accountOpen = true" @mouseleave="accountOpen = false" @click.away="accountOpen = false">
+                        <button @click="accountOpen = !accountOpen" class="flex items-center gap-3 group text-left">
+                            <div class="w-[42px] h-[42px] rounded-full bg-red-50 border border-red-200 shadow-sm flex items-center justify-center transition-all overflow-hidden group-hover:border-red-400">
+                                @if(Auth::user()->profile_image)
+                                    <img src="{{ Auth::user()->profile_image }}" class="w-full h-full object-cover">
+                                @else
+                                    <span class="text-red-600 font-bold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                @endif
+                            </div>
+                            <div class="hidden sm:flex flex-col">
+                                <span class="text-[11px] text-gray-500 font-medium uppercase tracking-wider leading-none mb-1">Welcome back,</span>
+                                <span class="text-[14px] font-black text-slate-800 leading-none group-hover:text-red-600 transition-colors truncate max-w-[100px]">{{ explode(' ', Auth::user()->name)[0] }}</span>
+                            </div>
+                        </button>
+                        
+                        <div x-show="accountOpen" style="display: none;" 
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 translate-y-2"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 translate-y-2"
+                             class="absolute right-0 top-full pt-3 w-48 z-50">
+                            <div class="relative shadow-xl rounded-lg">
+                                <!-- Triangle pointer -->
+                                <div class="absolute -top-2 right-5 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45 z-0"></div>
+                                <div class="relative bg-white z-10 border border-gray-100 rounded-lg overflow-hidden">
+                                    <a href="{{ route('account') }}" class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors">My Profile</a>
+                                    <a href="#" class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors">My Orders</a>
+                                    <form method="POST" action="{{ route('logout') }}" class="w-full m-0">
+                                        @csrf
+                                        <button type="submit" class="block w-full text-left px-4 py-2.5 text-[13px] font-semibold text-red-600 hover:bg-red-50 border-t border-gray-100 transition-colors">Sign Out</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="hidden sm:flex flex-col">
-                        <span class="text-[11px] text-gray-500 font-medium uppercase tracking-wider leading-none mb-1">Hello, Sign In</span>
-                        <span class="text-[14px] font-black text-slate-800 leading-none group-hover:text-red-600 transition-colors">My Account</span>
-                    </div>
-                </a>
+                @else
+                    <a href="{{ route('login') }}" class="flex items-center gap-3 group">
+                        <div class="w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-red-200 group-hover:bg-red-50 transition-all">
+                            <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        </div>
+                        <div class="hidden sm:flex flex-col">
+                            <span class="text-[11px] text-gray-500 font-medium uppercase tracking-wider leading-none mb-1">Hello, Sign In</span>
+                            <span class="text-[14px] font-black text-slate-800 leading-none group-hover:text-red-600 transition-colors">My Account</span>
+                        </div>
+                    </a>
+                @endauth
 
                 <div class="hidden sm:block w-px h-8 bg-gray-200 mx-1"></div>
 
@@ -98,11 +193,11 @@
                 <button @click="isCartOpen = true" class="flex items-center gap-3 group text-left">
                     <div class="relative w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-red-200 group-hover:bg-red-50 transition-all">
                         <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        <span class="absolute -top-1.5 -right-1.5 bg-[#E60000] text-white text-[10px] font-bold w-[20px] h-[20px] flex items-center justify-center rounded-full border-2 border-white shadow-sm transform group-hover:scale-110 transition-transform">3</span>
+                        <span x-show="cartCount > 0" x-text="cartCount" class="absolute -top-1.5 -right-1.5 bg-[#E60000] text-white text-[10px] font-bold w-[20px] h-[20px] flex items-center justify-center rounded-full border-2 border-white shadow-sm transform group-hover:scale-110 transition-transform" x-cloak></span>
                     </div>
                     <div class="hidden sm:flex flex-col">
                         <span class="text-[11px] text-gray-500 font-medium uppercase tracking-wider leading-none mb-1">My Cart</span>
-                        <span class="text-[14px] font-black text-slate-800 leading-none group-hover:text-red-600 transition-colors">3 Items</span>
+                        <span class="text-[14px] font-black text-slate-800 leading-none group-hover:text-red-600 transition-colors"><span x-text="cartCount"></span> Items</span>
                     </div>
                 </button>
             </div>
@@ -457,7 +552,7 @@
         </a>
         <button @click="isCartOpen = true" class="flex flex-col items-center gap-1 text-slate-700 relative">
             <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            <span class="absolute -top-1 -right-2 bg-red-600 text-white text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">3</span>
+            <span x-show="cartCount > 0" x-text="cartCount" class="absolute -top-1 -right-2 bg-red-600 text-white text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white" x-cloak></span>
             <span class="text-[11px] font-bold uppercase text-slate-800">Cart</span>
         </button>
     </div>
@@ -480,7 +575,7 @@
              <div class="flex items-center gap-2">
                  <svg class="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                  <h2 class="text-lg font-bold text-slate-800">Your Cart</h2>
-                 <span class="bg-gray-100 text-gray-600 text-[11px] font-bold px-2 py-0.5 rounded-full ml-1">3</span>
+                 <span x-text="cartCount" class="bg-gray-100 text-gray-600 text-[11px] font-bold px-2 py-0.5 rounded-full ml-1"></span>
              </div>
              <button @click="isCartOpen = false" class="text-gray-400 hover:text-red-600 transition-colors">
                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -489,60 +584,56 @@
 
          <!-- Cart Content -->
          <div class="flex-1 overflow-y-auto px-5 py-6">
-             <!-- Sample Cart Item -->
-             <div class="flex gap-4 mb-6 pb-6 border-b border-gray-100 group">
-                 <div class="w-20 h-20 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
-                     <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                 </div>
-                 <div class="flex-1 flex flex-col justify-between">
-                     <div>
-                         <h4 class="text-[14px] font-bold text-slate-800 leading-tight mb-1 group-hover:text-red-600 transition-colors">Premium Wireless Headphone Z-500</h4>
-                         <p class="text-[12px] text-gray-500 mb-2">Color: Midnight Black</p>
-                         <div class="flex items-center gap-3">
-                             <div class="flex items-center border border-gray-200 rounded-md bg-white">
-                                 <button class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">-</button>
-                                 <span class="px-2 py-1 text-[13px] font-bold text-slate-800 border-x border-gray-200">1</span>
-                                 <button class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">+</button>
-                             </div>
-                             <button class="text-[12px] text-gray-400 hover:text-red-600 underline font-medium">Remove</button>
-                         </div>
-                     </div>
-                     <div class="text-right">
-                         <span class="text-[15px] font-black text-slate-800">৳ 2,450.00</span>
-                     </div>
-                 </div>
+             <!-- Empty Cart -->
+             <div x-show="cartCount === 0" class="flex flex-col items-center justify-center h-full text-gray-500 space-y-4">
+                 <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                 <p class="font-medium text-slate-800">Your cart is empty.</p>
+                 <button @click="isCartOpen = false" class="text-red-600 text-sm font-bold hover:underline">Continue Shopping</button>
              </div>
 
-             <!-- Another Sample Item -->
-             <div class="flex gap-4 mb-6 pb-6 border-b border-gray-100 group">
-                 <div class="w-20 h-20 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
-                     <img src="https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Product" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                 </div>
-                 <div class="flex-1 flex flex-col justify-between">
-                     <div>
-                         <h4 class="text-[14px] font-bold text-slate-800 leading-tight mb-1 group-hover:text-red-600 transition-colors">Fast Charging USB-C Cable 2M</h4>
-                         <p class="text-[12px] text-gray-500 mb-2">Length: 2 Meters</p>
-                         <div class="flex items-center gap-3">
-                             <div class="flex items-center border border-gray-200 rounded-md bg-white">
-                                 <button class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">-</button>
-                                 <span class="px-2 py-1 text-[13px] font-bold text-slate-800 border-x border-gray-200">2</span>
-                                 <button class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">+</button>
+             <template x-for="(item, index) in cart" :key="index">
+                 <div class="flex gap-4 mb-6 pb-6 border-b border-gray-100 group">
+                     <div class="w-20 h-20 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
+                         <img :src="item.image" :alt="item.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                     </div>
+                     <div class="flex-1 flex flex-col justify-between">
+                         <div>
+                             <h4 class="text-[14px] font-bold text-slate-800 leading-tight mb-1 group-hover:text-red-600 transition-colors" x-text="item.name"></h4>
+                             
+                             <!-- Attributes Display -->
+                             <template x-if="item.attributes && Object.keys(item.attributes).length > 0">
+                                 <div class="text-[11px] text-gray-500 mb-2 flex flex-wrap gap-1">
+                                     <template x-for="(val, key) in item.attributes" :key="key">
+                                         <span>
+                                             <span x-text="key + ':'" class="font-medium"></span> 
+                                             <span x-text="val"></span>
+                                         </span>
+                                     </template>
+                                 </div>
+                             </template>
+
+                             <div class="flex items-center gap-3 mt-1">
+                                 <div class="flex items-center border border-gray-200 rounded-md bg-white">
+                                     <button @click="updateQuantity(index, -1)" class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">-</button>
+                                     <span x-text="item.quantity" class="px-2 py-1 text-[13px] font-bold text-slate-800 border-x border-gray-200"></span>
+                                     <button @click="updateQuantity(index, 1)" class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">+</button>
+                                 </div>
+                                 <button @click="removeItem(index)" class="text-[12px] text-gray-400 hover:text-red-600 underline font-medium">Remove</button>
                              </div>
-                             <button class="text-[12px] text-gray-400 hover:text-red-600 underline font-medium">Remove</button>
+                         </div>
+                         <div class="text-right">
+                             <span class="text-[15px] font-black text-slate-800">৳ <span x-text="formatPrice(item.price * item.quantity)"></span></span>
                          </div>
                      </div>
-                     <div class="text-right">
-                         <span class="text-[15px] font-black text-slate-800">৳ 850.00</span>
-                     </div>
                  </div>
-             </div>
+             </template>
          </div>
 
          <!-- Cart Footer (Sticky) -->
-         <div class="border-t border-gray-200 p-5 bg-gray-50 mt-auto">
+         <div class="border-t border-gray-200 p-5 bg-gray-50 mt-auto" x-show="cartCount > 0">
              <div class="flex items-center justify-between mb-4">
                  <span class="text-slate-600 font-medium">Subtotal</span>
-                 <span class="text-lg font-black text-slate-800">৳ 4,150.00</span>
+                 <span class="text-lg font-black text-slate-800">৳ <span x-text="formatPrice(cartTotal)"></span></span>
              </div>
              <p class="text-xs text-gray-500 mb-4">Taxes and shipping calculated at checkout</p>
              <a href="{{ route('checkout') }}" class="block w-full bg-red-600 text-white text-center font-bold uppercase tracking-wide text-sm px-4 py-3.5 rounded hover:bg-red-700 transition-colors">Checkout</a>

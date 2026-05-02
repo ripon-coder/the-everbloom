@@ -697,5 +697,5 @@
             </div>
         </form>
     </div>
-    @include('components.products-edit-js')
+    @include('admin.products.js._edit')
 @endsection

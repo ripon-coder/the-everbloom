@@ -25,16 +25,22 @@ Route::get('/product/{slug?}', [ProductController::class, 'show'])->name('produc
 
 // Page Routes
 Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
-Route::get('/account', [PageController::class, 'account'])->name('account');
+Route::get('/account', [PageController::class, 'account'])->name('account')->middleware('auth');
 Route::get('/track-order', [PageController::class, 'trackOrder'])->name('track-order');
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 
-// Authentication View Routes
-Route::get('/login', [PageController::class, 'login'])->name('login');
-Route::get('/register', [PageController::class, 'register'])->name('register');
-Route::get('/forgot-password', [PageController::class, 'forgotPassword'])->name('password.request');
-Route::get('/reset-password', [PageController::class, 'resetPassword'])->name('password.reset');
+// Authentication Routes
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [PageController::class, 'login'])->name('login');
+    Route::post('/login', [\App\Http\Controllers\Frontend\AuthController::class, 'postLogin'])->name('login.post');
+    Route::get('/register', [PageController::class, 'register'])->name('register');
+    Route::post('/register', [\App\Http\Controllers\Frontend\AuthController::class, 'postRegister'])->name('register.post');
+    Route::get('/forgot-password', [PageController::class, 'forgotPassword'])->name('password.request');
+    Route::get('/reset-password', [PageController::class, 'resetPassword'])->name('password.reset');
+});
+
+Route::post('/logout', [\App\Http\Controllers\Frontend\AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Admin Routes
 require __DIR__.'/admin.php';

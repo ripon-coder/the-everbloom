@@ -9,7 +9,7 @@
 
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
         @foreach($products as $product)
-            <x-product-card :product="$product" />
+            <x-ui.product-card :product="$product" />
         @endforeach
     </div>
 </section>
