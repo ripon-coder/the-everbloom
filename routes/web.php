@@ -23,6 +23,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/shop', [ProductController::class, 'index'])->name('shop');
 Route::get('/product/{slug?}', [ProductController::class, 'show'])->name('product.show');
 
+// Cart Sync Route
+Route::post('/cart/sync', [\App\Http\Controllers\Frontend\CartController::class, 'sync'])->name('cart.sync');
+
 // Page Routes
 Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
 Route::get('/account', [PageController::class, 'account'])->name('account')->middleware('auth');

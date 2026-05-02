@@ -1,3 +1,6 @@
+<script>
+    window.initialCartSession = @json(session('cart', []));
+</script>
 <header class="w-full bg-white font-sans border-b border-gray-200" 
     x-data="{ 
         isOpen: false, 
@@ -6,8 +9,13 @@
         cart: [],
         init() {
             this.loadCart();
+            
+            // Initial sync to ensure session matches local storage on first load
+            this.syncWithServer();
+
             window.addEventListener('cart-updated', () => {
                 this.loadCart();
+                this.syncWithServer();
                 this.isCartOpen = true; // Open drawer when added
             });
             window.addEventListener('cart-updated-internal', () => {
@@ -15,7 +23,18 @@
             });
         },
         loadCart() {
-            this.cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let localCart = localStorage.getItem('cart');
+            let sessionCart = window.initialCartSession || [];
+            
+            if (!localCart) {
+                // If local storage was cleared but we have session data, restore it
+                this.cart = sessionCart;
+                if (this.cart.length > 0) {
+                    localStorage.setItem('cart', JSON.stringify(this.cart));
+                }
+            } else {
+                this.cart = JSON.parse(localCart);
+            }
         },
         get cartCount() {
             return this.cart.reduce((total, item) => total + parseInt(item.quantity), 0);
@@ -38,7 +57,18 @@
         },
         saveCart() {
             localStorage.setItem('cart', JSON.stringify(this.cart));
+            this.syncWithServer();
             window.dispatchEvent(new CustomEvent('cart-updated-internal'));
+        },
+        syncWithServer() {
+            fetch('/cart/sync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ cart: this.cart })
+            }).catch(error => console.error('Error syncing cart:', error));
         },
         formatPrice(price) {
             return parseFloat(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
