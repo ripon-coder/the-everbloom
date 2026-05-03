@@ -65,6 +65,11 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(UserAddress::class);
     }
 
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
 
     public function registerMediaCollections(): void
     {

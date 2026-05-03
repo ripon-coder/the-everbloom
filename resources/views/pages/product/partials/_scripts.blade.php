@@ -3,6 +3,7 @@
         return {
             product: productData,
             quantity: 1,
+            isInWishlist: false,
             mainImage: '{{ $product->firstImage ? $product->firstImage->getImageUrl() : asset("images/image1.jpg") }}',
             get allImages() {
                 const productImages = [
@@ -33,6 +34,46 @@
                         });
                     }
                 }
+
+                this.checkWishlist();
+                window.addEventListener('wishlist-updated', () => {
+                    this.checkWishlist();
+                });
+            },
+
+            checkWishlist() {
+                fetch('{{ route('wishlist.ids') }}')
+                    .then(res => res.json())
+                    .then(data => {
+                        this.isInWishlist = (data.wishlist_ids || []).includes(this.product.id);
+                    })
+                    .catch(err => console.error('Wishlist check error:', err));
+            },
+
+            toggleWishlist() {
+                fetch('{{ route('wishlist.toggle') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        product_id: this.product.id
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        window.dispatchEvent(new CustomEvent('wishlist-updated'));
+                        window.dispatchEvent(new CustomEvent('notify', {
+                            detail: {
+                                message: data.message,
+                                type: data.in_wishlist ? 'success' : 'info'
+                            }
+                        }));
+                    }
+                })
+                .catch(err => console.error('Wishlist toggle error:', err));
             },
 
             get currentPrice() {

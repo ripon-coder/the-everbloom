@@ -22,6 +22,13 @@ class ProductImage extends Model implements HasMedia
         'is_default',
     ];
 
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return $this->getImageUrl();
+    }
+
     /**
      * The attributes that should be cast.
      *

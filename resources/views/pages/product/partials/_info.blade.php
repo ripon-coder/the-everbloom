@@ -30,25 +30,25 @@
                 $endDate = $flashSale->end_date->format('Y-m-d H:i:s');
             @endphp
             <div class="flex items-center gap-1.5" x-data="{ 
-                        endDate: new Date('{{ $endDate }}').getTime(),
-                        days: 0, hours: 0, minutes: 0, seconds: 0,
-                        init() {
-                            this.updateTimer();
-                            setInterval(() => this.updateTimer(), 1000);
-                        },
-                        updateTimer() {
-                            let now = new Date().getTime();
-                            let distance = this.endDate - now;
-                            if (distance > 0) {
-                                this.days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                                this.hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                                this.minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                                this.seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                            } else {
-                                this.days = 0; this.hours = 0; this.minutes = 0; this.seconds = 0;
+                            endDate: new Date('{{ $endDate }}').getTime(),
+                            days: 0, hours: 0, minutes: 0, seconds: 0,
+                            init() {
+                                this.updateTimer();
+                                setInterval(() => this.updateTimer(), 1000);
+                            },
+                            updateTimer() {
+                                let now = new Date().getTime();
+                                let distance = this.endDate - now;
+                                if (distance > 0) {
+                                    this.days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                                    this.hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                    this.minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                    this.seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                                } else {
+                                    this.days = 0; this.hours = 0; this.minutes = 0; this.seconds = 0;
+                                }
                             }
-                        }
-                    }">
+                        }">
                 <span class="text-xs font-bold text-red-500 mr-1 uppercase tracking-wider">Ends in:</span>
                 <template x-if="days > 0">
                     <span
@@ -125,23 +125,45 @@
     </div>
 
     <div class="flex flex-col gap-1 py-3 md:py-4 border-y border-gray-100 mb-3 md:mb-4">
-        <div class="flex items-baseline gap-3 md:gap-4">
-            <span class="text-2xl md:text-3xl font-bold text-red-600">৳ <span
-                    x-text="formatPrice(currentPrice)">{{ number_format($initialPrice, 2) }}</span></span>
-            <template x-if="currentOldPrice">
-                <span class="text-base md:text-lg text-red-600/70 line-through font-medium">৳ <span
-                        x-text="formatPrice(currentOldPrice)">{{ number_format($initialOldPrice, 2) }}</span></span>
-            </template>
-        </div>
-        <!-- Savings Info -->
-        <div class="h-4 md:h-5">
-            <div x-show="currentOldPrice > 0" x-cloak class="text-[10px] md:text-xs font-bold text-green-600">
-                You Save: ৳ <span
-                    x-text="formatPrice(currentOldPrice - currentPrice)">{{ $initialOldPrice > 0 ? number_format($initialOldPrice - $initialPrice, 2) : '0.00' }}</span>
-                (<span
-                    x-text="currentOldPrice > 0 ? Math.round(((currentOldPrice - currentPrice) / currentOldPrice) * 100) : 0">{{ $initialOldPrice > 0 ? round((($initialOldPrice - $initialPrice) / $initialOldPrice) * 100) : 0 }}</span>%
-                Off)
+        <div class="flex items-center justify-between gap-4">
+            <div class="flex flex-col gap-1">
+                <div class="flex items-baseline gap-3 md:gap-4">
+                    <span class="text-2xl md:text-3xl font-bold text-red-600">৳ <span
+                            x-text="formatPrice(currentPrice)">{{ number_format($initialPrice, 2) }}</span></span>
+                    <template x-if="currentOldPrice">
+                        <span class="text-base md:text-lg text-red-600/70 line-through font-medium">৳ <span
+                                x-text="formatPrice(currentOldPrice)">{{ number_format($initialOldPrice, 2) }}</span></span>
+                    </template>
+                </div>
+                <!-- Savings Info -->
+                <div class="h-4 md:h-5">
+                    <div x-show="currentOldPrice > 0" x-cloak class="text-[10px] md:text-xs font-bold text-green-600">
+                        You Save: ৳ <span
+                            x-text="formatPrice(currentOldPrice - currentPrice)">{{ $initialOldPrice > 0 ? number_format($initialOldPrice - $initialPrice, 2) : '0.00' }}</span>
+                        (<span
+                            x-text="currentOldPrice > 0 ? Math.round(((currentOldPrice - currentPrice) / currentOldPrice) * 100) : 0">{{ $initialOldPrice > 0 ? round((($initialOldPrice - $initialPrice) / $initialOldPrice) * 100) : 0 }}</span>%
+                        Off)
+                    </div>
+                </div>
             </div>
+
+            <!-- Wishlist Button -->
+            <button @click="toggleWishlist()"
+                class="group relative flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300"
+                :class="isInWishlist ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600'"
+                :title="isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'">
+                <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" 
+                    :class="isInWishlist ? 'fill-current' : 'fill-none'"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                
+                <!-- Tooltip -->
+                <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    <span x-text="isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'"></span>
+                </span>
+            </button>
         </div>
     </div>
 
@@ -187,10 +209,10 @@
                             :disabled="!isOptionAvailable('{{ $name }}', {{ $id }})"
                             class="px-3 py-1.5 rounded-md border text-xs md:text-sm font-medium transition-all disabled:opacity-10 disabled:cursor-not-allowed"
                             :class="{
-                                                    'border-red-600 bg-red-50 text-red-600': selectedAttributes['{{ $name }}'] === {{ $id }},
-                                                    'border-gray-200 text-gray-600 hover:border-gray-400': selectedAttributes['{{ $name }}'] !== {{ $id }},
-                                                    'opacity-30 grayscale': !isOptionCompatible('{{ $name }}', {{ $id }}) && selectedAttributes['{{ $name }}'] !== {{ $id }}
-                                                }">
+                                                            'border-red-600 bg-red-50 text-red-600': selectedAttributes['{{ $name }}'] === {{ $id }},
+                                                            'border-gray-200 text-gray-600 hover:border-gray-400': selectedAttributes['{{ $name }}'] !== {{ $id }},
+                                                            'opacity-30 grayscale': !isOptionCompatible('{{ $name }}', {{ $id }}) && selectedAttributes['{{ $name }}'] !== {{ $id }}
+                                                        }">
                             {{ $val }}
                         </button>
                     @endforeach

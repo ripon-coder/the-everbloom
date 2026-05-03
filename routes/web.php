@@ -26,6 +26,10 @@ Route::get('/product/{slug?}', [ProductController::class, 'show'])->name('produc
 // Cart Sync Route
 Route::post('/cart/sync', [\App\Http\Controllers\Frontend\CartController::class, 'sync'])->name('cart.sync');
 
+// Wishlist Routes
+Route::post('/wishlist/toggle', [\App\Http\Controllers\Frontend\WishlistController::class, 'toggle'])->name('wishlist.toggle');
+Route::get('/wishlist/ids', [\App\Http\Controllers\Frontend\WishlistController::class, 'getWishlist'])->name('wishlist.ids');
+
 // Page Routes
 Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
 Route::post('/checkout/calculate', [\App\Http\Controllers\Frontend\CheckoutController::class, 'calculate'])->name('checkout.calculate');

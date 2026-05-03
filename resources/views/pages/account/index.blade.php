@@ -21,6 +21,8 @@
                         @include('pages.account.partials.orders')
                     @elseif($section === 'addresses')
                         @include('pages.account.partials.addresses')
+                    @elseif($section === 'wishlist')
+                        @include('pages.account.partials.wishlist')
                     @elseif($section === 'details')
                         @include('pages.account.partials.details')
                     @endif

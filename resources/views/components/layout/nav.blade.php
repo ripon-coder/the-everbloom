@@ -7,6 +7,7 @@
         activeTab: 'categories', 
         isCartOpen: false,
         cart: [],
+        wishlistIds: [],
         init() {
             this.loadCart();
             
@@ -21,6 +22,23 @@
             window.addEventListener('cart-updated-internal', () => {
                 this.loadCart();
             });
+
+            window.addEventListener('wishlist-updated', () => {
+                this.loadWishlist();
+            });
+
+            this.loadWishlist();
+        },
+        loadWishlist() {
+            fetch('/wishlist/ids')
+                .then(res => res.json())
+                .then(data => {
+                    this.wishlistIds = data.wishlist_ids || [];
+                })
+                .catch(err => console.error('Wishlist load error:', err));
+        },
+        get wishlistCount() {
+            return this.wishlistIds.length;
         },
         loadCart() {
             let localCart = localStorage.getItem('cart');
@@ -166,10 +184,10 @@
 
             <!-- Actions -->
             <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
-                <!-- Pre Order -->
-                <a href="#" class="hidden lg:flex items-center gap-2 bg-[#E60000] text-white px-5 py-2.5 rounded-full text-[14px] font-bold hover:bg-red-700 transition-colors shadow-[0_4px_14px_0_rgba(230,0,0,0.25)]">
+                <!-- Wishlist -->
+                <a href="{{ route('account', 'wishlist') }}" class="hidden lg:flex items-center gap-2 bg-[#E60000] text-white px-5 py-2.5 rounded-md text-[14px] font-bold hover:bg-red-700 transition-colors">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
-                    Wishlist
+                    Wishlist (<span x-text="wishlistCount"></span>)
                 </a>
 
                 <div class="hidden lg:block w-px h-8 bg-gray-200 mx-2"></div>

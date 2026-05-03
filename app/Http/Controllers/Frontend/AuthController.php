@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -30,6 +31,10 @@ class AuthController extends Controller
                 ])->onlyInput('email');
             }
 
+
+            
+            $this->syncWishlist($request);
+            
             return redirect()->intended(route('home'))->with('success', 'You are logged in.');
         }
 
@@ -56,6 +61,8 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+
+        $this->syncWishlist($request);
 
         return redirect()->route('home')->with('success', 'Registration successful.');
     }
@@ -92,5 +99,31 @@ class AuthController extends Controller
         $user->save();
 
         return redirect()->back()->with('success', 'Account details updated successfully.');
+    }
+
+    protected function syncWishlist(Request $request)
+    {
+        $sessionId = session()->getId();
+        $userId = Auth::id();
+
+        if ($userId) {
+            $guestWishlist = Wishlist::where('session_id', $sessionId)->get();
+            
+            /** @var Wishlist $item */
+            foreach ($guestWishlist as $item) {
+                $exists = Wishlist::where('user_id', $userId)
+                    ->where('product_id', $item->product_id)
+                    ->exists();
+                
+                if (!$exists) {
+                    $item->update([
+                        'user_id' => $userId,
+                        'session_id' => null
+                    ]);
+                } else {
+                    $item->delete();
+                }
+            }
+        }
     }
 }

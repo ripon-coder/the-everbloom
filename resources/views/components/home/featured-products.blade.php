@@ -1,12 +1,7 @@
 @props(['products' => []])
 
 <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-8">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight relative inline-block uppercase">
-            Featured Products
-            <span class="absolute -bottom-2 left-0 w-10 h-1 bg-amber-500 rounded-full"></span>
-        </h2>
-    </div>
+
 
     <!-- Subcategories Tabs removed -->
 

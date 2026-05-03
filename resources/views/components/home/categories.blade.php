@@ -1,10 +1,4 @@
-<section class="max-w-[1400px] mx-auto px-4 py-6">
-    <div class="flex items-center justify-between mb-8">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight relative inline-block uppercase">
-            Featured Categories
-            <span class="absolute -bottom-2 left-0 w-10 h-1 bg-amber-500 rounded-full"></span>
-        </h2>
-    </div>
+<section class="max-w-[1400px] mx-auto px-4 pt-0 pb-6">
 
     <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
         @php
