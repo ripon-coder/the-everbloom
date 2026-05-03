@@ -139,7 +139,7 @@
                             @foreach($products ?? [] as $product)
                                 <option value="{{ $product->id }}" 
                                         {{ in_array($product->id, old('products', [])) ? 'selected' : '' }}>
-                                    {{ $product->name }} [{{$product->id}}] - ${{ number_format($product->price, 2) }}
+                                    {{ $product->name }} [{{$product->id}}] - {{ $currency_sign }}{{ number_format($product->price, 2) }}
                                 </option>
                             @endforeach
                         </select>

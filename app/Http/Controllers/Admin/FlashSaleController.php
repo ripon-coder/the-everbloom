@@ -52,6 +52,7 @@ class FlashSaleController extends Controller
      */
     public function show(FlashSale $flashSale)
     {
+        $flashSale->load('products.firstImage');
         $this->flashSaleService->show($flashSale);
         return view("admin.flash-sales.show", compact('flashSale'));
     }

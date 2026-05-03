@@ -7,14 +7,14 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Flash Sale Details</h1>
-        <div class="flex space-x-3">
-            <a href="{{ route('admin.flash-sales.edit', $flashSale) }}" class="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center">
+        <div class="flex space-x-4">
+            <a href="{{ route('admin.flash-sales.edit', $flashSale) }}" class="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center shadow-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                 </svg>
                 Edit
             </a>
-            <a href="{{ route('admin.flash-sales.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center">
+            <a href="{{ route('admin.flash-sales.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center shadow-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
@@ -131,6 +131,7 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sale Price</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -154,7 +155,7 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">${{ number_format($product->price, 2) }}</div>
+                                            <div class="text-sm text-gray-900">{{ $currency_sign }}{{ number_format($product->price, 2) }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($product->pivot->discount_price)
@@ -194,6 +195,11 @@
                                                     Inactive
                                                 </span>
                                             @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="{{ route('admin.products.show', $product->id) }}" class="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded-md transition duration-200">
+                                                View
+                                            </a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -248,15 +254,15 @@
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-600">Duration</span>
-                        <span class="text-lg font-semibold text-gray-900">
-                            {{ $flashSale->start_date->diffInDays($flashSale->end_date) }} days
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                            {{ round($flashSale->start_date->floatDiffInDays($flashSale->end_date)) }} days
                         </span>
                     </div>
                     
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-600">Days Left</span>
-                        <span class="text-lg font-semibold text-gray-900">
-                            {{ max(0, $flashSale->end_date->diffInDays(now())) }}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold {{ $flashSale->end_date->isPast() ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
+                            {{ round(max(0, $flashSale->end_date->floatDiffInDays(now()))) }} days
                         </span>
                     </div>
                     
@@ -288,8 +294,8 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Actions</h2>
                 
-                <div class="space-y-3">
-                    <a href="{{ route('admin.flash-sales.edit', $flashSale) }}" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center">
+                <div class="grid grid-cols-1 gap-4">
+                    <a href="{{ route('admin.flash-sales.edit', $flashSale) }}" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center shadow-sm">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
@@ -297,10 +303,10 @@
                     </a>
                     
                     @if($flashSale->trashed())
-                        <form action="{{ route('admin.flash-sales.restore', $flashSale->id) }}" method="POST" class="inline w-full">
+                        <form action="{{ route('admin.flash-sales.restore', $flashSale->id) }}" method="POST" class="w-full">
                             @csrf
                             <button type="submit" 
-                                    class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center"
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center shadow-sm"
                                     onclick="return confirm('Are you sure you want to restore this flash sale?')">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -309,11 +315,11 @@
                             </button>
                         </form>
                         
-                        <form action="{{ route('admin.flash-sales.force-delete', $flashSale->id) }}" method="POST" class="inline w-full">
+                        <form action="{{ route('admin.flash-sales.force-delete', $flashSale->id) }}" method="POST" class="w-full">
                             @csrf
                             @method('DELETE')
                             <button type="submit" 
-                                    class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center"
+                                    class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center shadow-sm"
                                     onclick="return confirm('Are you sure you want to permanently delete this flash sale? This action cannot be undone.')">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -322,11 +328,11 @@
                             </button>
                         </form>
                     @else
-                        <form action="{{ route('admin.flash-sales.destroy', $flashSale->id) }}" method="POST" class="inline w-full">
+                        <form action="{{ route('admin.flash-sales.destroy', $flashSale->id) }}" method="POST" class="w-full">
                             @csrf
                             @method('DELETE')
                             <button type="submit" 
-                                    class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center"
+                                    class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center shadow-sm"
                                     onclick="return confirm('Are you sure you want to delete this flash sale?')">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
