@@ -205,6 +205,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (productsDropdown) {
         // Check if current path is relevant to products dropdown
         const isRelevantPath = currentPath.includes("/admin/products") || 
+                              currentPath.includes("/admin/variants") || 
+                              currentPath.includes("/admin/customers") || 
                               currentPath.includes("/admin/brands") || 
                               currentPath.includes("/admin/attributes") || 
                               currentPath.includes("/admin/categories") ||
