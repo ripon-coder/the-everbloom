@@ -30,6 +30,9 @@ Route::post('/cart/sync', [\App\Http\Controllers\Frontend\CartController::class,
 Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
 Route::post('/checkout/calculate', [\App\Http\Controllers\Frontend\CheckoutController::class, 'calculate'])->name('checkout.calculate');
 Route::get('/account', [PageController::class, 'account'])->name('account')->middleware('auth');
+Route::post('/account/addresses', [\App\Http\Controllers\Frontend\UserAddressController::class, 'store'])->name('account.addresses.store')->middleware('auth');
+Route::put('/account/addresses/{id}', [\App\Http\Controllers\Frontend\UserAddressController::class, 'update'])->name('account.addresses.update')->middleware('auth');
+Route::delete('/account/addresses/{id}', [\App\Http\Controllers\Frontend\UserAddressController::class, 'destroy'])->name('account.addresses.destroy')->middleware('auth');
 Route::get('/track-order', [PageController::class, 'trackOrder'])->name('track-order');
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');

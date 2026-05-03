@@ -60,6 +60,11 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Order::class);
     }
 
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
 
     public function registerMediaCollections(): void
     {

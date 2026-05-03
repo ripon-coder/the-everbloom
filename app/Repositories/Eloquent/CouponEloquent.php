@@ -87,11 +87,7 @@ class CouponEloquent implements CouponRepository
             return 0.0;
         }
 
-        if ($coupon && $coupon->type === 'percentage') {
-            return ($coupon->value / 100) * $subTotal;
-        } elseif ($coupon->type === 'fixed_amount') {
-            return min($coupon->value, $subTotal);
-        }
+        return $coupon->calculateDiscount($subTotal);
     }
     public function usedCoupon(string $couponCode): void
     {

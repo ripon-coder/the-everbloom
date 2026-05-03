@@ -18,10 +18,10 @@ class CheckoutController extends Controller
     public function calculate(Request $request)
     {
         $cart = $request->input('cart', []);
-        $shippingMethod = $request->input('shipping_method', 'inside_dhaka');
+        $districtId = $request->input('district_id');
         $couponCode = $request->input('coupon_code');
 
-        $result = $this->checkoutCalculationRepository->calculate($cart, $shippingMethod, $couponCode);
+        $result = $this->checkoutCalculationRepository->calculate($cart, $districtId, $couponCode);
 
         return response()->json([
             'success' => true,

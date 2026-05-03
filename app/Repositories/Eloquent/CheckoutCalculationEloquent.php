@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\District;
 use App\Repositories\Contracts\CheckoutCalculationRepository;
 use App\Repositories\Contracts\CouponRepository;
 
@@ -16,7 +17,7 @@ class CheckoutCalculationEloquent implements CheckoutCalculationRepository
         $this->couponRepository = $couponRepository;
     }
 
-    public function calculate(array $cartItems, ?string $shippingMethod = null, ?string $couponCode = null): array
+    public function calculate(array $cartItems, ?string $districtId = null, ?string $couponCode = null): array
     {
         $validatedItems = [];
         $subtotal = 0;
@@ -132,10 +133,11 @@ class CheckoutCalculationEloquent implements CheckoutCalculationRepository
         }
 
         $shippingCost = 0;
-        if ($shippingMethod === 'inside_dhaka') {
-            $shippingCost = 60;
-        } elseif ($shippingMethod === 'outside_dhaka') {
-            $shippingCost = 120;
+        if ($districtId) {
+            $district = District::find($districtId);
+            if ($district) {
+                $shippingCost = (float) $district->delivery_charge;
+            }
         }
 
         // Coupon discount

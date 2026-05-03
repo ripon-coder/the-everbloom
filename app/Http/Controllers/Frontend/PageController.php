@@ -9,12 +9,18 @@ class PageController extends Controller
 {
     public function checkout(): View
     {
-        return view('pages.checkout.index');
+        $districts = \App\Models\District::orderBy('name')->get();
+        $userAddresses = auth()->check() ? auth()->user()->addresses()->get() : collect();
+        return view('pages.checkout.index', compact('districts', 'userAddresses'));
     }
 
     public function account(): View
     {
-        return view('pages.account.index');
+        $user = auth()->user();
+        $addresses = $user->addresses()->with('district')->get();
+        $districts = \App\Models\District::orderBy('name')->get();
+
+        return view('pages.account.index', compact('user', 'addresses', 'districts'));
     }
 
     public function login(): View

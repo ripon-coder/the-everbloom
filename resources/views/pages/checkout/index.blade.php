@@ -16,40 +16,29 @@
                 <!-- Left Column: Checkout Form -->
                 <div class="flex-1 space-y-6 md:space-y-8">
 
-                    <!-- Contact Information -->
-                    <div class="bg-white border border-gray-200 rounded-lg p-5 md:p-6 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-base md:text-lg font-bold text-gray-900 uppercase tracking-widest">Contact
-                                Information</h2>
-                            <a href="{{ route('login') }}" class="text-xs text-red-600 font-bold hover:underline">Log
-                                in</a>
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Email
-                                or Mobile Phone Number</label>
-                            <input type="text"
-                                class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5"
-                                placeholder="Enter your email or phone">
-                        </div>
-                        <div class="mt-3 flex items-center">
-                            <input type="checkbox" id="newsletter"
-                                class="rounded border-gray-300 text-red-600 focus:ring-red-500 h-4 w-4">
-                            <label for="newsletter" class="ml-2 text-sm text-gray-600">Email me with news and
-                                offers</label>
-                        </div>
-                    </div>
-
                     <!-- Shipping Address -->
                     <div class="bg-white border border-gray-200 rounded-lg p-5 md:p-6 shadow-sm">
                         <h2 class="text-base md:text-lg font-bold text-gray-900 uppercase tracking-widest mb-4">Shipping
                             Address</h2>
+
+                        @if(auth()->check() && $userAddresses->count() > 0)
+                            <div class="mb-4">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Saved Addresses</label>
+                                <select x-model="selectedAddressId" @change="applySavedAddress()" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5 cursor-pointer bg-gray-50">
+                                    <option value="">-- Or enter new address below --</option>
+                                    <template x-for="addr in userAddresses" :key="addr.id">
+                                        <option :value="addr.id" x-text="addr.name + ' (' + addr.type + ') - ' + addr.phone"></option>
+                                    </template>
+                                </select>
+                            </div>
+                        @endif
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="md:col-span-2">
                                 <label
                                     class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Full
                                     Name *</label>
-                                <input type="text"
+                                <input type="text" x-model="fullName"
                                     class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5"
                                     placeholder="Enter your full name" required>
                             </div>
@@ -58,7 +47,7 @@
                                 <label
                                     class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Phone
                                     Number *</label>
-                                <input type="tel"
+                                <input type="tel" x-model="phone"
                                     class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5"
                                     placeholder="e.g. 017xxxxxxxx" required>
                             </div>
@@ -67,72 +56,31 @@
                                 <label
                                     class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Full
                                     Address *</label>
-                                <textarea rows="2"
+                                <textarea rows="2" x-model="address"
                                     class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5"
                                     placeholder="House/Road/Area" required></textarea>
                             </div>
 
-                            <div>
+                            <div class="md:col-span-2">
                                 <label
                                     class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">City
                                     / District *</label>
-                                <select
+                                <select x-model="districtId"
                                     class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5 cursor-pointer">
                                     <option value="">Select City</option>
-                                    <option value="dhaka">Dhaka</option>
-                                    <option value="chattogram">Chattogram</option>
-                                    <option value="sylhet">Sylhet</option>
-                                    <!-- Add more cities as needed -->
-                                </select>
-                            </div>
-
-                            <div>
-                                <label
-                                    class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Area
-                                    / Zone</label>
-                                <select
-                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5 cursor-pointer">
-                                    <option value="">Select Area</option>
-                                    <!-- Populate dynamically based on city -->
+                                    @foreach($districts as $district)
+                                        <option value="{{ $district->id }}">{{ $district->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Shipping Method -->
-                    <div class="bg-white border border-gray-200 rounded-lg p-5 md:p-6 shadow-sm">
-                        <h2 class="text-base md:text-lg font-bold text-gray-900 uppercase tracking-widest mb-4">Shipping
-                            Method</h2>
-
-                        <div class="space-y-3">
-                            <label
-                                class="flex items-center justify-between p-4 border rounded-md cursor-pointer transition-colors"
-                                :class="shippingMethod === 'inside_dhaka' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'">
-                                <div class="flex items-center gap-3">
-                                    <input type="radio" name="shipping" value="inside_dhaka" x-model="shippingMethod"
-                                        class="w-4 h-4 text-red-600 focus:ring-red-500 border-gray-300">
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-bold text-gray-900">Inside Dhaka Delivery</span>
-                                        <span class="text-[11px] text-gray-500">2-3 Business Days</span>
-                                    </div>
-                                </div>
-                                <span class="text-sm font-bold text-red-600">৳ 60</span>
-                            </label>
-
-                            <label
-                                class="flex items-center justify-between p-4 border rounded-md cursor-pointer transition-colors"
-                                :class="shippingMethod === 'outside_dhaka' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'">
-                                <div class="flex items-center gap-3">
-                                    <input type="radio" name="shipping" value="outside_dhaka" x-model="shippingMethod"
-                                        class="w-4 h-4 text-red-600 focus:ring-red-500 border-gray-300">
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-bold text-gray-900">Outside Dhaka Delivery</span>
-                                        <span class="text-[11px] text-gray-500">3-5 Business Days</span>
-                                    </div>
-                                </div>
-                                <span class="text-sm font-bold text-red-600">৳ 120</span>
-                            </label>
-                        </div>
+                        @if(auth()->check() && $userAddresses->count() == 0)
+                            <div class="mt-5 p-3 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-100 flex items-start gap-2.5">
+                                <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span>You don't have any saved addresses. To speed up future checkouts, you can save your addresses in your <a href="{{ route('account') }}" class="font-bold underline hover:text-blue-900">Account Dashboard</a>.</span>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Payment Method -->
@@ -188,7 +136,18 @@
 
                 <!-- Right Column: Order Summary -->
                 <div class="w-full lg:w-[400px] xl:w-[450px] flex-shrink-0">
-                    <div class="bg-white border border-gray-200 rounded-lg p-5 md:p-6 shadow-sm sticky top-24">
+                    <div class="bg-white border border-gray-200 rounded-lg p-5 md:p-6 shadow-sm sticky top-24 relative">
+                        <!-- Loading Overlay -->
+                        <div x-show="isCalculating" 
+                             class="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-lg"
+                             x-transition.opacity>
+                            <svg class="animate-spin h-8 w-8 text-red-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-xs font-bold text-gray-700 uppercase tracking-widest drop-shadow-sm">Calculating...</span>
+                        </div>
+
                         <h2 class="text-lg font-bold text-gray-900 uppercase tracking-widest mb-6">Order Summary</h2>
 
                         <!-- Cart Items -->
@@ -248,10 +207,10 @@
 
                         <!-- Coupon Code -->
                         <div class="mb-6 border-y border-gray-100 py-4">
-                            <div class="flex gap-2">
+                            <div class="flex gap-2" x-show="!couponApplied">
                                 <input type="text" x-model="couponCode"
                                     class="flex-1 border-gray-300 rounded text-sm focus:ring-red-500 focus:border-red-500"
-                                    placeholder="Discount code">
+                                    placeholder="Coupon code">
                                 <button type="button" @click="applyCoupon()" :disabled="isCalculating || !couponCode"
                                     class="bg-gray-900 text-white px-4 py-2 rounded text-sm font-bold uppercase tracking-wider hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Apply</button>
                             </div>
@@ -262,7 +221,7 @@
                                 <span class="text-[10px] font-bold uppercase tracking-wider" x-text="couponError"></span>
                             </div>
                             <div x-show="couponApplied" class="flex items-center justify-between mt-2 bg-green-50 border border-green-200 rounded px-3 py-2">
-                                <span class="text-xs text-green-700 font-bold" x-text="'Coupon \"' + couponCode + '\" applied!'"></span>
+                                <span class="text-xs text-green-700 font-bold" x-text="`Coupon '${couponCode}' applied!`"></span>
                                 <button type="button" @click="removeCoupon()" class="text-xs text-red-500 font-bold hover:underline">Remove</button>
                             </div>
                         </div>
@@ -295,7 +254,7 @@
 
                         <!-- Submit Button -->
                         <button type="button"
-                            :disabled="isCalculating || calculationErrors.length > 0 || calculatedItems.length === 0 || hasUnavailableItems"
+                            :disabled="isCalculating || calculatedItems.length === 0 || allItemsUnavailable || isBillingIncomplete"
                             class="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-md text-sm uppercase tracking-widest transition-colors shadow-md flex items-center justify-center gap-2">
                             <span x-text="isCalculating ? 'Calculating...' : 'Complete Order'"></span>
                             <svg x-show="!isCalculating" class="w-5 h-5" fill="none" stroke="currentColor"
@@ -342,10 +301,15 @@
     <script>
         function checkoutPage() {
             return {
-                shippingMethod: 'inside_dhaka',
+                userAddresses: @json($userAddresses ?? []),
+                selectedAddressId: '',
+                fullName: '',
+                phone: '',
+                address: '',
+                districtId: '',
                 paymentMethod: 'cod',
                 subtotal: 0,
-                shippingCost: 60,
+                shippingCost: 0,
                 discount: 0,
                 total: 0,
                 calculatedItems: [],
@@ -359,12 +323,46 @@
                     return this.calculatedItems.some(item => !item.available);
                 },
 
+                get allItemsUnavailable() {
+                    return this.calculatedItems.length > 0 && this.calculatedItems.every(item => !item.available);
+                },
+
+                get isBillingIncomplete() {
+                    return !this.fullName || !this.phone || !this.address || !this.districtId;
+                },
+
                 init() {
+                    if (this.userAddresses.length > 0) {
+                        const defaultAddress = this.userAddresses.find(a => a.is_default == 1) || this.userAddresses[0];
+                        if (defaultAddress) {
+                            this.selectedAddressId = defaultAddress.id;
+                            this.applySavedAddress();
+                        }
+                    }
+
                     this.calculateCart();
 
-                    this.$watch('shippingMethod', () => {
+                    this.$watch('districtId', () => {
                         this.calculateCart();
                     });
+                },
+
+                applySavedAddress() {
+                    if (this.selectedAddressId) {
+                        const addr = this.userAddresses.find(a => a.id == this.selectedAddressId);
+                        if (addr) {
+                            this.fullName = addr.name;
+                            this.phone = addr.phone;
+                            this.address = addr.address;
+                            this.districtId = addr.district_id;
+                        }
+                    } else {
+                        // User chose to enter a new address
+                        this.fullName = '';
+                        this.phone = '';
+                        this.address = '';
+                        this.districtId = '';
+                    }
                 },
 
                 calculateCart() {
@@ -379,7 +377,7 @@
                         },
                         body: JSON.stringify({
                             cart: cart,
-                            shipping_method: this.shippingMethod,
+                            district_id: this.districtId,
                             coupon_code: this.couponApplied ? this.couponCode : ''
                         })
                     })
