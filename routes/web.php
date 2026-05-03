@@ -29,7 +29,10 @@ Route::post('/cart/sync', [\App\Http\Controllers\Frontend\CartController::class,
 // Page Routes
 Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
 Route::post('/checkout/calculate', [\App\Http\Controllers\Frontend\CheckoutController::class, 'calculate'])->name('checkout.calculate');
-Route::get('/account', [PageController::class, 'account'])->name('account')->middleware('auth');
+Route::post('/checkout/place-order', [\App\Http\Controllers\Frontend\CheckoutController::class, 'placeOrder'])->name('checkout.place-order')->middleware('auth');
+Route::get('/account/{section?}', [PageController::class, 'account'])->name('account')->middleware('auth');
+Route::post('/account/details', [\App\Http\Controllers\Frontend\AuthController::class, 'updateDetails'])->name('account.details.update')->middleware('auth');
+Route::get('/account/order/{order_number}', [PageController::class, 'orderShow'])->name('account.order.show')->middleware('auth');
 Route::post('/account/addresses', [\App\Http\Controllers\Frontend\UserAddressController::class, 'store'])->name('account.addresses.store')->middleware('auth');
 Route::put('/account/addresses/{id}', [\App\Http\Controllers\Frontend\UserAddressController::class, 'update'])->name('account.addresses.update')->middleware('auth');
 Route::delete('/account/addresses/{id}', [\App\Http\Controllers\Frontend\UserAddressController::class, 'destroy'])->name('account.addresses.destroy')->middleware('auth');

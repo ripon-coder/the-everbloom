@@ -14,13 +14,24 @@ class PageController extends Controller
         return view('pages.checkout.index', compact('districts', 'userAddresses'));
     }
 
-    public function account(): View
+    public function account(string $section = 'dashboard'): View
     {
         $user = auth()->user();
         $addresses = $user->addresses()->with('district')->get();
         $districts = \App\Models\District::orderBy('name')->get();
+        $orders = $user->orders()->latest()->get();
 
-        return view('pages.account.index', compact('user', 'addresses', 'districts'));
+        return view('pages.account.index', compact('user', 'addresses', 'districts', 'section', 'orders'));
+    }
+
+    public function orderShow(string $orderNumber): View
+    {
+        $user = auth()->user();
+        $order = $user->orders()->where('order_number', $orderNumber)
+            ->with(['orderProducts.product', 'orderAddress.district'])
+            ->firstOrFail();
+
+        return view('pages.account.order-show', compact('user', 'order'));
     }
 
     public function login(): View

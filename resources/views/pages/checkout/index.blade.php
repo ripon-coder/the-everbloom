@@ -253,11 +253,15 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <button type="button"
-                            :disabled="isCalculating || calculatedItems.length === 0 || allItemsUnavailable || isBillingIncomplete"
+                        <button type="button" @click="placeOrder()"
+                            :disabled="isCalculating || isPlacingOrder || calculatedItems.length === 0 || allItemsUnavailable || isBillingIncomplete"
                             class="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-md text-sm uppercase tracking-widest transition-colors shadow-md flex items-center justify-center gap-2">
-                            <span x-text="isCalculating ? 'Calculating...' : 'Complete Order'"></span>
-                            <svg x-show="!isCalculating" class="w-5 h-5" fill="none" stroke="currentColor"
+                            <svg x-show="isPlacingOrder" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span x-text="isPlacingOrder ? 'Processing...' : (isCalculating ? 'Calculating...' : 'Complete Order')"></span>
+                            <svg x-show="!isCalculating && !isPlacingOrder" class="w-5 h-5" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -315,6 +319,7 @@
                 calculatedItems: [],
                 calculationErrors: [],
                 isCalculating: false,
+                isPlacingOrder: false,
                 couponCode: '',
                 couponApplied: false,
                 couponError: null,
@@ -431,6 +436,75 @@
                     this.couponError = null;
                     this.discount = 0;
                     this.calculateCart();
+                },
+
+                placeOrder() {
+                    if (this.isBillingIncomplete || this.allItemsUnavailable || this.isPlacingOrder) return;
+
+                    this.isPlacingOrder = true;
+                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+                    fetch('{{ route("checkout.place-order") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            full_name: this.fullName,
+                            phone: this.phone,
+                            address: this.address,
+                            district_id: this.districtId,
+                            payment_method: this.paymentMethod,
+                            cart: cart,
+                            coupon_code: this.couponApplied ? this.couponCode : ''
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Clear the cart from localStorage
+                            localStorage.removeItem('cart');
+
+                            // Sync empty cart with session
+                            fetch('{{ route("cart.sync") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({ cart: [] })
+                            });
+
+                            // Update cart count in header without opening drawer
+                            window.dispatchEvent(new CustomEvent('cart-updated-internal'));
+
+                            window.dispatchEvent(new CustomEvent('notify', {
+                                detail: { message: 'Order placed successfully! Order #' + data.order_number, type: 'success' }
+                            }));
+
+                            // Redirect to account page after short delay
+                            setTimeout(() => {
+                                window.location.href = '{{ route("account") }}';
+                            }, 1500);
+                        } else {
+                            // Show validation errors in the errors panel
+                            if (data.validation_errors && data.validation_errors.length > 0) {
+                                this.calculationErrors = data.validation_errors;
+                            }
+                            window.dispatchEvent(new CustomEvent('notify', {
+                                detail: { message: data.message || 'Failed to place order.', type: 'error' }
+                            }));
+                            this.isPlacingOrder = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Order error:', error);
+                        window.dispatchEvent(new CustomEvent('notify', {
+                            detail: { message: 'Something went wrong. Please try again.', type: 'error' }
+                        }));
+                        this.isPlacingOrder = false;
+                    });
                 }
             }
         }

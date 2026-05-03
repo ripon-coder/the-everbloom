@@ -21,6 +21,7 @@ class OrderProduct extends Model
         'product_variant_id',
         'is_free_shipping',
         'quantity',
+        'weight',
         'buying_price',
         'unit_price',
         'total_price',

@@ -1,5 +1,5 @@
-<!-- Addresses Tab -->
-<div x-show="activeTab === 'addresses'" x-cloak class="space-y-6" 
+<!-- Addresses Section -->
+<div class="space-y-6" 
      x-data="{ 
         addresses: {{ json_encode($addresses->load('district')) }},
         isAddressModalOpen: false, 

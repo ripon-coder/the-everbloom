@@ -168,8 +168,8 @@
             <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
                 <!-- Pre Order -->
                 <a href="#" class="hidden lg:flex items-center gap-2 bg-[#E60000] text-white px-5 py-2.5 rounded-full text-[14px] font-bold hover:bg-red-700 transition-colors shadow-[0_4px_14px_0_rgba(230,0,0,0.25)]">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                    Pre Order
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+                    Wishlist
                 </a>
 
                 <div class="hidden lg:block w-px h-8 bg-gray-200 mx-2"></div>
@@ -203,8 +203,8 @@
                                 <!-- Triangle pointer -->
                                 <div class="absolute -top-2 right-5 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45 z-0"></div>
                                 <div class="relative bg-white z-10 border border-gray-100 rounded-lg overflow-hidden">
-                                    <a href="{{ route('account') }}" class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors">My Profile</a>
-                                    <a href="#" class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors">My Orders</a>
+                                    <a href="{{ route('account') }}" class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors">My Accounts</a>
+                                    <a href="{{ route('account', 'orders') }}" class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors">My Orders</a>
                                     <form method="POST" action="{{ route('logout') }}" class="w-full m-0">
                                         @csrf
                                         <button type="submit" class="block w-full text-left px-4 py-2.5 text-[13px] font-semibold text-red-600 hover:bg-red-50 border-t border-gray-100 transition-colors">Sign Out</button>

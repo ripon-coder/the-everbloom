@@ -30,25 +30,25 @@
                 $endDate = $flashSale->end_date->format('Y-m-d H:i:s');
             @endphp
             <div class="flex items-center gap-1.5" x-data="{ 
-                    endDate: new Date('{{ $endDate }}').getTime(),
-                    days: 0, hours: 0, minutes: 0, seconds: 0,
-                    init() {
-                        this.updateTimer();
-                        setInterval(() => this.updateTimer(), 1000);
-                    },
-                    updateTimer() {
-                        let now = new Date().getTime();
-                        let distance = this.endDate - now;
-                        if (distance > 0) {
-                            this.days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                            this.hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                            this.minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                            this.seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                        } else {
-                            this.days = 0; this.hours = 0; this.minutes = 0; this.seconds = 0;
+                        endDate: new Date('{{ $endDate }}').getTime(),
+                        days: 0, hours: 0, minutes: 0, seconds: 0,
+                        init() {
+                            this.updateTimer();
+                            setInterval(() => this.updateTimer(), 1000);
+                        },
+                        updateTimer() {
+                            let now = new Date().getTime();
+                            let distance = this.endDate - now;
+                            if (distance > 0) {
+                                this.days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                                this.hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                this.minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                this.seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                            } else {
+                                this.days = 0; this.hours = 0; this.minutes = 0; this.seconds = 0;
+                            }
                         }
-                    }
-                }">
+                    }">
                 <span class="text-xs font-bold text-red-500 mr-1 uppercase tracking-wider">Ends in:</span>
                 <template x-if="days > 0">
                     <span
@@ -187,10 +187,10 @@
                             :disabled="!isOptionAvailable('{{ $name }}', {{ $id }})"
                             class="px-3 py-1.5 rounded-md border text-xs md:text-sm font-medium transition-all disabled:opacity-10 disabled:cursor-not-allowed"
                             :class="{
-                                            'border-red-600 bg-red-50 text-red-600': selectedAttributes['{{ $name }}'] === {{ $id }},
-                                            'border-gray-200 text-gray-600 hover:border-gray-400': selectedAttributes['{{ $name }}'] !== {{ $id }},
-                                            'opacity-30 grayscale': !isOptionCompatible('{{ $name }}', {{ $id }}) && selectedAttributes['{{ $name }}'] !== {{ $id }}
-                                        }">
+                                                    'border-red-600 bg-red-50 text-red-600': selectedAttributes['{{ $name }}'] === {{ $id }},
+                                                    'border-gray-200 text-gray-600 hover:border-gray-400': selectedAttributes['{{ $name }}'] !== {{ $id }},
+                                                    'opacity-30 grayscale': !isOptionCompatible('{{ $name }}', {{ $id }}) && selectedAttributes['{{ $name }}'] !== {{ $id }}
+                                                }">
                             {{ $val }}
                         </button>
                     @endforeach

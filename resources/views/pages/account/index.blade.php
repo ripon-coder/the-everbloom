@@ -1,5 +1,5 @@
 <x-layouts.app title="My Account | Everbloom">
-    <div class="bg-gray-50 py-6 md:py-10" x-data="{ activeTab: 'dashboard' }">
+    <div class="bg-gray-50 py-6 md:py-10">
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
             
             <!-- Breadcrumbs -->
@@ -15,15 +15,15 @@
 
                 <!-- Main Content -->
                 <div class="flex-1">
-                    
-                    @include('pages.account.partials.dashboard')
-
-                    @include('pages.account.partials.orders')
-
-                    @include('pages.account.partials.addresses')
-
-                    @include('pages.account.partials.details')
-
+                    @if($section === 'dashboard')
+                        @include('pages.account.partials.dashboard')
+                    @elseif($section === 'orders')
+                        @include('pages.account.partials.orders')
+                    @elseif($section === 'addresses')
+                        @include('pages.account.partials.addresses')
+                    @elseif($section === 'details')
+                        @include('pages.account.partials.details')
+                    @endif
                 </div>
             </div>
         </div>

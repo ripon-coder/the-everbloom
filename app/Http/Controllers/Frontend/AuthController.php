@@ -69,4 +69,28 @@ class AuthController extends Controller
         
         return redirect()->route('home')->with('success', 'You have been logged out.');
     }
+
+    public function updateDetails(Request $request)
+    {
+        $user = Auth::user();
+        
+        $request->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'current_password' => ['nullable', 'required_with:new_password', 'current_password'],
+            'new_password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user->name = $request->first_name . ' ' . $request->last_name;
+        $user->email = $request->email;
+
+        if ($request->filled('new_password')) {
+            $user->password = Hash::make($request->new_password);
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', 'Account details updated successfully.');
+    }
 }

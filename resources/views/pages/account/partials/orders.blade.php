@@ -1,5 +1,5 @@
-<!-- Orders Tab -->
-<div x-show="activeTab === 'orders'" x-cloak class="space-y-6">
+<!-- Orders Section -->
+<div class="space-y-6">
     <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <div class="p-5 md:p-6 border-b border-gray-100 flex items-center justify-between">
             <h2 class="text-lg font-bold text-gray-900 uppercase tracking-widest">Order History</h2>
@@ -17,33 +17,27 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 font-bold text-gray-900">#EVB-89012</td>
-                        <td class="px-6 py-4">Oct 24, 2023</td>
-                        <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase tracking-wider">Completed</span></td>
-                        <td class="px-6 py-4 font-bold text-gray-900">৳ 4,310.00</td>
-                        <td class="px-6 py-4 text-right">
-                            <button class="text-red-600 hover:text-red-800 font-bold text-xs uppercase tracking-wider">View</button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 font-bold text-gray-900">#EVB-88743</td>
-                        <td class="px-6 py-4">Sep 12, 2023</td>
-                        <td class="px-6 py-4"><span class="px-2 py-1 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full uppercase tracking-wider">Processing</span></td>
-                        <td class="px-6 py-4 font-bold text-gray-900">৳ 1,250.00</td>
-                        <td class="px-6 py-4 text-right">
-                            <button class="text-red-600 hover:text-red-800 font-bold text-xs uppercase tracking-wider">View</button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 font-bold text-gray-900">#EVB-85210</td>
-                        <td class="px-6 py-4">Jul 05, 2023</td>
-                        <td class="px-6 py-4"><span class="px-2 py-1 bg-gray-200 text-gray-700 text-[10px] font-bold rounded-full uppercase tracking-wider">Cancelled</span></td>
-                        <td class="px-6 py-4 font-bold text-gray-900">৳ 3,800.00</td>
-                        <td class="px-6 py-4 text-right">
-                            <button class="text-red-600 hover:text-red-800 font-bold text-xs uppercase tracking-wider">View</button>
-                        </td>
-                    </tr>
+                    @forelse($orders as $order)
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-gray-900">#{{ $order->order_number }}</td>
+                            <td class="px-6 py-4">{{ $order->created_at->format('M d, Y') }}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 {{ $order->getStatusColor() }} text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                    {{ $order->getStatusText() }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 font-bold text-gray-900">৳ {{ number_format($order->total_amount, 2) }}</td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="{{ route('account.order.show', $order->order_number) }}" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase tracking-wider">View</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500 italic">
+                                No orders found yet.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
