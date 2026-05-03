@@ -34,7 +34,7 @@
                     }
                 }
             },
-            
+
             get currentPrice() {
                 const variant = this.getActiveVariant();
                 if (variant) {
@@ -53,11 +53,11 @@
 
             getActiveVariant() {
                 if (!this.product.variants || Object.keys(this.selectedAttributes).length === 0) return null;
-                
+
                 return this.product.variants.find(variant => {
                     const attrs = variant.variant_attributes || variant.variantAttributes;
                     if (!attrs) return false;
-                    
+
                     return attrs.every(attr => {
                         const attrName = attr.attribute.name;
                         return this.selectedAttributes[attrName] == attr.attribute_value_id;
@@ -79,11 +79,11 @@
 
             isOptionCompatible(attrName, optionId) {
                 if (!this.product.variants) return true;
-                
+
                 return this.product.variants.some(variant => {
                     const attrs = variant.variant_attributes || variant.variantAttributes;
                     if (!attrs) return false;
-                    
+
                     return Object.entries(this.selectedAttributes).every(([name, id]) => {
                         if (name === attrName) return true; // Ignore self
                         return attrs.some(a => a.attribute.name === name && a.attribute_value_id == id);
@@ -96,7 +96,7 @@
 
                 Object.keys(this.selectedAttributes).forEach(key => {
                     if (key === name) return;
-                    
+
                     const currentVal = this.selectedAttributes[key];
                     if (!this.isOptionCompatible(key, currentVal)) {
                         delete this.selectedAttributes[key];
@@ -111,7 +111,7 @@
                     }
                 }
             },
-            
+
             addToCart(event) {
                 if (this.product.variants && this.product.variants.length > 0) {
                     const variant = this.getActiveVariant();
@@ -122,8 +122,15 @@
                 }
 
                 let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+                let currentTotalQty = cart.reduce((total, item) => total + item.quantity, 0);
+                if (currentTotalQty + this.quantity > 30) {
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { message: 'You cannot add more than 30 products to your cart.', type: 'error' } }));
+                    return;
+                }
+
                 const variant = this.getActiveVariant();
-                
+
                 let attributeLabels = {};
                 if (variant) {
                     const attrs = variant.variant_attributes || variant.variantAttributes;
@@ -136,40 +143,60 @@
                         });
                     }
                 }
-                
+
+                const unitBasePrice = variant ? parseFloat(variant.sell_price || 0) : parseFloat(this.product.price || 0);
+                const unitFinalPrice = parseFloat(this.currentPrice || 0);
+
                 const cartItem = {
+                    variant_id: variant ? variant.id : null,
                     product_id: this.product.id,
                     name: this.product.name,
-                    price: this.currentPrice,
+                    attributes: attributeLabels,
                     image: this.mainImage,
+                    unit_base_price: unitBasePrice,
+                    unit_final_price: unitFinalPrice,
                     quantity: this.quantity,
-                    variant_id: variant ? variant.id : null,
-                    attributes: attributeLabels
+                    line_total: unitFinalPrice * this.quantity,
+                    meta: {
+                        is_flash_sale: false,
+                        discount_applied: unitFinalPrice < unitBasePrice,
+                        free_delivery: this.product.is_free_delivery ?? false,
+                    }
                 };
 
-                const existingItemIndex = cart.findIndex(item => 
-                    item.product_id === cartItem.product_id && 
+                const existingItemIndex = cart.findIndex(item =>
+                    item.product_id === cartItem.product_id &&
                     item.variant_id === cartItem.variant_id
                 );
 
                 if (existingItemIndex > -1) {
                     cart[existingItemIndex].quantity += cartItem.quantity;
+                    cart[existingItemIndex].line_total = cart[existingItemIndex].quantity * cart[existingItemIndex].unit_final_price;
                 } else {
                     cart.push(cartItem);
                 }
 
                 localStorage.setItem('cart', JSON.stringify(cart));
-                
+
+                fetch('/cart/sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ cart: cart })
+                }).catch(err => console.error('Cart sync error:', err));
+
                 window.dispatchEvent(new CustomEvent('cart-updated'));
-                
+
                 // Optional UI feedback
                 const btn = event.currentTarget;
-                if(btn) {
+                if (btn) {
                     const originalText = btn.innerHTML;
                     btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Added!`;
                     btn.classList.add('bg-green-600', 'hover:bg-green-700');
                     btn.classList.remove('bg-red-600', 'hover:bg-red-700');
-                    
+
                     setTimeout(() => {
                         btn.innerHTML = originalText;
                         btn.classList.remove('bg-green-600', 'hover:bg-green-700');

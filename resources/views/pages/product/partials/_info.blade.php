@@ -9,6 +9,13 @@
             </div>
             <span class="text-gray-400 font-medium">(128 reviews)</span>
             <span class="inline-flex items-center gap-1 text-emerald-600 font-semibold"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block"></span>In Stock</span>
+            @if($product->is_free_delivery)
+                <span class="text-gray-300">|</span>
+                <span class="inline-flex items-center gap-1.5 text-blue-600 font-bold uppercase tracking-wider text-[10px] md:text-xs">
+                    <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                    Free Delivery
+                </span>
+            @endif
         </div>
         <div class="mt-2 flex flex-wrap gap-3 text-[10px] md:text-xs">
             <div class="flex items-center gap-1.5">
@@ -37,6 +44,18 @@
             </div>
         </div>
     </div>
+    
+    @if($product->is_free_delivery)
+        <div class="mb-4 bg-blue-50 border border-blue-100 rounded-md p-3 flex items-center gap-3">
+            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-blue-600 flex-shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+                <p class="text-[13px] font-extrabold text-blue-900 leading-none mb-1">Free Express Shipping</p>
+                <p class="text-[11px] text-blue-700 font-medium">Eligible for free delivery to your doorstep.</p>
+            </div>
+        </div>
+    @endif
 
     <div class="text-sm text-gray-600 mb-4 leading-relaxed line-clamp-2 md:line-clamp-3">
         {!! $product->description ?? 'No description available.' !!}

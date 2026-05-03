@@ -37,15 +37,23 @@
             }
         },
         get cartCount() {
-            return this.cart.reduce((total, item) => total + parseInt(item.quantity), 0);
+            return this.cart.reduce((total, item) => total + parseInt(item.quantity || 0), 0);
         },
         get cartTotal() {
-            return this.cart.reduce((total, item) => total + (parseFloat(item.price) * parseInt(item.quantity)), 0);
+            return this.cart.reduce((total, item) => total + (parseFloat(item.unit_final_price || 0) * parseInt(item.quantity || 0)), 0);
         },
         updateQuantity(index, delta) {
-            let newQuantity = parseInt(this.cart[index].quantity) + delta;
+            let currentTotalQty = this.cart.reduce((total, item) => total + parseInt(item.quantity || 0), 0);
+            let newQuantity = parseInt(this.cart[index].quantity || 0) + delta;
+
+            if (delta > 0 && currentTotalQty + delta > 30) {
+                window.dispatchEvent(new CustomEvent('notify', { detail: { message: 'You cannot add more than 30 products to your cart.', type: 'error' } }));
+                return;
+            }
+
             if (newQuantity > 0) {
                 this.cart[index].quantity = newQuantity;
+                this.cart[index].line_total = newQuantity * parseFloat(this.cart[index].unit_final_price || 0);
                 this.saveCart();
             } else if (newQuantity === 0) {
                 this.removeItem(index);
@@ -651,9 +659,9 @@
                                  <button @click="removeItem(index)" class="text-[12px] text-gray-400 hover:text-red-600 underline font-medium">Remove</button>
                              </div>
                          </div>
-                         <div class="text-right">
-                             <span class="text-[15px] font-black text-slate-800">৳ <span x-text="formatPrice(item.price * item.quantity)"></span></span>
-                         </div>
+                        <div class="text-right">
+                            <span class="text-[15px] font-black text-slate-800">৳ <span x-text="formatPrice((item.unit_final_price || 0) * (item.quantity || 0))"></span></span>
+                        </div>
                      </div>
                  </div>
              </template>
