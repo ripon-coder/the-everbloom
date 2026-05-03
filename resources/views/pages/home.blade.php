@@ -4,7 +4,9 @@
         
         <div class="py-8 space-y-12">
             <x-home.featured-products :products="$featuredProducts" />
-            <x-home.campaign :products="$campaignProducts" />
+            @if($flashSale)
+                <x-home.campaign :flashSale="$flashSale" :products="$campaignProducts" />
+            @endif
             <x-home.best-selling :products="$bestSellingProducts" />
             <x-home.new-arrivals :products="$newArrivals" />
         </div>

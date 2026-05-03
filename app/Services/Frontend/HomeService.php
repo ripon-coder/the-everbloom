@@ -14,11 +14,14 @@ class HomeService
      */
     public function getHomeData(): array
     {
+        $flashSale = $this->getActiveFlashSale();
+        
         return [
             'featuredProducts' => $this->transformProducts($this->getFeaturedProducts()),
             'bestSellingProducts' => $this->transformProducts($this->getBestSellingProducts()),
             'newArrivals' => $this->transformProducts($this->getNewArrivals()),
-            'campaignProducts' => $this->transformProducts($this->getCampaignProducts()),
+            'flashSale' => $flashSale,
+            'campaignProducts' => $flashSale ? $this->transformFlashSaleProducts($flashSale->products) : collect(),
         ];
     }
 
@@ -69,18 +72,18 @@ class HomeService
     }
 
     /**
-     * Get products for campaigns.
+     * Get the active flash sale.
      *
-     * @param int $limit
-     * @return Collection
+     * @return \App\Models\FlashSale|null
      */
-    public function getCampaignProducts(int $limit = 3): Collection
+    public function getActiveFlashSale()
     {
-        return Product::active()
-            ->inRandomOrder()
-            ->with(['firstImage', 'category'])
-            ->take($limit)
-            ->get();
+        return \App\Models\FlashSale::active()
+            ->with(['products' => function ($query) {
+                $query->active()->with(['firstImage', 'category']);
+            }])
+            ->latest()
+            ->first();
     }
     /**
      * Transform a collection of products into plain data objects for the view.
@@ -96,6 +99,38 @@ class HomeService
                 'name' => $product->name,
                 'price' => $product->price,
                 'old_price' => $product->old_price ?? null,
+                'badge' => $product->badge ?? null,
+                'img' => $product->firstImage ? $product->firstImage->getImageUrl() : asset('images/image1.jpg'),
+                'slug' => $product->slug,
+                'category_name' => $product->category ? $product->category->name : null,
+                'short_description' => $product->short_description,
+            ];
+        });
+    }
+
+    /**
+     * Transform a collection of flash sale products into plain data objects for the view.
+     *
+     * @param Collection $products
+     * @return Collection
+     */
+    protected function transformFlashSaleProducts(\Illuminate\Support\Collection $products): \Illuminate\Support\Collection
+    {
+        return $products->map(function ($product) {
+            $discountPrice = $product->pivot->discount_price;
+            $discountPercentage = $product->pivot->discount_percentage;
+            
+            $price = $discountPrice 
+                ? ($product->price - $discountPrice) 
+                : ($product->price - ($product->price * ($discountPercentage / 100)));
+            $oldPrice = $product->price;
+            
+            return (object) [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => max(0, $price), // Ensure price doesn't go below 0
+                'old_price' => $oldPrice,
+                'discount_percentage' => $discountPercentage ?? round((($oldPrice - max(0, $price)) / $oldPrice) * 100),
                 'badge' => $product->badge ?? null,
                 'img' => $product->firstImage ? $product->firstImage->getImageUrl() : asset('images/image1.jpg'),
                 'slug' => $product->slug,

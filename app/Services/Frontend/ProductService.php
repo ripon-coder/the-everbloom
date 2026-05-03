@@ -66,7 +66,10 @@ class ProductService
                 'variants.variantAttributes.attributeValue', 
                 'variants.images',
                 'firstImage', 
-                'category'
+                'category',
+                'flashSales' => function ($query) {
+                    $query->active();
+                }
             ])
             ->firstOrFail();
     }

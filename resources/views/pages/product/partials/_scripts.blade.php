@@ -37,18 +37,37 @@
 
             get currentPrice() {
                 const variant = this.getActiveVariant();
-                if (variant) {
-                    return (variant.discount_price > 0) ? variant.discount_price : variant.sell_price;
+                let basePrice = variant ? parseFloat(variant.sell_price) : parseFloat(this.product.price);
+                let priceToUse = variant ? (parseFloat(variant.discount_price) > 0 ? parseFloat(variant.discount_price) : parseFloat(variant.sell_price)) : parseFloat(this.product.price);
+                
+                if (this.product.flash_sales && this.product.flash_sales.length > 0) {
+                    const pivot = this.product.flash_sales[0].pivot;
+                    if (pivot) {
+                        let discountAmount = parseFloat(pivot.discount_price || 0);
+                        let discountPercentage = parseFloat(pivot.discount_percentage || 0);
+                        
+                        if (discountAmount > 0) {
+                            return Math.max(0, basePrice - discountAmount);
+                        } else if (discountPercentage > 0) {
+                            return Math.max(0, basePrice - (basePrice * (discountPercentage / 100)));
+                        }
+                    }
                 }
-                return this.product.price;
+                return priceToUse;
             },
 
             get currentOldPrice() {
                 const variant = this.getActiveVariant();
-                if (variant) {
-                    return (variant.discount_price > 0) ? variant.sell_price : null;
+                let basePrice = variant ? parseFloat(variant.sell_price) : parseFloat(this.product.price);
+                
+                if (this.product.flash_sales && this.product.flash_sales.length > 0) {
+                    return basePrice;
                 }
-                return this.product.old_price;
+
+                if (variant) {
+                    return (parseFloat(variant.discount_price) > 0) ? parseFloat(variant.sell_price) : null;
+                }
+                return parseFloat(this.product.old_price) > 0 ? parseFloat(this.product.old_price) : null;
             },
 
             getActiveVariant() {
@@ -147,6 +166,8 @@
                 const unitBasePrice = variant ? parseFloat(variant.sell_price || 0) : parseFloat(this.product.price || 0);
                 const unitFinalPrice = parseFloat(this.currentPrice || 0);
 
+                const isFlashSale = this.product.flash_sales && this.product.flash_sales.length > 0;
+
                 const cartItem = {
                     variant_id: variant ? variant.id : null,
                     product_id: this.product.id,
@@ -158,7 +179,7 @@
                     quantity: this.quantity,
                     line_total: unitFinalPrice * this.quantity,
                     meta: {
-                        is_flash_sale: false,
+                        is_flash_sale: isFlashSale,
                         discount_applied: unitFinalPrice < unitBasePrice,
                         free_delivery: this.product.is_free_delivery ?? false,
                     }

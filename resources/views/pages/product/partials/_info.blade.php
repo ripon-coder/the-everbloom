@@ -1,4 +1,52 @@
+@php
+    $flashSale = $product->flashSales->first();
+@endphp
+
 <div class="flex flex-col">
+    @if($flashSale)
+        <div class="mb-4 bg-red-50 border border-red-200 rounded-md p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <span class="text-sm font-black text-red-600 uppercase tracking-wide">{{ $flashSale->name }}</span>
+            </div>
+            
+            @php
+                $endDate = $flashSale->end_date->format('Y-m-d H:i:s');
+            @endphp
+            <div class="flex items-center gap-1.5" x-data="{ 
+                endDate: new Date('{{ $endDate }}').getTime(),
+                days: 0, hours: 0, minutes: 0, seconds: 0,
+                init() {
+                    this.updateTimer();
+                    setInterval(() => this.updateTimer(), 1000);
+                },
+                updateTimer() {
+                    let now = new Date().getTime();
+                    let distance = this.endDate - now;
+                    if (distance > 0) {
+                        this.days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        this.hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        this.minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        this.seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    } else {
+                        this.days = 0; this.hours = 0; this.minutes = 0; this.seconds = 0;
+                    }
+                }
+            }">
+                <span class="text-xs font-bold text-red-500 mr-1 uppercase tracking-wider">Ends in:</span>
+                <template x-if="days > 0">
+                    <span class="w-6 h-6 flex items-center justify-center bg-red-600 text-white rounded text-xs font-bold shadow-sm" x-text="days"></span>
+                </template>
+                <template x-if="days > 0"><span class="text-red-600 font-bold">:</span></template>
+                <span class="w-6 h-6 flex items-center justify-center bg-red-600 text-white rounded text-xs font-bold shadow-sm" x-text="hours.toString().padStart(2, '0')"></span>
+                <span class="text-red-600 font-bold">:</span>
+                <span class="w-6 h-6 flex items-center justify-center bg-red-600 text-white rounded text-xs font-bold shadow-sm" x-text="minutes.toString().padStart(2, '0')"></span>
+                <span class="text-red-600 font-bold">:</span>
+                <span class="w-6 h-6 flex items-center justify-center bg-red-600 text-white rounded text-xs font-bold shadow-sm" x-text="seconds.toString().padStart(2, '0')"></span>
+            </div>
+        </div>
+    @endif
+
     <div class="mb-2 md:mb-4">
         <h1 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-1.5 md:mb-2 leading-tight">{{ $product->name }}</h1>
         <div class="flex items-center gap-3 text-xs md:text-sm">

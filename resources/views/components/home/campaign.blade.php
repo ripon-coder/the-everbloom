@@ -1,86 +1,89 @@
-@props(['products' => [], 'title' => 'Flash Campaign'])
+@props(['products' => [], 'title' => 'Flash Campaign', 'flashSale' => null])
 
-<section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="bg-slate-900 rounded-2xl p-6 md:p-10 shadow-xl overflow-hidden relative">
-        <!-- Background Decorative Elements -->
-        <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-black/10 rounded-full blur-3xl"></div>
+@php
+    $endDate = $flashSale ? $flashSale->end_date->format('Y-m-d H:i:s') : now()->addDays(1)->format('Y-m-d H:i:s');
+@endphp
 
-        <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-            <div class="text-center md:text-left">
-                <div class="inline-block px-4 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold uppercase tracking-widest mb-4 border border-white/30">
-                    Limited Time Offer
+<section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+    <div class="bg-white rounded-md border border-gray-200">
+        <!-- Header area -->
+        <div class="flex flex-col sm:flex-row items-center justify-between p-4 sm:p-5 border-b border-gray-100 gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+                <div class="flex items-center gap-2">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-800 uppercase tracking-tight">
+                        {{ $flashSale ? $flashSale->name : $title }}
+                    </h2>
                 </div>
-                <h2 class="text-3xl md:text-5xl font-black text-white mb-2 leading-tight">
-                    {{ $title }}
-                </h2>
-                <p class="text-red-100 text-lg font-medium max-w-md">
-                    Don't miss out on our exclusive campaign deals. Grab yours before they're gone!
-                </p>
                 
-                <!-- Countdown Timer (Dynamic) -->
-                <div class="flex items-center justify-center md:justify-start gap-4 mt-8" 
+                <!-- Clean Countdown Timer -->
+                <div class="flex items-center gap-2" 
                      x-data="{ 
-                        hours: 12, 
-                        minutes: 45, 
-                        seconds: 30,
+                        endDate: new Date('{{ $endDate }}').getTime(),
+                        days: 0, hours: 0, minutes: 0, seconds: 0,
                         init() {
-                            setInterval(() => {
-                                if (this.seconds > 0) {
-                                    this.seconds--;
-                                } else {
-                                    if (this.minutes > 0) {
-                                        this.minutes--;
-                                        this.seconds = 59;
-                                    } else {
-                                        if (this.hours > 0) {
-                                            this.hours--;
-                                            this.minutes = 59;
-                                            this.seconds = 59;
-                                        }
-                                    }
-                                }
-                            }, 1000);
+                            this.updateTimer();
+                            setInterval(() => this.updateTimer(), 1000);
+                        },
+                        updateTimer() {
+                            let now = new Date().getTime();
+                            let distance = this.endDate - now;
+                            if (distance > 0) {
+                                this.days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                                this.hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                this.minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                this.seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                            } else {
+                                this.days = 0; this.hours = 0; this.minutes = 0; this.seconds = 0;
+                            }
                         }
                      }">
-                    <div class="flex flex-col items-center">
-                        <span class="w-12 h-12 flex items-center justify-center bg-white rounded-lg text-slate-900 font-bold text-xl shadow-lg" x-text="hours.toString().padStart(2, '0')"></span>
-                        <span class="text-white text-[10px] mt-1 font-bold uppercase">Hrs</span>
-                    </div>
-                    <div class="text-white font-bold text-xl">:</div>
-                    <div class="flex flex-col items-center">
-                        <span class="w-12 h-12 flex items-center justify-center bg-white rounded-lg text-slate-900 font-bold text-xl shadow-lg" x-text="minutes.toString().padStart(2, '0')"></span>
-                        <span class="text-white text-[10px] mt-1 font-bold uppercase">Min</span>
-                    </div>
-                    <div class="text-white font-bold text-xl">:</div>
-                    <div class="flex flex-col items-center">
-                        <span class="w-12 h-12 flex items-center justify-center bg-white rounded-lg text-slate-900 font-bold text-xl shadow-lg" x-text="seconds.toString().padStart(2, '0')"></span>
-                        <span class="text-white text-[10px] mt-1 font-bold uppercase">Sec</span>
+                     <span class="text-sm font-medium text-gray-500">Ending in</span>
+                    
+                    <div class="flex items-center gap-1">
+                        <template x-if="days > 0">
+                            <div class="flex items-center gap-1">
+                                <span class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-md text-sm font-bold" x-text="days.toString().padStart(2, '0')"></span>
+                                <span class="text-red-300 font-bold">:</span>
+                            </div>
+                        </template>
+                        <span class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-md text-sm font-bold" x-text="hours.toString().padStart(2, '0')"></span>
+                        <span class="text-red-300 font-bold">:</span>
+                        <span class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-md text-sm font-bold" x-text="minutes.toString().padStart(2, '0')"></span>
+                        <span class="text-red-300 font-bold">:</span>
+                        <span class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-md text-sm font-bold" x-text="seconds.toString().padStart(2, '0')"></span>
                     </div>
                 </div>
             </div>
 
-            <div class="w-full md:w-3/5">
-                <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    @foreach($products as $product)
-                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-3 hover:bg-white/20 transition-all group">
-                            <div class="relative pt-[100%] rounded-lg overflow-hidden mb-3">
-                                <img src="{{ $product->img }}" alt="{{ $product->name }}" class="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                <div class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">
-                                    SAVE 20%
-                                </div>
-                            </div>
-                            <h3 class="text-white font-bold text-sm line-clamp-1 group-hover:text-yellow-300 transition-colors">
-                                <a href="{{ route('product.show', $product->slug) }}">{{ $product->name }}</a>
-                            </h3>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-white font-black text-base">৳ {{ $product->price }}</span>
-                                <span class="text-red-200 text-xs line-through opacity-70">৳ {{ $product->price * 1.2 }}</span>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+            @if(count($products) > 6)
+                <a href="{{ route('shop') }}" class="hidden sm:inline-flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-red-600 transition-colors">
+                    View All 
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </a>
+            @endif
+        </div>
+
+        <!-- Products Grid -->
+        <div class="p-4 sm:p-5">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                @foreach($products->take(6) as $product)
+                    @php
+                        if (isset($product->discount_percentage) && $product->discount_percentage > 0) {
+                            $product->badge = "SAVE " . $product->discount_percentage . "%";
+                        }
+                    @endphp
+                    <x-ui.product-card :product="$product" />
+                @endforeach
             </div>
+            
+            @if(count($products) > 6)
+                <div class="mt-6 text-center sm:hidden">
+                    <a href="{{ route('shop') }}" class="inline-block px-6 py-2 bg-gray-50 border border-gray-200 text-slate-700 text-sm font-bold rounded-md hover:bg-gray-100 transition-colors">
+                        View All Products
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
 </section>
