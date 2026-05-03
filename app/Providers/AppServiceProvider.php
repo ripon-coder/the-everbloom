@@ -32,6 +32,8 @@ use App\Repositories\Eloquent\AttributeValueEloquent;
 use App\Repositories\Contracts\AttributeValueRepository;
 use App\Repositories\Contracts\WishlistRepository;
 use App\Repositories\Eloquent\WishlistEloquent;
+use App\Repositories\Contracts\CheckoutCalculationRepository;
+use App\Repositories\Eloquent\CheckoutCalculationEloquent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -52,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
         app()->bind(SaveAddressRepository::class, SaveAddressEloquent::class);
         app()->bind(UserRepository::class, UserEloquent::class);
         app()->bind(WishlistRepository::class, WishlistEloquent::class);
+        app()->bind(CheckoutCalculationRepository::class, CheckoutCalculationEloquent::class);
     }
 
     /**

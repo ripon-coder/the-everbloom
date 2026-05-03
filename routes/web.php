@@ -28,6 +28,7 @@ Route::post('/cart/sync', [\App\Http\Controllers\Frontend\CartController::class,
 
 // Page Routes
 Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
+Route::post('/checkout/calculate', [\App\Http\Controllers\Frontend\CheckoutController::class, 'calculate'])->name('checkout.calculate');
 Route::get('/account', [PageController::class, 'account'])->name('account')->middleware('auth');
 Route::get('/track-order', [PageController::class, 'trackOrder'])->name('track-order');
 Route::get('/about', [PageController::class, 'about'])->name('about');
