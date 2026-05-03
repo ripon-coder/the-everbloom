@@ -13,7 +13,7 @@ interface OrderRepository
     /**
      * Get all orders with pagination and filtering.
      */
-    public function getAll(int $perPage = 15): LengthAwarePaginator;
+    public function getAll(array $filters = [], int $perPage = 15): LengthAwarePaginator;
 
     /**
      * Get an order by ID with relationships.

@@ -55,8 +55,10 @@ class AuthController extends Controller
     /**
      * Show the admin dashboard.
      */
-    public function dashboard()
+    public function dashboard(\App\Services\OrderService $orderService)
     {
-        return view('admin.dashboard');
+        $stats = $orderService->getOrderStatistics();
+        $recentOrders = $orderService->getRecentOrders(5);
+        return view('admin.dashboard', compact('stats', 'recentOrders'));
     }
 }

@@ -41,9 +41,9 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-blue-100 text-sm font-medium">Total Revenue</p>
-                        <p class="text-3xl font-bold metric-value">$45,231</p>
+                        <p class="text-3xl font-bold metric-value">{{ $currency_sign }}{{ number_format($stats['total_revenue'], 2) }}</p>
                         <p class="text-blue-100 text-xs mt-1">
-                            <span class="text-green-300">↑ 12.5%</span> from last month
+                            <span class="text-green-300">↑ Live</span> data
                         </p>
                     </div>
                     <div class="bg-blue-400 bg-opacity-30 rounded-lg p-3">
@@ -59,64 +59,58 @@
                 </div>
             </div>
 
-            <!-- Active Users Card -->
+            <!-- Pending Orders Card -->
             <div
-                class="stat-card bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                class="stat-card bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-green-100 text-sm font-medium">Active Users</p>
-                        <p class="text-3xl font-bold metric-value">2,350</p>
-                        <p class="text-green-100 text-xs mt-1">
-                            <span class="text-green-300">↑ 8.2%</span> from last week
+                        <p class="text-yellow-100 text-sm font-medium">Pending Orders</p>
+                        <p class="text-3xl font-bold metric-value">{{ $stats['pending_orders'] }}</p>
+                        <p class="text-yellow-100 text-xs mt-1">
+                            Awaiting processing
                         </p>
                     </div>
-                    <div class="bg-green-400 bg-opacity-30 rounded-lg p-3">
-                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z">
-                            </path>
+                    <div class="bg-yellow-400 bg-opacity-30 rounded-lg p-3">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
                 </div>
             </div>
 
-            <!-- Conversion Rate Card -->
+            <!-- Processing Orders Card -->
             <div
                 class="stat-card bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-purple-100 text-sm font-medium">Conversion Rate</p>
-                        <p class="text-3xl font-bold metric-value">3.24%</p>
+                        <p class="text-purple-100 text-sm font-medium">Processing</p>
+                        <p class="text-3xl font-bold metric-value">{{ $stats['processing_orders'] }}</p>
                         <p class="text-purple-100 text-xs mt-1">
-                            <span class="text-red-300">↓ 2.1%</span> from last month
+                            In progress
                         </p>
                     </div>
                     <div class="bg-purple-400 bg-opacity-30 rounded-lg p-3">
-                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd"></path>
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                         </svg>
                     </div>
                 </div>
             </div>
 
-            <!-- Avg. Session Time Card -->
+            <!-- Completed Orders Card -->
             <div
-                class="stat-card bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                class="stat-card bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-orange-100 text-sm font-medium">Avg. Session</p>
-                        <p class="text-3xl font-bold metric-value">5m 42s</p>
-                        <p class="text-orange-100 text-xs mt-1">
-                            <span class="text-green-300">↑ 15.3%</span> from last week
+                        <p class="text-green-100 text-sm font-medium">Delivered</p>
+                        <p class="text-3xl font-bold metric-value">{{ $stats['completed_orders'] }}</p>
+                        <p class="text-green-100 text-xs mt-1">
+                            Successfully completed
                         </p>
                     </div>
-                    <div class="bg-orange-400 bg-opacity-30 rounded-lg p-3">
-                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                clip-rule="evenodd"></path>
+                    <div class="bg-green-400 bg-opacity-30 rounded-lg p-3">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </div>
                 </div>
@@ -200,42 +194,36 @@
                 </div>
             </div>
 
-            <!-- Recent Activity -->
+            <!-- Recent Orders -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Activity</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Orders</h3>
+                    <a href="{{ route('admin.orders.index') }}" class="text-sm text-blue-600 hover:underline">View All</a>
+                </div>
                 <div class="space-y-4">
-                    <div class="flex items-start space-x-3">
-                        <div class="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">New user registration</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">John Doe registered 2 minutes ago</p>
-                            <p class="text-xs text-gray-400 dark:text-gray-500">2 min ago</p>
+                    @forelse($recentOrders as $order)
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-full text-blue-600 dark:text-blue-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $order->order_number }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $order->user->name ?? 'Guest' }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $currency_sign }}{{ number_format($order->total_amount, 2) }}</p>
+                                <span class="inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full {{ $order->getStatusColor() }}">
+                                    {{ $order->getStatusText() }}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex items-start space-x-3">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Payment received</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">$1,250.00 from Premium Plan</p>
-                            <p class="text-xs text-gray-400 dark:text-gray-500">15 min ago</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start space-x-3">
-                        <div class="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Server alert</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">High CPU usage detected</p>
-                            <p class="text-xs text-gray-400 dark:text-gray-500">1 hour ago</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start space-x-3">
-                        <div class="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">New order</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Order #1234 placed</p>
-                            <p class="text-xs text-gray-400 dark:text-gray-500">2 hours ago</p>
-                        </div>
-                    </div>
+                    @empty
+                        <p class="text-center text-gray-500 py-4">No recent orders</p>
+                    @endforelse
                 </div>
             </div>
 

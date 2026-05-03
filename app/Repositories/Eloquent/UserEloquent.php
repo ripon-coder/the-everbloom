@@ -79,4 +79,20 @@ class UserEloquent implements UserRepository
             'message' => 'Password updated successfully.',
         ], 200);
     }
+
+    public function getAllCustomers(array $filters = [], int $perPage = 15)
+    {
+        $query = User::query();
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('phone', 'LIKE', "%{$search}%");
+            });
+        }
+
+        return $query->latest()->paginate($perPage);
+    }
 }

@@ -25,23 +25,9 @@ class OrderController extends Controller
      */
     public function index(Request $request): View
     {
-        $orders = $this->orderService->getAllOrders();
+        $filters = $request->only(['status', 'payment_status', 'search']);
+        $orders = $this->orderService->getAllOrders($filters);
         return view('admin.orders.index', compact('orders'));
-    }
-
-    /**
-     * Show the form for creating a new order.
-     */
-    public function create(): View
-    {
-        
-    }
-
-    /**
-     * Store a newly created order in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
     }
 
     /**
@@ -51,22 +37,6 @@ class OrderController extends Controller
     {
         $order = $this->orderService->getOrderById($id);
         return view('admin.orders.show', compact('order'));
-    }
-
-    /**
-     * Show the form for editing the specified order.
-     */
-    public function edit(int $id): View
-    {
-
-    }
-
-    /**
-     * Update the specified order in storage.
-     */
-    public function update(Request $request, int $id): RedirectResponse
-    {
-
     }
 
     /**

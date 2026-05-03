@@ -13,8 +13,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">AnalyticsPro</h2>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">v2.0.1</p>
+                    <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">EverBloom</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Admin Panel</p>
                 </div>
             </div>
         </div>
@@ -93,6 +93,27 @@
 
 
 
+                <!-- Orders -->
+                <li>
+                    <a href="{{ route('admin.orders.index') }}"
+                        class="flex items-center p-3 {{ request()->is('admin/orders*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} rounded-lg group transition-all duration-200">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-3 font-medium">Orders</span>
+                        @php
+                            $pendingOrdersCount = \App\Models\Order::where('status', 'pending')->count();
+                        @endphp
+                        @if($pendingOrdersCount > 0)
+                            <span class="ml-auto bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full">
+                                {{ $pendingOrdersCount }}
+                            </span>
+                        @endif
+                    </a>
+                </li>
+
                 <!-- Marketing Dropdown -->
                 <li>
                     <button type="button" onclick="toggleDropdown('dropdown-marketing')"
@@ -142,7 +163,7 @@
                 <!-- Products Dropdown -->
                 <li>
                     <button type="button" onclick="toggleDropdown('products-dropdown')"
-                        class="flex items-center w-full p-3 {{ request()->is('admin/products*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} rounded-lg group transition-all duration-200"
+                        class="flex items-center w-full p-3 {{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} rounded-lg group transition-all duration-200"
                         id="products-button">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
@@ -150,15 +171,15 @@
                                 clip-rule="evenodd"></path>
                         </svg>
                         <span class="ml-3 font-medium flex-1 text-left">Products</span>
-                        <svg class="w-4 h-4 transition-transform duration-300 {{ request()->is('admin/products*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? 'rotate-180' : '' }}"
+                        <svg class="w-4 h-4 transition-transform duration-300 {{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? 'rotate-180' : '' }}"
                             fill="none" viewBox="0 0 10 6" id="arrow-products-dropdown">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                 stroke-width="2" d="m1 1 4 4 4-4" />
                         </svg>
                     </button>
                     <ul id="products-dropdown"
-                        class="{{ request()->is('admin/products*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? '' : 'hidden' }} py-2 space-y-1 ml-4"
-                        data-initial-state="{{ request()->is('admin/products*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? 'expanded' : 'collapsed' }}">
+                        class="{{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? '' : 'hidden' }} py-2 space-y-1 ml-4"
+                        data-initial-state="{{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? 'expanded' : 'collapsed' }}">
                         <li>
                             <a href="{{ route('admin.products.index') }}"
                                 class="flex items-center p-2 {{ request()->is('admin/products*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300' }} rounded-lg transition-all duration-200">
@@ -194,6 +215,17 @@
                         </li>
 
                         <li>
+                            <a href="{{ route('admin.variants.index') }}"
+                                class="flex items-center p-2 {{ request()->is('admin/variants*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300' }} rounded-lg transition-all duration-200">
+                                <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v7h-2l-1 2H8l-1-2H5V5z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                Variants
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ route('admin.attributes.index') }}"
                                 class="flex items-center p-2 {{ request()->is('admin/attributes*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300' }} rounded-lg transition-all duration-200">
                                 <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
@@ -217,8 +249,8 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#"
-                                class="flex items-center p-2 text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-all duration-200">
+                            <a href="{{ route('admin.customers.index') }}"
+                                class="flex items-center p-2 {{ request()->is('admin/customers*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300' }} rounded-lg transition-all duration-200">
                                 <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path
                                         d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z">

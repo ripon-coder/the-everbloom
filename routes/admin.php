@@ -28,8 +28,14 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::resource("products", ProductController::class);
         Route::post('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
         Route::delete('products/{product}/force-delete', [ProductController::class, 'forceDelete'])->name('products.force-delete');
-        
-        
+
+        // Variants Management
+        Route::get('variants', [\App\Http\Controllers\Admin\ProductVariantController::class, 'index'])->name('variants.index');
+        Route::get('variants/{variant}/edit', [\App\Http\Controllers\Admin\ProductVariantController::class, 'edit'])->name('variants.edit');
+        Route::put('variants/{variant}', [\App\Http\Controllers\Admin\ProductVariantController::class, 'update'])->name('variants.update');
+        Route::post('variants/{variant}/status', [\App\Http\Controllers\Admin\ProductVariantController::class, 'updateStatus'])->name('variants.update-status');
+        Route::post('variants/{variant}/stock', [\App\Http\Controllers\Admin\ProductVariantController::class, 'updateStock'])->name('variants.update-stock');
+        Route::delete('variants/{variant}', [\App\Http\Controllers\Admin\ProductVariantController::class, 'destroy'])->name('variants.destroy');
         // Other Resources
         Route::resource("brands", BrandController::class);
         Route::resource("categories", CategoryController::class);
@@ -48,9 +54,13 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::delete('flash-sales/{flashSale}/force-delete', [FlashSaleController::class, 'forceDelete'])->name('flash-sales.force-delete');
 
         // Order Management
-        Route::resource("orders", OrderController::class);
+        Route::resource("orders", OrderController::class)->except(['create', 'store', 'edit', 'update']);
         Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::post('orders/{order}/update-payment-status', [OrderController::class, 'updatePaymentStatus'])->name('orders.update-payment-status');
+
+        // Customer Management
+        Route::resource("customers", \App\Http\Controllers\Admin\CustomerController::class)->only(['index', 'show', 'destroy']);
+        Route::post('customers/{customer}/update-status', [\App\Http\Controllers\Admin\CustomerController::class, 'updateStatus'])->name('customers.update-status');
 
         // District Management
         Route::resource("district",DistrictController::class);

@@ -8,6 +8,7 @@ interface UserRepository{
     public function GetUser($user_id);
     public function UserUpdate($user_id,$data);
     public function ChangePassword($user_id,$data);
+    public function getAllCustomers(array $filters = [], int $perPage = 15);
 
 
 }

@@ -28,16 +28,16 @@
                 </span>
             </div>
             <div class="flex space-x-2">
-                <a href="{{ route('admin.orders.edit', $order->id) }}"
-                    class="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                <button onclick="window.print()"
+                    class="bg-gray-800 hover:bg-gray-900 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
                         </path>
                     </svg>
-                    Download Invoice
-                </a>
+                    Print Order
+                </button>
             </div>
         </div>
 
@@ -124,11 +124,16 @@
                                 @endif
                                 <div class="flex-1">
                                     <div class="flex justify-between">
-                                        <a href="{{ route('admin.products.show', $orderProduct->product->id) }}">
-                                            <h3 class="font-medium text-blue-500 hover:text-blue-700">
-                                                {{ $orderProduct->product->name ?? 'Product Deleted' }}
-                                            </h3>
-                                        </a>
+                                        <div class="flex flex-col">
+                                            <a href="{{ route('admin.products.show', $orderProduct->product->id) }}">
+                                                <h3 class="font-medium text-blue-500 hover:text-blue-700">
+                                                    {{ $orderProduct->product->name ?? 'Product Deleted' }}
+                                                </h3>
+                                            </a>
+                                            @if($orderProduct->productVariant && $orderProduct->productVariant->sku)
+                                                <span class="text-xs text-gray-500">SKU: {{ $orderProduct->productVariant->sku }}</span>
+                                            @endif
+                                        </div>
                                         <div class="text-right">
                                             <p class="font-medium text-gray-900">
                                                 {{ $currency_sign }}{{ number_format($orderProduct->total_price, 2) }}</p>

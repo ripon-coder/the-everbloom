@@ -25,14 +25,35 @@ class OrderEloquent implements OrderRepository
     /**
      * Get all orders with pagination and filtering.
      */
-    public function getAll(int $perPage = 15): LengthAwarePaginator
+    public function getAll(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return Order::with([
+        $query = Order::with([
             'user',
             'orderAddress.district',
             'orderProducts.product.firstImage',
             'orderProducts.productVariant'
-        ])->orderByDesc("id")->paginate($perPage);
+        ]);
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['payment_status'])) {
+            $query->where('payment_status', $filters['payment_status']);
+        }
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function($q) use ($search) {
+                $q->where('order_number', 'LIKE', "%{$search}%")
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('name', 'LIKE', "%{$search}%")
+                               ->orWhere('email', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
+
+        return $query->orderByDesc("id")->paginate($perPage);
     }
 
 
@@ -70,7 +91,7 @@ class OrderEloquent implements OrderRepository
                 'orderProducts:id,order_id,product_id,product_variant_id,quantity,unit_price,total_price,is_free_shipping,buying_price',
                 'orderProducts.product:id,name,slug',
                 'orderProducts.product.firstImage',
-                'orderProducts.productVariant:id,product_id,buying_price',
+                'orderProducts.productVariant:id,product_id,buying_price,sku',
                 'orderProducts.productVariant.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
                 'orderProducts.productVariant.variantAttributes.attribute:id,name',
                 'orderProducts.productVariant.variantAttributes.attributeValue:id,value',

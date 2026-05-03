@@ -26,9 +26,9 @@ class OrderService
     /**
      * Get all orders with pagination and filtering.
      */
-    public function getAllOrders(int $perPage = 15): LengthAwarePaginator
+    public function getAllOrders(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return $this->orderRepository->getAll($perPage);
+        return $this->orderRepository->getAll($filters, $perPage);
     }
 
     /**
@@ -61,6 +61,22 @@ class OrderService
     public function updateOrderPaymentStatus(int $id, string $paymentStatus): bool
     {
         return $this->orderRepository->updatePaymentStatus($id, $paymentStatus);
+    }
+
+    /**
+     * Create an order.
+     */
+    public function createOrder(array $data): Order
+    {
+        return $this->orderRepository->create($data);
+    }
+
+    /**
+     * Create order tracking.
+     */
+    public function createOrderTracking(int $id, array $data): OrderTracking
+    {
+        return $this->orderRepository->createTracking($id, $data);
     }
 
 
