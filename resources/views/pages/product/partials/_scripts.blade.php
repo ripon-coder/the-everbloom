@@ -37,8 +37,9 @@
 
             get currentPrice() {
                 const variant = this.getActiveVariant();
-                let basePrice = variant ? parseFloat(variant.sell_price) : parseFloat(this.product.price);
-                let priceToUse = variant ? (parseFloat(variant.discount_price) > 0 ? parseFloat(variant.discount_price) : parseFloat(variant.sell_price)) : parseFloat(this.product.price);
+                // Base price should consider if variant already has a normal discount
+                let basePriceForCalculation = variant ? (parseFloat(variant.discount_price) > 0 ? parseFloat(variant.discount_price) : parseFloat(variant.sell_price)) : parseFloat(this.product.price);
+                let priceToUse = basePriceForCalculation;
                 
                 if (this.product.flash_sales && this.product.flash_sales.length > 0) {
                     const pivot = this.product.flash_sales[0].pivot;
@@ -46,10 +47,17 @@
                         let discountAmount = parseFloat(pivot.discount_price || 0);
                         let discountPercentage = parseFloat(pivot.discount_percentage || 0);
                         
-                        if (discountAmount > 0) {
-                            return Math.max(0, basePrice - discountAmount);
-                        } else if (discountPercentage > 0) {
-                            return Math.max(0, basePrice - (basePrice * (discountPercentage / 100)));
+                        let computedPercentage = 0;
+                        if (discountPercentage > 0) {
+                            computedPercentage = discountPercentage;
+                        } else if (discountAmount > 0 && parseFloat(this.product.price) > 0) {
+                            // Convert the flat discount amount into a percentage based on the base product price
+                            // This ensures that more expensive variants get a proportional flash sale discount
+                            computedPercentage = (discountAmount / parseFloat(this.product.price)) * 100;
+                        }
+                        
+                        if (computedPercentage > 0) {
+                            return Math.max(0, basePriceForCalculation - (basePriceForCalculation * (computedPercentage / 100)));
                         }
                     }
                 }

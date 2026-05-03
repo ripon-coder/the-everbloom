@@ -17,7 +17,7 @@ class ProductService
      */
     public function getShopProducts(array $filters): LengthAwarePaginator
     {
-        $query = Product::active()->with(['firstImage', 'category']);
+        $query = Product::active()->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }]);
 
         if (!empty($filters['category'])) {
             $query->whereHas('category', function ($q) use ($filters) {
@@ -86,14 +86,14 @@ class ProductService
         $related = Product::active()
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
-            ->with(['firstImage', 'category'])
+            ->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
 
         if ($related->isEmpty()) {
             $related = Product::active()
                 ->where('id', '!=', $product->id)
-                ->with(['firstImage', 'category'])
+                ->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }])
                 ->inRandomOrder()
                 ->take($limit)
                 ->get();
@@ -120,11 +120,26 @@ class ProductService
     protected function transformProducts(Collection $products): Collection
     {
         return $products->map(function ($product) {
+            $price = $product->price;
+            $oldPrice = $product->old_price ?? null;
+
+            if ($product->relationLoaded('flashSales') && $product->flashSales->isNotEmpty()) {
+                $flashSale = $product->flashSales->first();
+                $discountPrice = $flashSale->pivot->discount_price;
+                $discountPercentage = $flashSale->pivot->discount_percentage;
+                
+                $oldPrice = $product->price;
+                $price = $discountPrice 
+                    ? ($product->price - $discountPrice) 
+                    : ($product->price - ($product->price * ($discountPercentage / 100)));
+                $price = max(0, $price);
+            }
+
             return (object) [
                 'id' => $product->id,
                 'name' => $product->name,
-                'price' => $product->price,
-                'old_price' => $product->old_price ?? null,
+                'price' => $price,
+                'old_price' => $oldPrice,
                 'badge' => $product->badge ?? null,
                 'img' => $product->firstImage ? $product->firstImage->getImageUrl() : asset('images/image1.jpg'),
                 'slug' => $product->slug,

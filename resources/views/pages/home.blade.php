@@ -3,6 +3,7 @@
         <x-home.hero />
         
         <div class="py-8 space-y-12">
+            <x-home.categories />
             <x-home.featured-products :products="$featuredProducts" />
             @if($flashSale)
                 <x-home.campaign :flashSale="$flashSale" :products="$campaignProducts" />

@@ -35,7 +35,7 @@ class HomeService
     {
         return Product::active()
             ->where('is_featured', true)
-            ->with(['firstImage', 'category'])
+            ->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }])
             ->latest()
             ->take($limit)
             ->get();
@@ -51,7 +51,7 @@ class HomeService
     {
         return Product::active()
             ->popular()
-            ->with(['firstImage', 'category'])
+            ->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
     }
@@ -66,7 +66,7 @@ class HomeService
     {
         return Product::active()
             ->latest()
-            ->with(['firstImage', 'category'])
+            ->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
     }
@@ -94,11 +94,26 @@ class HomeService
     protected function transformProducts(\Illuminate\Support\Collection $products): \Illuminate\Support\Collection
     {
         return $products->map(function ($product) {
+            $price = $product->price;
+            $oldPrice = $product->old_price ?? null;
+
+            if ($product->relationLoaded('flashSales') && $product->flashSales->isNotEmpty()) {
+                $flashSale = $product->flashSales->first();
+                $discountPrice = $flashSale->pivot->discount_price;
+                $discountPercentage = $flashSale->pivot->discount_percentage;
+                
+                $oldPrice = $product->price;
+                $price = $discountPrice 
+                    ? ($product->price - $discountPrice) 
+                    : ($product->price - ($product->price * ($discountPercentage / 100)));
+                $price = max(0, $price);
+            }
+
             return (object) [
                 'id' => $product->id,
                 'name' => $product->name,
-                'price' => $product->price,
-                'old_price' => $product->old_price ?? null,
+                'price' => $price,
+                'old_price' => $oldPrice,
                 'badge' => $product->badge ?? null,
                 'img' => $product->firstImage ? $product->firstImage->getImageUrl() : asset('images/image1.jpg'),
                 'slug' => $product->slug,
