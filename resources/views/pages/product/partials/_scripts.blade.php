@@ -92,6 +92,14 @@
                 });
             },
 
+            get currentStock() {
+                const variant = this.getActiveVariant();
+                if (variant) {
+                    return parseInt(variant.stock || 0);
+                }
+                return parseInt(this.product.stock || 0);
+            },
+
             formatPrice(price) {
                 return parseFloat(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             },

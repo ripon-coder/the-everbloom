@@ -37,11 +37,13 @@
 
         <!-- Fixed Bottom Mobile Bar -->
         <div class="fixed bottom-[57px] left-0 right-0 bg-white border-t border-gray-100 p-3 flex gap-2 z-50 md:hidden">
-            <button @click="addToCart($event)" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md text-[10px] uppercase tracking-wide transition-colors flex items-center justify-center gap-1.5">
+            <button @click="addToCart($event)" :disabled="currentStock <= 0"
+                class="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-md text-[10px] uppercase tracking-wide transition-colors flex items-center justify-center gap-1.5">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
-                Add to Cart
+                <span x-text="currentStock > 0 ? 'Add to Cart' : 'Out of Stock'">Add to Cart</span>
             </button>
-            <button class="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-3 px-4 rounded-md text-[10px] uppercase tracking-wide transition-colors">
+            <button :disabled="currentStock <= 0"
+                class="flex-1 bg-gray-900 hover:bg-black disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-md text-[10px] uppercase tracking-wide transition-colors">
                 Buy Now
             </button>
         </div>
