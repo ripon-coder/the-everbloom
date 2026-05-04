@@ -18,7 +18,7 @@ Route::prefix('admin')->as("admin.")->group(function () {
     // Guest routes (not authenticated)
     Route::middleware('guest:admin')->group(function () {
         Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-        Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+        Route::post('/login', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:5,1');
     });
 
     // Authenticated routes
