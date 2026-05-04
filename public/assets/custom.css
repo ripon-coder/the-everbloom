@@ -17,9 +17,6 @@
      font-variant-numeric: tabular-nums;
  }
 
- .sidebar-gradient {
-     background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
- }
 
  /* Ensure proper z-index layering */
  .navbar-z {
