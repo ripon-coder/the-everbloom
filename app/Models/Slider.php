@@ -28,6 +28,7 @@ class Slider extends Model implements HasMedia
         $this->addMediaCollection('slider_image')->singleFile();
     }
 
+    /*
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('webp')
@@ -35,19 +36,10 @@ class Slider extends Model implements HasMedia
             ->quality(80)
             ->performOnCollections('slider_image');
     }
+    */
 
-    public function getImageUrl($collection = 'slider_image', $conversion = 'webp')
+    public function getImageUrl()
     {
-        $media = $this->getFirstMedia($collection);
-
-        if (!$media) {
-            return asset('/images/default-logo.png');
-        }
-
-        try {
-            return $media->getUrl($conversion);
-        } catch (\Exception $e) {
-            return $media->getUrl();
-        }
+        return $this->traitGetImageUrl('slider_image');
     }
 }

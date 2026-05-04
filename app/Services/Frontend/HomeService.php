@@ -18,7 +18,7 @@ class HomeService
         
         return [
             'sliders' => \App\Models\Slider::where('status', true)->orderBy('sort_order')->get(),
-            'featuredCategories' => \App\Models\Category::active()->where('is_featured', true)->get(),
+            'featuredCategories' => \App\Models\Category::active()->where('is_featured', true)->with('media')->get(),
             'featuredProducts' => $this->transformProducts($this->getFeaturedProducts()),
             'bestSellingProducts' => $this->transformProducts($this->getBestSellingProducts()),
             'newArrivals' => $this->transformProducts($this->getNewArrivals()),
@@ -37,7 +37,7 @@ class HomeService
     {
         return Product::active()
             ->where('is_featured', true)
-            ->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'flashSales' => function ($query) { $query->active(); }])
             ->latest()
             ->take($limit)
             ->get();
@@ -53,7 +53,7 @@ class HomeService
     {
         return Product::active()
             ->popular()
-            ->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
     }
@@ -68,7 +68,7 @@ class HomeService
     {
         return Product::active()
             ->latest()
-            ->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
     }
@@ -82,7 +82,7 @@ class HomeService
     {
         return \App\Models\FlashSale::active()
             ->with(['products' => function ($query) {
-                $query->active()->with(['firstImage', 'category']);
+                $query->active()->with(['firstImage.media', 'category']);
             }])
             ->latest()
             ->first();

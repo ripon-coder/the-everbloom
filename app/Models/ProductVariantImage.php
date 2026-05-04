@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Trait\HasImage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
@@ -9,7 +10,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class ProductVariantImage extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, HasImage;
     
     protected $appends = ['image_url'];
 
@@ -52,6 +53,7 @@ class ProductVariantImage extends Model implements HasMedia
     {
         $this->addMediaCollection('variant_images')->singleFile();
     }
+    /*
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('webp')
@@ -59,27 +61,15 @@ class ProductVariantImage extends Model implements HasMedia
             ->quality(80)
             ->performOnCollections('variant_images');
     }
+    */
     /**
      * Get the URL of the image.
      *
-     * @param string $conversion
      * @return string|null
      */
     public function getImageUrl()
     {
-        $media = $this->getFirstMedia('variant_images');
-
-        if (!$media) {
-            return asset('/images/default-logo.png');
-        }
-
-        // Try to get WebP version first, fallback to original
-        try {
-            return $media->getUrl('webp');
-        } catch (\Exception $e) {
-            // Fallback to original if WebP conversion doesn't exist or fails
-            return $media->getUrl();
-        }
+        return $this->traitGetImageUrl('variant_images');
     }
 
 }

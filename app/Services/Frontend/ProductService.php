@@ -17,12 +17,20 @@ class ProductService
      */
     public function getShopProducts(array $filters): LengthAwarePaginator
     {
-        $query = Product::active()->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }]);
+        $query = Product::active()->with([
+            'firstImage.media', 
+            'category', 
+            'flashSales' => function ($query) { $query->active(); }
+        ]);
 
         if (!empty($filters['category'])) {
-            $query->whereHas('category', function ($q) use ($filters) {
-                $q->where('slug', $filters['category']);
-            });
+            $category = Category::where('slug', $filters['category'])->select('id')->first();
+            if ($category) {
+                $categoryIds = Category::where('parent_id', $category->id)
+                    ->pluck('id')
+                    ->push($category->id);
+                $query->whereIn('category_id', $categoryIds);
+            }
         }
 
         if (!empty($filters['search'])) {
@@ -61,11 +69,11 @@ class ProductService
         return Product::where('slug', $slug)
             ->active()
             ->with([
-                'images', 
+                'images.media', 
                 'variants.variantAttributes.attribute', 
                 'variants.variantAttributes.attributeValue', 
-                'variants.images',
-                'firstImage', 
+                'variants.images.media',
+                'firstImage.media', 
                 'category',
                 'reviews.user',
                 'flashSales' => function ($query) {
@@ -87,14 +95,14 @@ class ProductService
         $related = Product::active()
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
-            ->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
 
         if ($related->isEmpty()) {
             $related = Product::active()
                 ->where('id', '!=', $product->id)
-                ->with(['firstImage', 'category', 'flashSales' => function ($query) { $query->active(); }])
+                ->with(['firstImage.media', 'category', 'flashSales' => function ($query) { $query->active(); }])
                 ->inRandomOrder()
                 ->take($limit)
                 ->get();
@@ -110,7 +118,7 @@ class ProductService
      */
     public function getActiveCategories(): Collection
     {
-        return Category::active()->root()->with('children')->ordered()->get();
+        return Category::active()->root()->with(['children', 'media'])->ordered()->get();
     }
     /**
      * Transform a collection of products into plain data objects for the view.

@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Storage;
 
 class SiteSettingController extends Controller
 {
+    protected $imageService;
+
+    public function __construct(\App\Services\ImageUploadService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
     public function index()
     {
         $setting = SiteSetting::first();
@@ -40,17 +47,17 @@ class SiteSettingController extends Controller
         $data = $request->except(['site_logo', 'site_favicon']);
 
         if ($request->hasFile('site_logo')) {
-            if ($setting->site_logo && Storage::disk('public')->exists($setting->site_logo)) {
-                Storage::disk('public')->delete($setting->site_logo);
+            if ($setting->site_logo) {
+                $this->imageService->delete($setting->site_logo);
             }
-            $data['site_logo'] = $request->file('site_logo')->store('site', 'public');
+            $data['site_logo'] = $this->imageService->upload($request->file('site_logo'), 'site');
         }
 
         if ($request->hasFile('site_favicon')) {
-            if ($setting->site_favicon && Storage::disk('public')->exists($setting->site_favicon)) {
-                Storage::disk('public')->delete($setting->site_favicon);
+            if ($setting->site_favicon) {
+                $this->imageService->delete($setting->site_favicon);
             }
-            $data['site_favicon'] = $request->file('site_favicon')->store('site', 'public');
+            $data['site_favicon'] = $this->imageService->upload($request->file('site_favicon'), 'site');
         }
 
         $setting->update($data);

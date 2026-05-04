@@ -48,8 +48,7 @@ class ProductService
                                 'is_default' => $index === 0,
                             ]);
 
-                            $productImage->addMedia($image)
-                                ->toMediaCollection('product_images');
+                            $productImage->uploadImage($image, 'product_images');
 
                             Log::info('Image uploaded successfully: ' . $image->getClientOriginalName());
                         } catch (\Exception $e) {
@@ -101,8 +100,7 @@ class ProductService
                                         'is_default' => true,
                                     ]);
 
-                                    $variantImage->addMedia($image)
-                                        ->toMediaCollection('variant_images');
+                                    $variantImage->uploadImage($image, 'variant_images');
 
                                     Log::info('Variant image uploaded successfully: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
                                 }
@@ -171,8 +169,7 @@ class ProductService
                                 'is_default' => $index === 0,
                             ]);
 
-                            $productImage->addMedia($image)
-                                ->toMediaCollection('product_images');
+                            $productImage->uploadImage($image, 'product_images');
 
                             Log::info('Image uploaded successfully: ' . $image->getClientOriginalName());
                         } catch (\Exception $e) {
@@ -306,8 +303,7 @@ class ProductService
                                         'is_default' => true,
                                     ]);
 
-                                    $variantImage->addMedia($image)
-                                        ->toMediaCollection('variant_images');
+                                    $variantImage->uploadImage($image, 'variant_images');
 
                                     Log::info('Variant image uploaded successfully: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
                                 }

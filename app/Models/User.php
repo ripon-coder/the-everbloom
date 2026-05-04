@@ -95,6 +95,7 @@ class User extends Authenticatable implements HasMedia
         $this->addMediaCollection('profile_image')->singleFile();
     }
 
+    /*
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('webp')
@@ -102,4 +103,5 @@ class User extends Authenticatable implements HasMedia
             ->quality(80)
             ->performOnCollections('profile_image');
     }
+    */
 }

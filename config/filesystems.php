@@ -39,7 +39,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
             'throw' => false,
         ],
@@ -54,6 +54,24 @@ return [
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
+        ],
+
+        'backblaze' => [
+            'driver' => 's3',
+            'key' => env('BACKBLAZE_KEY_ID'),
+            'secret' => env('BACKBLAZE_APPLICATION_KEY'),
+            'region' => env('BACKBLAZE_REGION'),
+            'bucket' => env('BACKBLAZE_BUCKET'),
+            'endpoint' => env('BACKBLAZE_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            'url' => env('BACKBLAZE_PUBLIC_URL', 'https://f006.backblazeb2.com/file/feriwalarhat'),
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+            'options' => [
+                'ACL' => '',
+                'CacheControl' => 'public, max-age=31536000, immutable',
+            ],
         ],
 
     ],

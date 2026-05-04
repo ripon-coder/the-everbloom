@@ -24,6 +24,7 @@ class Brand extends Model implements HasMedia
         $this->addMediaCollection('brand_logo')->singleFile();
     }
 
+    /*
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('webp')
@@ -31,22 +32,11 @@ class Brand extends Model implements HasMedia
             ->quality(80)
             ->performOnCollections('brand_logo');
     }
+    */
 
     public function getImageUrl()
     {
-        $media = $this->getFirstMedia('brand_logo');
-
-        if (!$media) {
-            return asset('/images/default-logo.png');
-        }
-
-        // Try to get WebP version first, fallback to original
-        try {
-            return $media->getUrl('webp');
-        } catch (\Exception $e) {
-            // Fallback to original if WebP conversion doesn't exist or fails
-            return $media->getUrl();
-        }
+        return $this->traitGetImageUrl('brand_logo');
     }
 
     public function scopeActive($query)
