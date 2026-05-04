@@ -17,26 +17,43 @@
                 <div class="flex-1">
                     <h2 class="text-lg font-bold text-slate-900 uppercase tracking-widest mb-6 border-b border-gray-200 pb-2">Send a Message</h2>
                     
-                    <form class="space-y-5">
+                    @if(session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 text-sm" role="alert">
+                            <span class="block sm:inline">{{ session('success') }}</span>
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 text-sm" role="alert">
+                            <ul class="list-disc list-inside">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('contact.submit') }}" method="POST" class="space-y-5">
+                        @csrf
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
                                 <label class="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-1">Your Name *</label>
-                                <input type="text" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="Enter your name" required>
+                                <input type="text" name="name" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="Enter your name" required>
                             </div>
                             <div>
                                 <label class="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-1">Email Address *</label>
-                                <input type="email" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="Enter your email" required>
+                                <input type="email" name="email" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="Enter your email" required>
                             </div>
                         </div>
 
                         <div>
                             <label class="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-1">Subject *</label>
-                            <input type="text" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="Brief subject" required>
+                            <input type="text" name="subject" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="Brief subject" required>
                         </div>
 
                         <div>
                             <label class="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-1">Message *</label>
-                            <textarea rows="5" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="How can we help you?" required></textarea>
+                            <textarea name="message" rows="5" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="How can we help you?" required></textarea>
                         </div>
 
                         <div class="pt-2">
@@ -55,18 +72,16 @@
                         <div>
                             <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Our Store</h4>
                             <address class="text-sm text-gray-700 not-italic leading-relaxed">
-                                <strong>Everbloom HQ</strong><br>
-                                Level 5, Rahman Tower<br>
-                                Gulshan 1, Dhaka - 1212<br>
-                                Bangladesh
+                                <strong>{{ $site_setting->site_name ?? 'Everbloom' }}</strong><br>
+                                {!! nl2br(e($site_setting->site_address ?? "Level 5, Rahman Tower\nGulshan 1, Dhaka - 1212\nBangladesh")) !!}
                             </address>
                         </div>
 
                         <div>
                             <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Contact Details</h4>
                             <p class="text-sm text-gray-700 leading-relaxed">
-                                Phone: <a href="tel:+8801720000000" class="text-red-600 hover:underline">+88 01720 000000</a><br>
-                                Email: <a href="mailto:support@everbloom.com" class="text-red-600 hover:underline">support@everbloom.com</a>
+                                Phone: <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}" class="text-red-600 hover:underline">{{ $site_setting->site_phone ?? '+88 01720 000000' }}</a><br>
+                                Email: <a href="mailto:{{ $site_setting->site_email ?? 'support@everbloom.com' }}" class="text-red-600 hover:underline">{{ $site_setting->site_email ?? 'support@everbloom.com' }}</a>
                             </p>
                         </div>
 

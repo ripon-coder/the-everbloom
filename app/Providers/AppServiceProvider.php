@@ -67,6 +67,12 @@ class AppServiceProvider extends ServiceProvider
         // Money Sign Pass
         View::share('currency_sign', config('eccomerce.currency_sign'));
 
+        // Share site settings globally
+        View::composer('*', function ($view) {
+            $view->with('site_setting', \App\Models\SiteSetting::first());
+            $view->with('active_pages', \App\Models\Page::where('is_active', true)->get());
+        });
+
         // Create Blade directive for active state checking
         Blade::directive('active', function ($expression) {
             return "<?php echo request()->is($expression) ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'; ?>";

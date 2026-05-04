@@ -22,6 +22,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // Shop & Product Routes
 Route::get('/shop', [ProductController::class, 'index'])->name('shop');
 Route::get('/product/{slug?}', [ProductController::class, 'show'])->name('product.show');
+Route::post('/product/review', [\App\Http\Controllers\Frontend\ProductReviewController::class, 'store'])->name('product.review.store')->middleware(['auth', 'throttle:3,1']);
 
 // Cart Sync Route
 Route::post('/cart/sync', [\App\Http\Controllers\Frontend\CartController::class, 'sync'])->name('cart.sync');
@@ -43,6 +44,7 @@ Route::delete('/account/addresses/{id}', [\App\Http\Controllers\Frontend\UserAdd
 Route::get('/track-order', [PageController::class, 'trackOrder'])->name('track-order');
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::post('/contact', [PageController::class, 'submitContact'])->name('contact.submit')->middleware('throttle:3,1');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -58,3 +60,6 @@ Route::post('/logout', [\App\Http\Controllers\Frontend\AuthController::class, 'l
 
 // Admin Routes
 require __DIR__.'/admin.php';
+
+// Dynamic Pages (Catch-all) - Must be last
+Route::get('/{slug}', [PageController::class, 'dynamicPage'])->name('page.show');

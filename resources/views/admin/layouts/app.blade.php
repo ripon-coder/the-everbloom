@@ -10,6 +10,10 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     @vite(['resources/css/app.css'])
     <link rel="stylesheet" href="{{ asset('assets/custom.css') }}">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900">

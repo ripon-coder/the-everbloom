@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DistrictController;
 use App\Http\Controllers\Admin\FlashSaleController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SiteSettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->as("admin.")->group(function () {
@@ -64,6 +65,22 @@ Route::prefix('admin')->as("admin.")->group(function () {
 
         // District Management
         Route::resource("district",DistrictController::class);
+
+        // Review Management
+        Route::get('reviews', [\App\Http\Controllers\Admin\ProductReviewController::class, 'index'])->name('reviews.index');
+        Route::post('reviews/{review}/toggle-approval', [\App\Http\Controllers\Admin\ProductReviewController::class, 'toggleApproval'])->name('reviews.toggle-approval');
+        Route::delete('reviews/{review}', [\App\Http\Controllers\Admin\ProductReviewController::class, 'destroy'])->name('reviews.destroy');
+
+        // Site Settings
+        Route::get('site-settings', [SiteSettingController::class, 'index'])->name('site-settings.index');
+        Route::post('site-settings', [SiteSettingController::class, 'update'])->name('site-settings.update');
+
+        // Page Management
+        Route::resource("pages", \App\Http\Controllers\Admin\PageController::class);
+        Route::post('pages/{page}/toggle-status', [\App\Http\Controllers\Admin\PageController::class, 'toggleStatus'])->name('pages.toggle-status');
+
+        // Contact Management
+        Route::resource("contacts", \App\Http\Controllers\Admin\ContactController::class)->only(['index', 'show', 'destroy']);
     });
 });
 

@@ -114,6 +114,36 @@
                     </a>
                 </li>
 
+                <!-- Pages -->
+                <li>
+                    <a href="{{ route('admin.pages.index') }}"
+                        class="flex items-center p-3 {{ request()->is('admin/pages*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} rounded-lg group transition-all duration-200">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-3 font-medium">Pages</span>
+                    </a>
+                </li>
+
+                <!-- Contacts -->
+                <li>
+                    <a href="{{ route('admin.contacts.index') }}"
+                        class="flex items-center p-3 {{ request()->is('admin/contacts*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} rounded-lg group transition-all duration-200">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-3 font-medium">Contact Us</span>
+                        @php
+                            $unreadContacts = \App\Models\ContactMessage::where('is_read', false)->count();
+                        @endphp
+                        @if($unreadContacts > 0)
+                            <span class="ml-auto bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                {{ $unreadContacts }}
+                            </span>
+                        @endif
+                    </a>
+                </li>
+
                 <!-- Marketing Dropdown -->
                 <li>
                     <button type="button" onclick="toggleDropdown('dropdown-marketing')"
@@ -163,7 +193,7 @@
                 <!-- Products Dropdown -->
                 <li>
                     <button type="button" onclick="toggleDropdown('products-dropdown')"
-                        class="flex items-center w-full p-3 {{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} rounded-lg group transition-all duration-200"
+                        class="flex items-center w-full p-3 {{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') || request()->is('admin/reviews*') || request()->is('admin/customers*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} rounded-lg group transition-all duration-200"
                         id="products-button">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
@@ -171,15 +201,15 @@
                                 clip-rule="evenodd"></path>
                         </svg>
                         <span class="ml-3 font-medium flex-1 text-left">Products</span>
-                        <svg class="w-4 h-4 transition-transform duration-300 {{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? 'rotate-180' : '' }}"
+                        <svg class="w-4 h-4 transition-transform duration-300 {{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') || request()->is('admin/reviews*') || request()->is('admin/customers*') ? 'rotate-180' : '' }}"
                             fill="none" viewBox="0 0 10 6" id="arrow-products-dropdown">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                 stroke-width="2" d="m1 1 4 4 4-4" />
                         </svg>
                     </button>
                     <ul id="products-dropdown"
-                        class="{{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? '' : 'hidden' }} py-2 space-y-1 ml-4"
-                        data-initial-state="{{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') ? 'expanded' : 'collapsed' }}">
+                        class="{{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') || request()->is('admin/reviews*') || request()->is('admin/customers*') ? '' : 'hidden' }} py-2 space-y-1 ml-4"
+                        data-initial-state="{{ request()->is('admin/products*') || request()->is('admin/variants*') || request()->is('admin/brands*') || request()->is('admin/attributes*') || request()->is('admin/categories*') || request()->is('admin/attribute-values*') || request()->is('admin/reviews*') || request()->is('admin/customers*') ? 'expanded' : 'collapsed' }}">
                         <li>
                             <a href="{{ route('admin.products.index') }}"
                                 class="flex items-center p-2 {{ request()->is('admin/products*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300' }} rounded-lg transition-all duration-200">
@@ -259,6 +289,15 @@
                                 Customers
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('admin.reviews.index') }}"
+                                class="flex items-center p-2 {{ request()->is('admin/reviews*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300' }} rounded-lg transition-all duration-200">
+                                <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                </svg>
+                                Reviews
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
@@ -285,7 +324,7 @@
                 <!-- Settings Dropdown -->
                 <li>
                     <button type="button" onclick="toggleDropdown('dropdown-settings')"
-                        class="flex items-center w-full p-3 {{ request()->is('admin/district*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} rounded-lg group transition-all duration-200"
+                        class="flex items-center w-full p-3 {{ request()->is('admin/district*') || request()->is('admin/site-settings*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} rounded-lg group transition-all duration-200"
                         id="settings-button">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
@@ -293,15 +332,24 @@
                                 clip-rule="evenodd"></path>
                         </svg>
                         <span class="ml-3 font-medium flex-1 text-left">Settings</span>
-                        <svg class="w-4 h-4 transition-transform duration-300 {{ request()->is('admin/district*') ? 'rotate-180' : '' }}"
+                        <svg class="w-4 h-4 transition-transform duration-300 {{ request()->is('admin/district*') || request()->is('admin/site-settings*') ? 'rotate-180' : '' }}"
                             fill="none" viewBox="0 0 10 6" id="arrow-dropdown-settings">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                 stroke-width="2" d="m1 1 4 4 4-4" />
                         </svg>
                     </button>
                     <ul id="dropdown-settings"
-                        class="{{ request()->is('admin/district*') ? '' : 'hidden' }} py-2 space-y-1 ml-4"
-                        data-initial-state="{{ request()->is('admin/district*') || request()->is('admin/district*') ? 'expanded' : 'collapsed' }}">
+                        class="{{ request()->is('admin/district*') || request()->is('admin/site-settings*') ? '' : 'hidden' }} py-2 space-y-1 ml-4"
+                        data-initial-state="{{ request()->is('admin/district*') || request()->is('admin/site-settings*') ? 'expanded' : 'collapsed' }}">
+                        <li>
+                            <a href="{{ route('admin.site-settings.index') }}"
+                                class="flex items-center p-2 {{ request()->is('admin/site-settings*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300' }} rounded-lg transition-all duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H5.07c-1.1 0-2.07-.82-2.22-1.91V5.99c-.15-1.09.82-1.91 1.92-1.91h10.46c1.1 0 2.07.82 2.22 1.91v4.54c.05.3.11.59.18.88m-1.33 2.15v2.85c0 .54-.44.98-.98.98H11.53c-.54 0-.98-.44-.98-.98v-2.85m1.96 0h.98" />
+                                </svg>
+                                Website Settings
+                            </a>
+                        </li>
                         <li>
                             <a href="{{ route('admin.district.index') }}"
                                 class="flex items-center p-2 {{ request()->is('admin/district*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300' }} rounded-lg transition-all duration-200">

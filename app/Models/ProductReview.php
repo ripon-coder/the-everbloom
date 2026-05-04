@@ -31,4 +31,20 @@ class ProductReview extends Model
         'is_approved' => 'boolean',
         'is_reported' => 'boolean',
     ];
+
+    /**
+     * Get the user that wrote the review.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the product that the review is for.
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

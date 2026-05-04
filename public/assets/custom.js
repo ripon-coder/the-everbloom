@@ -210,7 +210,8 @@ document.addEventListener("DOMContentLoaded", function () {
                               currentPath.includes("/admin/brands") || 
                               currentPath.includes("/admin/attributes") || 
                               currentPath.includes("/admin/categories") ||
-                              currentPath.includes("/admin/attribute-values");
+                              currentPath.includes("/admin/attribute-values") ||
+                              currentPath.includes("/admin/reviews");
         
         if (isRelevantPath) {
             productsDropdown.classList.remove("hidden");
@@ -272,7 +273,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (settingsDropdown) {
         // Check if current path is relevant to marketing dropdown
-        const isSettingsRelevantPath = currentPath.includes("/admin/district")
+        const isSettingsRelevantPath = currentPath.includes("/admin/district") ||
+                                      currentPath.includes("/admin/site-settings");
 
         
         if (isSettingsRelevantPath) {

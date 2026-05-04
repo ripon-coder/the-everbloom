@@ -106,8 +106,12 @@
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
         <a href="/" class="flex-shrink-0 flex items-center gap-1">
-            <div class="border-[2.5px] border-white text-white px-2 py-0.5 rounded-sm font-black text-xl italic tracking-tighter leading-none">SHEI</div>
-            <div class="font-black text-xl tracking-tighter text-white leading-none">TECH</div>
+            @if($site_setting && $site_setting->site_logo)
+                <img src="{{ Storage::url($site_setting->site_logo) }}" alt="{{ $site_setting->site_name }}" class="h-8 object-contain filter invert brightness-0">
+            @else
+                <div class="border-[2.5px] border-white text-white px-2 py-0.5 rounded-sm font-black text-xl italic tracking-tighter leading-none">SHEI</div>
+                <div class="font-black text-xl tracking-tighter text-white leading-none">TECH</div>
+            @endif
         </a>
         <a href="{{ Auth::check() ? route('account') : route('login') }}" class="text-gray-300 hover:text-white relative">
             @auth
@@ -139,20 +143,26 @@
         <div class="max-w-[1400px] mx-auto px-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-2 text-gray-300">
-                    <a href="#" class="hover:text-white"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
-                    <a href="#" class="hover:text-white"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg></a>
-                    <a href="#" class="hover:text-white"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+                    @if($site_setting && $site_setting->facebook_url)
+                        <a href="{{ $site_setting->facebook_url }}" target="_blank" class="hover:text-white"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+                    @endif
+                    @if($site_setting && $site_setting->twitter_url)
+                        <a href="{{ $site_setting->twitter_url }}" target="_blank" class="hover:text-white"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg></a>
+                    @endif
+                    @if($site_setting && $site_setting->instagram_url)
+                        <a href="{{ $site_setting->instagram_url }}" target="_blank" class="hover:text-white"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+                    @endif
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <a href="tel:+8801720000000" class="hover:text-red-500 transition-colors flex items-center gap-1">
+                <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}" class="hover:text-red-500 transition-colors flex items-center gap-1">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                    +88 01720 000000
+                    {{ $site_setting->site_phone ?? '+88 01720 000000' }}
                 </a>
                 <span class="text-gray-600">|</span>
-                <a href="mailto:support@everbloom.com" class="hover:text-red-500 transition-colors flex items-center gap-1">
+                <a href="mailto:{{ $site_setting->site_email ?? 'support@everbloom.com' }}" class="hover:text-red-500 transition-colors flex items-center gap-1">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                    support@everbloom.com
+                    {{ $site_setting->site_email ?? 'support@everbloom.com' }}
                 </a>
                 <span class="text-gray-600">|</span>
                 <a href="{{ route('track-order') }}" class="hover:text-red-500 transition-colors">Track Order</a>
@@ -170,8 +180,12 @@
             
             <!-- Logo -->
             <a href="/" class="flex-shrink-0 flex items-center gap-1">
-                <div class="bg-black text-white px-2 py-0.5 rounded-sm font-black text-2xl italic tracking-tighter">SHEI</div>
-                <div class="font-black text-2xl tracking-tighter text-slate-800">TECH</div>
+                @if($site_setting && $site_setting->site_logo)
+                    <img src="{{ Storage::url($site_setting->site_logo) }}" alt="{{ $site_setting->site_name }}" class="h-10 object-contain">
+                @else
+                    <div class="bg-black text-white px-2 py-0.5 rounded-sm font-black text-2xl italic tracking-tighter">SHEI</div>
+                    <div class="font-black text-2xl tracking-tighter text-slate-800">TECH</div>
+                @endif
             </a>
 
             <!-- Search Bar -->
@@ -457,7 +471,7 @@
                 <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">PC Builder</a>
                 <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">Campaigns</a>
                 <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">Offers</a>
-                <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">Blog</a>
+                <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">Offers</a>
             </nav>
         </div>
 
@@ -491,18 +505,18 @@
                  <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">PC Builder</a></li>
                  <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Campaigns</a></li>
                  <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Offers</a></li>
-                 <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Blog</a></li>
+                 <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Offers</a></li>
                  <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Pre Order</a></li>
              </ul>
              <div class="px-6 py-6 mt-4 border-t border-gray-200">
                  <div class="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-4">Contact & Support</div>
-                 <a href="tel:+8801720000000" class="flex items-center gap-3 text-slate-700 hover:text-red-600 font-medium mb-4">
+                 <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}" class="flex items-center gap-3 text-slate-700 hover:text-red-600 font-medium mb-4">
                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                     +88 01720 000000
+                     {{ $site_setting->site_phone ?? '+88 01720 000000' }}
                  </a>
-                 <a href="mailto:support@everbloom.com" class="flex items-center gap-3 text-slate-700 hover:text-red-600 font-medium">
+                 <a href="mailto:{{ $site_setting->site_email ?? 'support@everbloom.com' }}" class="flex items-center gap-3 text-slate-700 hover:text-red-600 font-medium">
                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                     support@everbloom.com
+                     {{ $site_setting->site_email ?? 'support@everbloom.com' }}
                  </a>
              </div>
          </div>
@@ -590,11 +604,11 @@
 
     <!-- Mobile Bottom Navigation -->
     <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 flex justify-around items-center py-2 pb-safe shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-        <a href="tel:+8801720000000" class="flex flex-col items-center gap-1 text-slate-700">
+        <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}" class="flex flex-col items-center gap-1 text-slate-700">
             <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
             <span class="text-[11px] font-bold uppercase">Call</span>
         </a>
-        <a href="https://wa.me/8801720000000" class="flex flex-col items-center gap-1 text-slate-700">
+        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $site_setting->site_phone ?? '8801720000000') }}" class="flex flex-col items-center gap-1 text-slate-700" target="_blank">
             <svg class="w-[22px] h-[22px]" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.12.553 4.186 1.602 5.998L.14 23.473l5.59-1.467A11.967 11.967 0 0012.031 24c6.646 0 12.031-5.385 12.031-12.031S18.677 0 12.031 0zM17.9 16.73c-.25.703-1.43 1.343-2.001 1.41-.531.062-1.218.156-3.86-1.023-3.187-1.422-5.265-4.664-5.422-4.882-.156-.219-1.296-1.727-1.296-3.297 0-1.57.812-2.344 1.11-2.656.296-.312.64-.39.86-.39.218 0 .437.008.624.008.188 0 .469-.07.72.547.25.61 1.077 2.624 1.171 2.812.094.187.157.406.032.656-.125.25-.188.406-.375.625-.188.219-.406.453-.562.61-.172.171-.36.359-.14.734.218.375.984 1.625 2.11 2.625 1.453 1.281 2.671 1.671 3.046 1.843.375.172.594.141.813-.11.218-.25.937-1.093 1.187-1.468.25-.375.5-.312.844-.187.344.125 2.187 1.031 2.562 1.218.375.188.625.282.72.438.093.156.093.906-.157 1.609z"/></svg>
             <span class="text-[11px] font-bold uppercase">WhatsApp</span>
         </a>

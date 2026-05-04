@@ -70,6 +70,14 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Wishlist::class);
     }
 
+    /**
+     * Get the reviews for the user.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
 
     public function registerMediaCollections(): void
     {

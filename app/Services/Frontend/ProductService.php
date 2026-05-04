@@ -67,6 +67,7 @@ class ProductService
                 'variants.images',
                 'firstImage', 
                 'category',
+                'reviews.user',
                 'flashSales' => function ($query) {
                     $query->active();
                 }
