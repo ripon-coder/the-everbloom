@@ -467,11 +467,9 @@
             <!-- Links -->
             <nav class="hidden md:flex items-center flex-wrap">
                 <a href="{{ route('home') }}" class="mx-3 text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->routeIs('home') ? 'text-red-600 border-red-600 font-black' : 'text-slate-700 hover:text-red-600 border-transparent font-bold' }}">Home</a>
-                <a href="{{ route('shop') }}" class="mx-3 text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->routeIs('shop') ? 'text-red-600 border-red-600 font-black' : 'text-slate-700 hover:text-red-600 border-transparent font-bold' }}">Shop</a>
-                <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">PC Builder</a>
-                <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">Campaigns</a>
-                <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">Offers</a>
-                <a href="#" class="mx-3 text-slate-700 hover:text-red-600 font-bold text-sm uppercase tracking-wide py-3 border-b-2 border-transparent transition-colors">Offers</a>
+                @foreach($header_menus as $menu)
+                    <a href="{{ $menu->url }}" class="mx-3 text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->url() == url($menu->url) ? 'text-red-600 border-red-600 font-black' : 'text-slate-700 hover:text-red-600 border-transparent font-bold' }}">{{ $menu->name }}</a>
+                @endforeach
             </nav>
         </div>
 
@@ -501,12 +499,9 @@
          <div x-show="activeTab === 'menu'" style="display: none;" class="flex-1 overflow-y-auto pb-20">
              <ul class="flex flex-col">
                  <li class="border-b border-gray-100"><a href="{{ route('home') }}" class="block px-6 py-4 text-[14px] font-bold tracking-wide transition-colors {{ request()->routeIs('home') ? 'text-red-600' : 'text-slate-800 hover:text-red-600' }}">Home</a></li>
-                 <li class="border-b border-gray-100"><a href="{{ route('shop') }}" class="block px-6 py-4 text-[14px] font-bold tracking-wide transition-colors {{ request()->routeIs('shop') ? 'text-red-600' : 'text-slate-800 hover:text-red-600' }}">Shop</a></li>
-                 <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">PC Builder</a></li>
-                 <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Campaigns</a></li>
-                 <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Offers</a></li>
-                 <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Offers</a></li>
-                 <li class="border-b border-gray-100"><a href="#" class="block px-6 py-4 text-[14px] text-slate-800 hover:text-red-600 font-bold tracking-wide transition-colors">Pre Order</a></li>
+                 @foreach($header_menus as $menu)
+                    <li class="border-b border-gray-100"><a href="{{ $menu->url }}" class="block px-6 py-4 text-[14px] font-bold tracking-wide transition-colors {{ request()->url() == url($menu->url) ? 'text-red-600' : 'text-slate-800 hover:text-red-600' }}">{{ $menu->name }}</a></li>
+                 @endforeach
              </ul>
              <div class="px-6 py-6 mt-4 border-t border-gray-200">
                  <div class="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-4">Contact & Support</div>

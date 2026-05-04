@@ -125,6 +125,17 @@
                     </a>
                 </li>
 
+                <!-- Menus -->
+                <li>
+                    <a href="{{ route('admin.menus.index') }}"
+                        class="flex items-center p-3 {{ request()->is('admin/menus*') ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }} rounded-lg group transition-all duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <span class="ml-3 font-medium">Menus</span>
+                    </a>
+                </li>
+
                 <!-- Contacts -->
                 <li>
                     <a href="{{ route('admin.contacts.index') }}"

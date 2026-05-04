@@ -29,6 +29,7 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::resource("products", ProductController::class);
         Route::post('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
         Route::delete('products/{product}/force-delete', [ProductController::class, 'forceDelete'])->name('products.force-delete');
+        Route::post('products/{id}/quick-update', [ProductController::class, 'quickUpdate'])->name('products.quick-update');
 
         // Variants Management
         Route::get('variants', [\App\Http\Controllers\Admin\ProductVariantController::class, 'index'])->name('variants.index');
@@ -81,6 +82,10 @@ Route::prefix('admin')->as("admin.")->group(function () {
 
         // Contact Management
         Route::resource("contacts", \App\Http\Controllers\Admin\ContactController::class)->only(['index', 'show', 'destroy']);
+
+        // Menu Management
+        Route::resource("menus", \App\Http\Controllers\Admin\MenuController::class);
+        Route::post('menus/{menu}/toggle-status', [\App\Http\Controllers\Admin\MenuController::class, 'toggleStatus'])->name('menus.toggle-status');
     });
 });
 

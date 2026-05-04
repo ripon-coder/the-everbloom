@@ -102,4 +102,28 @@ class ProductController extends Controller
     {
         return $this->productService->forceDelete($id);
     }
+    /**
+     * Quick update for basic product fields.
+     */
+    public function quickUpdate(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'status' => 'required|in:active,inactive',
+            'is_featured' => 'nullable',
+            'is_free_delivery' => 'nullable',
+        ]);
+
+        $product = Product::findOrFail($id);
+        $product->update([
+            'name' => $request->name,
+            'price' => $request->price,
+            'status' => $request->status,
+            'is_featured' => $request->is_featured,
+            'is_free_delivery' => $request->is_free_delivery,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Product updated successfully.']);
+    }
 }

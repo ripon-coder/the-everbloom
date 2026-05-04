@@ -10,6 +10,7 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     @vite(['resources/css/app.css'])
     <link rel="stylesheet" href="{{ asset('assets/custom.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
@@ -33,8 +34,10 @@
     <!-- Load Vite assets after jQuery -->
     @vite(['resources/js/app.js'])
     <script src="{{ asset('assets/custom.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     @include('admin.lib.confirm-delete-modal')
     @yield('scripts')
+    @stack('scripts')
 </body>
 
 </html>
