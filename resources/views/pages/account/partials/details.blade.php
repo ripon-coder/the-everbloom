@@ -31,9 +31,14 @@
             </div>
             
             <div>
-                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Email Address *</label>
-                <input type="email" name="email" value="{{ old('email', $user->email) }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5 @error('email') border-red-500 @enderror">
-                @error('email') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Mobile Number *</label>
+                <input type="text" 
+                       name="phone" 
+                       value="{{ old('phone', $user->phone) }}" 
+                       class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5 @error('phone') border-red-500 @enderror"
+                       maxlength="11"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)">
+                @error('phone') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div class="pt-4 mt-4 border-t border-gray-100">

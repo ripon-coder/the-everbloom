@@ -42,8 +42,16 @@
                         </div>
 
                         <div>
-                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Email Address *</label>
-                            <input type="email" name="email" value="{{ old('email') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Enter your email" required>
+                            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Mobile Number *</label>
+                            <input type="text" 
+                                   name="phone" 
+                                   id="phone"
+                                   value="{{ old('phone') }}" 
+                                   class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" 
+                                   placeholder="01XXXXXXXXX" 
+                                   required
+                                   maxlength="11"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)">
                         </div>
                         
                         <div>

@@ -27,7 +27,9 @@
                 this.loadWishlist();
             });
 
-            this.loadWishlist();
+            @auth
+                this.loadWishlist();
+            @endauth
         },
         loadWishlist() {
             fetch('/wishlist/ids')

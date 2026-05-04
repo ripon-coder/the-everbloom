@@ -79,6 +79,17 @@ class User extends Authenticatable implements HasMedia
     }
 
 
+    /**
+     * Get the masked phone number.
+     */
+    public function getMaskedPhoneAttribute()
+    {
+        if (!$this->phone || strlen($this->phone) < 11) {
+            return $this->phone;
+        }
+        return substr($this->phone, 0, 3) . '****' . substr($this->phone, -4);
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('profile_image')->singleFile();

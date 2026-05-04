@@ -9,7 +9,7 @@
                     </div>
                     <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">Reset Password</h2>
                     <p class="text-sm text-gray-500 leading-relaxed">
-                        Please enter your email address and your new password below to reset your account access.
+                        Please enter your mobile number and your new password below to reset your account access.
                     </p>
                 </div>
                 
@@ -18,8 +18,14 @@
                     <input type="hidden" name="token" value="dummy-token">
 
                     <div>
-                        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Email Address *</label>
-                        <input type="email" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3 bg-gray-50" value="user@example.com" readonly required>
+                        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Mobile Number *</label>
+                        <input type="text" 
+                               name="phone"
+                               class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3 bg-gray-50" 
+                               placeholder="01XXXXXXXXX" 
+                               maxlength="11"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)"
+                               required>
                     </div>
 
                     <div>

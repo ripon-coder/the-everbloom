@@ -55,15 +55,27 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({
                         product_id: this.product.id
                     })
                 })
-                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 401) {
+                        window.dispatchEvent(new CustomEvent('notify', {
+                            detail: {
+                                message: 'Please login first to manage your wishlist.',
+                                type: 'error'
+                            }
+                        }));
+                        return;
+                    }
+                    return res.json();
+                })
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         window.dispatchEvent(new CustomEvent('wishlist-updated'));
                         window.dispatchEvent(new CustomEvent('notify', {
                             detail: {

@@ -9,19 +9,26 @@
                     </div>
                     <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">Forgot Password</h2>
                     <p class="text-sm text-gray-500 leading-relaxed">
-                        Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.
+                        Forgot your password? No problem. Just let us know your mobile number and we will provide a way to reset your password.
                     </p>
                 </div>
                 
                 <form class="space-y-6">
                     <div>
-                        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Email Address</label>
-                        <input type="email" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Enter your email address" required autofocus>
+                        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Mobile Number</label>
+                        <input type="text" 
+                               name="phone"
+                               class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" 
+                               placeholder="01XXXXXXXXX" 
+                               required 
+                               maxlength="11"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)"
+                               autofocus>
                     </div>
 
                     <div>
                         <button type="submit" class="w-full bg-slate-900 hover:bg-black text-white px-8 py-3.5 rounded text-sm font-bold uppercase tracking-widest transition-colors shadow-md">
-                            Email Password Reset Link
+                            Send Reset Instructions
                         </button>
                     </div>
                     

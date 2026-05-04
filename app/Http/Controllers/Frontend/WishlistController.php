@@ -13,17 +13,10 @@ class WishlistController extends Controller
     {
         $productId = $request->input('product_id');
         $userId = Auth::id();
-        $sessionId = session()->getId();
 
-        $query = Wishlist::where('product_id', $productId);
-
-        if ($userId) {
-            $query->where('user_id', $userId);
-        } else {
-            $query->where('session_id', $sessionId);
-        }
-
-        $wishlistItem = $query->first();
+        $wishlistItem = Wishlist::where('product_id', $productId)
+            ->where('user_id', $userId)
+            ->first();
 
         if ($wishlistItem) {
             $wishlistItem->delete();
@@ -37,7 +30,6 @@ class WishlistController extends Controller
         Wishlist::create([
             'user_id' => $userId,
             'product_id' => $productId,
-            'session_id' => $userId ? null : $sessionId
         ]);
 
         return response()->json([
@@ -50,13 +42,8 @@ class WishlistController extends Controller
     public function getWishlist(Request $request)
     {
         $userId = Auth::id();
-        $sessionId = session()->getId();
 
-        $wishlistIds = Wishlist::when($userId, function($q) use ($userId) {
-                return $q->where('user_id', $userId);
-            }, function($q) use ($sessionId) {
-                return $q->where('session_id', $sessionId);
-            })
+        $wishlistIds = Wishlist::where('user_id', $userId)
             ->pluck('product_id')
             ->toArray();
 

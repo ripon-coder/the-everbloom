@@ -9,7 +9,7 @@
                 </div>
                 <div class="min-w-0">
                     <h3 class="font-bold tracking-wide truncate">{{ $user->name }}</h3>
-                    <p class="text-[10px] text-gray-400 truncate uppercase tracking-widest font-medium">{{ $user->email }}</p>
+                    <p class="text-[10px] text-gray-400 truncate uppercase tracking-widest font-medium">{{ $user->masked_phone }}</p>
                 </div>
             </div>
         </div>
