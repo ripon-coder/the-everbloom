@@ -20,6 +20,7 @@
                         <th scope="col" class="px-6 py-3">Name</th>
                         <th scope="col" class="px-6 py-3">Slug</th>
                         <th scope="col" class="px-6 py-3">Parent</th>
+                        <th scope="col" class="px-6 py-3 text-center">Featured</th>
                         <th scope="col" class="px-6 py-3">Status</th>
                         <th scope="col" class="px-6 py-3">Created At</th>
                         <th scope="col" class="px-6 py-3 text-right">Actions</th>
@@ -48,6 +49,23 @@
                             <td class="px-6 py-4">
                                 {{ $category->parent ? $category->parent->name : 'Root' }}
                             </td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="toggleFeatured({{ $category->id }}, this)" class="focus:outline-none transition-transform duration-200 hover:scale-110">
+                                    @if ($category->is_featured)
+                                        <span class="text-yellow-400 featured-icon" title="Featured Category">
+                                            <svg class="w-5 h-5 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        </span>
+                                    @else
+                                        <span class="text-gray-300 dark:text-gray-600 featured-icon" title="Not Featured">
+                                            <svg class="w-5 h-5 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        </span>
+                                    @endif
+                                </button>
+                            </td>
                             <td class="px-6 py-4">
                                 @if ($category->status == \App\Constants\CategoryStatus::ACTIVE)
                                     <span
@@ -72,7 +90,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="9" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                                 <div class="flex flex-col items-center justify-center space-y-3">
                                     <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -99,4 +117,40 @@
             </div>
         @endif
     </div>
+
+    @push('scripts')
+    <script>
+        function toggleFeatured(categoryId, button) {
+            const iconContainer = button.querySelector('.featured-icon');
+            
+            fetch(`{{ url('admin/categories') }}/${categoryId}/toggle-featured`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.is_featured) {
+                        iconContainer.classList.remove('text-gray-300', 'dark:text-gray-600');
+                        iconContainer.classList.add('text-yellow-400');
+                        iconContainer.title = "Featured Category";
+                    } else {
+                        iconContainer.classList.remove('text-yellow-400');
+                        iconContainer.classList.add('text-gray-300', 'dark:text-gray-600');
+                        iconContainer.title = "Not Featured";
+                    }
+                    toastr.success(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('Something went wrong!');
+            });
+        }
+    </script>
+    @endpush
 @endsection

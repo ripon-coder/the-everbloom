@@ -72,10 +72,20 @@
                             {{ old('status') == \App\Constants\CategoryStatus::INACTIVE ? 'selected' : '' }}>Inactive
                         </option>
                     </select>
-                    @error('status')
-                        <p class="mt-2 text-sm text-red-600 dark:text-red-500"><span class="font-medium">Oops!</span>
-                            {{ $message }}</p>
                     @enderror
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Featured Category</label>
+                    <div class="flex items-center space-x-6 mt-3">
+                        <div class="flex items-center">
+                            <input id="featured-yes" type="radio" name="is_featured" value="1" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                            <label for="featured-yes" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Yes</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="featured-no" type="radio" name="is_featured" value="0" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" checked>
+                            <label for="featured-no" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">No</label>
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <label for="image" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category

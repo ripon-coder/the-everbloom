@@ -17,6 +17,8 @@ class HomeService
         $flashSale = $this->getActiveFlashSale();
         
         return [
+            'sliders' => \App\Models\Slider::where('status', true)->orderBy('sort_order')->get(),
+            'featuredCategories' => \App\Models\Category::active()->where('is_featured', true)->get(),
             'featuredProducts' => $this->transformProducts($this->getFeaturedProducts()),
             'bestSellingProducts' => $this->transformProducts($this->getBestSellingProducts()),
             'newArrivals' => $this->transformProducts($this->getNewArrivals()),

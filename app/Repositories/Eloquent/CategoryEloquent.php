@@ -23,7 +23,7 @@ class CategoryEloquent implements CategoryRepository
             'parent:id,parent_id,name,slug,status,created_at',
             'children:id,parent_id,name,slug,status,created_at',
             'media'
-        ])->orderByDesc(column: "id")->paginate(20, ['id','parent_id', 'name', 'slug', 'status', 'created_at']);
+        ])->orderByDesc("id")->paginate(20, ['id','parent_id', 'name', 'slug', 'status', 'is_featured', 'created_at']);
     }
 
     public function DeleteFindBuyId($id)
@@ -44,7 +44,7 @@ class CategoryEloquent implements CategoryRepository
     }
     public function parentCategory()
     {
-        return Category::with('media')->whereNull("parent_id")->active()->get(['id', 'name', 'slug']);
+        return Category::with('media')->whereNull("parent_id")->active()->get(['id', 'name', 'slug', 'is_featured']);
     }
     public function allCategory()
     {
@@ -55,7 +55,15 @@ class CategoryEloquent implements CategoryRepository
             'children.children.children:id,parent_id,name,slug',
         ])
             ->active()
-            ->get(['id', 'parent_id', 'name', 'slug']);
+            ->get(['id', 'parent_id', 'name', 'slug', 'is_featured']);
+    }
+
+
+    public function toggleFeatured($id)
+    {
+        $category = $this->FindById($id);
+        $category->update(['is_featured' => !$category->is_featured]);
+        return $category;
     }
 
 

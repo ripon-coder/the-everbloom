@@ -21,7 +21,8 @@ class Category extends Model implements HasMedia
         "name",
         "description",
         "options",
-        "status"
+        "status",
+        "is_featured"
     ];
 
     protected $casts = [

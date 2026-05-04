@@ -37,6 +37,7 @@ class UpdateCategoryRequest extends FormRequest
             'image' => 'nullable|image|max:2048',
             'description' => 'nullable|string|max:1000',
             'status' => 'required|in:' . CategoryStatus::ACTIVE . ',' . CategoryStatus::INACTIVE,
+            'is_featured' => 'nullable|boolean',
             'options' => 'nullable|array',
             'options.*' => 'nullable|string',
         ];

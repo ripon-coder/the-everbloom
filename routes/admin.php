@@ -25,7 +25,7 @@ Route::prefix('admin')->as("admin.")->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
-        
+
         // Product Management
         Route::resource("products", ProductController::class);
         Route::post('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
@@ -42,10 +42,11 @@ Route::prefix('admin')->as("admin.")->group(function () {
         // Other Resources
         Route::resource("brands", BrandController::class);
         Route::resource("categories", CategoryController::class);
+        Route::post('categories/{category}/toggle-featured', [CategoryController::class, 'toggleFeatured'])->name('categories.toggle-featured');
         Route::resource("attributes", AttributeController::class);
         Route::get('attributes/{attribute}/values', [AttributeController::class, 'getValues'])->name('attributes.values');
         Route::resource("attribute-values", AttributeValueController::class);
-        
+
         // Coupon Management
         Route::resource("coupons", CouponController::class);
         Route::post('coupons/{coupon}/restore', [CouponController::class, 'restore'])->name('coupons.restore');
@@ -66,7 +67,7 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::post('customers/{customer}/update-status', [\App\Http\Controllers\Admin\CustomerController::class, 'updateStatus'])->name('customers.update-status');
 
         // District Management
-        Route::resource("district",DistrictController::class);
+        Route::resource("district", DistrictController::class);
 
         // Review Management
         Route::get('reviews', [\App\Http\Controllers\Admin\ProductReviewController::class, 'index'])->name('reviews.index');
@@ -96,8 +97,4 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::get('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
     });
-});
-
-Route::get('/test',function(){
-
 });

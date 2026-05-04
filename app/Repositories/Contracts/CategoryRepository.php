@@ -9,4 +9,5 @@ interface CategoryRepository{
     public function update($id, array $data);
     public function parentCategory();
     public function allCategory();
+    public function toggleFeatured($id);
 }

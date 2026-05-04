@@ -85,4 +85,14 @@ class CategoryController extends Controller
             return redirect()->route("admin.categories.index")->with("danger","Category Deleted Successfully!");
          }
     }
+
+    public function toggleFeatured($id)
+    {
+        $category = $this->categoryRepository->toggleFeatured($id);
+        return response()->json([
+            'success' => true,
+            'is_featured' => $category->is_featured,
+            'message' => 'Category featured status updated!'
+        ]);
+    }
 }
