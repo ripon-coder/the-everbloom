@@ -84,6 +84,8 @@
                     </div>
                 </div>
 
+                <!-- Main Content -->
+                <div class="flex-1">
                     @php
                         /** @var \Illuminate\Pagination\LengthAwarePaginator $products */
                         /** @var \Illuminate\Support\Collection $categories */
