@@ -14,10 +14,22 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
+        
+        /* Pre-render sidebar state to avoid flicker */
+        .sidebar-collapsed #sidebar { display: none !important; }
+        .sidebar-collapsed #main-content { margin-left: 0 !important; }
+        .sidebar-collapsed #expand-sidebar-btn { display: flex !important; }
     </style>
+    <script>
+        (function() {
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+        })();
+    </script>
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-900">
+<body class="bg-gray-50">
     @include('admin.layouts.nav')
     @include('admin.layouts.sidebar')
     <div id="main-content" class="sm:ml-64 pt-16 min-h-screen content-z relative">

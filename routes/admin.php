@@ -86,6 +86,10 @@ Route::prefix('admin')->as("admin.")->group(function () {
         // Menu Management
         Route::resource("menus", \App\Http\Controllers\Admin\MenuController::class);
         Route::post('menus/{menu}/toggle-status', [\App\Http\Controllers\Admin\MenuController::class, 'toggleStatus'])->name('menus.toggle-status');
+
+        // Profile Management
+        Route::get('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
     });
 });
 

@@ -63,7 +63,6 @@
  /* Hide sidebar when toggled on desktop */
  #sidebar.hidden {
      transform: translateX(-100%);
-     display: block !important;
  }
 
  /* Show PC collapse button on desktop */
