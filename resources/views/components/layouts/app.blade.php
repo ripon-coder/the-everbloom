@@ -28,6 +28,7 @@
         body { font-family: 'Outfit', sans-serif; }
         [x-cloak] { display: none !important; }
     </style>
+    @stack('styles')
 </head>
 <body class="antialiased bg-gray-50 text-gray-900">
     <x-layout.nav />
@@ -128,5 +129,6 @@
         </div>
     </div>
 
+    @stack('scripts')
 </body>
 </html>
