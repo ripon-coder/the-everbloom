@@ -23,10 +23,45 @@
                                     </a>
                                 </li>
                                 @foreach($categories as $category)
-                                    <li>
-                                        <a href="{{ route('shop', array_merge(request()->query(), ['category' => $category->slug])) }}" class="flex items-center justify-between text-sm {{ request('category') === $category->slug ? 'text-red-600 font-bold' : 'text-gray-600 hover:text-red-600' }} transition-colors">
-                                            <span>{{ $category->name }}</span>
-                                        </a>
+                                    @php
+                                        $isChildActive = request('category') && $category->children->pluck('slug')->contains(request('category'));
+                                        $isParentActive = request('category') === $category->slug;
+                                        $isOpen = $isParentActive || $isChildActive;
+                                    @endphp
+                                    <li x-data="{ open: {{ $isOpen ? 'true' : 'false' }} }">
+                                        <div class="flex items-center justify-between group">
+                                            <a href="{{ route('shop', array_merge(request()->query(), ['category' => $category->slug])) }}" 
+                                               class="flex-1 py-1 text-sm {{ $isParentActive ? 'text-red-600 font-bold' : 'text-gray-600 group-hover:text-red-600' }} transition-colors">
+                                                {{ $category->name }}
+                                            </a>
+                                            @if($category->children->count() > 0)
+                                                <button @click="open = !open" 
+                                                        class="p-1 text-gray-400 hover:text-red-600 focus:outline-none transition-transform duration-200" 
+                                                        :class="open ? 'rotate-180' : ''">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    </svg>
+                                                </button>
+                                            @endif
+                                        </div>
+                                        
+                                        @if($category->children->count() > 0)
+                                            <ul x-show="open" 
+                                                x-cloak 
+                                                x-transition:enter="transition ease-out duration-200"
+                                                x-transition:enter-start="opacity-0 -translate-y-2"
+                                                x-transition:enter-end="opacity-100 translate-y-0"
+                                                class="ml-3 mt-1 space-y-1 border-l-2 border-gray-50 pl-3">
+                                                @foreach($category->children as $child)
+                                                    <li>
+                                                        <a href="{{ route('shop', array_merge(request()->query(), ['category' => $child->slug])) }}" 
+                                                           class="block py-1 text-[13px] {{ request('category') === $child->slug ? 'text-red-600 font-bold' : 'text-gray-500 hover:text-red-600' }} transition-colors">
+                                                            {{ $child->name }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
                                     </li>
                                 @endforeach
                             </ul>
@@ -49,16 +84,18 @@
                     </div>
                 </div>
 
-                <!-- Main Content -->
-                <div class="flex-1">
+                    @php
+                        /** @var \Illuminate\Pagination\LengthAwarePaginator $products */
+                        /** @var \Illuminate\Support\Collection $categories */
+                    @endphp
                     <!-- Top Bar -->
                     <div class="bg-white border border-gray-200 rounded-lg p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div>
                             <h1 class="text-xl font-bold text-gray-900">
                                 @if(request('search'))
                                     Search Results for "{{ request('search') }}"
-                                @elseif(request('category'))
-                                    {{ $categories->where('slug', request('category'))->first()->name ?? 'Category' }}
+                                @elseif(isset($activeCategory))
+                                    {{ $activeCategory->name }}
                                 @else
                                     All Products
                                 @endif

@@ -32,8 +32,12 @@ class ProductController extends Controller
     {
         $products = $this->productService->getShopProducts($request->all());
         $categories = $this->productService->getActiveCategories();
+        $activeCategory = null;
+        if ($request->filled('category')) {
+            $activeCategory = \App\Models\Category::where('slug', $request->category)->first();
+        }
 
-        return view('pages.shop.index', compact('products', 'categories'));
+        return view('pages.shop.index', compact('products', 'categories', 'activeCategory'));
     }
 
     /**

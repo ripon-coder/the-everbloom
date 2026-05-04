@@ -104,13 +104,13 @@ class ProductService
     }
 
     /**
-     * Get all active categories.
+     * Get all active root categories with their children.
      *
      * @return Collection
      */
     public function getActiveCategories(): Collection
     {
-        return Category::active()->get();
+        return Category::active()->root()->with('children')->ordered()->get();
     }
     /**
      * Transform a collection of products into plain data objects for the view.
