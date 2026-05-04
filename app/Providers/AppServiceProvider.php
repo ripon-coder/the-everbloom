@@ -34,6 +34,8 @@ use App\Repositories\Contracts\WishlistRepository;
 use App\Repositories\Eloquent\WishlistEloquent;
 use App\Repositories\Contracts\CheckoutCalculationRepository;
 use App\Repositories\Eloquent\CheckoutCalculationEloquent;
+use App\Repositories\Contracts\SliderRepository;
+use App\Repositories\Eloquent\SliderEloquent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -55,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
         app()->bind(UserRepository::class, UserEloquent::class);
         app()->bind(WishlistRepository::class, WishlistEloquent::class);
         app()->bind(CheckoutCalculationRepository::class, CheckoutCalculationEloquent::class);
+        app()->bind(SliderRepository::class, SliderEloquent::class);
     }
 
     /**

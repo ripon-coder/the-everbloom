@@ -289,5 +289,20 @@
             </div>
         </form>
     </div>
+    @push('scripts')
+        <script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
+        <script>
+            ClassicEditor
+                .create(document.querySelector('#description'))
+                .catch(error => {
+                    console.error(error);
+                });
+        </script>
+        <style>
+            .ck-editor__editable_inline {
+                min-height: 200px;
+            }
+        </style>
+    @endpush
     @include('admin.products.js._create')
 @endsection

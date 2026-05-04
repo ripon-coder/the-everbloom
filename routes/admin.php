@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\FlashSaleController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\SliderController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->as("admin.")->group(function () {
@@ -86,6 +87,10 @@ Route::prefix('admin')->as("admin.")->group(function () {
         // Menu Management
         Route::resource("menus", \App\Http\Controllers\Admin\MenuController::class);
         Route::post('menus/{menu}/toggle-status', [\App\Http\Controllers\Admin\MenuController::class, 'toggleStatus'])->name('menus.toggle-status');
+
+        // Hero Slider Management
+        Route::resource("sliders", SliderController::class);
+        Route::post('sliders/{slider}/toggle-status', [SliderController::class, 'toggleStatus'])->name('sliders.toggle-status');
 
         // Profile Management
         Route::get('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
