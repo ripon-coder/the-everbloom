@@ -1,152 +1,169 @@
 @extends('admin.layouts.app')
 @section('content')
     <!-- Dashboard Header -->
-    <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-6">
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Analytics Dashboard</h1>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Real-time insights and performance metrics</p>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <!-- Date Range Selector -->
-                    <select
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        <option>Last 7 days</option>
-                        <option>Last 30 days</option>
-                        <option>Last 90 days</option>
-                        <option>This year</option>
-                    </select>
-                    <!-- Export Button -->
-                    <button
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                            </path>
-                        </svg>
-                        Export
-                    </button>
-                </div>
-            </div>
+    <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Good afternoon, {{ Auth::guard('admin')->user()->name }}</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Here's what's happening with your store today.</p>
         </div>
     </div>
     <!-- Dashboard Content -->
     <div class="space-y-6">
-        <!-- Key Metrics Row -->
+        <!-- Financial Performance Row -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Total Revenue Card -->
-            <div
-                class="stat-card bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-blue-100 text-sm font-medium">Total Revenue</p>
-                        <p class="text-3xl font-bold metric-value">{{ $currency_sign }}{{ number_format($stats['total_revenue'], 2) }}</p>
-                        <p class="text-blue-100 text-xs mt-1">
-                            <span class="text-green-300">↑ Live</span> data
-                        </p>
-                    </div>
-                    <div class="bg-blue-400 bg-opacity-30 rounded-lg p-3">
-                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                                d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z">
-                            </path>
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
-                                clip-rule="evenodd"></path>
+            <!-- This Month Profit -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
+                        <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                         </svg>
                     </div>
+                    @php
+                        $profitDiff = $stats['this_month_profit'] - $stats['last_month_profit'];
+                        $profitTrend = $stats['last_month_profit'] > 0 ? ($profitDiff / $stats['last_month_profit']) * 100 : 0;
+                    @endphp
+                    <span class="text-xs font-medium {{ $profitTrend >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50' }} px-2 py-1 rounded-full">
+                        {{ $profitTrend >= 0 ? '+' : '' }}{{ number_format($profitTrend, 1) }}%
+                    </span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">This Month Profit</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $currency_sign }}{{ number_format($stats['this_month_profit'], 2) }}</h3>
+                    <p class="text-xs text-gray-400 mt-2">Net profit for {{ now()->format('F') }}</p>
+                </div>
+            </div>
+
+            <!-- Last Month Profit -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Last Month Profit</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $currency_sign }}{{ number_format($stats['last_month_profit'], 2) }}</h3>
+                    <p class="text-xs text-gray-400 mt-2">Net profit for {{ now()->subMonth()->format('F') }}</p>
+                </div>
+            </div>
+
+            <!-- Total Revenue Card (Duplicate or Move) -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">All-time Profit</p>
+                    @php $totalProfit = \App\Models\Order::where('payment_status', 'paid')->sum('profit'); @endphp
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $currency_sign }}{{ number_format($totalProfit, 2) }}</h3>
+                    <p class="text-xs text-gray-400 mt-2">Cumulative net profit</p>
+                </div>
+            </div>
+
+            <!-- Store Efficiency Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
+                        <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Profit Margin</p>
+                    @php 
+                        $margin = $stats['total_revenue'] > 0 ? ($totalProfit / $stats['total_revenue']) * 100 : 0;
+                    @endphp
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ number_format($margin, 1) }}%</h3>
+                    <p class="text-xs text-gray-400 mt-2">Average profitability</p>
+                </div>
+            </div>
+        </div>
+        <!-- Key Metrics Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <!-- Total Orders Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
+                        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xs font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-full">+8.2%</span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Orders</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ number_format($stats['total_orders']) }}</h3>
+                    <p class="text-xs text-gray-400 mt-2">Orders processed</p>
                 </div>
             </div>
 
             <!-- Pending Orders Card -->
-            <div
-                class="stat-card bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-yellow-100 text-sm font-medium">Pending Orders</p>
-                        <p class="text-3xl font-bold metric-value">{{ $stats['pending_orders'] }}</p>
-                        <p class="text-yellow-100 text-xs mt-1">
-                            Awaiting processing
-                        </p>
-                    </div>
-                    <div class="bg-yellow-400 bg-opacity-30 rounded-lg p-3">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg">
+                        <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
+                    <span class="text-xs font-medium text-amber-600 bg-amber-50 dark:bg-amber-900/30 px-2 py-1 rounded-full">Action Needed</span>
                 </div>
-            </div>
-
-            <!-- Processing Orders Card -->
-            <div
-                class="stat-card bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-purple-100 text-sm font-medium">Processing</p>
-                        <p class="text-3xl font-bold metric-value">{{ $stats['processing_orders'] }}</p>
-                        <p class="text-purple-100 text-xs mt-1">
-                            In progress
-                        </p>
-                    </div>
-                    <div class="bg-purple-400 bg-opacity-30 rounded-lg p-3">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
-                    </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Orders</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $stats['pending_orders'] }}</h3>
+                    <p class="text-xs text-gray-400 mt-2">Awaiting processing</p>
                 </div>
             </div>
 
             <!-- Completed Orders Card -->
-            <div
-                class="stat-card bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-green-100 text-sm font-medium">Delivered</p>
-                        <p class="text-3xl font-bold metric-value">{{ $stats['completed_orders'] }}</p>
-                        <p class="text-green-100 text-xs mt-1">
-                            Successfully completed
-                        </p>
-                    </div>
-                    <div class="bg-green-400 bg-opacity-30 rounded-lg p-3">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
+                        <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
+                    <span class="text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-full">Healthy</span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Delivered Orders</p>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $stats['completed_orders'] }}</h3>
+                    <p class="text-xs text-gray-400 mt-2">Successfully completed</p>
                 </div>
             </div>
         </div>
 
-        <!-- Charts Row -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Revenue Chart -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Revenue Overview</h3>
-                    <select
-                        class="text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option>Last 7 days</option>
-                        <option>Last 30 days</option>
-                        <option>Last 90 days</option>
-                    </select>
+            <!-- Profit Analytics Chart -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Profit Analytics</h3>
+                        <p class="text-xs text-gray-500">Weekly net earnings performance</p>
+                    </div>
+                    <span class="text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 rounded-full">Last 7 Days</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="revenueChart"></canvas>
                 </div>
             </div>
 
-            <!-- User Activity Chart -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">User Activity</h3>
-                    <div class="flex space-x-2">
-                        <button
-                            class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">Daily</button>
-                        <button
-                            class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Weekly</button>
-                        <button
-                            class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">Monthly</button>
+            <!-- Order Activity Chart -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Order Volume</h3>
+                        <p class="text-xs text-gray-500">Distribution of orders over time</p>
                     </div>
+                    <span class="text-xs font-medium text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-full">Last 7 Days</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="userActivityChart"></canvas>
@@ -156,146 +173,175 @@
 
         <!-- Bottom Row -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Traffic Sources -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Traffic Sources</h3>
-                <div class="chart-container">
+            <!-- Recent Transactions -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 lg:col-span-2">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Recent Transactions</h3>
+                        <p class="text-xs text-gray-500">Latest orders placed by customers</p>
+                    </div>
+                    <a href="{{ route('admin.orders.index') }}" class="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">View All</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-gray-700">
+                                <th class="pb-3 px-2">Order #</th>
+                                <th class="pb-3 px-2">Customer</th>
+                                <th class="pb-3 px-2">Amount</th>
+                                <th class="pb-3 px-2 text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50 dark:divide-gray-700">
+                            @forelse($recentOrders as $order)
+                                <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
+                                    <td class="py-4 px-2">
+                                        <span class="text-sm font-bold text-gray-900 dark:text-white">{{ $order->order_number }}</span>
+                                    </td>
+                                    <td class="py-4 px-2">
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $order->user->name ?? 'Guest' }}</span>
+                                            <span class="text-xs text-gray-500">{{ $order->created_at->format('M d, H:i') }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-2">
+                                        <span class="text-sm font-bold text-gray-900 dark:text-white">{{ $currency_sign }}{{ number_format($order->total_amount, 2) }}</span>
+                                    </td>
+                                    <td class="py-4 px-2 text-right">
+                                        <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full {{ $order->getStatusColor() }}">
+                                            {{ $order->getStatusText() }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-8 text-gray-500">No recent orders found</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Categories -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Top Categories</h3>
+                    <p class="text-xs text-gray-500">Distribution by product count</p>
+                </div>
+                <div class="chart-container !h-48">
                     <canvas id="trafficSourcesChart"></canvas>
                 </div>
-                <div class="mt-4 space-y-2">
-                    <div class="flex items-center justify-between text-sm">
+                <div class="mt-6 space-y-3">
+                    @php
+                        $colors = ['bg-blue-500', 'bg-emerald-500', 'bg-violet-500', 'bg-amber-500'];
+                    @endphp
+                    @foreach($stats['top_categories'] as $index => $category)
+                    <div class="flex items-center justify-between group">
                         <div class="flex items-center">
-                            <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                            <span class="text-gray-600 dark:text-gray-400">Organic Search</span>
+                            <div class="w-2.5 h-2.5 {{ $colors[$index] ?? 'bg-gray-400' }} rounded-full mr-3 shadow-sm"></div>
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{{ $category->name }}</span>
                         </div>
-                        <span class="font-medium text-gray-900 dark:text-white">45%</span>
+                        <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $category->products_count }}</span>
                     </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                            <span class="text-gray-600 dark:text-gray-400">Direct</span>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Row for Products & Health -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Top Performing Products -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 lg:col-span-2">
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Top Performing Products</h3>
+                    <p class="text-xs text-gray-500">Based on sales volume and revenue</p>
+                </div>
+                <div class="space-y-4">
+                    @foreach($stats['top_products'] as $product)
+                    <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-600 flex items-center justify-center text-blue-600 font-bold shadow-sm text-sm">
+                                {{ substr($product->name, 0, 1) }}
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-900 dark:text-white">{{ $product->name }}</h4>
+                                <p class="text-xs text-gray-500">{{ $product->total_sold }} units sold</p>
+                            </div>
                         </div>
-                        <span class="font-medium text-gray-900 dark:text-white">25%</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
-                            <span class="text-gray-600 dark:text-gray-400">Social Media</span>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $currency_sign }}{{ number_format($product->total_revenue, 2) }}</p>
+                            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-tight">Revenue</p>
                         </div>
-                        <span class="font-medium text-gray-900 dark:text-white">20%</span>
                     </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
-                            <span class="text-gray-600 dark:text-gray-400">Referral</span>
-                        </div>
-                        <span class="font-medium text-gray-900 dark:text-white">10%</span>
-                    </div>
+                    @endforeach
                 </div>
             </div>
 
-            <!-- Recent Orders -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Orders</h3>
-                    <a href="{{ route('admin.orders.index') }}" class="text-sm text-blue-600 hover:underline">View All</a>
+            <!-- Store Health -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Store Health</h3>
+                    <p class="text-xs text-gray-500">System performance indicators</p>
                 </div>
-                <div class="space-y-4">
-                    @forelse($recentOrders as $order)
-                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                            <div class="flex items-center space-x-3">
-                                <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-full text-blue-600 dark:text-blue-300">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $order->order_number }}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $order->user->name ?? 'Guest' }}</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $currency_sign }}{{ number_format($order->total_amount, 2) }}</p>
-                                <span class="inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full {{ $order->getStatusColor() }}">
-                                    {{ $order->getStatusText() }}
-                                </span>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-center text-gray-500 py-4">No recent orders</p>
-                    @endforelse
-                </div>
-            </div>
-
-            <!-- Performance Metrics -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Performance Metrics</h3>
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Server Response</span>
-                            <span class="text-sm text-gray-500 dark:text-gray-400">125ms</span>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Conversion Rate</span>
+                            <span class="text-sm font-bold text-blue-600">3.2%</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                            <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+                        <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-blue-600 h-1.5 rounded-full" style="width: 65%"></div>
                         </div>
                     </div>
                     <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Database Load</span>
-                            <span class="text-sm text-gray-500 dark:text-gray-400">67%</span>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Avg. Order Value</span>
+                            <span class="text-sm font-bold text-emerald-600">{{ $currency_sign }}450</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 67%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Memory Usage</span>
-                            <span class="text-sm text-gray-500 dark:text-gray-400">4.2GB / 8GB</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                            <div class="bg-blue-500 h-2 rounded-full" style="width: 52%"></div>
+                        <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 78%"></div>
                         </div>
                     </div>
                     <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Network I/O</span>
-                            <span class="text-sm text-gray-500 dark:text-gray-400">234 Mbps</span>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Customer Satisfaction</span>
+                            <span class="text-sm font-bold text-amber-500">4.8/5</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                            <div class="bg-purple-500 h-2 rounded-full" style="width: 78%"></div>
+                        <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-amber-500 h-1.5 rounded-full" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <div class="pt-4 mt-4 border-t border-gray-50 dark:border-gray-700">
+                        <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 italic">
+                            <svg class="w-4 h-4 mr-1.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            All systems are operational
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Real-time Data Section -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Real-time Analytics</h3>
-                <div class="flex items-center space-x-2">
-                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span class="text-sm text-gray-500 dark:text-gray-400">Live</span>
+        <!-- Store Overview (Condensed) -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center md:border-r border-gray-100 dark:border-gray-700 last:border-0">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($stats['total_products']) }}</p>
+                    <p class="text-xs text-gray-500 uppercase font-semibold tracking-wider">Products</p>
                 </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <p class="text-2xl font-bold text-blue-600 metric-value" id="liveUsers">1,247</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Live Users</p>
+                <div class="text-center md:border-r border-gray-100 dark:border-gray-700 last:border-0">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($stats['total_customers']) }}</p>
+                    <p class="text-xs text-gray-500 uppercase font-semibold tracking-wider">Customers</p>
                 </div>
-                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <p class="text-2xl font-bold text-green-600 metric-value" id="pageViews">8,429</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Page Views</p>
+                <div class="text-center md:border-r border-gray-100 dark:border-gray-700 last:border-0">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($stats['total_categories']) }}</p>
+                    <p class="text-xs text-gray-500 uppercase font-semibold tracking-wider">Categories</p>
                 </div>
-                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <p class="text-2xl font-bold text-purple-600 metric-value" id="bounceRate">32.1%</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Bounce Rate</p>
-                </div>
-                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <p class="text-2xl font-bold text-orange-600 metric-value" id="avgDuration">4m 23s</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Avg. Duration</p>
+                <div class="text-center">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($stats['total_brands']) }}</p>
+                    <p class="text-xs text-gray-500 uppercase font-semibold tracking-wider">Brands</p>
                 </div>
             </div>
         </div>
@@ -305,182 +351,122 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Chart.js default configuration
-            Chart.defaults.font.family = 'system-ui, -apple-system, sans-serif';
-            Chart.defaults.color = '#6B7280';
+            Chart.defaults.font.family = "'Inter', 'system-ui', '-apple-system', 'sans-serif'";
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.plugins.tooltip.backgroundColor = '#1e293b';
+            Chart.defaults.plugins.tooltip.padding = 12;
+            Chart.defaults.plugins.tooltip.cornerRadius = 8;
+            Chart.defaults.plugins.tooltip.titleFont = { size: 14, weight: 'bold' };
 
             // Revenue Chart - Line Chart
             const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            const revenueGradient = revenueCtx.createLinearGradient(0, 0, 0, 400);
+            revenueGradient.addColorStop(0, 'rgba(59, 130, 246, 0.15)');
+            revenueGradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
             new Chart(revenueCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Revenue',
-                        data: [3200, 4500, 3800, 5200, 4900, 6100, 5800],
-                        borderColor: '#3B82F6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#3B82F6',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8
-                    }]
+                    labels: {!! json_encode($stats['chart_labels']) !!},
+                    datasets: [
+                        {
+                            label: 'Profit',
+                            data: {!! json_encode($stats['profit_chart_data']) !!},
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#10B981',
+                            pointBorderWidth: 2,
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        }
+                        legend: { display: false }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: {
-                                color: 'rgba(107, 114, 128, 0.1)'
-                            },
+                            grid: { color: 'rgba(226, 232, 240, 0.5)', drawBorder: false },
                             ticks: {
                                 callback: function(value) {
-                                    return '$' + value.toLocaleString();
+                                    return '{{ $currency_sign }}' + value.toLocaleString();
                                 }
                             }
                         },
                         x: {
-                            grid: {
-                                display: false
-                            }
+                            grid: { display: false }
                         }
                     },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
+                    interaction: { intersect: false, mode: 'index' }
                 }
             });
 
-            // User Activity Chart - Bar Chart
+            // Order Activity Chart - Bar Chart
             const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
             new Chart(userActivityCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    labels: {!! json_encode($stats['chart_labels']) !!},
                     datasets: [{
-                        label: 'Active Users',
-                        data: [120, 80, 450, 680, 520, 380],
-                        backgroundColor: [
-                            'rgba(34, 197, 94, 0.8)',
-                            'rgba(34, 197, 94, 0.8)',
-                            'rgba(59, 130, 246, 0.8)',
-                            'rgba(59, 130, 246, 0.8)',
-                            'rgba(168, 85, 247, 0.8)',
-                            'rgba(168, 85, 247, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgb(34, 197, 94)',
-                            'rgb(34, 197, 94)',
-                            'rgb(59, 130, 246)',
-                            'rgb(59, 130, 246)',
-                            'rgb(168, 85, 247)',
-                            'rgb(168, 85, 247)'
-                        ],
-                        borderWidth: 2,
-                        borderRadius: 8,
-                        borderSkipped: false
+                        label: 'Orders',
+                        data: {!! json_encode($stats['order_chart_data']) !!},
+                        backgroundColor: 'rgba(99, 102, 241, 0.85)',
+                        hoverBackgroundColor: 'rgba(99, 102, 241, 1)',
+                        borderRadius: 6,
+                        barThickness: 20,
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        }
+                        legend: { display: false }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: {
-                                color: 'rgba(107, 114, 128, 0.1)'
-                            }
+                            grid: { color: 'rgba(226, 232, 240, 0.5)', drawBorder: false },
                         },
                         x: {
-                            grid: {
-                                display: false
-                            }
+                            grid: { display: false }
                         }
                     }
                 }
             });
 
-            // Traffic Sources Chart - Doughnut Chart
+            // Traffic Sources Chart - Doughnut Chart (Now Top Categories)
             const trafficSourcesCtx = document.getElementById('trafficSourcesChart').getContext('2d');
             new Chart(trafficSourcesCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Organic Search', 'Direct', 'Social Media', 'Referral'],
+                    labels: {!! json_encode($stats['top_categories']->pluck('name')) !!},
                     datasets: [{
-                        data: [45, 25, 20, 10],
+                        data: {!! json_encode($stats['top_categories']->pluck('products_count')) !!},
                         backgroundColor: [
                             '#3B82F6',
                             '#10B981',
                             '#8B5CF6',
                             '#F59E0B'
                         ],
-                        borderColor: '#ffffff',
-                        borderWidth: 3,
-                        hoverOffset: 4
+                        borderWidth: 0,
+                        hoverOffset: 15
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        }
+                        legend: { display: false }
                     },
-                    cutout: '70%'
+                    cutout: '75%'
                 }
             });
-
-            // Real-time data simulation
-            function updateRealTimeData() {
-                const liveUsers = document.getElementById('liveUsers');
-                const pageViews = document.getElementById('pageViews');
-                const bounceRate = document.getElementById('bounceRate');
-                const avgDuration = document.getElementById('avgDuration');
-
-                // Simulate real-time updates
-                setInterval(() => {
-                    // Update live users
-                    const currentUsers = parseInt(liveUsers.textContent.replace(',', ''));
-                    const newUsers = currentUsers + Math.floor(Math.random() * 20) - 10;
-                    liveUsers.textContent = Math.max(1000, newUsers).toLocaleString();
-
-                    // Update page views
-                    const currentViews = parseInt(pageViews.textContent.replace(',', ''));
-                    const newViews = currentViews + Math.floor(Math.random() * 10);
-                    pageViews.textContent = newViews.toLocaleString();
-
-                    // Update bounce rate
-                    const currentRate = parseFloat(bounceRate.textContent);
-                    const newRate = Math.max(20, Math.min(50, currentRate + (Math.random() * 2 - 1)));
-                    bounceRate.textContent = newRate.toFixed(1) + '%';
-
-                    // Update average duration
-                    const currentDuration = avgDuration.textContent;
-                    const minutes = parseInt(currentDuration);
-                    const newMinutes = Math.max(2, Math.min(8, minutes + Math.floor(Math.random() * 3) -
-                    1));
-                    avgDuration.textContent = newMinutes + 'm ' + Math.floor(Math.random() * 60) + 's';
-                }, 3000);
-            }
-
-            updateRealTimeData();
         });
     </script>
 @endsection

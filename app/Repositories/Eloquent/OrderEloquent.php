@@ -10,6 +10,9 @@ use App\Models\Product;
 use App\Repositories\Contracts\CouponRepository;
 use App\Repositories\Contracts\OrderRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Models\Category;
+use App\Models\User;
+use App\Models\Brand;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -398,13 +401,91 @@ class OrderEloquent implements OrderRepository
      */
     public function getStatistics(): array
     {
+        $last7Days = now()->subDays(6)->startOfDay();
+
+        $revenueLast7Days = $this->model
+            ->where('payment_status', 'paid')
+            ->where('created_at', '>=', $last7Days)
+            ->selectRaw('DATE(created_at) as date, SUM(total_amount) as total')
+            ->groupBy('date')
+            ->pluck('total', 'date')
+            ->toArray();
+
+        $orderCountsLast7Days = $this->model
+            ->where('created_at', '>=', $last7Days)
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->pluck('count', 'date')
+            ->toArray();
+
+        // Fill missing days with 0
+        $dates = [];
+        $displayLabels = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $dates[] = $date;
+            $displayLabels[] = now()->subDays($i)->format('D');
+        }
+
+        $revenueData = [];
+        $orderData = [];
+        $profitData = [];
+        foreach ($dates as $date) {
+            $revenueData[] = $revenueLast7Days[$date] ?? 0;
+            $orderData[] = $orderCountsLast7Days[$date] ?? 0;
+            
+            // Get profit for this date
+            $dayProfit = $this->model->where('payment_status', 'paid')
+                ->whereDate('created_at', $date)
+                ->sum('profit');
+            $profitData[] = $dayProfit;
+        }
+
+        // Top categories by product count (as a proxy for activity)
+        $topCategories = Category::withCount('products')
+            ->orderBy('products_count', 'desc')
+            ->take(4)
+            ->get();
+
+        // Top products by quantity sold
+        $topProducts = DB::table('order_products')
+            ->join('products', 'order_products.product_id', '=', 'products.id')
+            ->select('products.name', DB::raw('SUM(order_products.quantity) as total_sold'), DB::raw('SUM(order_products.total_price) as total_revenue'))
+            ->groupBy('products.id', 'products.name')
+            ->orderBy('total_sold', 'desc')
+            ->take(5)
+            ->get();
+
+        // Profit calculations
+        $thisMonthProfit = $this->model->where('payment_status', 'paid')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('profit');
+
+        $lastMonthProfit = $this->model->where('payment_status', 'paid')
+            ->whereMonth('created_at', now()->subMonth()->month)
+            ->whereYear('created_at', now()->subMonth()->year)
+            ->sum('profit');
+
         return [
             'total_orders' => $this->model->count(),
             'pending_orders' => $this->model->where('status', 'pending')->count(),
             'processing_orders' => $this->model->where('status', 'processing')->count(),
             'completed_orders' => $this->model->where('status', 'delivered')->count(),
             'total_revenue' => $this->model->where('payment_status', 'paid')->sum('total_amount'),
+            'this_month_profit' => $thisMonthProfit,
+            'last_month_profit' => $lastMonthProfit,
             'pending_payments' => $this->model->where('payment_status', 'pending')->count(),
+            'total_products' => Product::count(),
+            'total_customers' => User::count(),
+            'total_categories' => Category::count(),
+            'total_brands' => Brand::count(),
+            'chart_labels' => $displayLabels,
+            'revenue_chart_data' => $revenueData,
+            'order_chart_data' => $orderData,
+            'profit_chart_data' => $profitData,
+            'top_categories' => $topCategories,
+            'top_products' => $topProducts,
         ];
     }
 
