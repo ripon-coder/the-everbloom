@@ -1,4 +1,4 @@
-<x-layouts.app title="Checkout | Everbloom">
+<x-layouts.app title="Checkout | feriwalarhat">
     <div class="bg-gray-50 py-4 md:py-8" x-data="checkoutPage()">
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
 

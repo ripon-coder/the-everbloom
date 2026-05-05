@@ -1,4 +1,4 @@
-<x-layouts.app title="Everbloom | Home">
+<x-layouts.app title="feriwalarhat | Home">
     <div class="bg-white">
         <x-home.hero :sliders="$sliders" />
         

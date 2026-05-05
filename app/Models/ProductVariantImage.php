@@ -27,7 +27,10 @@ class ProductVariantImage extends Model implements HasMedia
     protected $fillable = [
         'product_variant_id',
         'is_default',
+        'image',
     ];
+
+    protected $imageColumns = ['image'];
 
     /**
      * The attributes that should be cast.
@@ -69,7 +72,7 @@ class ProductVariantImage extends Model implements HasMedia
      */
     public function getImageUrl()
     {
-        return $this->traitGetImageUrl('variant_images');
+        return $this->traitGetImageUrl('image');
     }
 
 }

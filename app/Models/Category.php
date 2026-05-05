@@ -22,8 +22,11 @@ class Category extends Model implements HasMedia
         "description",
         "options",
         "status",
-        "is_featured"
+        "is_featured",
+        "image"
     ];
+
+    protected $imageColumns = ['image'];
 
     protected $casts = [
         'options' => 'json'
@@ -51,7 +54,7 @@ class Category extends Model implements HasMedia
 
     public function getImageUrl()
     {
-        return $this->traitGetImageUrl('category_image');
+        return $this->traitGetImageUrl('image');
     }
 
     /**

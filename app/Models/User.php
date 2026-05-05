@@ -15,6 +15,9 @@ use Spatie\MediaLibrary\HasMedia;
 class User extends Authenticatable implements HasMedia
 {
     use HasApiTokens, InteractsWithMedia, HasFactory, Notifiable, HasImage;
+    
+    protected $imageColumns = ['profile_image'];
+
 
     /**
      * The attributes that are mass assignable.

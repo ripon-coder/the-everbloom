@@ -1,5 +1,5 @@
 <x-layouts.app 
-    :title="($page->meta_title ?: $page->title) . ' | ' . ($site_setting->site_name ?? 'Everbloom')"
+    :title="($page->meta_title ?: $page->title) . ' | ' . ($site_setting->site_name ?? 'feriwalarhat')"
     :meta-description="$page->meta_description"
 >
     <!-- Breadcrumb -->

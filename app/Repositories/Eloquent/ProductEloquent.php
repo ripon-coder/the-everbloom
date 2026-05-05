@@ -63,8 +63,8 @@ class ProductEloquent implements ProductRepository
             'variants.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
             'variants.variantAttributes.attribute:id,name',
             'variants.variantAttributes.attributeValue:id,attribute_id,value',
-            'images:id,product_id,is_default',
-            'variants.images:id,product_variant_id,is_default'
+            'images:id,product_id,is_default,image',
+            'variants.images:id,product_variant_id,is_default,image'
         ])->withCount(['variants', 'images'])->findOrFail($id);
 
         $data['brands'] = Brand::active()->get(['id', 'name']);

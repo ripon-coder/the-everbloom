@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="{{ $site_setting->meta_description ?? '' }}">
     <meta name="keywords" content="{{ $site_setting->meta_keywords ?? '' }}">
-    <title>{{ $title ?? ($site_setting->site_name ?? 'Everbloom Electronics') }} | {{ $site_setting->meta_title ?? 'Premium Tech Store' }}</title>
+    <title>{{ $title ?? ($site_setting->site_name ?? 'feriwalarhat Electronics') }} | {{ $site_setting->meta_title ?? 'Premium Tech Store' }}</title>
     @if($site_setting && $site_setting->site_favicon)
         <link rel="icon" href="{{ Storage::url($site_setting->site_favicon) }}" type="image/x-icon">
     @endif

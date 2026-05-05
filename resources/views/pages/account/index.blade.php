@@ -1,4 +1,4 @@
-<x-layouts.app title="My Account | Everbloom">
+<x-layouts.app title="My Account | feriwalarhat">
     <div class="bg-gray-50 py-6 md:py-10">
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
             

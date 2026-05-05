@@ -41,6 +41,6 @@ class BrandEloquent implements BrandRepository
 
     public function ActiveAllBrand()
     {
-        return Brand::orderBy("name")->active()->get(['id', 'slug', 'name']);
+        return Brand::orderBy("name")->active()->get(['id', 'slug', 'name', 'image']);
     }
 }

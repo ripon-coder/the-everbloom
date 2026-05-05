@@ -21,7 +21,10 @@ class ProductImage extends Model implements HasMedia
     protected $fillable = [
         'product_id',
         'is_default',
+        'image',
     ];
+
+    protected $imageColumns = ['image'];
 
     protected $appends = ['image_url'];
 
@@ -69,7 +72,7 @@ class ProductImage extends Model implements HasMedia
     */
     public function getImageUrl()
     {
-        return $this->traitGetImageUrl('product_images');
+        return $this->traitGetImageUrl('image');
     }
 
 }

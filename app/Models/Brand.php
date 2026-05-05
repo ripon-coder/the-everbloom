@@ -14,7 +14,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class Brand extends Model implements HasMedia
 {
     use HasFactory, SoftDeletes, InteractsWithMedia, HasImage;
-    protected $fillable = ["slug", "name", "description", "options", "status"];
+    protected $fillable = ["slug", "name", "description", "options", "status", "image"];
 
     protected $casts = [
         'options' => 'json',
@@ -36,7 +36,7 @@ class Brand extends Model implements HasMedia
 
     public function getImageUrl()
     {
-        return $this->traitGetImageUrl('brand_logo');
+        return $this->traitGetImageUrl('image');
     }
 
     public function scopeActive($query)

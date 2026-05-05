@@ -1,4 +1,4 @@
-<x-layouts.app title="Track Your Order | Everbloom">
+<x-layouts.app title="Track Your Order | feriwalarhat">
     <div class="bg-gray-50 py-10 md:py-20" x-data="{ 
         hasSearched: false, 
         orderId: '', 

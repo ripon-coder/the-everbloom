@@ -14,19 +14,32 @@ class SliderService
 
     public function create(array $data)
     {
+        $image = $data['image'] ?? null;
+        // Provide a temporary string because the column is NOT NULL
+        $data['image'] = 'placeholder.webp'; 
+        
         $slider = $this->sliderRepository->create($data);
-        if (isset($data['image']) && $data['image']) {
-            $slider->uploadImage($data['image'], 'slider_image');
+        
+        if ($image) {
+            $slider->uploadImage($image, 'sliders');
         }
+        
         return $slider;
     }
 
     public function update($id, array $data)
     {
-        $slider = $this->sliderRepository->update($id, $data);
-        if (isset($data['image']) && $data['image']) {
-            $slider->uploadImage($data['image'], 'slider_image');
+        $image = $data['image'] ?? null;
+        if ($image) {
+            unset($data['image']);
         }
+        
+        $slider = $this->sliderRepository->update($id, $data);
+        
+        if ($image) {
+            $slider->uploadImage($image, 'sliders');
+        }
+        
         return $slider;
     }
 }

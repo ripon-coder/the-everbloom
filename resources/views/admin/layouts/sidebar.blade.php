@@ -10,7 +10,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-base font-bold text-gray-900 tracking-tight">EverBloom</h2>
+                    <h2 class="text-base font-bold text-gray-900 tracking-tight">feriwalarhat</h2>
                     <p class="text-[10px] font-medium text-indigo-600 uppercase tracking-widest">Management</p>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-<x-layouts.app title="Register | Everbloom">
+<x-layouts.app title="Register | feriwalarhat">
     <div class="bg-gray-50 py-10 md:py-20">
         <div class="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
             
@@ -79,7 +79,7 @@
                 
                 <!-- Login Call to Action (Left Side on Desktop) -->
                 <div class="flex-1 p-8 md:p-12 bg-slate-50 flex flex-col justify-center">
-                    <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight mb-4">Already an Everbloom member?</h2>
+                    <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight mb-4">Already an feriwalarhat member?</h2>
                     <p class="text-sm text-gray-600 leading-relaxed mb-8">
                         Welcome back! Sign in to access your saved addresses, track your current orders, and view your purchase history.
                     </p>
