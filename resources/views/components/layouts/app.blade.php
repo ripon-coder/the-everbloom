@@ -1,12 +1,30 @@
+@props(['title' => null, 'description' => null, 'image' => null, 'type' => 'website', 'url' => null])
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="{{ $site_setting->meta_description ?? '' }}">
+    @php
+        $currentUrl = $url ?? url()->current();
+        $pageTitle = $title ?? (($site_setting->site_name ?? 'Feriwalarhat') . ' | ' . ($site_setting->meta_title ?? 'Premium Tech Store'));
+        $pageDescription = $description ?? $site_setting->meta_description ?? '';
+        $pageImage = $image ?? ($site_setting && $site_setting->site_logo ? Storage::url($site_setting->site_logo) : asset('default-og-image.jpg'));
+    @endphp
+
+    <meta name="description" content="{{ $pageDescription }}">
     <meta name="keywords" content="{{ $site_setting->meta_keywords ?? '' }}">
-    <title>{{ $title ?? ($site_setting->site_name ?? 'feriwalarhat Electronics') }} | {{ $site_setting->meta_title ?? 'Premium Tech Store' }}</title>
+    <title>{{ $pageTitle }}</title>
+
+    <link rel="canonical" href="{{ $currentUrl }}">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{ $pageTitle }}">
+    <meta property="og:description" content="{{ $pageDescription }}">
+    <meta property="og:url" content="{{ $currentUrl }}">
+    <meta property="og:type" content="{{ $type ?? 'website' }}">
+    <meta property="og:image" content="{{ $pageImage }}">
+    <meta property="og:site_name" content="{{ $site_setting->site_name ?? 'Feriwalarhat' }}">
     @if($site_setting && $site_setting->site_favicon)
         <link rel="icon" href="{{ Storage::url($site_setting->site_favicon) }}" type="image/x-icon">
     @endif

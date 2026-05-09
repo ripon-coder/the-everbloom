@@ -1,4 +1,4 @@
-<x-layouts.app title="Track Your Order | feriwalarhat">
+<x-layouts.app title="Track Your Order | Feriwalarhat" description="Track the status and delivery updates of your recent Feriwalarhat orders.">
     <div class="bg-gray-50 py-10 md:py-20" x-data="{ 
         hasSearched: false, 
         orderId: '', 

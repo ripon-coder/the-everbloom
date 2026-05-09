@@ -57,4 +57,23 @@ class ProductController extends Controller
 
         return view('pages.product.show', compact('product', 'relatedProducts'));
     }
+
+    /**
+     * Live search for products.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function liveSearch(Request $request)
+    {
+        $query = $request->input('query', '');
+        
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $products = $this->productService->liveSearch($query);
+        
+        return response()->json($products);
+    }
 }

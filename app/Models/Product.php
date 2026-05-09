@@ -6,10 +6,11 @@ use App\Constants\ProductStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Searchable;
 
     /**
      * The attributes that are mass assignable.
@@ -28,6 +29,8 @@ class Product extends Model
         'price',
         'status',
         'is_featured',
+        'meta_description',
+        'meta_title',
     ];
 
     /**
@@ -131,5 +134,31 @@ class Product extends Model
     public function reviews()
     {
         return $this->hasMany(ProductReview::class)->where('is_approved', true)->latest();
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     *
+     * @return bool
+     */
+    public function shouldBeSearchable()
+    {
+        return $this->status === ProductStatus::ACTIVE;
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'short_description' => $this->short_description,
+            'description' => $this->description,
+            'price' => $this->price,
+        ];
     }
 }

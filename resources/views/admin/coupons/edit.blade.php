@@ -139,7 +139,7 @@
                             @if ($coupon->usage_limit)
                                 {{ $coupon->used_count }} / {{ $coupon->usage_limit }} used
                             @else
-                                {{ $coupon->used_count }} / ∞ used
+                                {{ $coupon->used_count }} / âˆž used
                             @endif
                         </div>
                     </div>

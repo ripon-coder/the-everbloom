@@ -34,9 +34,9 @@
         <div class="mt-auto pt-3 flex items-end justify-between">
             <div class="flex flex-col">
                 @if($product->old_price)
-                    <span class="text-[12px] font-medium text-slate-400 line-through mb-0.5">৳ {{ $product->old_price }}</span>
+                    <span class="text-[12px] font-medium text-slate-400 line-through mb-0.5">Tk. {{ $product->old_price }}</span>
                 @endif
-                <span class="text-[16px] font-black text-[#E60000] leading-none">৳ {{ $product->price }}</span>
+                <span class="text-[16px] font-black text-[#E60000] leading-none">Tk. {{ $product->price }}</span>
             </div>
         </div>
     </div>

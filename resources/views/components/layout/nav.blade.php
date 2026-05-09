@@ -99,6 +99,28 @@
         },
         formatPrice(price) {
             return parseFloat(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        },
+        searchQuery: '',
+        searchResults: [],
+        isSearching: false,
+        showSearchResults: false,
+        async fetchSearchResults() {
+            if (this.searchQuery.length < 2) {
+                this.searchResults = [];
+                this.showSearchResults = false;
+                return;
+            }
+
+            this.isSearching = true;
+            try {
+                const response = await fetch(`/search/live?query=${encodeURIComponent(this.searchQuery)}`);
+                this.searchResults = await response.json();
+                this.showSearchResults = true;
+            } catch (error) {
+                console.error('Search error:', error);
+            } finally {
+                this.isSearching = false;
+            }
         }
     }">
     <!-- Mobile Header -->
@@ -141,17 +163,46 @@
     </div>
 
     <!-- Mobile Search Bar -->
-    <div class="md:hidden px-4 py-3 bg-white border-b border-gray-100">
-        <div class="flex items-center h-11 border border-gray-400 rounded-md overflow-hidden">
-            <input type="text"
+    <div class="md:hidden px-4 py-3 bg-white border-b border-gray-100 relative">
+        <form action="{{ route('shop') }}" method="GET" class="flex items-center h-11 border border-gray-400 rounded-md overflow-hidden">
+            <input type="text" name="search" x-model="searchQuery" @input.debounce.300ms="fetchSearchResults()" 
+                @focus="showSearchResults = searchResults.length > 0"
                 class="flex-1 h-full px-3 text-[15px] bg-transparent border-none focus:ring-0 outline-none w-full"
-                placeholder="Search for products">
-            <button class="h-full px-4 bg-black text-white flex items-center justify-center">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                placeholder="Search for products" autocomplete="off">
+            <button type="submit" class="h-full px-4 bg-black text-white flex items-center justify-center">
+                <svg x-show="!isSearching" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
+                <svg x-show="isSearching" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
             </button>
+        </form>
+
+        <!-- Mobile Search Results Dropdown -->
+        <div x-show="showSearchResults" @click.away="showSearchResults = false" x-cloak
+            class="absolute left-0 right-0 top-full mt-1 bg-white shadow-xl z-[100] max-h-[400px] overflow-y-auto border-t border-gray-100">
+            <template x-for="product in searchResults" :key="product.id">
+                <a :href="'/product/' + product.slug" class="flex items-center gap-4 p-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors">
+                    <img :src="product.img" :alt="product.name" class="w-12 h-12 object-cover rounded">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-sm font-bold text-gray-900 truncate" x-text="product.name"></h4>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-sm font-black text-red-600" x-text="'৳' + formatPrice(product.price)"></span>
+                            <span x-show="product.old_price" class="text-xs text-gray-400 line-through" x-text="'৳' + formatPrice(product.old_price)"></span>
+                        </div>
+                    </div>
+                </a>
+            </template>
+            <div x-show="searchResults.length === 0 && searchQuery.length >= 2 && !isSearching" class="p-4 text-center text-gray-500 text-sm">
+                No products found for "<span x-text="searchQuery"></span>"
+            </div>
+            <a x-show="searchResults.length > 0" :href="'{{ route('shop') }}?search=' + searchQuery" 
+                class="block p-3 text-center text-sm font-bold text-blue-600 bg-gray-50 hover:bg-gray-100 transition-colors">
+                View all results
+            </a>
         </div>
     </div>
 
@@ -230,17 +281,63 @@
             </a>
 
             <!-- Search Bar -->
-            <div
-                class="flex-1 max-w-3xl flex items-center h-11 border border-gray-300 rounded-full overflow-hidden bg-gray-50">
-                <input type="text"
-                    class="flex-1 h-full px-5 text-sm bg-transparent border-none focus:ring-0 outline-none w-full"
-                    placeholder="Search for products...">
-                <button class="h-full px-6 bg-slate-900 text-white hover:bg-red-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </button>
+            <div class="flex-1 max-w-3xl relative">
+                <form action="{{ route('shop') }}" method="GET"
+                    class="flex items-center h-11 border border-gray-300 rounded-full overflow-hidden bg-gray-50 focus-within:border-red-500 transition-colors">
+                    <input type="text" name="search" x-model="searchQuery" @input.debounce.300ms="fetchSearchResults()"
+                        @focus="showSearchResults = searchResults.length > 0"
+                        class="flex-1 h-full px-5 text-sm bg-transparent border-none focus:ring-0 outline-none w-full"
+                        placeholder="Search for products..." autocomplete="off">
+                    <button type="submit" class="h-full px-6 bg-slate-900 text-white hover:bg-red-600 transition-colors flex items-center justify-center">
+                        <svg x-show="!isSearching" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <svg x-show="isSearching" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </form>
+
+                <!-- Desktop Search Results Dropdown -->
+                <div x-show="showSearchResults" @click.away="showSearchResults = false" x-cloak
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 transform scale-95"
+                    x-transition:enter-end="opacity-100 transform scale-100"
+                    class="absolute left-0 right-0 top-full mt-2 bg-white shadow-2xl rounded-xl z-[100] max-h-[480px] overflow-hidden border border-gray-100">
+                    <div class="overflow-y-auto max-h-[420px]">
+                        <template x-for="product in searchResults" :key="product.id">
+                            <a :href="'/product/' + product.slug" class="flex items-center gap-4 p-4 hover:bg-red-50 border-b border-gray-50 last:border-0 transition-all group">
+                                <div class="w-16 h-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                    <img :src="product.img" :alt="product.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-[14px] font-bold text-gray-900 group-hover:text-red-600 transition-colors truncate" x-text="product.name"></h4>
+                                    <p class="text-xs text-gray-500 mt-0.5 truncate" x-text="product.category_name"></p>
+                                    <div class="flex items-center gap-3 mt-1.5">
+                                        <span class="text-[15px] font-black text-red-600" x-text="'৳' + formatPrice(product.price)"></span>
+                                        <span x-show="product.old_price" class="text-xs text-gray-400 line-through font-medium" x-text="'৳' + formatPrice(product.old_price)"></span>
+                                    </div>
+                                </div>
+                            </a>
+                        </template>
+                    </div>
+                    
+                    <div x-show="searchResults.length === 0 && searchQuery.length >= 2 && !isSearching" class="p-8 text-center">
+                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-50 text-gray-400 mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-gray-500 text-sm">No products found for "<span class="font-bold text-gray-900" x-text="searchQuery"></span>"</p>
+                    </div>
+
+                    <a x-show="searchResults.length > 0" :href="'{{ route('shop') }}?search=' + searchQuery" 
+                        class="block p-4 text-center text-sm font-black text-white bg-slate-900 hover:bg-red-600 transition-colors">
+                        View All Results for "<span x-text="searchQuery"></span>"
+                    </a>
+                </div>
             </div>
 
             <!-- Actions -->
@@ -1075,7 +1172,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <span class="text-[15px] font-black text-slate-800">৳ <span
+                            <span class="text-[15px] font-black text-slate-800">Tk. <span
                                     x-text="formatPrice((item.unit_final_price || 0) * (item.quantity || 0))"></span></span>
                         </div>
                     </div>
@@ -1087,7 +1184,7 @@
         <div class="border-t border-gray-200 p-5 bg-gray-50 mt-auto" x-show="cartCount > 0">
             <div class="flex items-center justify-between mb-4">
                 <span class="text-slate-600 font-medium">Subtotal</span>
-                <span class="text-lg font-black text-slate-800">৳ <span x-text="formatPrice(cartTotal)"></span></span>
+                <span class="text-lg font-black text-slate-800">Tk. <span x-text="formatPrice(cartTotal)"></span></span>
             </div>
             <p class="text-xs text-gray-500 mb-4">Taxes and shipping calculated at checkout</p>
             <a href="{{ route('checkout') }}"

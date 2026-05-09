@@ -1,4 +1,4 @@
-<x-layouts.app title="Contact Us | feriwalarhat">
+<x-layouts.app title="Contact Us | Feriwalarhat" description="Have questions? Contact the Feriwalarhat team for customer support and business inquiries.">
     
     <div class="bg-gray-50 py-8 md:py-12 border-b border-gray-200">
         <div class="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,7 +72,7 @@
                         <div>
                             <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Our Store</h4>
                             <address class="text-sm text-gray-700 not-italic leading-relaxed">
-                                <strong>{{ $site_setting->site_name ?? 'feriwalarhat' }}</strong><br>
+                                <strong>{{ $site_setting->site_name ?? 'Feriwalarhat' }}</strong><br>
                                 {!! nl2br(e($site_setting->site_address ?? "Level 5, Rahman Tower\nGulshan 1, Dhaka - 1212\nBangladesh")) !!}
                             </address>
                         </div>

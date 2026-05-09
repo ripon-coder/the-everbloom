@@ -31,7 +31,7 @@
             <div>
                 <label for="parent_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Parent Category</label>
                 <select name="parent_id" id="parent_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('parent_id') border-red-500 @enderror">
-                    <option value="">🏠 None (Main Category)</option>
+                    <option value="">ðŸ  None (Main Category)</option>
                     @php
                         // Function to build category tree options with simple parent-child indicators
                         function buildTreeOptions($categories, $parentId = null, $level = 0, $currentId = null) {
@@ -48,7 +48,7 @@
                                     
                                     // Simple parent-child indicator
                                     $type = $hasChildren ? 'Parent' : 'Child';
-                                    $prefix = $level > 0 ? '├── ' : '';
+                                    $prefix = $level > 0 ? 'â”œâ”€â”€ ' : '';
                                     
                                     $options .= '<option value="' . $category->id . '" ' . (old('parent_id') == $category->id ? 'selected' : '') . '>';
                                     $options .= $indent . $prefix . $category->name . ' (' . $type . ')';

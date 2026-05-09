@@ -144,7 +144,7 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="text-xs font-bold text-gray-900">{{ $review->user->name }}</span>
-                                <span class="text-[10px] text-gray-300">•</span>
+                                <span class="text-[10px] text-gray-300">â€¢</span>
                                 <span class="text-[10px] text-gray-400">{{ $review->created_at->diffForHumans() }}</span>
                             </div>
                             <div class="flex text-amber-400 mb-2">

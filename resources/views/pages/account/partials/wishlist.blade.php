@@ -65,9 +65,9 @@
                                 </a>
                             </h4>
                             <div class="flex items-center justify-center sm:justify-start gap-2">
-                                <span class="text-sm md:text-base font-black text-red-600">৳ {{ number_format($item->product->price, 2) }}</span>
+                                <span class="text-sm md:text-base font-black text-red-600">Tk. {{ number_format($item->product->price, 2) }}</span>
                                 @if($item->product->old_price > 0)
-                                    <span class="text-xs text-gray-400 line-through">৳ {{ number_format($item->product->old_price, 2) }}</span>
+                                    <span class="text-xs text-gray-400 line-through">Tk. {{ number_format($item->product->old_price, 2) }}</span>
                                 @endif
                             </div>
                         </div>

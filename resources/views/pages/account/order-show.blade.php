@@ -1,4 +1,4 @@
-<x-layouts.app title="Order #{{ $order->order_number }} | feriwalarhat">
+<x-layouts.app title="Order #{{ $order->order_number }} | Feriwalarhat">
     <div class="bg-gray-50 py-6 md:py-10">
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
             
@@ -22,7 +22,7 @@
                         <div class="p-6 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
                             <div>
                                 <h1 class="text-xl font-bold text-gray-900 uppercase tracking-widest mb-1">Order Details</h1>
-                                <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Order #{{ $order->order_number }} • Placed on {{ $order->created_at->format('M d, Y') }}</p>
+                                <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Order #{{ $order->order_number }} â€¢ Placed on {{ $order->created_at->format('M d, Y') }}</p>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="flex flex-col items-end gap-1">
@@ -80,30 +80,30 @@
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td class="px-4 py-4 text-center whitespace-nowrap">৳ {{ number_format($item->unit_price, 2) }}</td>
+                                                    <td class="px-4 py-4 text-center whitespace-nowrap">Tk. {{ number_format($item->unit_price, 2) }}</td>
                                                     <td class="px-4 py-4 text-center whitespace-nowrap">{{ $item->quantity }}</td>
-                                                    <td class="px-4 py-4 text-right font-bold text-gray-900 whitespace-nowrap">৳ {{ number_format($item->total_price, 2) }}</td>
+                                                    <td class="px-4 py-4 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($item->total_price, 2) }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                         <tfoot class="border-t border-gray-100 bg-gray-50/30">
                                             <tr>
                                                 <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Subtotal</td>
-                                                <td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap">৳ {{ number_format($order->subtotal, 2) }}</td>
+                                                <td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($order->subtotal, 2) }}</td>
                                             </tr>
                                             @if($order->discount_amount > 0)
                                             <tr>
                                                 <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Discount</td>
-                                                <td class="px-4 py-3 text-right font-bold text-red-600 whitespace-nowrap">- ৳ {{ number_format($order->discount_amount, 2) }}</td>
+                                                <td class="px-4 py-3 text-right font-bold text-red-600 whitespace-nowrap">- Tk. {{ number_format($order->discount_amount, 2) }}</td>
                                             </tr>
                                             @endif
                                             <tr>
                                                 <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Shipping</td>
-                                                <td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap">৳ {{ number_format($order->shipping_amount, 2) }}</td>
+                                                <td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($order->shipping_amount, 2) }}</td>
                                             </tr>
                                             <tr class="bg-gray-100/50">
                                                 <td colspan="3" class="px-4 py-4 text-right text-sm font-bold text-gray-900 uppercase tracking-widest whitespace-nowrap">Total</td>
-                                                <td class="px-4 py-4 text-right text-lg font-bold text-red-600 whitespace-nowrap">৳ {{ number_format($order->total_amount, 2) }}</td>
+                                                <td class="px-4 py-4 text-right text-lg font-bold text-red-600 whitespace-nowrap">Tk. {{ number_format($order->total_amount, 2) }}</td>
                                             </tr>
                                         </tfoot>
                                     </table>

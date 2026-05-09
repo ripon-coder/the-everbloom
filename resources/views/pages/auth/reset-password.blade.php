@@ -1,4 +1,4 @@
-<x-layouts.app title="Reset Password | feriwalarhat">
+<x-layouts.app title="Reset Password | Feriwalarhat">
     <div class="bg-gray-50 py-12 md:py-24">
         <div class="max-w-[500px] mx-auto px-4 sm:px-6">
             

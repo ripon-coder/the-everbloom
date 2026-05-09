@@ -1,4 +1,4 @@
-<x-layouts.app title="Checkout | feriwalarhat">
+<x-layouts.app title="Checkout | Feriwalarhat">
     <div class="bg-gray-50 py-4 md:py-8" x-data="checkoutPage()">
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -171,7 +171,7 @@
                                         <template x-for="(val, key) in item.attributes" :key="key">
                                             <p class="text-xs text-gray-500 mt-0.5" x-text="key + ': ' + val"></p>
                                         </template>
-                                        <p x-show="item.available" class="text-sm font-bold text-red-600 mt-1" x-text="'৳ ' + item.unit_final_price.toFixed(2)"></p>
+                                        <p x-show="item.available" class="text-sm font-bold text-red-600 mt-1" x-text="'Tk. ' + item.unit_final_price.toFixed(2)"></p>
                                         <p x-show="item.available && item.available_stock < 10" class="text-[11px] font-semibold text-amber-600 mt-0.5" x-text="'Only ' + item.available_stock + ' left'"></p>
                                         <p x-show="!item.available" class="text-xs font-bold text-red-500 mt-1">Out of Stock</p>
                                     </div>
@@ -230,15 +230,15 @@
                         <div class="space-y-3 mb-6 text-sm">
                             <div class="flex justify-between text-gray-600">
                                 <span>Subtotal</span>
-                                <span class="font-bold text-gray-900" x-text="'৳ ' + subtotal.toFixed(2)"></span>
+                                <span class="font-bold text-gray-900" x-text="'Tk. ' + subtotal.toFixed(2)"></span>
                             </div>
                             <div class="flex justify-between text-gray-600">
                                 <span>Shipping</span>
-                                <span class="font-bold text-gray-900" x-text="'৳ ' + shippingCost.toFixed(2)"></span>
+                                <span class="font-bold text-gray-900" x-text="'Tk. ' + shippingCost.toFixed(2)"></span>
                             </div>
                             <div x-show="discount > 0" class="flex justify-between text-green-600">
                                 <span>Discount</span>
-                                <span class="font-bold" x-text="'- ৳ ' + discount.toFixed(2)"></span>
+                                <span class="font-bold" x-text="'- Tk. ' + discount.toFixed(2)"></span>
                             </div>
                             <div class="flex justify-between items-end pt-4 border-t border-gray-200 mt-4">
                                 <span class="text-base font-bold text-gray-900 uppercase tracking-widest">Total</span>
@@ -247,7 +247,7 @@
                                         class="text-[10px] text-gray-400 block mb-0.5 uppercase tracking-wider">Including
                                         VAT</span>
                                     <span class="text-2xl font-black text-red-600"
-                                        x-text="'৳ ' + total.toFixed(2)"></span>
+                                        x-text="'Tk. ' + total.toFixed(2)"></span>
                                 </div>
                             </div>
                         </div>

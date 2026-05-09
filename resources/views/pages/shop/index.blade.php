@@ -1,4 +1,4 @@
-<x-layouts.app title="Shop | feriwalarhat">
+<x-layouts.app :title="(isset($activeCategory) ? $activeCategory->name . ' - Shop' : 'Shop') . ' | Feriwalarhat'" :description="isset($activeCategory) ? $activeCategory->description : 'Browse our premium electronics and gadgets at Feriwalarhat.'">
     <div class="bg-gray-50 py-4 md:py-8">
         <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
             

@@ -31,6 +31,8 @@ class UpdateProductRequest extends FormRequest
             'is_featured' => ["required",'boolean'],
             'short_description' => ['nullable','max:500'],
             'description' => ['nullable', 'string'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0', 'decimal:0,2'],
             'status' => ['required', 'string', 'in:active,inactive'],
             'images' => ['nullable', 'array'],

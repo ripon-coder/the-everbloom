@@ -26,7 +26,7 @@
                                     {{ $order->getStatusText() }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 font-bold text-gray-900">৳ {{ number_format($order->total_amount, 2) }}</td>
+                            <td class="px-6 py-4 font-bold text-gray-900">Tk. {{ number_format($order->total_amount, 2) }}</td>
                             <td class="px-6 py-4 text-right">
                                 <a href="{{ route('account.order.show', $order->order_number) }}" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase tracking-wider">View</a>
                             </td>

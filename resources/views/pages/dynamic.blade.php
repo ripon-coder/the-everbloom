@@ -1,6 +1,6 @@
 <x-layouts.app 
-    :title="($page->meta_title ?: $page->title) . ' | ' . ($site_setting->site_name ?? 'feriwalarhat')"
-    :meta-description="$page->meta_description"
+    :title="($page->meta_title ?: $page->title) . ' | ' . ($site_setting->site_name ?? 'Feriwalarhat')"
+    :description="$page->meta_description"
 >
     <!-- Breadcrumb -->
     <div class="bg-gray-50 border-b border-gray-200 py-4">

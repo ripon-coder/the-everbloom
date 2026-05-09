@@ -51,12 +51,12 @@
             class="relative w-full h-[150px] sm:h-[250px] md:h-[350px] lg:h-[400px] bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl overflow-hidden flex items-center justify-center border border-gray-200 shadow-inner">
             <div class="text-center flex flex-col items-center justify-center z-20 px-4">
                 <h1 class="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-800 mb-2 drop-shadow-sm">
-                    প্রোডাক্ট বুঝুন, অর্ডার করুন
+                    à¦ªà§à¦°à§‹à¦¡à¦¾à¦•à§à¦Ÿ à¦¬à§à¦à§à¦¨, à¦…à¦°à§à¦¡à¦¾à¦° à¦•à¦°à§à¦¨
                 </h1>
                 <p class="text-lg sm:text-2xl md:text-3xl font-bold text-slate-600 mt-2">
-                    ডেলিভারি হবে <span
-                        class="text-red-600 font-black text-2xl sm:text-4xl md:text-5xl drop-shadow-md">সেইইইই</span> স্পিডে
-                    সারা দেশে
+                    à¦¡à§‡à¦²à¦¿à¦­à¦¾à¦°à¦¿ à¦¹à¦¬à§‡ <span
+                        class="text-red-600 font-black text-2xl sm:text-4xl md:text-5xl drop-shadow-md">à¦¸à§‡à¦‡à¦‡à¦‡à¦‡</span> à¦¸à§à¦ªà¦¿à¦¡à§‡
+                    à¦¸à¦¾à¦°à¦¾ à¦¦à§‡à¦¶à§‡
                 </p>
             </div>
         </div>

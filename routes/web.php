@@ -21,6 +21,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Shop & Product Routes
 Route::get('/shop', [ProductController::class, 'index'])->name('shop');
+Route::get('/search/live', [ProductController::class, 'liveSearch'])->name('search.live');
 Route::get('/product/{slug?}', [ProductController::class, 'show'])->name('product.show');
 Route::post('/product/review', [\App\Http\Controllers\Frontend\ProductReviewController::class, 'store'])->name('product.review.store')->middleware(['auth', 'throttle:3,1']);
 

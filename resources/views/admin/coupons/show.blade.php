@@ -90,7 +90,7 @@
                                 </span>
                             @else
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    {{ $coupon->used_count }} / ∞ (Unlimited)
+                                    {{ $coupon->used_count }} / âˆž (Unlimited)
                                 </span>
                             @endif
                         </p>
@@ -208,7 +208,7 @@
                             @if ($coupon->usage_limit)
                                 {{ max(0, $coupon->usage_limit - $coupon->used_count) }}
                             @else
-                                ∞
+                                âˆž
                             @endif
                         </span>
                     </div>
@@ -229,16 +229,16 @@
                             @if (!$coupon->isValid())
                                 <div class="text-xs text-red-600 mt-1 max-w-xs text-left">
                                     @if ($coupon->status !== \App\Constants\CouponStatus::ACTIVE)
-                                        • Status is not active<br>
+                                        â€¢ Status is not active<br>
                                     @endif
                                     @if ($coupon->start_date > now())
-                                        • Start date is in the future ({{ $coupon->start_date->format('M d, Y H:i') }})<br>
+                                        â€¢ Start date is in the future ({{ $coupon->start_date->format('M d, Y H:i') }})<br>
                                     @endif
                                     @if ($coupon->end_date < now())
-                                        • End date has passed ({{ $coupon->end_date->format('M d, Y H:i') }})<br>
+                                        â€¢ End date has passed ({{ $coupon->end_date->format('M d, Y H:i') }})<br>
                                     @endif
                                     @if ($coupon->usage_limit !== null && $coupon->used_count >= $coupon->usage_limit)
-                                        • Usage limit reached ({{ $coupon->used_count }} / {{ $coupon->usage_limit }})
+                                        â€¢ Usage limit reached ({{ $coupon->used_count }} / {{ $coupon->usage_limit }})
                                     @endif
                                 </div>
                             @endif

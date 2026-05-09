@@ -1,4 +1,4 @@
-<x-layouts.app title="Login | feriwalarhat">
+<x-layouts.app title="Login | Feriwalarhat">
     <div class="bg-gray-50 py-10 md:py-20">
         <div class="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
             
@@ -64,7 +64,7 @@
                 
                 <!-- Registration Call to Action (Right Side) -->
                 <div class="flex-1 p-8 md:p-12 bg-slate-50 flex flex-col justify-center">
-                    <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight mb-4">New to feriwalarhat?</h2>
+                    <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight mb-4">New to Feriwalarhat?</h2>
                     <p class="text-sm text-gray-600 leading-relaxed mb-8">
                         Creating an account has many benefits: check out faster, keep more than one address, track orders and more.
                     </p>

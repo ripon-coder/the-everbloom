@@ -27,7 +27,7 @@
                 @if ($errors->any())
                     <div class="mb-4 rounded-lg bg-red-50 border border-red-200 p-4">
                         <h3 class="text-sm font-semibold text-red-700 mb-2">
-                            ⚠️ Validation Error
+                            âš ï¸ Validation Error
                         </h3>
                         <ul class="list-disc list-inside text-sm text-red-600 space-y-1">
                             @foreach ($errors->all() as $error)
@@ -87,7 +87,7 @@
                                 class="text-red-500">*</span></label>
                         <select name="category_id" id="category_id"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('parent_id') border-red-500 @enderror">
-                            <option value="">🏠 None (Main Category)</option>
+                            <option value="">ðŸ  None (Main Category)</option>
                             {!! \App\Helpers\CategoryHelper::BuildTree($allCategories, $parentId = null, $level = 0, $currentId = 0, $selectedParentId = old('category_id')) !!}
                         </select>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Choose the main category for this product
@@ -171,6 +171,28 @@
                     <textarea id="description" name="description" rows="4"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('description') border-red-500 @enderror">{{ old('description') }}</textarea>
                     @error('description')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- SEO Information -->
+                <div class="mt-6">
+                    <label for="meta_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Meta Title
+                    </label>
+                    <input type="text" id="meta_title" name="meta_title" value="{{ old('meta_title') }}"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('meta_title') border-red-500 @enderror">
+                    @error('meta_title')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div class="mt-6">
+                    <label for="meta_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Meta Description
+                    </label>
+                    <textarea id="meta_description" name="meta_description" rows="4"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('meta_description') border-red-500 @enderror">{{ old('meta_description') }}</textarea>
+                    @error('meta_description')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>

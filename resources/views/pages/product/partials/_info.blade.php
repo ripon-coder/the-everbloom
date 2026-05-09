@@ -129,17 +129,17 @@
         <div class="flex items-center justify-between gap-4">
             <div class="flex flex-col gap-1">
                 <div class="flex items-baseline gap-3 md:gap-4">
-                    <span class="text-2xl md:text-3xl font-bold text-red-600">৳ <span
+                    <span class="text-2xl md:text-3xl font-bold text-red-600">Tk. <span
                             x-text="formatPrice(currentPrice)">{{ number_format($initialPrice, 2) }}</span></span>
                     <template x-if="currentOldPrice">
-                        <span class="text-base md:text-lg text-red-600/70 line-through font-medium">৳ <span
+                        <span class="text-base md:text-lg text-red-600/70 line-through font-medium">Tk. <span
                                 x-text="formatPrice(currentOldPrice)">{{ number_format($initialOldPrice, 2) }}</span></span>
                     </template>
                 </div>
                 <!-- Savings Info -->
                 <div class="h-4 md:h-5">
                     <div x-show="currentOldPrice > 0" x-cloak class="text-[10px] md:text-xs font-bold text-green-600">
-                        You Save: ৳ <span
+                        You Save: Tk. <span
                             x-text="formatPrice(currentOldPrice - currentPrice)">{{ $initialOldPrice > 0 ? number_format($initialOldPrice - $initialPrice, 2) : '0.00' }}</span>
                         (<span
                             x-text="currentOldPrice > 0 ? Math.round(((currentOldPrice - currentPrice) / currentOldPrice) * 100) : 0">{{ $initialOldPrice > 0 ? round((($initialOldPrice - $initialPrice) / $initialOldPrice) * 100) : 0 }}</span>%

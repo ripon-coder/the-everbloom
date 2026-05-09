@@ -158,14 +158,14 @@
         </div>
 
         <div class="pt-6 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p class="text-gray-500 text-xs font-medium">© {{ date('Y') }} {{ $site_setting->site_name ?? 'FERIWALARHAT' }}.
+            <p class="text-gray-500 text-xs font-medium">Â© {{ date('Y') }} {{ $site_setting->site_name ?? 'FERIWALARHAT' }}.
                 All rights reserved.</p>
             <div class="flex items-center">
                 <img src="https://securepay.sslcommerz.com/public/image/SSLCommerz-Pay-With-logo-All-Size-03.png"
                     alt="Payment Methods" class="h-8 object-contain">
             </div>
             <p class="text-gray-500 text-xs font-medium">Design & Developed by <a href="#"
-                    class="text-red-500 hover:underline">feriwalarhat</a></p>
+                    class="text-red-500 hover:underline">Feriwalarhat</a></p>
         </div>
     </div>
 </footer>

@@ -8,7 +8,7 @@
                 </svg>
             </div>
             <div class="hidden sm:block">
-                <h1 class="text-lg font-bold text-gray-900 tracking-tight leading-none">feriwalarhat</h1>
+                <h1 class="text-lg font-bold text-gray-900 tracking-tight leading-none">Feriwalarhat</h1>
                 <span class="text-[10px] font-bold text-indigo-600 uppercase tracking-[0.2em]">Management</span>
             </div>
         </a>

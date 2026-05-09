@@ -51,7 +51,7 @@
         dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500
         @error('parent_id') border-red-500 @enderror">
 
-        <option value="">🏠 None (Main Category)</option>
+        <option value="">ðŸ  None (Main Category)</option>
 
         {!! \App\Helpers\CategoryHelper::BuildTree(
             $allCategories,

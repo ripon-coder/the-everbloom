@@ -17,43 +17,51 @@ class ProductService
      */
     public function getShopProducts(array $filters): LengthAwarePaginator
     {
-        $query = Product::active()->with([
-            'firstImage.media', 
-            'category', 
-            'flashSales' => function ($query) { $query->active(); }
-        ]);
+        $hasSearch = !empty($filters['search']);
 
-        if (!empty($filters['category'])) {
-            $category = Category::where('slug', $filters['category'])->select('id')->first();
-            if ($category) {
-                $categoryIds = Category::where('parent_id', $category->id)
-                    ->pluck('id')
-                    ->push($category->id);
-                $query->whereIn('category_id', $categoryIds);
+        $queryCallback = function ($query) use ($filters) {
+            $query->active()->with([
+                'firstImage.media', 
+                'category', 
+                'flashSales' => function ($query) { $query->active(); }
+            ]);
+
+            if (!empty($filters['category'])) {
+                $category = Category::where('slug', $filters['category'])->select('id')->first();
+                if ($category) {
+                    $categoryIds = Category::where('parent_id', $category->id)
+                        ->pluck('id')
+                        ->push($category->id);
+                    $query->whereIn('category_id', $categoryIds);
+                }
             }
+
+            $sort = $filters['sort'] ?? 'latest';
+            switch ($sort) {
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                case 'popular':
+                    $query->popular();
+                    break;
+                default:
+                    $query->latest();
+                    break;
+            }
+        };
+
+        if ($hasSearch) {
+            $scout = Product::search($filters['search'])->query($queryCallback);
+            $paginator = $scout->paginate(24)->withQueryString();
+        } else {
+            $query = Product::query();
+            $queryCallback($query);
+            $paginator = $query->paginate(24)->withQueryString();
         }
 
-        if (!empty($filters['search'])) {
-            $query->where('name', 'like', '%' . $filters['search'] . '%');
-        }
-
-        $sort = $filters['sort'] ?? 'latest';
-        switch ($sort) {
-            case 'price_asc':
-                $query->orderBy('price', 'asc');
-                break;
-            case 'price_desc':
-                $query->orderBy('price', 'desc');
-                break;
-            case 'popular':
-                $query->popular();
-                break;
-            default:
-                $query->latest();
-                break;
-        }
-
-        $paginator = $query->paginate(24)->withQueryString();
         $paginator->setCollection($this->transformProducts($paginator->getCollection()));
         return $paginator;
     }
@@ -119,6 +127,25 @@ class ProductService
     public function getActiveCategories(): Collection
     {
         return Category::active()->root()->with(['children', 'media'])->ordered()->get();
+    }
+
+    /**
+     * Perform a live search for products.
+     *
+     * @param string $query
+     * @param int $limit
+     * @return Collection
+     */
+    public function liveSearch(string $query, int $limit = 8): Collection
+    {
+        $products = Product::search($query)
+            ->query(function ($query) {
+                $query->active()->with(['firstImage.media', 'category', 'flashSales' => function ($q) { $q->active(); }]);
+            })
+            ->take($limit)
+            ->get();
+
+        return $this->transformProducts($products);
     }
     /**
      * Transform a collection of products into plain data objects for the view.

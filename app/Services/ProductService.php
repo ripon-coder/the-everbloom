@@ -142,6 +142,8 @@ class ProductService
                 'name' => $data['name'],
                 'short_description'=> $data['short_description'],
                 'description' => $data['description'],
+                'meta_title' => $data['meta_title'] ?? null,
+                'meta_description' => $data['meta_description'] ?? null,
                 'price' => $data['price'],
                 'status' => $data['status'],
             ];

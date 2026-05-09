@@ -1,8 +1,8 @@
-<x-layouts.app title="About Us | feriwalarhat">
+<x-layouts.app title="About Us | Feriwalarhat" description="Learn about Feriwalarhat's mission to provide the best electronics and gadgets with top-notch service.">
     
     <div class="bg-gray-50 py-8 md:py-12 border-b border-gray-200">
         <div class="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-2xl md:text-3xl font-bold text-slate-900 uppercase tracking-widest mb-3 text-center">About feriwalarhat</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900 uppercase tracking-widest mb-3 text-center">About Feriwalarhat</h1>
             <p class="text-gray-500 text-sm leading-relaxed text-center max-w-xl mx-auto">
                 Discover the story behind our brand and our commitment to bringing you the best products.
             </p>
@@ -17,7 +17,7 @@
                 <div class="flex-1 order-2 md:order-1">
                     <h2 class="text-xl font-bold text-slate-900 uppercase tracking-widest mb-4">Our Story</h2>
                     <p class="text-sm text-gray-700 leading-relaxed mb-4">
-                        feriwalarhat was founded with a simple vision: to create an online shopping experience that felt as personal and premium as walking into a boutique store. Frustrated by the lack of quality curation in the digital space, we decided to build a platform that prioritizes excellence above all else.
+                        Feriwalarhat was founded with a simple vision: to create an online shopping experience that felt as personal and premium as walking into a boutique store. Frustrated by the lack of quality curation in the digital space, we decided to build a platform that prioritizes excellence above all else.
                     </p>
                     <p class="text-sm text-gray-700 leading-relaxed mb-4">
                         Over the years, we've grown from a small operation out of an apartment to a fully-fledged e-commerce platform serving thousands of customers daily. But our core values haven't changed. We still hand-pick every item, verify every supplier, and treat every customer like our first.

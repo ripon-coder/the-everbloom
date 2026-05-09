@@ -275,13 +275,13 @@
                             @if (!$flashSale->isValid())
                                 <div class="text-xs text-red-600 mt-1 max-w-xs text-left">
                                     @if ($flashSale->status !== \App\Constants\FlashSaleStatus::ACTIVE)
-                                        • Status is not active<br>
+                                        â€¢ Status is not active<br>
                                     @endif
                                     @if ($flashSale->start_date > now())
-                                        • Start date is in the future ({{ $flashSale->start_date->format('M d, Y H:i') }})<br>
+                                        â€¢ Start date is in the future ({{ $flashSale->start_date->format('M d, Y H:i') }})<br>
                                     @endif
                                     @if ($flashSale->end_date < now())
-                                        • End date has passed ({{ $flashSale->end_date->format('M d, Y H:i') }})<br>
+                                        â€¢ End date has passed ({{ $flashSale->end_date->format('M d, Y H:i') }})<br>
                                     @endif
                                 </div>
                             @endif
