@@ -40,7 +40,8 @@ class ProductEloquent implements ProductRepository
             'category:id,name',
             'firstImage.media',
             'anyImage.media',
-        ])->withCount(['variants', 'images']);
+        ])->withCount(['variants', 'images'])
+          ->withSum('variants', 'stock');
 
         if (!empty($filters['search'])) {
             $search = trim($filters['search']);

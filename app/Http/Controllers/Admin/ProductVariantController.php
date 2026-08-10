@@ -257,7 +257,9 @@ class ProductVariantController extends Controller
         }
 
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
-            $variant->images()->delete();
+            foreach ($variant->images as $oldImage) {
+                $oldImage->delete();
+            }
             $variantImage = $variant->images()->create();
             $variantImage->uploadImage($request->file('image'), 'variant_images');
         }
@@ -272,6 +274,9 @@ class ProductVariantController extends Controller
     {
         $variant = ProductVariant::findOrFail($id);
         $productId = $variant->product_id;
+        foreach ($variant->images as $image) {
+            $image->delete();
+        }
         $variant->delete();
 
         return back()->with('success', 'Variant deleted successfully.');

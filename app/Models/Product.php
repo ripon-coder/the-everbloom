@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Constants\ProductStatus;
+use App\Constants\ProductVariantStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -76,6 +77,64 @@ class Product extends Model
     public function defaultVariant()
     {
         return $this->hasOne(ProductVariant::class)->oldestOfMany();
+    }
+
+    /**
+     * Get the active product variants.
+     */
+    public function activeVariants()
+    {
+        return $this->hasMany(ProductVariant::class)->where('status', ProductVariantStatus::ACTIVE);
+    }
+
+    /**
+     * Get the first active variant for the product.
+     */
+    public function firstActiveVariant()
+    {
+        return $this->hasOne(ProductVariant::class)
+            ->where('status', ProductVariantStatus::ACTIVE)
+            ->oldestOfMany();
+    }
+
+    /**
+     * Get the display price (considering first active variant if available).
+     */
+    public function getDisplayPriceAttribute()
+    {
+        $variant = $this->relationLoaded('firstActiveVariant')
+            ? $this->firstActiveVariant
+            : ($this->relationLoaded('variants')
+                ? $this->variants->where('status', ProductVariantStatus::ACTIVE)->first()
+                : $this->firstActiveVariant);
+
+        if ($variant) {
+            return ($variant->discount_price > 0 && $variant->discount_price < $variant->sell_price)
+                ? (float) $variant->discount_price
+                : (float) $variant->sell_price;
+        }
+
+        return (float) $this->price;
+    }
+
+    /**
+     * Get the display old price (considering first active variant if available).
+     */
+    public function getDisplayOldPriceAttribute()
+    {
+        $variant = $this->relationLoaded('firstActiveVariant')
+            ? $this->firstActiveVariant
+            : ($this->relationLoaded('variants')
+                ? $this->variants->where('status', ProductVariantStatus::ACTIVE)->first()
+                : $this->firstActiveVariant);
+
+        if ($variant) {
+            return ($variant->discount_price > 0 && $variant->discount_price < $variant->sell_price)
+                ? (float) $variant->sell_price
+                : ($this->old_price ? (float) $this->old_price : null);
+        }
+
+        return $this->old_price ? (float) $this->old_price : null;
     }
 
     /**

@@ -48,8 +48,26 @@
 @section('content')
     <div class="p-4">
         <!-- Header & Action Bar -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">Products</h1>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                <h1 class="text-2xl font-bold text-gray-900">Products</h1>
+                
+                <!-- Product Type Filter Tabs -->
+                <div class="inline-flex items-center p-1 bg-gray-100/90 border border-gray-200 rounded-lg text-xs font-medium shadow-2xs">
+                    <a href="{{ route('admin.products.index', array_merge(request()->except('product_type', 'page'))) }}"
+                       class="px-3 py-1.5 rounded-md transition duration-150 {{ !request('product_type') ? 'bg-white text-gray-900 font-bold shadow-xs' : 'text-gray-600 hover:text-gray-900' }}">
+                        All Products
+                    </a>
+                    <a href="{{ route('admin.products.index', array_merge(request()->except('page'), ['product_type' => 'single'])) }}"
+                       class="px-3 py-1.5 rounded-md transition duration-150 {{ request('product_type') === 'single' ? 'bg-white text-blue-700 font-bold shadow-xs' : 'text-gray-600 hover:text-gray-900' }}">
+                        Single
+                    </a>
+                    <a href="{{ route('admin.products.index', array_merge(request()->except('page'), ['product_type' => 'variant'])) }}"
+                       class="px-3 py-1.5 rounded-md transition duration-150 {{ request('product_type') === 'variant' ? 'bg-white text-purple-700 font-bold shadow-xs' : 'text-gray-600 hover:text-gray-900' }}">
+                        Variant
+                    </a>
+                </div>
+            </div>
             
             <div class="flex flex-wrap items-center gap-3">
                 <!-- Quick Search Bar -->
@@ -242,10 +260,22 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        {{ $product->variants_count }}
-                                    </span>
+                                    @if($product->product_type === 'variant')
+                                        <div class="flex items-center space-x-2">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800" title="Total Variants">
+                                                {{ $product->variants_count }}
+                                            </span>
+                                            <a href="{{ route('admin.variants.show', $product->id) }}"
+                                               class="inline-flex items-center px-2.5 py-1 text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-md transition duration-150 shadow-2xs">
+                                                <span>Manage Variants</span>
+                                                <svg class="w-3.5 h-3.5 ml-1 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-gray-400 font-medium italic">Single Product</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $product->created_at->format('M d, Y') }}</td>
@@ -417,6 +447,14 @@
                         <div>
                             <label for="quick_name" class="block text-sm font-bold text-gray-700 mb-1">Product Name</label>
                             <input type="text" id="quick_name" name="name" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg outline-none text-gray-600 bg-gray-100 cursor-not-allowed" readonly>
+                        </div>
+
+                        <div>
+                            <label for="quick_status" class="block text-sm font-bold text-gray-700 mb-1">Status</label>
+                            <select id="quick_status" name="status" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm font-medium text-gray-800 bg-white cursor-pointer transition">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
                         </div>
                     </div>
 
@@ -639,6 +677,7 @@
         function openQuickEditModal(product) {
             $('#quick_edit_id').val(product.id);
             $('#quick_name').val(product.name);
+            $('#quick_status').val(product.status || 'active');
             
             const isFeatured = product.is_featured == 1 || product.is_featured === true || product.is_featured === '1';
             const isFreeDelivery = product.is_free_delivery == 1 || product.is_free_delivery === true || product.is_free_delivery === '1';
@@ -671,6 +710,7 @@
             event.preventDefault();
             const id = $('#quick_edit_id').val();
             const name = $('#quick_name').val();
+            const status = $('#quick_status').val();
             const is_featured = $('#quick_is_featured').is(':checked');
             const is_free_delivery = $('#quick_is_free_delivery').is(':checked');
 
@@ -682,6 +722,7 @@
                 data: {
                     _token: '{{ csrf_token() }}',
                     name: name,
+                    status: status,
                     is_featured: is_featured ? 1 : 0,
                     is_free_delivery: is_free_delivery ? 1 : 0
                 },

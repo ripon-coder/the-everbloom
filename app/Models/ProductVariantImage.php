@@ -32,6 +32,8 @@ class ProductVariantImage extends Model implements HasMedia
 
     protected $imageColumns = ['image'];
 
+    protected $imageDisk = 'public';
+
     /**
      * The attributes that should be cast.
      *

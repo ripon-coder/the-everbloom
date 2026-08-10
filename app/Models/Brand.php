@@ -19,6 +19,8 @@ class Brand extends Model implements HasMedia
     protected $casts = [
         'options' => 'json',
     ];
+
+    protected $imageDisk = 'public';
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('brand_logo')->singleFile();

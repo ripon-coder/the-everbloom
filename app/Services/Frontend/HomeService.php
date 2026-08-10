@@ -37,7 +37,7 @@ class HomeService
     {
         return Product::active()
             ->where('is_featured', true)
-            ->with(['firstImage.media', 'category', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($query) { $query->active(); }])
             ->latest()
             ->take($limit)
             ->get();
@@ -53,7 +53,7 @@ class HomeService
     {
         return Product::active()
             ->popular()
-            ->with(['firstImage.media', 'category', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
     }
@@ -68,7 +68,7 @@ class HomeService
     {
         return Product::active()
             ->latest()
-            ->with(['firstImage.media', 'category', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
     }
@@ -82,7 +82,7 @@ class HomeService
     {
         return \App\Models\FlashSale::active()
             ->with(['products' => function ($query) {
-                $query->active()->with(['firstImage.media', 'category']);
+                $query->active()->with(['firstImage.media', 'category', 'firstActiveVariant']);
             }])
             ->latest()
             ->first();
@@ -96,19 +96,21 @@ class HomeService
     protected function transformProducts(\Illuminate\Support\Collection $products): \Illuminate\Support\Collection
     {
         return $products->map(function ($product) {
-            $price = $product->price;
-            $oldPrice = $product->old_price ?? null;
+            $basePrice = $product->display_price;
+            $oldPrice = $product->display_old_price;
 
             if ($product->relationLoaded('flashSales') && $product->flashSales->isNotEmpty()) {
                 $flashSale = $product->flashSales->first();
                 $discountPrice = $flashSale->pivot->discount_price;
                 $discountPercentage = $flashSale->pivot->discount_percentage;
                 
-                $oldPrice = $product->price;
+                $oldPrice = $basePrice;
                 $price = $discountPrice 
-                    ? ($product->price - $discountPrice) 
-                    : ($product->price - ($product->price * ($discountPercentage / 100)));
+                    ? ($basePrice - $discountPrice) 
+                    : ($basePrice - ($basePrice * ($discountPercentage / 100)));
                 $price = max(0, $price);
+            } else {
+                $price = $basePrice;
             }
 
             return (object) [
@@ -134,13 +136,14 @@ class HomeService
     protected function transformFlashSaleProducts(\Illuminate\Support\Collection $products): \Illuminate\Support\Collection
     {
         return $products->map(function ($product) {
+            $basePrice = $product->display_price;
             $discountPrice = $product->pivot->discount_price;
             $discountPercentage = $product->pivot->discount_percentage;
             
             $price = $discountPrice 
-                ? ($product->price - $discountPrice) 
-                : ($product->price - ($product->price * ($discountPercentage / 100)));
-            $oldPrice = $product->price;
+                ? ($basePrice - $discountPrice) 
+                : ($basePrice - ($basePrice * ($discountPercentage / 100)));
+            $oldPrice = $basePrice;
             
             return (object) [
                 'id' => $product->id,

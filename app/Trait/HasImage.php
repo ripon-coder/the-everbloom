@@ -67,7 +67,7 @@ trait HasImage
             return $this->imageDisk;
         }
 
-        return config('filesystems.default');
+        return 'public';
     }
 
     /**

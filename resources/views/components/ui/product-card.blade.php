@@ -1,20 +1,56 @@
 @props(['product'])
 
 @php
-    $img = $product->img . '?v=' . time();
+    $productObj = is_array($product) ? (object) $product : $product;
+
+    if ($productObj instanceof \App\Models\Product) {
+        $basePrice = $productObj->display_price;
+        $oldPrice = $productObj->display_old_price;
+
+        if ($productObj->relationLoaded('flashSales') && $productObj->flashSales->isNotEmpty()) {
+            $flashSale = $productObj->flashSales->first();
+            $discountPrice = $flashSale->pivot->discount_price;
+            $discountPercentage = $flashSale->pivot->discount_percentage;
+
+            $oldPrice = $basePrice;
+            $price = $discountPrice 
+                ? ($basePrice - $discountPrice) 
+                : ($basePrice - ($basePrice * ($discountPercentage / 100)));
+            $price = max(0, $price);
+        } else {
+            $price = $basePrice;
+        }
+
+        $img = $productObj->firstImage ? $productObj->firstImage->getImageUrl() : asset('images/image1.jpg');
+        $name = $productObj->name;
+        $slug = $productObj->slug;
+        $badge = $productObj->badge ?? null;
+    } else {
+        $price = $productObj->price ?? 0;
+        $oldPrice = $productObj->old_price ?? null;
+        $img = $productObj->img ?? asset('images/image1.jpg');
+        $name = $productObj->name ?? '';
+        $slug = $productObj->slug ?? '';
+        $badge = $productObj->badge ?? null;
+    }
+
+    $imgUrl = is_string($img) ? $img : asset('images/image1.jpg');
+    if (!str_starts_with($imgUrl, 'http://') && !str_starts_with($imgUrl, 'https://')) {
+        $imgUrl = $imgUrl . (str_contains($imgUrl, '?') ? '&' : '?') . 'v=' . time();
+    }
 @endphp
 
 <div class="bg-white rounded-md border border-gray-100 transition-all duration-300 flex flex-col group relative overflow-hidden h-full">
     <!-- Image Area -->
-    <a href="{{ route('product.show', $product->slug) }}" class="relative pt-[100%] bg-gray-50 overflow-hidden">
+    <a href="{{ $slug ? route('product.show', $slug) : '#' }}" class="relative pt-[100%] bg-gray-50 overflow-hidden">
         <!-- Badges -->
-        @if($product->badge)
+        @if($badge)
             <span class="absolute top-3 left-3 z-20 px-2.5 py-1 text-[10px] font-black tracking-wider uppercase text-white bg-[#E60000] rounded-sm shadow-sm">
-                {{ $product->badge }}
+                {{ $badge }}
             </span>
         @endif
         
-        <img src="{{ $img }}" alt="{{ $product->name }}" class="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+        <img src="{{ $imgUrl }}" alt="{{ $name }}" class="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
     </a>
 
     <!-- Details Area -->
@@ -28,15 +64,15 @@
         </div>
 
         <h3 class="text-[12px] font-bold text-slate-800 mb-1 line-clamp-2 leading-snug group-hover:text-[#E60000] transition-colors cursor-pointer">
-            <a href="{{ route('product.show', $product->slug) }}">{{ $product->name }}</a>
+            <a href="{{ $slug ? route('product.show', $slug) : '#' }}">{{ $name }}</a>
         </h3>
         
         <div class="mt-auto pt-3 flex items-end justify-between">
             <div class="flex flex-col">
-                @if($product->old_price)
-                    <span class="text-[12px] font-medium text-slate-400 line-through mb-0.5">Tk. {{ $product->old_price }}</span>
+                @if(!empty($oldPrice) && (float)$oldPrice > (float)$price)
+                    <span class="text-[12px] font-medium text-slate-400 line-through mb-0.5">Tk. {{ is_numeric($oldPrice) ? number_format((float)$oldPrice, 2) : $oldPrice }}</span>
                 @endif
-                <span class="text-[16px] font-black text-[#E60000] leading-none">Tk. {{ $product->price }}</span>
+                <span class="text-[16px] font-black text-[#E60000] leading-none">Tk. {{ is_numeric($price) ? number_format((float)$price, 2) : $price }}</span>
             </div>
         </div>
     </div>

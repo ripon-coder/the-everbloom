@@ -12,6 +12,8 @@ class Slider extends Model
     
     protected $imageColumns = ['image'];
 
+    protected $imageDisk = 'public';
+
 
     protected $fillable = [
         'image',

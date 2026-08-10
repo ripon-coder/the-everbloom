@@ -23,6 +23,7 @@ class ProductService
             $query->active()->with([
                 'firstImage.media', 
                 'category', 
+                'firstActiveVariant',
                 'flashSales' => function ($query) { $query->active(); }
             ]);
 
@@ -82,6 +83,7 @@ class ProductService
                 'variants.variantAttributes.attributeValue', 
                 'variants.images.media',
                 'firstImage.media', 
+                'firstActiveVariant',
                 'category',
                 'reviews.user',
                 'flashSales' => function ($query) {
@@ -103,14 +105,14 @@ class ProductService
         $related = Product::active()
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
-            ->with(['firstImage.media', 'category', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
 
         if ($related->isEmpty()) {
             $related = Product::active()
                 ->where('id', '!=', $product->id)
-                ->with(['firstImage.media', 'category', 'flashSales' => function ($query) { $query->active(); }])
+                ->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($query) { $query->active(); }])
                 ->inRandomOrder()
                 ->take($limit)
                 ->get();
@@ -140,7 +142,7 @@ class ProductService
     {
         $products = Product::search($query)
             ->query(function ($query) {
-                $query->active()->with(['firstImage.media', 'category', 'flashSales' => function ($q) { $q->active(); }]);
+                $query->active()->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($q) { $q->active(); }]);
             })
             ->take($limit)
             ->get();
@@ -156,19 +158,21 @@ class ProductService
     protected function transformProducts(Collection $products): Collection
     {
         return $products->map(function ($product) {
-            $price = $product->price;
-            $oldPrice = $product->old_price ?? null;
+            $basePrice = $product->display_price;
+            $oldPrice = $product->display_old_price;
 
             if ($product->relationLoaded('flashSales') && $product->flashSales->isNotEmpty()) {
                 $flashSale = $product->flashSales->first();
                 $discountPrice = $flashSale->pivot->discount_price;
                 $discountPercentage = $flashSale->pivot->discount_percentage;
                 
-                $oldPrice = $product->price;
+                $oldPrice = $basePrice;
                 $price = $discountPrice 
-                    ? ($product->price - $discountPrice) 
-                    : ($product->price - ($product->price * ($discountPercentage / 100)));
+                    ? ($basePrice - $discountPrice) 
+                    : ($basePrice - ($basePrice * ($discountPercentage / 100)));
                 $price = max(0, $price);
+            } else {
+                $price = $basePrice;
             }
 
             return (object) [

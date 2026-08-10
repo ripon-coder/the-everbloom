@@ -28,6 +28,8 @@ class Category extends Model implements HasMedia
 
     protected $imageColumns = ['image'];
 
+    protected $imageDisk = 'public';
+
     protected $casts = [
         'options' => 'json'
     ];

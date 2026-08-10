@@ -27,6 +27,13 @@
             </div>
 
             <div class="flex items-center space-x-3">
+                <a href="{{ route('admin.products.edit', $product->id) }}"
+                    class="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2.5 px-4 shadow-sm transition duration-200 flex items-center text-xs">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 012.828 0L20 4.828a2 2 0 010 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Edit Product
+                </a>
                 <a href="{{ route('admin.variants.index') }}"
                     class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-medium py-2.5 px-4 shadow-sm transition duration-200 flex items-center text-xs">
                     <svg class="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,8 +333,13 @@
                             <tr class="hover:bg-gray-50/80 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        @if($variant->images && $variant->images->count() > 0)
-                                            <img src="{{ $variant->images->first()->getImageUrl() }}" alt="" class="w-9 h-9 object-cover mr-3 border border-gray-200">
+                                        @php
+                                            $vImgUrl = ($variant->images && $variant->images->count() > 0) 
+                                                ? $variant->images->first()->getImageUrl() 
+                                                : ($product->firstImage?->getImageUrl() ?? $product->anyImage?->getImageUrl());
+                                        @endphp
+                                        @if($vImgUrl)
+                                            <img src="{{ $vImgUrl }}" alt="" class="w-9 h-9 object-cover mr-3 border border-gray-200">
                                         @endif
                                         <div>
                                             <span class="text-xs font-normal text-gray-800 bg-gray-50 px-2 py-1 border border-gray-200/80">
