@@ -3,7 +3,7 @@
 @section('title', 'Variant Management - ' . $product->name)
 
 @section('content')
-    <div class="p-4 sm:p-6" x-data="variantPageManager">
+    <div class="p-4 sm:p-6" x-data="variantPageManager()">
         <!-- Breadcrumb & Top Bar -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
@@ -111,47 +111,28 @@
             </div>
         </div>
 
-        <!-- ADD VARIANT MODAL -->
-        <div x-show="showAddVariantModal" x-cloak
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-            
-            <div x-show="showAddVariantModal"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 scale-95"
-                 x-transition:enter-end="opacity-100 scale-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100 scale-100"
-                 x-transition:leave-end="opacity-0 scale-95"
-                 class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full overflow-hidden border border-gray-100 my-8"
-                 @click.away="showAddVariantModal = false">
-                
-                <!-- Modal Header -->
-                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-gray-100/50">
+        <!-- INLINE ADD VARIANT CARD FORM -->
+        <div x-show="showAddForm" x-cloak x-transition class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-blue-50/50 to-indigo-50/30">
+                <div class="flex items-center space-x-2">
+                    <span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold">✨</span>
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900 flex items-center">
-                            <span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-sm mr-2.5 font-bold">✨</span>
-                            Add New Variant
-                        </h3>
-                        <p class="text-xs text-gray-500 mt-0.5">Creating variant option for <span class="font-semibold text-gray-700">{{ $product->name }}</span></p>
+                        <h2 class="text-base font-bold text-gray-900">Add New Variant</h2>
+                        <p class="text-xs text-gray-500">Create a new variant option with attributes, pricing, and stock for this product.</p>
                     </div>
-                    <button @click="showAddVariantModal = false" class="text-gray-400 hover:text-gray-600 transition p-1.5 rounded-lg hover:bg-gray-200/50">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
                 </div>
+                <button type="button" @click="showAddForm = false" class="text-gray-400 hover:text-gray-600 transition p-1.5 rounded-lg hover:bg-gray-200/50" title="Close Form">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
 
-                <!-- Modal Body Form -->
-                <form action="{{ route('admin.variants.store-variant', $product->id) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+            <div class="p-6">
+                <form action="{{ route('admin.variants.store-variant', $product->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                         <!-- SKU -->
                         <div>
                             <label for="sku" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
@@ -213,7 +194,7 @@
                         </div>
 
                         <!-- Status -->
-                        <div class="md:col-span-2">
+                        <div>
                             <label for="status" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                                 Status <span class="text-red-500">*</span>
                             </label>
@@ -227,15 +208,7 @@
                     </div>
 
                     <!-- Dynamic Variant Attributes Selection -->
-                    <div class="border-t border-gray-100 pt-5" x-data="{
-                        attributesList: [ { attribute_id: '', attribute_value_id: '' } ],
-                        addAttribute() {
-                            this.attributesList.push({ attribute_id: '', attribute_value_id: '' });
-                        },
-                        removeAttribute(index) {
-                            this.attributesList.splice(index, 1);
-                        }
-                    }">
+                    <div class="border-t border-gray-100 pt-5">
                         <div class="flex justify-between items-center mb-3">
                             <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
                                 Variant Attributes <span class="text-gray-400 font-normal lowercase">(e.g. Color: Red, Size: XL)</span>
@@ -248,17 +221,24 @@
                         <template x-for="(item, index) in attributesList" :key="index">
                             <div class="flex items-center gap-3 mb-3 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
                                 <div class="flex-1">
-                                    <select :name="'variant_attributes[' + index + '][attribute_id]'" x-model="item.attribute_id"
+                                    <select :name="'variant_attributes[' + index + '][attribute_id]'"
+                                        x-model="item.attribute_id"
+                                        @change="item.attribute_value_id = ''"
                                         class="w-full border-gray-300 rounded-lg text-xs focus:ring-blue-500 focus:border-blue-500">
                                         <option value="">Select Attribute</option>
                                         <template x-for="attr in availableAttributes" :key="attr.id">
-                                            <option :value="attr.id" x-text="attr.name"></option>
+                                            <option :value="attr.id"
+                                                    x-text="isAttributeSelected(attr.id, index) ? attr.name + ' (Already selected)' : attr.name"
+                                                    :disabled="isAttributeSelected(attr.id, index)">
+                                            </option>
                                         </template>
                                     </select>
                                 </div>
                                 <div class="flex-1">
-                                    <select :name="'variant_attributes[' + index + '][attribute_value_id]'" x-model="item.attribute_value_id"
-                                        class="w-full border-gray-300 rounded-lg text-xs focus:ring-blue-500 focus:border-blue-500" :disabled="!item.attribute_id">
+                                    <select :name="'variant_attributes[' + index + '][attribute_value_id]'"
+                                        x-model="item.attribute_value_id"
+                                        class="w-full border-gray-300 rounded-lg text-xs focus:ring-blue-500 focus:border-blue-500"
+                                        :disabled="!item.attribute_id">
                                         <option value="">Select Value</option>
                                         <template x-for="val in getValuesForAttribute(item.attribute_id)" :key="val.id">
                                             <option :value="val.id" x-text="val.value"></option>
@@ -272,195 +252,36 @@
                         </template>
                     </div>
 
-                    <!-- Images Upload -->
+                    <!-- Image Upload -->
                     <div class="border-t border-gray-100 pt-5">
                         <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
-                            Variant Images <span class="text-gray-400 font-normal lowercase">(Optional)</span>
+                            Variant Image <span class="text-gray-400 font-normal lowercase">(Optional)</span>
                         </label>
-                        <input type="file" name="images[]" multiple accept="image/*"
+                        <input type="file" name="image" accept="image/*"
+                            @change="handleImagePreview($event)"
                             class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer">
+                        
+                        <!-- Instant Image Preview -->
+                        <div x-show="imagePreview" x-cloak class="mt-3">
+                            <p class="text-[11px] font-semibold text-gray-600 mb-2 flex items-center">
+                                <span class="w-2 h-2 rounded-full bg-blue-500 mr-1.5 inline-block"></span>
+                                Selected Image Preview:
+                            </p>
+                            <div class="w-20 h-20 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
+                                <img :src="imagePreview" class="w-full h-full object-cover">
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Modal Actions -->
+                    <!-- Actions -->
                     <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100">
-                        <button type="button" @click="showAddVariantModal = false"
+                        <button type="button" @click="showAddForm = false"
                             class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 px-5 rounded-xl transition text-xs">
                             Cancel
                         </button>
                         <button type="submit"
                             class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-xl transition shadow-lg shadow-blue-500/20 text-xs">
                             Save Variant
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- EDIT VARIANT MODAL -->
-        <div x-show="showEditVariantModal" x-cloak
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-            
-            <div x-show="showEditVariantModal"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 scale-95"
-                 x-transition:enter-end="opacity-100 scale-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100 scale-100"
-                 x-transition:leave-end="opacity-0 scale-95"
-                 class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full overflow-hidden border border-gray-100 my-8"
-                 @click.away="showEditVariantModal = false">
-                
-                <!-- Modal Header -->
-                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50/50">
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-900 flex items-center">
-                            <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-sm mr-2.5 font-bold">✏️</span>
-                            Edit Variant
-                        </h3>
-                        <p class="text-xs text-gray-500 mt-0.5">Updating SKU: <span class="font-mono font-bold text-gray-700" x-text="editVariantData.sku"></span></p>
-                    </div>
-                    <button @click="showEditVariantModal = false" class="text-gray-400 hover:text-gray-600 transition p-1.5 rounded-lg hover:bg-gray-200/50">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Modal Body Form -->
-                <form :action="'/admin/variants/' + editVariantData.id" method="POST" enctype="multipart/form-data" class="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <!-- SKU -->
-                        <div>
-                            <label for="edit_sku" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                SKU <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="sku" id="edit_sku" x-model="editVariantData.sku" required
-                                class="w-full px-3.5 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm transition">
-                        </div>
-
-                        <!-- Stock -->
-                        <div>
-                            <label for="edit_stock" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Stock Quantity <span class="text-red-500">*</span>
-                            </label>
-                            <input type="number" name="stock" id="edit_stock" x-model="editVariantData.stock" min="0" step="1" required
-                                class="w-full px-3.5 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm transition">
-                        </div>
-
-                        <!-- Selling Price -->
-                        <div>
-                            <label for="edit_sell_price" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Selling Price ({{ $currency_sign }}) <span class="text-red-500">*</span>
-                            </label>
-                            <input type="number" name="sell_price" id="edit_sell_price" x-model="editVariantData.sell_price" step="0.01" min="0" required
-                                class="w-full px-3.5 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm transition">
-                        </div>
-
-                        <!-- Buying Price -->
-                        <div>
-                            <label for="edit_buying_price" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Buying Price ({{ $currency_sign }})
-                            </label>
-                            <input type="number" name="buying_price" id="edit_buying_price" x-model="editVariantData.buying_price" step="0.01" min="0"
-                                class="w-full px-3.5 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm transition">
-                        </div>
-
-                        <!-- Discount Price -->
-                        <div>
-                            <label for="edit_discount_price" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Discount Price ({{ $currency_sign }})
-                            </label>
-                            <input type="number" name="discount_price" id="edit_discount_price" x-model="editVariantData.discount_price" step="0.01" min="0"
-                                class="w-full px-3.5 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm transition">
-                        </div>
-
-                        <!-- Weight -->
-                        <div>
-                            <label for="edit_weight" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Weight (kg)
-                            </label>
-                            <input type="number" name="weight" id="edit_weight" x-model="editVariantData.weight" step="0.01" min="0"
-                                class="w-full px-3.5 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm transition">
-                        </div>
-
-                        <!-- Status -->
-                        <div class="md:col-span-2">
-                            <label for="edit_status" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Status <span class="text-red-500">*</span>
-                            </label>
-                            <select name="status" id="edit_status" x-model="editVariantData.status" required
-                                class="w-full px-3.5 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm transition">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Dynamic Variant Attributes Selection -->
-                    <div class="border-t border-gray-100 pt-5">
-                        <div class="flex justify-between items-center mb-3">
-                            <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                Variant Attributes <span class="text-gray-400 font-normal lowercase">(e.g. Color: Red, Size: XL)</span>
-                            </label>
-                            <button type="button" @click="addEditAttribute()" class="text-xs font-semibold text-amber-600 hover:text-amber-800 flex items-center bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-100 transition">
-                                + Add Attribute
-                            </button>
-                        </div>
-
-                        <template x-for="(item, index) in editVariantData.variant_attributes" :key="index">
-                            <div class="flex items-center gap-3 mb-3 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                                <div class="flex-1">
-                                    <select :name="'variant_attributes[' + index + '][attribute_id]'" x-model="item.attribute_id"
-                                        class="w-full border-gray-300 rounded-lg text-xs focus:ring-amber-500 focus:border-amber-500">
-                                        <option value="">Select Attribute</option>
-                                        <template x-for="attr in availableAttributes" :key="attr.id">
-                                            <option :value="attr.id" x-text="attr.name" :selected="attr.id == item.attribute_id"></option>
-                                        </template>
-                                    </select>
-                                </div>
-                                <div class="flex-1">
-                                    <select :name="'variant_attributes[' + index + '][attribute_value_id]'" x-model="item.attribute_value_id"
-                                        class="w-full border-gray-300 rounded-lg text-xs focus:ring-amber-500 focus:border-amber-500" :disabled="!item.attribute_id">
-                                        <option value="">Select Value</option>
-                                        <template x-for="val in getValuesForAttribute(item.attribute_id)" :key="val.id">
-                                            <option :value="val.id" x-text="val.value" :selected="val.id == item.attribute_value_id"></option>
-                                        </template>
-                                    </select>
-                                </div>
-                                <button type="button" @click="removeEditAttribute(index)" x-show="editVariantData.variant_attributes.length > 1" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition">
-                                    ✕
-                                </button>
-                            </div>
-                        </template>
-                    </div>
-
-                    <!-- Images Upload -->
-                    <div class="border-t border-gray-100 pt-5">
-                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
-                            Variant Images <span class="text-gray-400 font-normal lowercase">(Optional - upload new images)</span>
-                        </label>
-                        <input type="file" name="images[]" multiple accept="image/*"
-                            class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition cursor-pointer">
-                    </div>
-
-                    <!-- Modal Actions -->
-                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100">
-                        <button type="button" @click="showEditVariantModal = false"
-                            class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 px-5 rounded-xl transition text-xs">
-                            Cancel
-                        </button>
-                        <button type="submit"
-                            class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2.5 px-6 rounded-xl transition shadow-lg shadow-amber-500/20 text-xs">
-                            Update Variant
                         </button>
                     </div>
                 </form>
@@ -478,8 +299,8 @@
                     <p class="text-xs text-gray-500 mt-0.5">Manage stock, status, attributes, and options for this product.</p>
                 </div>
                 
-                <!-- ADD VARIANT BUTTON ON TABLE HEADER -->
-                <button @click="showAddVariantModal = true" type="button"
+                <!-- ADD VARIANT BUTTON ON TABLE HEADER TOGGLES INLINE FORM CARD -->
+                <button type="button" @click="showAddForm = !showAddForm"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl transition text-xs flex items-center shadow-md shadow-blue-500/10">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
@@ -565,16 +386,14 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
                                     <div class="flex justify-end items-center space-x-1.5">
-                                        <!-- Edit Variant Modal Trigger -->
-                                        <button type="button"
-                                            data-variant="{{ json_encode($variant->load(['variantAttributes'])) }}"
-                                            @click="openEditModal(JSON.parse($el.dataset.variant))"
-                                            class="p-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition"
-                                            title="Edit Variant">
+                                        <!-- Edit Variant Page Link -->
+                                        <a href="{{ route('admin.variants.edit', $variant->id) }}"
+                                           class="p-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition"
+                                           title="Edit Variant">
                                             <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                             </svg>
-                                        </button>
+                                        </a>
                                         <form action="{{ route('admin.variants.destroy', $variant->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this variant option?')">
                                             @csrf
                                             @method('DELETE')
@@ -596,7 +415,7 @@
                                         </div>
                                         <p class="text-sm font-semibold text-gray-700">No variants created yet</p>
                                         <p class="text-xs text-gray-500">Add the first variant option for this product to configure pricing, SKUs, and stock.</p>
-                                        <button @click="showAddVariantModal = true"
+                                        <button @click="showAddForm = true"
                                             class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl transition shadow-md">
                                             + Add First Variant
                                         </button>
@@ -613,53 +432,40 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('variantPageManager', () => ({
-            showAddVariantModal: false,
-            showEditVariantModal: false,
-            editVariantData: {
-                id: null,
-                sku: '',
-                stock: 0,
-                sell_price: 0,
-                buying_price: 0,
-                discount_price: 0,
-                weight: 0,
-                status: 'active',
-                variant_attributes: []
-            },
+    function variantPageManager() {
+        return {
+            showAddForm: false,
+            attributesList: [ { attribute_id: '', attribute_value_id: '' } ],
             availableAttributes: @json($attributes),
-            openEditModal(variant) {
-                this.editVariantData = {
-                    id: variant.id,
-                    sku: variant.sku || '',
-                    stock: variant.stock || 0,
-                    sell_price: variant.sell_price || 0,
-                    buying_price: variant.buying_price || 0,
-                    discount_price: variant.discount_price || '',
-                    weight: variant.weight || 0,
-                    status: variant.status || 'active',
-                    variant_attributes: (variant.variant_attributes || []).map(attr => ({
-                        attribute_id: attr.attribute_id,
-                        attribute_value_id: attr.attribute_value_id
-                    }))
-                };
-                if (!this.editVariantData.variant_attributes.length) {
-                    this.editVariantData.variant_attributes = [{ attribute_id: '', attribute_value_id: '' }];
+            addAttribute() {
+                this.attributesList.push({ attribute_id: '', attribute_value_id: '' });
+            },
+            removeAttribute(index) {
+                this.attributesList.splice(index, 1);
+            },
+            isAttributeSelected(attrId, currentIndex) {
+                if (!attrId) return false;
+                return this.attributesList.some((item, idx) => idx !== currentIndex && item.attribute_id == attrId);
+            },
+            imagePreview: null,
+            handleImagePreview(event) {
+                this.imagePreview = null;
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imagePreview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
                 }
-                this.showEditVariantModal = true;
-            },
-            addEditAttribute() {
-                this.editVariantData.variant_attributes.push({ attribute_id: '', attribute_value_id: '' });
-            },
-            removeEditAttribute(index) {
-                this.editVariantData.variant_attributes.splice(index, 1);
             },
             getValuesForAttribute(attrId) {
+                if (!attrId) return [];
                 const attr = this.availableAttributes.find(a => a.id == attrId);
-                return attr ? attr.attribute_values : [];
+                if (!attr) return [];
+                return attr.attribute_values || attr.attributeValues || [];
             }
-        }));
-    });
+        };
+    }
 </script>
 @endpush

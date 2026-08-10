@@ -94,7 +94,7 @@ class ProductVariantController extends Controller
             'variant_attributes' => 'nullable|array',
             'variant_attributes.*.attribute_id' => 'required_with:variant_attributes|exists:attributes,id',
             'variant_attributes.*.attribute_value_id' => 'required_with:variant_attributes|exists:attribute_values,id',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $sku = $request->filled('sku') ? $request->sku : 'EVB-' . strtoupper(Str::slug(substr($product->name, 0, 10))) . '-' . rand(1000, 9999);
@@ -111,24 +111,25 @@ class ProductVariantController extends Controller
         ]);
 
         if ($request->has('variant_attributes') && is_array($request->variant_attributes)) {
+            $seen = [];
             foreach ($request->variant_attributes as $attrData) {
                 if (!empty($attrData['attribute_id']) && !empty($attrData['attribute_value_id'])) {
-                    VariantAttribute::create([
-                        'product_variant_id' => $variant->id,
-                        'attribute_id' => $attrData['attribute_id'],
-                        'attribute_value_id' => $attrData['attribute_value_id'],
-                    ]);
+                    $key = $attrData['attribute_id'] . '-' . $attrData['attribute_value_id'];
+                    if (!isset($seen[$key])) {
+                        $seen[$key] = true;
+                        VariantAttribute::create([
+                            'product_variant_id' => $variant->id,
+                            'attribute_id' => $attrData['attribute_id'],
+                            'attribute_value_id' => $attrData['attribute_value_id'],
+                        ]);
+                    }
                 }
             }
         }
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                if ($image->isValid()) {
-                    $variantImage = $variant->images()->create();
-                    $variantImage->uploadImage($image, 'variant_images');
-                }
-            }
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $variantImage = $variant->images()->create();
+            $variantImage->uploadImage($request->file('image'), 'variant_images');
         }
 
         return redirect()->route('admin.variants.show', $product->id)->with('success', 'Variant added successfully.');
@@ -167,8 +168,11 @@ class ProductVariantController extends Controller
      */
     public function edit(int $id): View
     {
-        $variant = ProductVariant::with(['product', 'variantAttributes.attribute', 'variantAttributes.attributeValue'])->findOrFail($id);
-        return view('admin.variants.edit', compact('variant'));
+        $variant = ProductVariant::with(['product', 'variantAttributes.attribute', 'variantAttributes.attributeValue', 'images'])->findOrFail($id);
+        $attributes = Attribute::with(['attributeValues' => function($q) {
+            $q->active();
+        }])->active()->get();
+        return view('admin.variants.edit', compact('variant', 'attributes'));
     }
 
     /**
@@ -187,7 +191,7 @@ class ProductVariantController extends Controller
             'variant_attributes' => 'nullable|array',
             'variant_attributes.*.attribute_id' => 'required_with:variant_attributes|exists:attributes,id',
             'variant_attributes.*.attribute_value_id' => 'required_with:variant_attributes|exists:attribute_values,id',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $variant = ProductVariant::findOrFail($id);
@@ -197,24 +201,26 @@ class ProductVariantController extends Controller
 
         if ($request->has('variant_attributes') && is_array($request->variant_attributes)) {
             $variant->variantAttributes()->delete();
+            $seen = [];
             foreach ($request->variant_attributes as $attrData) {
                 if (!empty($attrData['attribute_id']) && !empty($attrData['attribute_value_id'])) {
-                    VariantAttribute::create([
-                        'product_variant_id' => $variant->id,
-                        'attribute_id' => $attrData['attribute_id'],
-                        'attribute_value_id' => $attrData['attribute_value_id'],
-                    ]);
+                    $key = $attrData['attribute_id'] . '-' . $attrData['attribute_value_id'];
+                    if (!isset($seen[$key])) {
+                        $seen[$key] = true;
+                        VariantAttribute::create([
+                            'product_variant_id' => $variant->id,
+                            'attribute_id' => $attrData['attribute_id'],
+                            'attribute_value_id' => $attrData['attribute_value_id'],
+                        ]);
+                    }
                 }
             }
         }
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                if ($image->isValid()) {
-                    $variantImage = $variant->images()->create();
-                    $variantImage->uploadImage($image, 'variant_images');
-                }
-            }
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $variant->images()->delete();
+            $variantImage = $variant->images()->create();
+            $variantImage->uploadImage($request->file('image'), 'variant_images');
         }
 
         return redirect()->route('admin.variants.show', $variant->product_id)->with('success', 'Variant updated successfully.');
