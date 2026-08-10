@@ -10,7 +10,7 @@ use Illuminate\View\View;
 
 class PageController extends Controller
 {
-    public function checkout(CheckoutCalculationRepository $checkoutCalculationRepository): View|RedirectResponse
+    public function checkout(CheckoutCalculationRepository $checkoutCalculationRepository)
     {
         $sessionCart = session('cart', []);
 
@@ -25,7 +25,11 @@ class PageController extends Controller
 
         $districts = \App\Models\District::orderBy('name')->get();
         $userAddresses = auth()->check() ? auth()->user()->addresses()->get() : collect();
-        return view('pages.checkout.index', compact('districts', 'userAddresses', 'sessionCart'));
+        return response()
+            ->view('pages.checkout.index', compact('districts', 'userAddresses', 'sessionCart'))
+            ->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');
     }
 
     public function account(string $section = 'dashboard'): View
@@ -47,6 +51,22 @@ class PageController extends Controller
             ->firstOrFail();
 
         return view('pages.account.order-show', compact('user', 'order'));
+    }
+
+    public function orderReceived(string $orderNumber): View
+    {
+        $user = auth()->user();
+        $order = $user->orders()->where('order_number', $orderNumber)
+            ->with([
+                'orderProducts.product.firstImage', 
+                'orderProducts.product.anyImage',
+                'orderProducts.productVariant.variantAttributes.attribute', 
+                'orderProducts.productVariant.variantAttributes.attributeValue', 
+                'orderAddress.district'
+            ])
+            ->firstOrFail();
+
+        return view('pages.order-received.index', compact('user', 'order'));
     }
 
     public function login(): View

@@ -43,16 +43,20 @@
         },
         loadCart() {
             let localCart = localStorage.getItem('cart');
-            let sessionCart = window.initialCartSession || [];
             
-            if (!localCart) {
-                // If local storage was cleared but we have session data, restore it
-                this.cart = sessionCart;
-                if (this.cart.length > 0) {
-                    localStorage.setItem('cart', JSON.stringify(this.cart));
+            if (localCart !== null) {
+                try {
+                    this.cart = JSON.parse(localCart);
+                } catch(e) {
+                    this.cart = [];
                 }
             } else {
-                this.cart = JSON.parse(localCart);
+                this.cart = [];
+            }
+            if (Array.isArray(this.cart)) {
+                this.cart = this.cart.filter(item => item && parseInt(item.quantity || 0) > 0);
+            } else {
+                this.cart = [];
             }
         },
         get cartCount() {
@@ -74,7 +78,7 @@
                 this.cart[index].quantity = newQuantity;
                 this.cart[index].line_total = newQuantity * parseFloat(this.cart[index].unit_final_price || 0);
                 this.saveCart();
-            } else if (newQuantity === 0) {
+            } else {
                 this.removeItem(index);
             }
         },
@@ -83,6 +87,7 @@
             this.saveCart();
         },
         saveCart() {
+            this.cart = (this.cart || []).filter(item => item && parseInt(item.quantity || 0) > 0);
             localStorage.setItem('cart', JSON.stringify(this.cart));
             this.syncWithServer();
             window.dispatchEvent(new CustomEvent('cart-updated-internal'));
@@ -1123,7 +1128,7 @@
         <!-- Cart Content -->
         <div class="flex-1 overflow-y-auto px-5 py-6">
             <!-- Empty Cart -->
-            <div x-show="cartCount === 0"
+            <div x-show="cartCount === 0 || cart.length === 0"
                 class="flex flex-col items-center justify-center h-full text-gray-500 space-y-4">
                 <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -1135,49 +1140,51 @@
                     Shopping</button>
             </div>
 
-            <template x-for="(item, index) in cart" :key="index">
-                <div class="flex gap-4 mb-6 pb-6 border-b border-gray-100 group">
-                    <div class="w-20 h-20 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
-                        <img :src="item.image" :alt="item.name"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    </div>
-                    <div class="flex-1 flex flex-col justify-between">
-                        <div>
-                            <h4 class="text-[14px] font-bold text-slate-800 leading-tight mb-1 group-hover:text-red-600 transition-colors"
-                                x-text="item.name"></h4>
+            <div x-show="cartCount > 0 && cart.length > 0">
+                <template x-for="(item, index) in cart" :key="index">
+                    <div x-show="parseInt(item.quantity || 0) > 0" class="flex gap-4 mb-6 pb-6 border-b border-gray-100 group">
+                        <div class="w-20 h-20 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
+                            <img :src="item.image" :alt="item.name"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <div class="flex-1 flex flex-col justify-between">
+                            <div>
+                                <h4 class="text-[14px] font-bold text-slate-800 leading-tight mb-1 group-hover:text-red-600 transition-colors"
+                                    x-text="item.name"></h4>
 
-                            <!-- Attributes Display -->
-                            <template x-if="item.attributes && Object.keys(item.attributes).length > 0">
-                                <div class="text-[11px] text-gray-500 mb-2 flex flex-wrap gap-1">
-                                    <template x-for="(val, key) in item.attributes" :key="key">
-                                        <span>
-                                            <span x-text="key + ':'" class="font-medium"></span>
-                                            <span x-text="val"></span>
-                                        </span>
-                                    </template>
-                                </div>
-                            </template>
+                                <!-- Attributes Display -->
+                                <template x-if="item.attributes && Object.keys(item.attributes).length > 0">
+                                    <div class="text-[11px] text-gray-500 mb-2 flex flex-wrap gap-1">
+                                        <template x-for="(val, key) in item.attributes" :key="key">
+                                            <span>
+                                                <span x-text="key + ':'" class="font-medium"></span>
+                                                <span x-text="val"></span>
+                                            </span>
+                                        </template>
+                                    </div>
+                                </template>
 
-                            <div class="flex items-center gap-3 mt-1">
-                                <div class="flex items-center border border-gray-200 rounded-md bg-white">
-                                    <button @click="updateQuantity(index, -1)"
-                                        class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">-</button>
-                                    <span x-text="item.quantity"
-                                        class="px-2 py-1 text-[13px] font-bold text-slate-800 border-x border-gray-200"></span>
-                                    <button @click="updateQuantity(index, 1)"
-                                        class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">+</button>
+                                <div class="flex items-center gap-3 mt-1">
+                                    <div class="flex items-center border border-gray-200 rounded-md bg-white">
+                                        <button @click="updateQuantity(index, -1)"
+                                            class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">-</button>
+                                        <span x-text="item.quantity"
+                                            class="px-2 py-1 text-[13px] font-bold text-slate-800 border-x border-gray-200"></span>
+                                        <button @click="updateQuantity(index, 1)"
+                                            class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">+</button>
+                                    </div>
+                                    <button @click="removeItem(index)"
+                                        class="text-[12px] text-gray-400 hover:text-red-600 underline font-medium">Remove</button>
                                 </div>
-                                <button @click="removeItem(index)"
-                                    class="text-[12px] text-gray-400 hover:text-red-600 underline font-medium">Remove</button>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[15px] font-black text-slate-800">Tk. <span
+                                        x-text="formatPrice((item.unit_final_price || 0) * (item.quantity || 0))"></span></span>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-[15px] font-black text-slate-800">Tk. <span
-                                    x-text="formatPrice((item.unit_final_price || 0) * (item.quantity || 0))"></span></span>
-                        </div>
                     </div>
-                </div>
-            </template>
+                </template>
+            </div>
         </div>
 
         <!-- Cart Footer (Sticky) -->

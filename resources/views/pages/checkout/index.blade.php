@@ -4,6 +4,7 @@
             return {
                 userAddresses: {!! \Illuminate\Support\Js::from($userAddresses ?? []) !!},
                 sessionCart: {!! \Illuminate\Support\Js::from($sessionCart ?? []) !!},
+                districts: {!! \Illuminate\Support\Js::from($districts ?? []) !!},
                 selectedAddressId: '',
                 fullName: '',
                 phone: '',
@@ -39,6 +40,16 @@
                     return parseFloat(price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 },
 
+                updateShippingCost() {
+                    if (this.districtId && Array.isArray(this.districts)) {
+                        const dist = this.districts.find(d => d.id == this.districtId);
+                        this.shippingCost = dist ? parseFloat(dist.delivery_charge || 0) : 0;
+                    } else {
+                        this.shippingCost = 0;
+                    }
+                    this.total = Math.max(0, this.subtotal + this.shippingCost - this.discount);
+                },
+
                 loadInitialCart() {
                     let localCart = localStorage.getItem('cart');
                     let parsed = null;
@@ -68,11 +79,19 @@
                         quantity: parseInt(item.quantity || 1)
                     }));
                     this.subtotal = this.calculatedItems.reduce((acc, i) => acc + (parseFloat(i.unit_final_price || 0) * parseInt(i.quantity || 1)), 0);
-                    this.total = this.subtotal;
+                    this.updateShippingCost();
                 },
 
                 init() {
+                    this.isPlacingOrder = false;
+                    this.isCalculating = false;
                     this.loadInitialCart();
+
+                    window.addEventListener('pageshow', () => {
+                        this.isPlacingOrder = false;
+                        this.isCalculating = false;
+                        this.loadInitialCart();
+                    });
 
                     if (this.userAddresses && this.userAddresses.length > 0) {
                         const defaultAddress = this.userAddresses.find(a => a.is_default == 1) || this.userAddresses[0];
@@ -82,10 +101,8 @@
                         }
                     }
 
-                    this.calculateCart();
-
                     this.$watch('districtId', () => {
-                        this.calculateCart();
+                        this.updateShippingCost();
                     });
                 },
 
@@ -105,6 +122,7 @@
                         this.address = '';
                         this.districtId = '';
                     }
+                    this.updateShippingCost();
                 },
 
                 calculateCart() {
@@ -178,10 +196,46 @@
                 },
 
                 applyCoupon() {
-                    if (!this.couponCode) return;
+                    if (!this.couponCode || !this.couponCode.trim()) return;
                     this.couponError = null;
-                    this.couponApplied = true;
-                    this.calculateCart();
+                    this.isCalculating = true;
+
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    let cart = this.calculatedItems.length > 0 ? this.calculatedItems : (this.sessionCart || []);
+
+                    fetch('{{ route("checkout.calculate") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({
+                            cart: cart,
+                            district_id: this.districtId,
+                            coupon_code: this.couponCode.trim()
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.data) {
+                            if (data.data.coupon_error) {
+                                this.couponError = data.data.coupon_error;
+                                this.couponApplied = false;
+                                this.discount = 0;
+                            } else {
+                                this.couponApplied = true;
+                                this.couponError = null;
+                                this.subtotal = parseFloat(data.data.subtotal || 0);
+                                this.shippingCost = parseFloat(data.data.shipping_cost || 0);
+                                this.discount = parseFloat(data.data.discount || 0);
+                                this.total = parseFloat(data.data.total || 0);
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Coupon check error:', error))
+                    .finally(() => {
+                        this.isCalculating = false;
+                    });
                 },
 
                 removeCoupon() {
@@ -233,8 +287,11 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Clear the cart from localStorage
-                            localStorage.removeItem('cart');
+                            // Set localStorage cart to empty array []
+                            localStorage.setItem('cart', '[]');
+                            window.initialCartSession = [];
+                            this.calculatedItems = [];
+                            this.sessionCart = [];
 
                             // Sync empty cart with session
                             fetch('{{ route("cart.sync") }}', {
@@ -249,14 +306,8 @@
                             // Update cart count in header without opening drawer
                             window.dispatchEvent(new CustomEvent('cart-updated-internal'));
 
-                            window.dispatchEvent(new CustomEvent('notify', {
-                                detail: { message: 'Order placed successfully! Order #' + data.order_number, type: 'success' }
-                            }));
-
-                            // Redirect to account page after short delay
-                            setTimeout(() => {
-                                window.location.href = '{{ route("account") }}';
-                            }, 1500);
+                            // Redirect to Order Received page immediately
+                            window.location.href = '/order-received/' + data.order_number;
                         } else {
                             if (data.validation_errors && data.validation_errors.length > 0) {
                                 window.location.href = '{{ route("cart") }}';

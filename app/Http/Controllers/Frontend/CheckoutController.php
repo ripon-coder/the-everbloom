@@ -199,6 +199,9 @@ class CheckoutController extends Controller
             // ========================================
             $order = $this->orderRepository->createOrder($orderInfo, $variantInfo, $shippingAddress, $flashSaleDiscount);
 
+            // Clear session cart
+            session()->forget('cart');
+
             return response()->json([
                 'success'      => true,
                 'message'      => 'Order placed successfully!',

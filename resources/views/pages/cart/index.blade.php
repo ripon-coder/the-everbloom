@@ -48,49 +48,47 @@
                         <div class="divide-y divide-gray-100">
                             <template x-for="(item, index) in cart" :key="index">
                                 <div class="p-4 sm:p-6 transition-colors" :class="item.is_active === false || item.available === false ? 'bg-red-50/60 opacity-70 grayscale' : 'hover:bg-gray-50/50'">
-                                    <div class="flex flex-col sm:grid sm:grid-cols-12 gap-4 items-center">
+                                    <div class="flex flex-col sm:grid sm:grid-cols-12 gap-4 sm:items-center">
                                         
                                         <!-- Product Info -->
-                                        <div class="sm:col-span-5 flex items-center gap-4 w-full">
-                                            <a :href="item.slug ? ('/product/' + item.slug) : '#'" class="relative w-20 h-20 bg-gray-50 rounded-md border border-gray-200 p-1 flex-shrink-0 flex items-center justify-center group overflow-hidden">
+                                        <div class="sm:col-span-5 flex items-start sm:items-center gap-3.5 sm:gap-4 w-full relative">
+                                            <a :href="item.slug ? ('/product/' + item.slug) : '#'" class="relative w-20 h-20 bg-gray-50 rounded-lg border border-gray-200 p-1 flex-shrink-0 flex items-center justify-center group overflow-hidden shadow-2xs">
                                                 <img :src="item.image || 'https://placehold.co/100x100?text=Product'" :alt="item.name" class="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-110">
                                             </a>
-                                            <div class="flex-1 min-w-0">
-                                                <h3 class="text-sm md:text-base font-extrabold text-gray-900 hover:text-red-600 transition-colors truncate">
+                                            <div class="flex-1 min-w-0 pr-7 sm:pr-0">
+                                                <h3 class="text-sm md:text-base font-extrabold text-gray-900 hover:text-red-600 transition-colors leading-tight line-clamp-2 sm:truncate">
                                                     <a :href="item.slug ? ('/product/' + item.slug) : '#'" x-text="item.name"></a>
                                                 </h3>
                                                 
                                                 <!-- Attributes -->
-                                                <div class="flex flex-wrap gap-1.5 mt-1">
+                                                <div class="flex flex-wrap gap-1.5 mt-1.5">
                                                     <template x-for="(val, key) in item.attributes" :key="key">
-                                                        <span class="inline-flex items-center text-[11px] font-semibold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md">
-                                                            <span class="text-gray-400 mr-1" x-text="key + ':'"></span>
+                                                        <span class="inline-flex items-center text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full">
+                                                            <span class="text-slate-400 mr-1" x-text="key + ':'"></span>
                                                             <span x-text="val"></span>
                                                         </span>
                                                     </template>
                                                 </div>
-                                                 <template x-if="item.is_active === false || item.available === false">
-                                                     <p class="text-[11px] font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-md mt-1 inline-flex items-center gap-1">
-                                                         <svg class="w-3 h-3 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                                                         <span x-text="item.status_message || 'No Longer Available'"></span>
-                                                     </p>
-                                                 </template>
-                                                 <template x-if="item.is_active !== false && item.available !== false && item.available_stock !== undefined && item.available_stock > 0 && item.available_stock < 10">
-                                                     <p class="text-[11px] font-semibold text-amber-600 mt-1 flex items-center gap-1">
-                                                         <svg class="w-3 h-3 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                                                         <span x-text="'Only ' + item.available_stock + ' unit(s) left in stock'"></span>
-                                                     </p>
-                                                 </template>
 
-                                                <!-- Mobile Price & Remove Button -->
-                                                <div class="flex items-center justify-between mt-2 sm:hidden">
-                                                    <span class="text-sm font-black text-red-600 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price)"></span>
-                                                    <button type="button" @click="removeItem(index)" class="text-xs font-bold text-gray-400 hover:text-red-600 flex items-center gap-1 transition-colors">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                        <span>Remove</span>
-                                                    </button>
-                                                </div>
+                                                <template x-if="item.is_active === false || item.available === false">
+                                                    <p class="text-[11px] font-bold text-red-600 bg-red-100/80 px-2.5 py-0.5 rounded-md mt-1.5 inline-flex items-center gap-1">
+                                                        <svg class="w-3 h-3 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                                        <span x-text="item.status_message || 'No Longer Available'"></span>
+                                                    </p>
+                                                </template>
+
+                                                <template x-if="item.is_active !== false && item.available !== false && item.available_stock !== undefined && item.available_stock > 0 && item.available_stock < 10">
+                                                    <p class="text-[11px] font-semibold text-amber-700 mt-1 flex items-center gap-1">
+                                                        <svg class="w-3 h-3 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                                        <span x-text="'Only ' + item.available_stock + ' unit(s) left in stock'"></span>
+                                                    </p>
+                                                </template>
                                             </div>
+
+                                            <!-- Mobile Top-Right Trash Button -->
+                                            <button type="button" @click="removeItem(index)" class="absolute top-0 right-0 sm:hidden p-1 text-gray-400 hover:text-red-600 transition-colors" title="Remove item">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            </button>
                                         </div>
 
                                         <!-- Unit Price (Desktop) -->
@@ -101,12 +99,18 @@
                                             </template>
                                         </div>
 
-                                        <!-- Quantity Controls -->
-                                        <div class="sm:col-span-2 flex items-center justify-between sm:justify-center w-full sm:w-auto">
-                                            <span class="text-xs font-bold text-gray-500 uppercase sm:hidden">Qty:</span>
-                                            <div class="flex items-center border border-gray-300 rounded-md overflow-hidden bg-gray-50 shadow-2xs">
+                                        <!-- Mobile Price & Quantity Bar / Desktop Quantity -->
+                                        <div class="w-full sm:w-auto sm:col-span-2 flex items-center justify-between sm:justify-center pt-2 sm:pt-0 border-t border-gray-100 sm:border-0 mt-1 sm:mt-0">
+                                            <!-- Mobile Price Display -->
+                                            <div class="sm:hidden flex flex-col">
+                                                <span class="text-xs text-gray-400 uppercase font-semibold">Total</span>
+                                                <span class="text-base font-black text-red-600 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price * item.quantity)"></span>
+                                            </div>
+
+                                            <!-- Stepper Controls -->
+                                            <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-gray-50 shadow-2xs">
                                                 <button type="button" @click="updateQuantity(index, -1)" class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors font-bold text-sm" :disabled="item.quantity <= 1 || item.is_active === false || item.available === false">-</button>
-                                                <input type="number" :value="item.quantity" @change="setQuantity(index, $event.target.value)" class="w-10 h-8 text-center text-xs font-bold text-gray-900 border-none p-0 focus:ring-0" min="1" max="30" readonly>
+                                                <input type="number" :value="item.quantity" @change="setQuantity(index, $event.target.value)" class="w-9 h-8 text-center text-xs font-bold text-gray-900 border-none p-0 focus:ring-0 bg-transparent" min="1" max="30" readonly>
                                                 <button type="button" @click="updateQuantity(index, 1)" class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors font-bold text-sm" :disabled="item.is_active === false || item.available === false">+</button>
                                             </div>
                                         </div>
@@ -125,14 +129,15 @@
                             </template>
                         </div>
 
-                        <!-- Footer Action Buttons -->
-                        <div class="p-4 sm:p-6 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <a href="{{ route('shop') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 px-5 py-3 rounded-md transition-colors uppercase tracking-wider shadow-2xs">
+                        <!-- Footer Action Buttons (Desktop Only) -->
+                        <div class="hidden sm:flex p-5 bg-gray-50/80 border-t border-gray-200 flex-row items-center justify-between gap-3">
+                            <a href="{{ route('shop') }}" class="w-auto inline-flex items-center justify-center gap-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 px-5 py-2.5 rounded-lg transition-colors uppercase tracking-wider shadow-2xs">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                                 <span>Continue Shopping</span>
                             </a>
-                            <button type="button" @click="clearCart()" class="w-full sm:w-auto text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-5 py-3 rounded-md transition-colors uppercase tracking-wider">
-                                Clear Shopping Cart
+                            <button type="button" @click="clearCart()" class="w-auto inline-flex items-center justify-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100/80 border border-red-200 px-4 py-2.5 rounded-lg transition-colors uppercase tracking-wider">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                <span>Clear Shopping Cart</span>
                             </button>
                         </div>
                     </div>
@@ -210,7 +215,7 @@
             </div>
 
             <!-- Empty Cart State -->
-            <div x-show="cart.length === 0" class="bg-white border border-gray-200 rounded-lg p-12 text-center max-w-lg mx-auto shadow-sm my-8">
+            <div x-show="cart.length === 0" class="bg-white border border-gray-200 rounded-lg p-12 text-center max-w-5xl mx-auto shadow-sm my-8">
                 <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-5">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                 </div>

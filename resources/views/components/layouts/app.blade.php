@@ -51,8 +51,10 @@
 <body class="antialiased bg-gray-50 text-gray-900">
     <x-layout.nav />
     
-    <main class="min-h-screen">
-        {{ $slot }}
+    <main class="min-h-screen bg-white">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    {{ $slot }}
+        </div>
     </main>
 
     <x-layout.footer />
