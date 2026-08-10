@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId("admin_id")->constrained("admins")->nullable();
             $table->foreignId('brand_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('product_type')->default('single'); // 'single' or 'variant'
             $table->string('name');
             $table->text('short_description')->nullable();
             $table->longText('description')->nullable();
@@ -24,7 +25,7 @@ return new class extends Migration
             $table->boolean('is_free_delivery')->default(false);
             $table->string('slug')->unique();
             $table->boolean('is_featured')->default(false);
-            $table->string('status')->default(ProductStatus::ACTIVE);
+            $table->string('status')->default(ProductStatus::INACTIVE);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Product;
+use App\Models\Brand;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
@@ -47,7 +49,7 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        return $this->productService->store($request->all());
+        return $this->productService->store(array_merge($request->all(), $request->validated()));
     }
 
     /**
@@ -55,9 +57,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-
-        $this->productService->show($product);
-        return view("admin.products.show", compact('product'));
+        return view('admin.products.show', compact('product'));
     }
 
     /**
@@ -68,7 +68,7 @@ class ProductController extends Controller
         $allCategories = app(CategoryRepository::class)->allCategory();
         $data = $this->productRepository->edit($product->id);
         $data = array_merge($data, ['allCategories' => $allCategories]);
-        return view("admin.products.edit", $data);
+        return view('admin.products.edit', $data);
     }
 
     /**
@@ -76,7 +76,7 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        return $this->productService->update($product->id, $request->all());
+        return $this->productService->update($product->id, array_merge($request->all(), $request->validated()));
     }
 
     /**
@@ -107,22 +107,38 @@ class ProductController extends Controller
      */
     public function quickUpdate(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'status' => 'required|in:active,inactive',
+        $rules = [
+            'name' => 'nullable|string|max:255',
+            'status' => 'nullable|in:active,inactive',
             'is_featured' => 'nullable',
             'is_free_delivery' => 'nullable',
-        ]);
+        ];
+
+        if ($request->has('price')) {
+            $rules['price'] = 'required|numeric|min:0';
+        }
+
+        $request->validate($rules);
 
         $product = Product::findOrFail($id);
-        $product->update([
-            'name' => $request->name,
-            'price' => $request->price,
-            'status' => $request->status,
-            'is_featured' => $request->is_featured,
-            'is_free_delivery' => $request->is_free_delivery,
-        ]);
+        $updateData = [
+            'is_featured' => filter_var($request->is_featured, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
+            'is_free_delivery' => filter_var($request->is_free_delivery, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
+        ];
+
+        if ($request->filled('status')) {
+            $updateData['status'] = $request->status;
+        }
+
+        if ($request->filled('name')) {
+            $updateData['name'] = $request->name;
+        }
+
+        if ($request->has('price')) {
+            $updateData['price'] = $request->price;
+        }
+
+        $product->update($updateData);
 
         return response()->json(['success' => true, 'message' => 'Product updated successfully.']);
     }

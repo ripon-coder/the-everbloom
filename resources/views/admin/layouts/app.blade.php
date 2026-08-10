@@ -9,8 +9,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     @vite(['resources/css/app.css'])
-    <link rel="stylesheet" href="{{ asset('assets/custom.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
@@ -33,20 +34,17 @@
     @include('admin.layouts.nav')
     @include('admin.layouts.sidebar')
     <div id="main-content" class="sm:ml-64 pt-16 min-h-screen content-z relative">
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
             @include('admin.lib.alert-message')
             @yield('content')
         </main>
     </div>
     
-    <!-- Load jQuery first -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Load Vite assets after jQuery -->
     @vite(['resources/js/app.js'])
     <script src="{{ asset('assets/custom.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     @include('admin.lib.confirm-delete-modal')
     @yield('scripts')
     @stack('scripts')

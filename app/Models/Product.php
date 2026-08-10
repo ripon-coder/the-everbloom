@@ -21,6 +21,7 @@ class Product extends Model
         'admin_id',
         'brand_id',
         'category_id',
+        'product_type',
         'is_free_delivery',
         'name',
         'slug',
@@ -70,6 +71,14 @@ class Product extends Model
     }
 
     /**
+     * Get the default/primary variant for the product (hasOne relation).
+     */
+    public function defaultVariant()
+    {
+        return $this->hasOne(ProductVariant::class)->oldestOfMany();
+    }
+
+    /**
      * Get the images for the product.
      */
     public function images()
@@ -78,6 +87,11 @@ class Product extends Model
     }
 
     public function firstImage()
+    {
+        return $this->hasOne(ProductImage::class)->where('is_default', true);
+    }
+
+    public function anyImage()
     {
         return $this->hasOne(ProductImage::class)->oldestOfMany();
     }

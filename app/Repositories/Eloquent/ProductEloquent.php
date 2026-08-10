@@ -26,6 +26,8 @@ class ProductEloquent implements ProductRepository
         return Product::select([
             'id',
             'name',
+            'product_type',
+            'is_free_delivery',
             'status',
             'created_at',
             'brand_id',
@@ -35,7 +37,8 @@ class ProductEloquent implements ProductRepository
         ])->with([
             'brand:id,name',
             'category:id,name',
-            'firstImage.media'
+            'firstImage.media',
+            'anyImage.media',
         ])->withCount(['variants', 'images'])
             ->latest()
             ->paginate(15);
@@ -63,7 +66,8 @@ class ProductEloquent implements ProductRepository
             'variants.variantAttributes:id,product_variant_id,attribute_id,attribute_value_id',
             'variants.variantAttributes.attribute:id,name',
             'variants.variantAttributes.attributeValue:id,attribute_id,value',
-            'images:id,product_id,is_default,image',
+            'images',
+            'images.media',
             'variants.images:id,product_variant_id,is_default,image'
         ])->withCount(['variants', 'images'])->findOrFail($id);
 

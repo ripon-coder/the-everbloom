@@ -36,12 +36,21 @@ class ProductService
                 $data['meta_description'] = Str::limit(strip_tags($data['short_description'] ?? $data['description'] ?? ''), 160);
             }
 
+            $isVariantProduct = ($data['product_type'] ?? 'single') === 'variant';
+            if ($isVariantProduct) {
+                $data['price'] = null;
+            }
+
+            $data['is_free_delivery'] = $this->parseBoolean($data['is_free_delivery'] ?? null);
+            $data['is_featured'] = $this->parseBoolean($data['is_featured'] ?? null);
+
             $data = array_merge($data, ["admin_id" => auth()->guard("admin")->id(), "slug" => $slug]);
             $product = $this->productRepository->store($data);
 
             // Handle product images
             if (isset($data['images']) && is_array($data['images'])) {
                 $images = $data['images'];
+                $thumbnailIndex = (int) ($data['thumbnail_index'] ?? 0);
                 foreach ($images as $index => $image) {
                     if ($image instanceof \Illuminate\Http\UploadedFile) {
                         try {
@@ -51,7 +60,7 @@ class ProductService
                             }
 
                             $productImage = $product->images()->create([
-                                'is_default' => $index === 0,
+                                'is_default' => $index === $thumbnailIndex,
                             ]);
 
                             $productImage->uploadImage($image, 'product_images');
@@ -64,85 +73,16 @@ class ProductService
                 }
             }
 
-            // If Simple Product mode is chosen or no variants were supplied, build a default variant automatically
-            if (($data['product_type'] ?? 'simple') === 'simple' || empty($data['variants'])) {
-                $data['variants'] = [
-                    [
-                        'sku' => !empty($data['simple_sku']) ? $data['simple_sku'] : 'EVB-' . strtoupper(Str::slug(substr($data['name'], 0, 10))) . '-' . rand(100, 999),
-                        'buying_price' => $data['simple_buying_price'] ?? 0,
-                        'sell_price' => $data['price'] ?? 0,
-                        'discount_price' => null,
-                        'stock' => $data['simple_stock'] ?? 10,
-                        'weight' => 0,
-                        'status' => 'active',
-                    ]
-                ];
-            }
-
-            // Handle product variants
-            if (isset($data['variants'])) {
-                foreach ($data['variants'] as $vIndex => $variantData) {
-                    $sellPrice = floatval($variantData['sell_price'] ?? $data['price'] ?? 0);
-                    $discountPrice = !empty($variantData['discount_price']) ? floatval($variantData['discount_price']) : 0;
-                    
-                    // Dynamically calculate discount amount percentage or fixed discount
-                    $discountAmount = null;
-                    if ($discountPrice > 0 && $sellPrice > $discountPrice) {
-                        $discountAmount = number_format((($sellPrice - $discountPrice) / $sellPrice) * 100, 2);
-                    }
-
-                    // Auto-generate SKU if missing
-                    $sku = !empty($variantData['sku']) 
-                        ? $variantData['sku'] 
-                        : 'EVB-' . strtoupper(Str::slug(substr($data['name'], 0, 10))) . '-' . ($vIndex + 1) . '-' . rand(100, 999);
-
-                    $variant = $product->variants()->create([
-                        'sku' => $sku,
-                        'buying_price' => $variantData['buying_price'] ?? 0,
-                        'sell_price' => $sellPrice,
-                        'discount_price' => $discountPrice > 0 ? $discountPrice : null,
-                        'discount_amount' => $discountAmount,
-                        'stock' => $variantData['stock'] ?? 0,
-                        'weight' => $variantData['weight'] ?? 0,
-                        'status' => $variantData['status'] ?? 'active',
-                    ]);
-
-                    // Handle variant attributes
-                    if (isset($variantData['attributes'])) {
-
-                        foreach ($variantData['attributes'] as $attributeData) {
-                            $variant->variantAttributes()->create([
-                                'attribute_id' => $attributeData['attribute_id'],
-                                'attribute_value_id' => $attributeData['attribute_value_id'],
-                            ]);
-                        }
-                    }
-
-                    // Handle variant images (either dedicated upload OR gallery selection)
-                    if (isset($variantData['images']) && $variantData['images'] instanceof \Illuminate\Http\UploadedFile) {
-                        $image = $variantData['images'];
-                        try {
-                            if ($image->isValid()) {
-                                $variantImage = $variant->images()->create(['is_default' => true]);
-                                $variantImage->uploadImage($image, 'variant_images');
-                            }
-                        } catch (\Exception $e) {
-                            Log::error('Error uploading variant image: ' . $e->getMessage());
-                        }
-                    } elseif (isset($variantData['gallery_image_index']) && $variantData['gallery_image_index'] !== '') {
-                        // Inherit or map selected photo from main gallery
-                        $galleryIndex = intval($variantData['gallery_image_index']);
-                        $mainImages = $product->images;
-                        if (isset($mainImages[$galleryIndex])) {
-                            $targetMainImage = $mainImages[$galleryIndex];
-                            $variant->images()->create([
-                                'is_default' => true,
-                                'image_path' => $targetMainImage->image_path ?? null,
-                            ]);
-                        }
-                    }
-
-                }
+            // If Single Product mode is chosen (without variants), save basic data as a single variant row (no attributes)
+            if (($data['product_type'] ?? 'single') === 'single') {
+                $product->variants()->create([
+                    'sell_price'   => $data['price'] ?? 0,
+                    'buying_price' => $data['simple_buying_price'] ?? 0,
+                    'stock'        => $data['simple_stock'] ?? 10,
+                    'sku'          => !empty($data['simple_sku']) ? $data['simple_sku'] : 'EVB-' . strtoupper(Str::slug(substr($data['name'], 0, 10))) . '-' . rand(100, 999),
+                    'weight'       => $data['simple_weight'] ?? 0,
+                    'status'       => 'active',
+                ]);
             }
             DB::commit();
             return redirect()->route('admin.products.index')
@@ -163,19 +103,22 @@ class ProductService
         DB::beginTransaction();
 
         try {
+            $isVariantProduct = ($data['product_type'] ?? 'single') === 'variant';
+
             // Update basic product information
             $productData = [
                 'brand_id' => $data['brand_id'],
                 'category_id' => $data['category_id'],
-                "is_free_delivery" => $data['is_free_delivery'],
-                "is_featured" => $data['is_featured'],
+                "is_free_delivery" => $this->parseBoolean($data['is_free_delivery'] ?? null),
+                "is_featured" => $this->parseBoolean($data['is_featured'] ?? null),
                 'name' => $data['name'],
-                'short_description'=> $data['short_description'],
-                'description' => $data['description'],
+                'short_description'=> $data['short_description'] ?? null,
+                'description' => $data['description'] ?? null,
                 'meta_title' => $data['meta_title'] ?? null,
                 'meta_description' => $data['meta_description'] ?? null,
-                'price' => $data['price'],
-                'status' => $data['status'],
+                'price' => $isVariantProduct ? null : ($data['price'] ?? null),
+                'status' => $data['status'] ?? 'active',
+                'product_type' => $data['product_type'] ?? 'single',
             ];
 
             $product = $this->productRepository->update($id, $productData);
@@ -189,6 +132,7 @@ class ProductService
                 }
 
                 // Add new images
+                $thumbnailIndex = (int) ($data['thumbnail_index'] ?? 0);
                 foreach ($data['images'] as $index => $image) {
                     if ($image instanceof \Illuminate\Http\UploadedFile) {
                         try {
@@ -198,7 +142,7 @@ class ProductService
                             }
 
                             $productImage = $product->images()->create([
-                                'is_default' => $index === 0,
+                                'is_default' => $index === $thumbnailIndex,
                             ]);
 
                             $productImage->uploadImage($image, 'product_images');
@@ -209,147 +153,38 @@ class ProductService
                         }
                     }
                 }
+            } elseif (isset($data['default_image_id'])) {
+                $product->images()->update(['is_default' => false]);
+                $product->images()->where('id', $data['default_image_id'])->update(['is_default' => true]);
             }
 
-            // Handle product variants
-            if (isset($data['variants']) && is_array($data['variants']) && !empty($data['variants'])) {
-                // Get existing variant SKUs to track which ones to keep
-                $existingVariantSkus = $product->variants()->pluck('sku')->toArray();
-                $newVariantSkus = collect($data['variants'])->pluck('sku')->toArray();
+            // If Single Product mode is chosen (without variants), update or create basic data as a single variant row (no attributes)
+            if (($data['product_type'] ?? 'single') === 'single') {
+                // Retrieve the existing single variant (the one with no variantAttributes)
+                $existingVariant = $product->variants()->doesntHave('variantAttributes')->first();
 
-                // Handle deleted variants (marked for deletion)
-                if (isset($data['delete_variants']) && is_array($data['delete_variants'])) {
-                    foreach ($data['delete_variants'] as $variantId) {
-                        $variant = $product->variants()->find($variantId);
-                        if ($variant) {
-                            // Delete variant images
-                            foreach ($variant->images as $image) {
-                                $image->clearMediaCollection('variant_images');
-                                $image->delete();
-                            }
-                            // Delete variant attributes
-                            $variant->variantAttributes()->delete();
-                            $variant->delete();
-                        }
-                    }
+                $singleData = [
+                    'sell_price'   => $data['price'] ?? 0,
+                    'buying_price' => $data['simple_buying_price'] ?? 0,
+                    'stock'        => $data['simple_stock'] ?? 10,
+                    'sku'          => !empty($data['simple_sku']) ? $data['simple_sku'] : ($existingVariant?->sku ?? ('EVB-' . strtoupper(Str::slug(substr($data['name'], 0, 10))) . '-' . rand(100, 999))),
+                    'weight'       => $data['simple_weight'] ?? 0,
+                    'status'       => 'active',
+                ];
+
+                if ($existingVariant) {
+                    $existingVariant->update($singleData);
+                } else {
+                    $product->variants()->create($singleData);
                 }
-
-                // Delete variants that are no longer present
-                $variantsToDelete = array_diff($existingVariantSkus, $newVariantSkus);
-                foreach ($variantsToDelete as $skuToDelete) {
-                    $variant = $product->variants()->where('sku', $skuToDelete)->first();
-                    if ($variant) {
-                        // Delete variant images
-                        foreach ($variant->images as $image) {
-                            $image->clearMediaCollection('variant_images');
-                            $image->delete();
-                        }
-                        // Delete variant attributes
-                        $variant->variantAttributes()->delete();
-                        $variant->delete();
-                    }
-                }
-
-                // Update or create variants
-                foreach ($data['variants'] as $variantData) {
-                    // Check if variant ID is provided (for existing variants)
-                    if (!empty($variantData['id'])) {
-                        $variant = $product->variants()->find($variantData['id']);
-                        if ($variant) {
-                            $variant->update([
-                                'sku' => $variantData['sku'],
-                                'buying_price' => $variantData['buying_price'] ?? 0,
-                                'sell_price' => $variantData['sell_price'] ?? $product->price,
-                                'discount_price' => $variantData['discount_price'] > 0 ? $variantData['discount_price'] : null,
-                                'stock' => $variantData['stock'],
-                                'weight' => $variantData['weight'] ?? 0,
-                                'status' => $variantData['status'] ?? 'active',
-                            ]);
-                        } else {
-                            // If ID is provided but variant not found, create new variant
-                            $variant = $product->variants()->create([
-                                'sku' => $variantData['sku'],
-                                'buying_price' => $variantData['buying_price'] ?? 0,
-                                'sell_price' => $variantData['sell_price'] ?? $product->price,
-                                'discount_price' => $variantData['discount_price'] > 0 ? $variantData['discount_price'] : null,
-                                'stock' => $variantData['stock'],
-                                'weight' => $variantData['weight'] ?? 0,
-                                'status' => $variantData['status'] ?? 'active',
-                            ]);
-                        }
-                    } else {
-                        // For new variants, use updateOrCreate with SKU
-                        $variant = $product->variants()->updateOrCreate(
-                            ['sku' => $variantData['sku']],
-                            [
-                                'buying_price' => $variantData['buying_price'] ?? 0,
-                                'sell_price' => $variantData['sell_price'] ?? $product->price,
-                                'discount_price' => $variantData['discount_price'] > 0 ? $variantData['discount_price'] : null,
-                                'stock' => $variantData['stock'],
-                                'weight' => $variantData['weight'] ?? 0,
-                                'status' => $variantData['status'] ?? 'active',
-                            ]
-                        );
-                    }
-
-                    // Handle variant attributes
-                    if (isset($variantData['attributes']) && is_array($variantData['attributes'])) {
-                        // Delete existing attributes
-                        $variant->variantAttributes()->delete();
-
-                        // Add new attributes
-                        foreach ($variantData['attributes'] as $attributeData) {
-                            $variant->variantAttributes()->create([
-                                'attribute_id' => $attributeData['attribute_id'],
-                                'attribute_value_id' => $attributeData['attribute_value_id'],
-                            ]);
-                        }
-                    }
-
-                    // Handle variant images
-                    if (isset($variantData['images'])) {
-                        // Handle deleted variant images (if any)
-                        if (isset($variantData['delete_images']) && is_array($variantData['delete_images'])) {
-                            foreach ($variantData['delete_images'] as $imageId) {
-                                $image = $variant->images()->find($imageId);
-                                if ($image) {
-                                    $image->clearMediaCollection('variant_images');
-                                    $image->delete();
-                                }
-                            }
-                        }
-
-                        $image = $variantData['images'];
-                        if ($image instanceof \Illuminate\Http\UploadedFile) {
-                            // Delete existing images
-                            foreach ($variant->images as $existingImage) {
-                                $existingImage->clearMediaCollection('variant_images');
-                                $existingImage->delete();
-                            }
-
-                            try {
-                                if (!$image->isValid()) {
-                                    Log::error('Invalid variant image file: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
-                                } else {
-                                    $variantImage = $variant->images()->create([
-                                        'is_default' => true,
-                                    ]);
-
-                                    $variantImage->uploadImage($image, 'variant_images');
-
-                                    Log::info('Variant image uploaded successfully: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
-                                }
-                            } catch (\Exception $e) {
-                                Log::error('Error uploading variant image: ' . $e->getMessage() . ' for variant: ' . $variantData['sku']);
-                            }
-                        }
-                    }
-                }
+            } else {
+                // When switching to variant type, delete the plain single-type variant row (no attributes)
+                $product->variants()->doesntHave('variantAttributes')->delete();
             }
 
             DB::commit();
 
-            return redirect()->route('admin.products.index')
+            return redirect()->route('admin.products.edit', $id)
                 ->with('success', 'Product updated successfully.');
 
         } catch (\Exception $e) {
@@ -474,5 +309,13 @@ class ProductService
             return redirect()->back()
                 ->with('error', 'Error permanently deleting product: ' . $e->getMessage());
         }
+    }
+
+    private function parseBoolean($value): int
+    {
+        if (is_array($value)) {
+            $value = end($value);
+        }
+        return in_array($value, [1, '1', 'on', true, 'true'], true) ? 1 : 0;
     }
 }

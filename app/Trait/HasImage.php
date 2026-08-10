@@ -159,6 +159,14 @@ trait HasImage
             $path = $this->image;
         }
 
+        // Fallback: Try Spatie MediaLibrary if path is still empty
+        if (!$path && method_exists($this, 'getFirstMediaUrl')) {
+            $mediaUrl = $this->getFirstMediaUrl();
+            if ($mediaUrl) {
+                return $mediaUrl;
+            }
+        }
+
         if (!$path) {
             return asset(static::$defaultImage);
         }

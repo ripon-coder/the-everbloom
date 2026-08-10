@@ -28,17 +28,17 @@ class UpdateProductRequest extends FormRequest
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255', 'unique:products,name,' . $productId],
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/i', 'unique:products,slug,' . $productId],
-            'is_free_delivery' => ["required",'boolean'],
+            'is_free_delivery' => ['nullable', 'boolean'],
             'is_featured' => ["required",'boolean'],
             'short_description' => ['nullable','max:500'],
             'description' => ['nullable', 'string'],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0', 'decimal:0,2'],
-            'status' => ['required', 'string', 'in:active,inactive'],
+            'price' => ['nullable', 'numeric', 'min:0'],
+            'status' => ['nullable', 'string', 'in:active,inactive'],
             'images' => ['nullable', 'array'],
             'images.*' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
-            'variants' => ['required', 'array','min:1'],
+            'variants' => ['nullable', 'array'],
             'variants.*.sku' => ['required_with:variants', 'string', 'max:255', function ($attribute, $value, $fail) use ($productId) {
                 // Check if SKU already exists for this product but exclude current variant being edited
                 $skuCheck = \App\Models\ProductVariant::where('sku', $value)

@@ -5,15 +5,19 @@
 @section('content')
     <div class="p-4 dark:bg-gray-900">
         <!-- Header -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Product</h1>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <span class="mr-2">✏️</span> Edit Product
+                </h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Update product details, pricing, and images.</p>
+            </div>
             <a href="{{ route('admin.products.index') }}"
-                class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2.5 px-4 transition duration-200 flex items-center shadow-sm text-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
-                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
-                Back
+                Back to Products
             </a>
         </div>
 
@@ -23,43 +27,65 @@
             @csrf
             @method('PUT')
 
-            <!-- Basic Product Information -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                @if ($errors->any())
-                    <div class="mb-4 rounded-lg bg-red-50 border border-red-200 p-4">
-                        <h3 class="text-sm font-semibold text-red-700 mb-2">
-                            âš ï¸ Validation Error
-                        </h3>
-                        <ul class="list-disc list-inside text-sm text-red-600 space-y-1">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h2>
+
+
+            <!-- Product Type Selection -->
+            <div class="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <div class="border-b border-gray-100 dark:border-gray-700 pb-3 mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <span class="w-7 h-7 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 text-xs font-bold flex items-center justify-center mr-2">🏷️</span>
+                        Product Type
+                    </h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="relative flex items-center p-4 border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150" id="singleTypeCard">
+                        <input type="radio" name="product_type" id="type_single" value="single" class="h-4 w-4 text-blue-600 focus:ring-blue-500" {{ old('product_type', $product->product_type ?? 'single') == 'single' ? 'checked' : '' }}>
+                        <div class="ml-3">
+                            <span class="block text-sm font-semibold text-gray-900 dark:text-white">Single / Simple Product</span>
+                            <span class="block text-xs text-gray-500 dark:text-gray-400">Standard product with fixed price and stock quantity.</span>
+                        </div>
+                    </label>
+                    <label class="relative flex items-center p-4 border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150" id="variantTypeCard">
+                        <input type="radio" name="product_type" id="type_variant" value="variant" class="h-4 w-4 text-blue-600 focus:ring-blue-500" {{ old('product_type', $product->product_type) == 'variant' ? 'checked' : '' }}>
+                        <div class="ml-3">
+                            <span class="block text-sm font-semibold text-gray-900 dark:text-white">Has Variants (Multiple Options)</span>
+                            <span class="block text-xs text-gray-500 dark:text-gray-400">Product with multiple options (managed in dedicated Variants menu).</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 1. Basic Product Information -->
+            <div class="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <div class="border-b border-gray-100 dark:border-gray-700 pb-3 mb-5 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <span class="w-7 h-7 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 text-xs font-bold flex items-center justify-center mr-2">1</span>
+                        Basic Information
+                    </h2>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Product Name <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="name" name="name" value="{{ old('name', $product->name) }}"
-                            required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('name') border-red-500 @enderror">
+                        <input type="text" id="name" name="name" value="{{ old('name', $product->name) }}" placeholder="e.g. Premium Cotton T-Shirt"
+                            class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('name') border-red-500 @enderror">
+                        <p class="text-xs text-red-600 mt-1 hidden" id="nameError"></p>
                         @error('name')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
                         <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Slug <span class="text-red-500">*</span>
+                            Slug / URL Keyword <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="slug" name="slug" value="{{ old('slug', $product->slug) }}"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('slug') border-red-500 @enderror">
+                        <input type="text" id="slug" name="slug" value="{{ old('slug', $product->slug) }}" placeholder="e.g. premium-cotton-t-shirt"
+                            class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('slug') border-red-500 @enderror">
                         <div id="slugFeedback" class="mt-1 text-xs font-semibold hidden"></div>
                         @error('slug')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
@@ -69,648 +95,208 @@
                         <label for="brand_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Brand <span class="text-red-500">*</span>
                         </label>
-                        <select id="brand_id" name="brand_id" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('brand_id') border-red-500 @enderror">
+                        <select id="brand_id" name="brand_id"
+                            class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('brand_id') border-red-500 @enderror">
                             <option value="">Select Brand</option>
                             @foreach ($brands as $brand)
-                                <option value="{{ $brand->id }}"
-                                    {{ old('brand_id', $product->brand_id) == $brand->id ? 'selected' : '' }}>
+                                <option value="{{ $brand->id }}" {{ old('brand_id', $product->brand_id) == $brand->id ? 'selected' : '' }}>
                                     {{ $brand->name }}
                                 </option>
                             @endforeach
                         </select>
+                        <p class="text-xs text-red-600 mt-1 hidden" id="brandError"></p>
                         @error('brand_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label for="category_id"
-                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category <span
-                                class="text-red-500">*</span></label>
+                        <label for="category_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Category <span class="text-red-500">*</span>
+                        </label>
                         <select name="category_id" id="category_id"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('parent_id') border-red-500 @enderror">
+                            class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('category_id') border-red-500 @enderror">
                             <option value="">Select Category</option>
                             {!! \App\Helpers\CategoryHelper::BuildTree($allCategories, $parentId = null, $level = 0, $currentId = 0, $selectedParentId = old('category_id', $product->category_id)) !!}
                         </select>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Choose the main category for this product
-                        </p>
+                        <p class="text-xs text-red-600 mt-1 hidden" id="categoryError"></p>
                         @error('category_id')
-                            <p class="mt-2 text-sm text-red-600 dark:text-red-500"><span class="font-medium">Oops!</span>
-                                {{ $message }}</p>
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
+            </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
-                    <div>
-                        <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Price ({{ $currency_sign }}) <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" id="price" name="price" value="{{ old('price', $product->price) }}"
-                            step="0.01" min="0" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('price') border-red-500 @enderror">
-                        @error('price')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+            <!-- 2. Pricing & Stock -->
+            <div class="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <div class="border-b border-gray-100 dark:border-gray-700 pb-3 mb-5 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <span class="w-7 h-7 bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 text-xs font-bold flex items-center justify-center mr-2">2</span>
+                        Pricing & Stock
+                    </h2>
+                </div>
+
+                <!-- Single Product Price/Stock Section (Hidden when product_type === 'variant') -->
+                <div id="simplePricingStockBlock" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Selling Price ({{ $currency_sign }}) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" id="price" name="price" value="{{ old('price', $product->singleProduct->selling_price ?? $product->price) }}" step="0.01" min="0" placeholder="0.00"
+                                class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('price') border-red-500 @enderror">
+                            <p class="text-xs text-red-600 mt-1 hidden" id="priceError"></p>
+                            @error('price')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="simple_stock" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Stock Quantity <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" id="simple_stock" name="simple_stock" value="{{ old('simple_stock', $product->singleProduct->stock_quantity ?? $product->stock ?? 10) }}" min="0" step="1" placeholder="10"
+                                class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <p class="text-xs text-red-600 mt-1 hidden" id="stockError"></p>
+                        </div>
+
+                        <div>
+                            <label for="simple_buying_price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Buying Price ({{ $currency_sign }})
+                            </label>
+                            <input type="number" id="simple_buying_price" name="simple_buying_price" value="{{ old('simple_buying_price', $product->singleProduct->buying_price ?? 0) }}" step="0.01" min="0" placeholder="0.00"
+                                class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+
+                        <div>
+                            <label for="simple_weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Weight (kg)
+                            </label>
+                            <input type="number" id="simple_weight" name="simple_weight" value="{{ old('simple_weight', $product->singleProduct->weight ?? 0) }}" step="0.01" min="0" placeholder="0.00"
+                                class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+
+                        <div>
+                            <label for="simple_sku" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                SKU <span class="text-xs text-gray-400">(Auto if empty)</span>
+                            </label>
+                            <input type="text" id="simple_sku" name="simple_sku" value="{{ old('simple_sku', $product->singleProduct->sku ?? '') }}" placeholder="Auto-generated"
+                                class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
                     </div>
 
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Is Free Delivery? <span class="text-red-500">*</span>
+                    <div class="flex items-center pt-2">
+                        <input type="hidden" name="is_free_delivery" value="0">
+                        <label for="is_free_delivery" class="flex items-center space-x-2.5 cursor-pointer">
+                            <input type="checkbox" id="is_free_delivery" name="is_free_delivery" value="1" {{ old('is_free_delivery', $product->is_free_delivery) ? 'checked' : '' }}
+                                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
+                            <span class="text-sm font-bold text-gray-700 dark:text-gray-300 cursor-pointer">Free Delivery</span>
                         </label>
-                        <select id="is_free_delivery" name="is_free_delivery" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('is_free_delivery') border-red-500 @enderror">
-                            <option value="0"
-                                {{ old('is_free_delivery', $product->is_free_delivery) == '0' ? 'selected' : '' }}>
-                                False</option>
-                            <option value="1"
-                                {{ old('is_free_delivery', $product->is_free_delivery) == '1' ? 'selected' : '' }}>True
-                            </option>
-                        </select>
-                        @error('is_free_delivery')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
+                </div>
 
+                <!-- Info message when Has Variants is selected -->
+                <div id="variantPricingNotice" class="hidden p-4 bg-blue-50 border border-blue-200 text-blue-700 text-xs">
+                    💡 <strong>Variant Product Selected:</strong> Pricing, stock quantity, buying price, and SKUs will be defined individually for each variant in the dedicated Variants management menu.
+                </div>
+
+                <div class="mt-6">
                     <div>
                         <label for="is_featured" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Is Featured? <span class="text-red-500">*</span>
+                            Featured Product <span class="text-red-500">*</span>
                         </label>
-                        <select id="is_featured" name="is_featured" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('is_featured') border-red-500 @enderror">
-                            <option value="0" {{ old('is_featured', $product->is_featured) == '0' ? 'selected' : '' }}>False</option>
-                            <option value="1" {{ old('is_featured', $product->is_featured) == '1' ? 'selected' : '' }}>True</option>
+                        <select id="is_featured" name="is_featured"
+                            class="w-full md:w-1/2 px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="0" {{ old('is_featured', $product->is_featured) == '0' ? 'selected' : '' }}>No</option>
+                            <option value="1" {{ old('is_featured', $product->is_featured) == '1' ? 'selected' : '' }}>Yes</option>
                         </select>
-                        @error('is_featured')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Descriptions & Media -->
+            <div class="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <div class="border-b border-gray-100 dark:border-gray-700 pb-3 mb-5 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <span class="w-7 h-7 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 text-xs font-bold flex items-center justify-center mr-2">3</span>
+                        Description & Images
+                    </h2>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label for="short_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Short Description
+                        </label>
+                        <textarea id="short_description" name="short_description" rows="3" placeholder="Brief summary of the product..."
+                            class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{{ old('short_description', $product->short_description) }}</textarea>
                     </div>
 
                     <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Status <span class="text-red-500">*</span>
+                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Full Description
                         </label>
-                        <select id="status" name="status" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('status') border-red-500 @enderror">
-                            <option value="active" {{ old('status', $product->status) === 'active' ? 'selected' : '' }}>
-                                Active</option>
-                            <option value="inactive"
-                                {{ old('status', $product->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                        </select>
-                        @error('status')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <textarea id="description" name="description" rows="4"
+                            class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{{ old('description', $product->description) }}</textarea>
                     </div>
-                </div>
 
-                <div class="mt-6">
-                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Short Description
-                    </label>
-                    <textarea id="short_description" name="short_description" rows="4"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('description') border-red-500 @enderror">{{ old('short_description', $product->short_description) }}</textarea>
-                    @error('short_description')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div class="mt-6">
-                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Description
-                    </label>
-                    <textarea id="description" name="description" rows="4"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('description') border-red-500 @enderror">{{ old('description', $product->description) }}</textarea>
-                    @error('description')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- SEO Information -->
-                <div class="mt-6">
-                    <label for="meta_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Meta Title
-                    </label>
-                    <input type="text" id="meta_title" name="meta_title" value="{{ old('meta_title', $product->meta_title) }}"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('meta_title') border-red-500 @enderror">
-                    @error('meta_title')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div class="mt-6">
-                    <label for="meta_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Meta Description
-                    </label>
-                    <textarea id="meta_description" name="meta_description" rows="4"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('meta_description') border-red-500 @enderror">{{ old('meta_description', $product->meta_description) }}</textarea>
-                    @error('meta_description')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
-            <!-- Current Product Images -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Current Product Images</h2>
-
-                @if ($product->images_count > 0)
-                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        @foreach ($product->images as $image)
-                            <div class="relative group">
-                                <img src="{{ $image->getImageUrl() }}" alt="{{ $product->name }}"
-                                    class="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-600">
-                                @if ($image->is_default)
-                                    <span
-                                        class="absolute top-2 right-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                        Default
-                                    </span>
-                                @endif
+                    <!-- Current Product Images -->
+                    @if ($product->images_count > 0)
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Current Gallery Images <span class="text-xs text-gray-400">(Select radio button to choose main Thumbnail)</span>
+                            </label>
+                            <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+                                @foreach ($product->images as $image)
+                                    <div class="relative group border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-1 shadow-sm">
+                                        <img src="{{ $image->getImageUrl() }}" alt="{{ $product->name }}" class="w-full h-24 object-cover">
+                                        <div class="p-1.5 flex items-center justify-between bg-gray-50 dark:bg-gray-800 mt-1">
+                                            <label class="flex items-center space-x-1.5 cursor-pointer">
+                                                <input type="radio" name="default_image_id" value="{{ $image->id }}" {{ $image->is_default ? 'checked' : '' }} class="w-3.5 h-3.5 text-blue-600 focus:ring-blue-500">
+                                                <span class="text-[11px] font-bold text-gray-700 dark:text-gray-300">Thumbnail</span>
+                                            </label>
+                                            @if ($image->is_default)
+                                                <span class="text-[10px] font-bold text-green-600">Default</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div
-                        class="text-center py-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700">
-                        <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                            </path>
-                        </svg>
-                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No images uploaded for this product.</p>
-                    </div>
-                @endif
-            </div>
+                        </div>
+                    @endif
 
-            <!-- Product Images -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Replace Product Images</h2>
-
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Upload New Images
-                    </label>
-                    <div class="flex items-center justify-center w-full">
-                        <label for="productImages"
-                            class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition duration-200">
-                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
-                                    </path>
-                                </svg>
-                                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                    <span class="font-semibold">Click to upload</span> or drag and drop
-                                </p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF, WEBP (MAX. 2MB each)</p>
-                            </div>
-                            <input id="productImages" name="images[]" type="file" class="hidden" multiple
-                                accept="image/*" />
-                        </label>
-                    </div>
-                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Note: Uploading new images will replace all
-                        existing images. First image will be set as default.</p>
-                    <div id="imagePreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
-                </div>
-            </div>
-
-            <!-- Product Variants -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Product Variants</h2>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Create different versions of your product with
-                            unique attributes
-                        </p>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Product Gallery Images <span class="text-xs text-gray-400">(Upload to replace or add)</span>
+                        </label>
+                        <div class="flex items-center justify-center w-full">
+                            <label for="productImages"
+                                class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-gray-600 border-dashed cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition duration-200">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <svg class="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p class="mb-1 text-sm text-gray-500 dark:text-gray-400">
+                                        <span class="font-semibold text-blue-600">Click to upload</span> or drag images here
+                                    </p>
+                                    <p class="text-xs text-gray-400">PNG, JPG, WEBP (MAX. 2MB each)</p>
+                                </div>
+                                <input id="productImages" name="images[]" type="file" class="hidden" multiple accept="image/*" />
+                            </label>
+                        </div>
+                        <div id="imagePreview" class="mt-4 grid grid-cols-2 md:grid-cols-6 gap-3"></div>
                     </div>
-                    <button type="button" id="addVariantBtn"
-                        class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-xl transition duration-200 flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                            </path>
-                        </svg>
-                        <span class="font-medium">Add New Variant</span>
-                    </button>
-                </div>
-
-                <!-- Empty State -->
-                <div id="emptyVariantsState"
-                    class="{{ $product->variants_count > 0 ? 'hidden' : '' }} text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-800">
-                    <svg class="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500 mb-4" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No variants yet</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4 max-w-md mx-auto">Start creating variants for your
-                        product by clicking the
-                        "Add New Variant" button above.</p>
-                    <div class="flex justify-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                        <div class="flex items-center">
-                            <svg class="w-4 h-4 mr-1 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            Add multiple attributes
-                        </div>
-                        <div class="flex items-center">
-                            <svg class="w-4 h-4 mr-1 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2h-8a2 2 0 01-2-2v-4z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            Set unique pricing
-                        </div>
-                        <div class="flex items-center">
-                            <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 01-.723 1.745 3.066 3.066 0 00-2.812 2.812 3.066 3.066 0 01-3.976 0 3.066 3.066 0 01-1.745-.723 3.066 3.066 0 00-2.812-2.812 3.066 3.066 0 010-3.976 3.066 3.066 0 01.723-1.745 3.066 3.066 0 002.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            Manage inventory
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Variants Container -->
-                <div id="variantsContainer" class="{{ $product->variants_count == 0 ? 'hidden' : '' }} space-y-6">
-                    @foreach ($product->variants as $index => $variant)
-                        <div class="variant-item bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
-                            data-variant="{{ $index }}">
-                            <!-- Variant Header -->
-                            <div
-                                class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center">
-                                        <div
-                                            class="bg-blue-500 text-white rounded-lg w-8 h-8 flex items-center justify-center font-bold text-sm mr-3">
-                                            {{ $index + 1 }}
-                                        </div>
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Product Variant
-                                            </h3>
-                                            <p class="text-sm text-gray-600 dark:text-gray-400">Configure your variant
-                                                options</p>
-                                        </div>
-                                    </div>
-                                    <button type="button"
-                                        class="bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 text-red-700 dark:text-red-300 p-2 rounded-lg transition duration-200 group remove-variant"
-                                        title="Remove variant">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                            </path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Variant Body -->
-                            <div class="p-6">
-                                <!-- Variant Attributes Section -->
-                                <div class="mb-8">
-                                    <div class="flex justify-between items-center mb-4">
-                                        <div class="flex items-center">
-                                            <svg class="w-5 h-5 text-purple-500 mr-2" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
-                                                </path>
-                                            </svg>
-                                            <h4 class="text-md font-semibold text-gray-900 dark:text-white">Variant
-                                                Attributes</h4>
-                                        </div>
-                                        <button type="button"
-                                            class="bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-800 text-purple-700 dark:text-purple-300 font-medium py-2 px-4 rounded-lg text-sm transition duration-200 flex items-center add-attribute"
-                                            data-variant="{{ $index }}">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 4v16m8-8H4"></path>
-                                            </svg>
-                                            Add Attribute
-                                        </button>
-                                    </div>
-                                    <div class="attributes-container space-y-4" data-variant="{{ $index }}">
-                                        @foreach ($variant->variantAttributes as $attrIndex => $variantAttribute)
-                                            <div class="attribute-item bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600"
-                                                data-attribute-index="{{ $attrIndex }}">
-                                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                                                    <div class="md:col-span-5">
-                                                        <label
-                                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                            <svg class="w-4 h-4 inline mr-1 text-blue-500" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
-                                                                </path>
-                                                            </svg>
-                                                            Attribute
-                                                        </label>
-                                                        <select
-                                                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white attribute-select"
-                                                            name="variants[{{ $index }}][attributes][{{ $attrIndex }}][attribute_id]"
-                                                            required>
-                                                            <option value="">Select an attribute</option>
-                                                            @foreach ($attributes as $attribute)
-                                                                <option value="{{ $attribute->id }}"
-                                                                    {{ $variantAttribute->attribute_id == $attribute->id ? 'selected' : '' }}>
-                                                                    {{ $attribute->name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    <div class="md:col-span-5">
-                                                        <label
-                                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                            <svg class="w-4 h-4 inline mr-1 text-green-500" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                                                                </path>
-                                                            </svg>
-                                                            Value
-                                                        </label>
-                                                        <select
-                                                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white attribute-value-select"
-                                                            name="variants[{{ $index }}][attributes][{{ $attrIndex }}][attribute_value_id]"
-                                                            required>
-                                                            <option value="">Select a value</option>
-                                                            @if ($variantAttribute->attributeValue)
-                                                                <option
-                                                                    value="{{ $variantAttribute->attributeValue->id }}"
-                                                                    selected>
-                                                                    {{ $variantAttribute->attributeValue->value }}
-                                                                </option>
-                                                            @endif
-                                                        </select>
-                                                    </div>
-                                                    <div class="md:col-span-2">
-                                                        <button type="button"
-                                                            class="w-full bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 text-red-700 dark:text-red-300 font-medium py-3 px-4 rounded-lg transition duration-200 remove-attribute flex items-center justify-center"
-                                                            title="Remove attribute">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                                viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                                </path>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <!-- Variant Details Section -->
-                                <div class="mb-8">
-                                    <div class="flex items-center mb-4">
-                                        <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <h4 class="text-md font-semibold text-gray-900 dark:text-white">Variant Details
-                                        </h4>
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <input type="hidden" name="variants[{{ $index }}][id]"
-                                            value="{{ $variant->id }}">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                <svg class="w-4 h-4 inline mr-1 text-orange-500" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
-                                                    </path>
-                                                </svg>
-                                                SKU <span class="text-red-500">*</span>
-                                            </label>
-                                            <input type="text" name="variants[{{ $index }}][sku]"
-                                                value="{{ $variant->sku }}" placeholder="e.g., TSHIRT-BLUE-LARGE"
-                                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                required>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                <svg class="w-4 h-4 inline mr-1 text-blue-500" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
-                                                    </path>
-                                                </svg>
-                                                Stock <span class="text-red-500">*</span>
-                                            </label>
-                                            <input type="number" name="variants[{{ $index }}][stock]"
-                                                value="{{ $variant->stock }}" placeholder="0"
-                                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                required>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                <svg class="w-4 h-4 inline mr-1 text-indigo-500" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3">
-                                                    </path>
-                                                </svg>
-                                                Weight (kg) <span class="text-red-500">*</span>
-                                            </label>
-                                            <input type="number" name="variants[{{ $index }}][weight]"
-                                                value="{{ $variant->weight ?? '' }}" step="0.01" min="0"
-                                                placeholder="0.00"
-                                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                                required>
-                                        </div>
-                                    </div>
-
-                                    <!-- Variant Pricing Section -->
-                                    <div class="mt-6 py-2 dark:bg-gray-700 rounded-lg">
-                                        <div class="flex items-center mb-4 px-1">
-                                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                </path>
-                                            </svg>
-                                            <h4 class="text-md font-semibold text-gray-900 dark:text-white">Variant Pricing
-                                            </h4>
-                                        </div>
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-4">
-                                            <div>
-                                                <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                    <svg class="w-4 h-4 inline mr-1 text-yellow-500" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                        </path>
-                                                    </svg>
-                                                    Buying Price ({{ $currency_sign }})
-                                                </label>
-                                                <div class="relative">
-                                                    <span
-                                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">{{ $currency_sign }}</span>
-                                                    <input type="number"
-                                                        name="variants[{{ $index }}][buying_price]" step="0.01"
-                                                        min="0" value="{{ $variant->buying_price ?? 0 }}"
-                                                        placeholder="0.00"
-                                                        class="w-full pl-8 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white variant-buying-price">
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                    <svg class="w-4 h-4 inline mr-1 text-green-500" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                        </path>
-                                                    </svg>
-                                                    Sell Price ({{ $currency_sign }})
-                                                </label>
-                                                <div class="relative">
-                                                    <span
-                                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">{{ $currency_sign }}</span>
-                                                    <input type="number"
-                                                        name="variants[{{ $index }}][sell_price]" step="0.01"
-                                                        min="0" value="{{ $variant->sell_price ?? 0 }}"
-                                                        placeholder="0.00"
-                                                        class="w-full pl-8 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white variant-sell-price"
-                                                        required>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                    <svg class="w-4 h-4 inline mr-1 text-red-500" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
-                                                        </path>
-                                                    </svg>
-                                                    Discount Price ({{ $currency_sign }})
-                                                </label>
-                                                <div class="relative">
-                                                    <span
-                                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">{{ $currency_sign }}</span>
-                                                    <input type="number"
-                                                        name="variants[{{ $index }}][discount_price]"
-                                                        step="0.01" min="0"
-                                                        value="{{ $variant->discount_price ?? 0 }}" placeholder="0.00"
-                                                        class="w-full pl-8 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white variant-discount-price">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                <svg class="w-4 h-4 inline mr-1 text-purple-500" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                                                    </path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                </svg>
-                                                Status
-                                            </label>
-                                            <select name="variants[{{ $index }}][status]"
-                                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                                                <option value="active"
-                                                    {{ $variant->status === 'active' ? 'selected' : '' }}>Active</option>
-                                                <option value="inactive"
-                                                    {{ $variant->status === 'inactive' ? 'selected' : '' }}>Inactive
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Variant Image Section -->
-                                <div>
-                                    <div class="flex items-center mb-4">
-                                        <svg class="w-5 h-5 text-pink-500 mr-2" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                            </path>
-                                        </svg>
-                                        <h4 class="text-md font-semibold text-gray-900 dark:text-white">Variant Images</h4>
-                                    </div>
-                                    <div
-                                        class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition duration-200">
-                                        <input type="file" name="variants[{{ $index }}][images]"
-                                            accept="image/*" class="hidden" id="variant-image-{{ $index }}"
-                                            onchange="previewVariantImage(this, {{ $index }})">
-                                        <label for="variant-image-{{ $index }}" class="cursor-pointer">
-                                            <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-3"
-                                                stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                                <path
-                                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                            <p class="text-gray-600 dark:text-gray-300 mb-1">Click to upload variant image
-                                            </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 2MB
-                                                (single image only)</p>
-                                        </label>
-                                    </div>
-                                    <div id="variant-image-preview-{{ $index }}"
-                                        class="mt-4 flex justify-center flex-wrap gap-2">
-                                        <!-- Current variant images with delete functionality -->
-                                        @if ($variant->images->count() > 0)
-                                            @foreach ($variant->images as $variantImage)
-                                                <div class="relative group variant-existing-image"
-                                                    id="variant-image-container-{{ $variantImage->id }}">
-                                                    <img src="{{ $variantImage->getImageUrl() }}" alt="Variant image"
-                                                        class="w-32 h-32 object-cover rounded-lg shadow-md border-2 border-gray-200">
-                                                    <button type="button"
-                                                        class="absolute top-2 left-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg delete-variant-image"
-                                                        title="Delete image" data-image-id="{{ $variantImage->id }}"
-                                                        data-variant-index="{{ $index }}">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                        </svg>
-                                                    </button>
-                                                    <div class="text-xs text-gray-500 mt-1 truncate max-w-32 text-center">
-                                                        {{ basename($variantImage->image) }}</div>
-                                                    <!-- Hidden input to mark image for deletion -->
-                                                    <input type="hidden"
-                                                        name="variants[{{ $index }}][delete_images][]"
-                                                        value="" id="delete-image-{{ $variantImage->id }}">
-                                                </div>
-                                            @endforeach
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
                 </div>
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex justify-end space-x-4">
+            <div class="flex justify-end items-center space-x-4 pt-4">
                 <a href="{{ route('admin.products.index') }}"
-                    class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white font-medium py-2.5 px-6 transition duration-200 text-sm">
                     Cancel
                 </a>
-                <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200 flex items-center">
+                <button type="submit" id="submitProductBtn"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-7 shadow-lg hover:shadow-xl transition duration-200 flex items-center text-sm">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
@@ -811,6 +397,219 @@
                     nameInput.addEventListener('change', generateSlug);
                 }
 
+                // Product Type Toggle Logic
+                const typeSingleRadio = document.getElementById('type_single');
+                const typeVariantRadio = document.getElementById('type_variant');
+                const simplePricingStockBlock = document.getElementById('simplePricingStockBlock');
+                const variantPricingNotice = document.getElementById('variantPricingNotice');
+
+                function toggleProductType() {
+                    const isVariant = typeVariantRadio && typeVariantRadio.checked;
+                    const simpleInputs = simplePricingStockBlock ? simplePricingStockBlock.querySelectorAll('input') : [];
+                    if (isVariant) {
+                        if (simplePricingStockBlock) simplePricingStockBlock.classList.add('hidden');
+                        if (variantPricingNotice) variantPricingNotice.classList.remove('hidden');
+                        simpleInputs.forEach(input => { input.disabled = true; });
+                    } else {
+                        if (simplePricingStockBlock) simplePricingStockBlock.classList.remove('hidden');
+                        if (variantPricingNotice) variantPricingNotice.classList.add('hidden');
+                        simpleInputs.forEach(input => { input.disabled = false; });
+                    }
+                }
+
+                document.querySelectorAll('input[name="product_type"]').forEach(radio => {
+                    radio.addEventListener('change', toggleProductType);
+                    radio.addEventListener('click', toggleProductType);
+                });
+                toggleProductType();
+
+            // Product Gallery Images Live Preview & Removal
+            const productImagesInput = document.getElementById('productImages');
+            const imagePreviewContainer = document.getElementById('imagePreview');
+            let selectedGalleryFiles = new DataTransfer();
+
+            function renderGalleryPreviews() {
+                if (!imagePreviewContainer) return;
+                imagePreviewContainer.innerHTML = '';
+                const files = selectedGalleryFiles.files;
+
+                if (files && files.length > 0) {
+                    Array.from(files).forEach((file, index) => {
+                        if (!file.type.startsWith('image/')) return;
+
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            const card = document.createElement('div');
+                            card.className = 'relative group border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-1 shadow-sm';
+                            card.innerHTML = `
+                                <img src="${ev.target.result}" alt="Preview" class="w-full h-24 object-cover">
+                                <button type="button" class="remove-gallery-img absolute top-1 right-1 bg-red-600 text-white w-5 h-5 flex items-center justify-center text-xs font-bold shadow hover:bg-red-700 transition" data-index="${index}" title="Remove image">
+                                    ✕
+                                </button>
+                                <div class="p-1.5 flex items-center justify-between bg-gray-50 dark:bg-gray-800 mt-1">
+                                    <label class="flex items-center space-x-1.5 cursor-pointer">
+                                        <input type="radio" name="thumbnail_index" value="${index}" ${index === 0 ? 'checked' : ''} class="w-3.5 h-3.5 text-blue-600 focus:ring-blue-500">
+                                        <span class="text-[11px] font-bold text-gray-700 dark:text-gray-300">Thumbnail</span>
+                                    </label>
+                                </div>
+                            `;
+                            imagePreviewContainer.appendChild(card);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+            }
+
+            productImagesInput?.addEventListener('change', function(e) {
+                if (e.target.files) {
+                    Array.from(e.target.files).forEach(file => selectedGalleryFiles.items.add(file));
+                    productImagesInput.files = selectedGalleryFiles.files;
+                    renderGalleryPreviews();
+                }
+            });
+
+            imagePreviewContainer?.addEventListener('click', function(e) {
+                const removeBtn = e.target.closest('.remove-gallery-img');
+                if (removeBtn) {
+                    const removeIdx = parseInt(removeBtn.getAttribute('data-index'));
+                    const updatedDataTransfer = new DataTransfer();
+                    Array.from(selectedGalleryFiles.files).forEach((file, idx) => {
+                        if (idx !== removeIdx) updatedDataTransfer.items.add(file);
+                    });
+                    selectedGalleryFiles = updatedDataTransfer;
+                    if (productImagesInput) productImagesInput.files = selectedGalleryFiles.files;
+                    renderGalleryPreviews();
+                }
+            });
+
+            // Real-time Field-Level Live JS Validation
+            const nameInputEl = document.getElementById('name');
+            const brandSelectEl = document.getElementById('brand_id');
+            const categorySelectEl = document.getElementById('category_id');
+            const priceInputEl = document.getElementById('price');
+            const stockInputEl = document.getElementById('simple_stock');
+
+            function showFieldError(inputEl, errorElId, message) {
+                const errEl = document.getElementById(errorElId);
+                if (!inputEl) return;
+
+                if (message) {
+                    inputEl.classList.remove('border-gray-300', 'border-green-500');
+                    inputEl.classList.add('border-red-500');
+                    if (errEl) {
+                        errEl.textContent = message;
+                        errEl.classList.remove('hidden');
+                    }
+                } else {
+                    inputEl.classList.remove('border-red-500');
+                    inputEl.classList.add('border-gray-300');
+                    if (errEl) {
+                        errEl.textContent = '';
+                        errEl.classList.add('hidden');
+                    }
+                }
+            }
+
+            nameInputEl?.addEventListener('blur', () => {
+                showFieldError(nameInputEl, 'nameError', nameInputEl.value.trim() ? '' : 'This field is required');
+            });
+            brandSelectEl?.addEventListener('change', () => {
+                showFieldError(brandSelectEl, 'brandError', brandSelectEl.value ? '' : 'This field is required');
+            });
+            categorySelectEl?.addEventListener('change', () => {
+                showFieldError(categorySelectEl, 'categoryError', categorySelectEl.value ? '' : 'This field is required');
+            });
+            priceInputEl?.addEventListener('blur', () => {
+                if (typeVariantRadio && typeVariantRadio.checked) return;
+                const val = parseFloat(priceInputEl.value);
+                showFieldError(priceInputEl, 'priceError', (!isNaN(val) && val >= 0) ? '' : 'Selling Price is required (min 0)');
+            });
+            stockInputEl?.addEventListener('blur', () => {
+                if (typeVariantRadio && typeVariantRadio.checked) return;
+                const val = parseInt(stockInputEl.value);
+                showFieldError(stockInputEl, 'stockError', (!isNaN(val) && val >= 0) ? '' : 'Stock Quantity is required (min 0)');
+            });
+
+            // Instant Client-Side Form Validation on Submit
+            const productForm = document.getElementById('productForm');
+            const jsErrorContainer = document.getElementById('jsErrorContainer');
+            const jsErrorList = document.getElementById('jsErrorList');
+
+            productForm?.addEventListener('submit', function (e) {
+                const errors = [];
+                const isVariant = typeVariantRadio && typeVariantRadio.checked;
+                const nameVal = nameInputEl?.value.trim();
+                const brandVal = brandSelectEl?.value;
+                const categoryVal = categorySelectEl?.value;
+                const priceVal = parseFloat(priceInputEl?.value);
+                const stockVal = parseInt(stockInputEl?.value);
+                const slugVal = document.getElementById('slug')?.value.trim();
+
+                if (!nameVal) {
+                    errors.push('Product Name is required.');
+                    showFieldError(nameInputEl, 'nameError', 'This field is required');
+                } else {
+                    showFieldError(nameInputEl, 'nameError', '');
+                }
+
+                if (!brandVal) {
+                    errors.push('Brand is required.');
+                    showFieldError(brandSelectEl, 'brandError', 'This field is required');
+                } else {
+                    showFieldError(brandSelectEl, 'brandError', '');
+                }
+
+                if (!categoryVal) {
+                    errors.push('Category is required.');
+                    showFieldError(categorySelectEl, 'categoryError', 'This field is required');
+                } else {
+                    showFieldError(categorySelectEl, 'categoryError', '');
+                }
+
+                if (!isVariant) {
+                    if (isNaN(priceVal) || priceVal < 0) {
+                        errors.push('Selling Price is required.');
+                        showFieldError(priceInputEl, 'priceError', 'This field is required');
+                    } else {
+                        showFieldError(priceInputEl, 'priceError', '');
+                    }
+
+                    if (isNaN(stockVal) || stockVal < 0) {
+                        errors.push('Stock Quantity is required.');
+                        showFieldError(stockInputEl, 'stockError', 'This field is required');
+                    } else {
+                        showFieldError(stockInputEl, 'stockError', '');
+                    }
+                }
+
+                if (slugVal) {
+                    if (/\s/.test(slugVal)) {
+                        errors.push('Slug cannot contain spaces (use hyphens e.g. redmi-note-10).');
+                    } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(slugVal)) {
+                        errors.push('Slug can only contain letters, numbers, and single hyphens.');
+                    }
+                }
+
+                if (errors.length > 0) {
+                    e.preventDefault();
+                    return false;
+                } else {
+                    const btn = document.getElementById('submitProductBtn');
+                    if (btn) {
+                        setTimeout(() => {
+                            btn.disabled = true;
+                            btn.innerHTML = `
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Updating...
+                            `;
+                        }, 10);
+                    }
+                }
+            });
+
                 if (document.querySelector('#description')) {
                     ClassicEditor
                         .create(document.querySelector('#description'))
@@ -826,5 +625,4 @@
             }
         </style>
     @endpush
-    @include('admin.products.js._edit')
 @endsection

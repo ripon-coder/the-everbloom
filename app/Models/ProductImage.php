@@ -26,6 +26,8 @@ class ProductImage extends Model implements HasMedia
 
     protected $imageColumns = ['image'];
 
+    protected $imageDisk = 'public';
+
     protected $appends = ['image_url'];
 
     public function getImageUrlAttribute()
@@ -70,9 +72,22 @@ class ProductImage extends Model implements HasMedia
             ->performOnCollections('product_images');
     }
     */
-    public function getImageUrl()
+    public function getImageUrl(): string
     {
-        return $this->traitGetImageUrl('image');
+        // Use HasImage trait with explicit public disk
+        if ($this->image) {
+            return \Illuminate\Support\Facades\Storage::disk('public')->exists($this->image)
+                ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->image)
+                : asset('images/default-logo.png');
+        }
+
+        // Fallback to Spatie MediaLibrary
+        $mediaUrl = $this->getFirstMediaUrl('product_images');
+        if ($mediaUrl) {
+            return $mediaUrl;
+        }
+
+        return asset('images/default-logo.png');
     }
 
 }
