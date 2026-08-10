@@ -115,7 +115,8 @@
             <div class="flex items-center gap-1.5">
                 <span class="font-bold text-gray-400 uppercase tracking-tighter">SKU:</span>
                 <span
-                    class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md font-medium">{{ $product->sku ?? 'N/A' }}</span>
+                    class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md font-medium"
+                    x-text="currentSku">{{ $product->sku ?? 'N/A' }}</span>
             </div>
             <div class="flex items-center gap-1.5">
                 <span class="font-bold text-gray-400 uppercase tracking-tighter">Category:</span>
@@ -190,12 +191,19 @@
         <!-- Attributes Selection -->
         @php
             $groupedAttributes = [];
-            if ($product->variants) {
+            if ($product->relationLoaded('variants') && $product->variants) {
                 foreach ($product->variants as $variant) {
-                    foreach ($variant->variantAttributes as $va) {
-                        $attrName = $va->attribute->name;
-                        $attrVal = $va->attributeValue->value;
-                        $groupedAttributes[$attrName][$va->attribute_value_id] = $attrVal;
+                    if ($variant->status && $variant->status !== \App\Constants\ProductVariantStatus::ACTIVE) {
+                        continue;
+                    }
+                    if ($variant->relationLoaded('variantAttributes') && $variant->variantAttributes) {
+                        foreach ($variant->variantAttributes as $va) {
+                            if ($va->attribute && $va->attributeValue) {
+                                $attrName = $va->attribute->name;
+                                $attrVal = $va->attributeValue->value;
+                                $groupedAttributes[$attrName][$va->attribute_value_id] = $attrVal;
+                            }
+                        }
                     }
                 }
             }
@@ -210,10 +218,10 @@
                             :disabled="!isOptionAvailable('{{ $name }}', {{ $id }})"
                             class="px-3 py-1.5 rounded-md border text-xs md:text-sm font-medium transition-all disabled:opacity-10 disabled:cursor-not-allowed"
                             :class="{
-                                                            'border-red-600 bg-red-50 text-red-600': selectedAttributes['{{ $name }}'] === {{ $id }},
-                                                            'border-gray-200 text-gray-600 hover:border-gray-400': selectedAttributes['{{ $name }}'] !== {{ $id }},
-                                                            'opacity-30 grayscale': !isOptionCompatible('{{ $name }}', {{ $id }}) && selectedAttributes['{{ $name }}'] !== {{ $id }}
-                                                        }">
+                                'border-red-600 bg-red-50 text-red-600': selectedAttributes['{{ $name }}'] === {{ $id }},
+                                'border-gray-200 text-gray-600 hover:border-gray-400': selectedAttributes['{{ $name }}'] !== {{ $id }},
+                                'opacity-30 grayscale': !isOptionCompatible('{{ $name }}', {{ $id }}) && selectedAttributes['{{ $name }}'] !== {{ $id }}
+                            }">
                             {{ $val }}
                         </button>
                     @endforeach

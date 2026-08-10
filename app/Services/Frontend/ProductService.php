@@ -79,11 +79,16 @@ class ProductService
             ->active()
             ->with([
                 'images.media', 
-                'variants.variantAttributes.attribute', 
-                'variants.variantAttributes.attributeValue', 
-                'variants.images.media',
+                'variants' => function ($query) {
+                    $query->active()->with([
+                        'variantAttributes.attribute',
+                        'variantAttributes.attributeValue',
+                        'images.media'
+                    ]);
+                },
                 'firstImage.media', 
-                'firstActiveVariant',
+                'firstActiveVariant.variantAttributes.attribute',
+                'firstActiveVariant.variantAttributes.attributeValue',
                 'category',
                 'reviews.user',
                 'flashSales' => function ($query) {

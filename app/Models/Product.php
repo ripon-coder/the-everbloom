@@ -138,6 +138,24 @@ class Product extends Model
     }
 
     /**
+     * Get the SKU attribute for the product (from first active variant or default variant).
+     */
+    public function getSkuAttribute()
+    {
+        $variant = $this->relationLoaded('firstActiveVariant')
+            ? $this->firstActiveVariant
+            : ($this->relationLoaded('variants')
+                ? $this->variants->where('status', ProductVariantStatus::ACTIVE)->first()
+                : $this->firstActiveVariant);
+
+        if ($variant && !empty($variant->sku)) {
+            return $variant->sku;
+        }
+
+        return null;
+    }
+
+    /**
      * Get the images for the product.
      */
     public function images()

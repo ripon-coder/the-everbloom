@@ -26,12 +26,22 @@
 
             init() {
                 if (this.product.variants && this.product.variants.length > 0) {
-                    const firstVariant = this.product.variants[0];
-                    const attrs = firstVariant.variant_attributes || firstVariant.variantAttributes;
-                    if (attrs) {
-                        attrs.forEach(attr => {
-                            this.selectAttribute(attr.attribute.name, attr.attribute_value_id);
-                        });
+                    const activeVariants = this.product.variants.filter(v => !v.status || v.status === 'active');
+                    const firstVariant = activeVariants.find(v => {
+                        const attrs = v.variant_attributes || v.variantAttributes;
+                        return attrs && attrs.length > 0;
+                    }) || activeVariants[0] || this.product.variants[0];
+
+                    if (firstVariant) {
+                        const attrs = firstVariant.variant_attributes || firstVariant.variantAttributes;
+                        if (attrs) {
+                            attrs.forEach(attr => {
+                                const attrObj = attr.attribute;
+                                if (attrObj && attrObj.name) {
+                                    this.selectAttribute(attrObj.name, attr.attribute_value_id);
+                                }
+                            });
+                        }
                     }
                 }
 
@@ -134,14 +144,20 @@
             getActiveVariant() {
                 if (!this.product.variants || Object.keys(this.selectedAttributes).length === 0) return null;
 
-                return this.product.variants.find(variant => {
-                    const attrs = variant.variant_attributes || variant.variantAttributes;
-                    if (!attrs) return false;
+                const activeVariants = this.product.variants.filter(v => !v.status || v.status === 'active');
 
-                    return attrs.every(attr => {
+                return activeVariants.find(variant => {
+                    const attrs = variant.variant_attributes || variant.variantAttributes;
+                    if (!attrs || attrs.length === 0) return false;
+
+                    const allAttrsMatch = attrs.every(attr => {
+                        if (!attr.attribute) return false;
                         const attrName = attr.attribute.name;
                         return this.selectedAttributes[attrName] == attr.attribute_value_id;
                     });
+
+                    const selectedCount = Object.keys(this.selectedAttributes).length;
+                    return allAttrsMatch && (attrs.length === selectedCount);
                 });
             },
 
@@ -153,6 +169,21 @@
                 return parseInt(this.product.stock || 0);
             },
 
+            get currentSku() {
+                const variant = this.getActiveVariant();
+                if (variant && variant.sku) {
+                    return variant.sku;
+                }
+                if (this.product.first_active_variant && this.product.first_active_variant.sku) {
+                    return this.product.first_active_variant.sku;
+                }
+                if (this.product.variants && this.product.variants.length > 0) {
+                    const activeV = this.product.variants.find(v => (v.status === 'active' || !v.status) && v.sku);
+                    if (activeV) return activeV.sku;
+                }
+                return this.product.sku || 'N/A';
+            },
+
             formatPrice(price) {
                 return parseFloat(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             },
@@ -160,8 +191,9 @@
             isOptionAvailable(attrName, optionId) {
                 if (!this.product.variants) return true;
                 return this.product.variants.some(variant => {
+                    if (variant.status && variant.status !== 'active') return false;
                     const attrs = variant.variant_attributes || variant.variantAttributes;
-                    return attrs && attrs.some(a => a.attribute.name === attrName && a.attribute_value_id == optionId);
+                    return attrs && attrs.some(a => a.attribute && a.attribute.name === attrName && a.attribute_value_id == optionId);
                 });
             },
 
@@ -169,13 +201,14 @@
                 if (!this.product.variants) return true;
 
                 return this.product.variants.some(variant => {
+                    if (variant.status && variant.status !== 'active') return false;
                     const attrs = variant.variant_attributes || variant.variantAttributes;
                     if (!attrs) return false;
 
                     return Object.entries(this.selectedAttributes).every(([name, id]) => {
                         if (name === attrName) return true; // Ignore self
-                        return attrs.some(a => a.attribute.name === name && a.attribute_value_id == id);
-                    }) && attrs.some(a => a.attribute.name === attrName && a.attribute_value_id == optionId);
+                        return attrs.some(a => a.attribute && a.attribute.name === name && a.attribute_value_id == id);
+                    }) && attrs.some(a => a.attribute && a.attribute.name === attrName && a.attribute_value_id == optionId);
                 });
             },
 
@@ -191,11 +224,34 @@
                     }
                 });
 
+                if (this.product.variants) {
+                    const activeVariants = this.product.variants.filter(v => !v.status || v.status === 'active');
+                    const matchingVariant = activeVariants.find(v => {
+                        const attrs = v.variant_attributes || v.variantAttributes;
+                        if (!attrs) return false;
+                        return Object.entries(this.selectedAttributes).every(([attrName, valId]) => {
+                            return attrs.some(a => a.attribute && a.attribute.name === attrName && a.attribute_value_id == valId);
+                        });
+                    });
+
+                    if (matchingVariant) {
+                        const attrs = matchingVariant.variant_attributes || matchingVariant.variantAttributes;
+                        if (attrs) {
+                            attrs.forEach(attr => {
+                                if (attr.attribute && attr.attribute.name && !this.selectedAttributes[attr.attribute.name]) {
+                                    this.selectedAttributes[attr.attribute.name] = attr.attribute_value_id;
+                                }
+                            });
+                        }
+                    }
+                }
+
                 const variant = this.getActiveVariant();
                 if (variant && variant.images && variant.images.length > 0) {
                     const img = variant.images[0];
-                    if (img.image_url) {
-                        this.mainImage = img.image_url;
+                    const imgUrl = img.image_url || img.url || (img.media && img.media.length > 0 ? img.media[0].original_url : null);
+                    if (imgUrl) {
+                        this.mainImage = imgUrl;
                     }
                 }
             },
