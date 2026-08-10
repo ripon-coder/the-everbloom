@@ -5,7 +5,7 @@ namespace App\Repositories\Contracts;
 interface ProductRepository
 {
 
-    public function index();
+    public function index(array $filters = []);
     public function create();
     public function store(array $data);
     public function update(int $id, array $data);

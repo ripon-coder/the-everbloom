@@ -21,11 +21,12 @@ class ProductEloquent implements ProductRepository
     {
         $this->productFilter = $productFilter;
     }
-    public function index()
+    public function index(array $filters = [])
     {
-        return Product::select([
+        $query = Product::select([
             'id',
             'name',
+            'slug',
             'product_type',
             'is_free_delivery',
             'status',
@@ -39,9 +40,61 @@ class ProductEloquent implements ProductRepository
             'category:id,name',
             'firstImage.media',
             'anyImage.media',
-        ])->withCount(['variants', 'images'])
-            ->latest()
-            ->paginate(15);
+        ])->withCount(['variants', 'images']);
+
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('slug', 'like', "%{$search}%")
+                  ->orWhere('id', $search);
+            });
+        }
+
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+
+        if (!empty($filters['brand_id'])) {
+            $query->where('brand_id', $filters['brand_id']);
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['product_type'])) {
+            $query->where('product_type', $filters['product_type']);
+        }
+
+        if (isset($filters['is_featured']) && $filters['is_featured'] !== '') {
+            $query->where('is_featured', $filters['is_featured']);
+        }
+
+        $sortBy = $filters['sort_by'] ?? 'latest';
+        switch ($sortBy) {
+            case 'oldest':
+                $query->orderBy('id', 'asc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'price_low':
+                $query->orderByRaw('COALESCE(NULLIF(products.price, 0), (SELECT MIN(pv.sell_price) FROM product_variants pv WHERE pv.product_id = products.id AND pv.deleted_at IS NULL), 0) ASC');
+                break;
+            case 'price_high':
+                $query->orderByRaw('COALESCE(NULLIF(products.price, 0), (SELECT MAX(pv.sell_price) FROM product_variants pv WHERE pv.product_id = products.id AND pv.deleted_at IS NULL), 0) DESC');
+                break;
+            case 'latest':
+            default:
+                $query->latest('id');
+                break;
+        }
+
+        return $query->paginate(15)->withQueryString();
     }
 
     public function create()

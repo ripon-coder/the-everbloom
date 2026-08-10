@@ -27,9 +27,22 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data["products"] = $this->productRepository->index();
+        $filters = $request->only([
+            'search',
+            'category_id',
+            'brand_id',
+            'status',
+            'product_type',
+            'is_featured',
+            'sort_by'
+        ]);
+
+        $data["products"] = $this->productRepository->index($filters);
+        $data["categories"] = Category::active()->orderBy('name')->get(['id', 'name']);
+        $data["brands"] = Brand::active()->orderBy('name')->get(['id', 'name']);
+
         return view("admin.products.index", $data);
     }
 

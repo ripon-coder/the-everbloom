@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Attribute;
 use App\Models\VariantAttribute;
+use App\Models\Brand;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -30,10 +32,12 @@ class ProductVariantController extends Controller
                 }
             ]);
 
-        if ($request->has('search') && !empty($request->search)) {
+        if ($request->filled('search')) {
             $search = trim($request->get('search'));
             $query->where(function($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('slug', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search)
                   ->orWhereHas('brand', function($b) use ($search) {
                       $b->where('name', 'LIKE', "%{$search}%");
                   })
@@ -46,9 +50,44 @@ class ProductVariantController extends Controller
             });
         }
 
-        $products = $query->latest()->paginate(20);
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
 
-        return view('admin.variants.index', compact('products'));
+        if ($request->filled('brand_id')) {
+            $query->where('brand_id', $request->brand_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('is_featured') && $request->is_featured !== null && $request->is_featured !== '') {
+            $query->where('is_featured', $request->is_featured);
+        }
+
+        $sortBy = $request->get('sort_by', 'latest');
+        switch ($sortBy) {
+            case 'oldest':
+                $query->orderBy('id', 'asc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'latest':
+            default:
+                $query->latest('id');
+                break;
+        }
+
+        $products = $query->paginate(20)->withQueryString();
+        $categories = Category::active()->orderBy('name')->get(['id', 'name']);
+        $brands = Brand::active()->orderBy('name')->get(['id', 'name']);
+
+        return view('admin.variants.index', compact('products', 'categories', 'brands'));
     }
 
     /**
