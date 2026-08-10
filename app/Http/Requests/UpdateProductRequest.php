@@ -27,6 +27,7 @@ class UpdateProductRequest extends FormRequest
             'brand_id' => ['required', 'exists:brands,id'],
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255', 'unique:products,name,' . $productId],
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/i', 'unique:products,slug,' . $productId],
             'is_free_delivery' => ["required",'boolean'],
             'is_featured' => ["required",'boolean'],
             'short_description' => ['nullable','max:500'],

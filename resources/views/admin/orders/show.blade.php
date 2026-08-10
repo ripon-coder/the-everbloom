@@ -140,7 +140,7 @@
                                         </div>
                                     </div>
                                     <p class="text-sm text-gray-500 mt-1">
-                                        Qty: {{ $orderProduct->quantity }} Ã—
+                                        Qty: {{ $orderProduct->quantity }} ×
                                         {{ $currency_sign }}{{ number_format($orderProduct->unit_price, 2) }}
                                     </p>
 
@@ -178,7 +178,7 @@
                                                 <span class="font-semibold">Flash Sale:</span>
                                                 <span
                                                     class="text-emerald-700">{{ ucfirst($flashItem['flash_sale_slug']) }}</span>
-                                                â€”
+                                                —
                                                 <span class="text-emerald-800">-
                                                     {{ $currency_sign }}{{ number_format($flashItem['discounted_price'] * $orderProduct->quantity, 2) }}</span>
                                             </span>

@@ -28,17 +28,23 @@ class ProductService
                 $slug = $originalSlug . '-' . $counter;
                 $counter++;
             }
-            $data = array_merge($data,["admin_id"=>auth()->guard("admin")->id(),"slug" => $slug]);
+            // Auto-fill empty meta fields from product name & short description
+            if (empty($data['meta_title'])) {
+                $data['meta_title'] = $data['name'];
+            }
+            if (empty($data['meta_description'])) {
+                $data['meta_description'] = Str::limit(strip_tags($data['short_description'] ?? $data['description'] ?? ''), 160);
+            }
+
+            $data = array_merge($data, ["admin_id" => auth()->guard("admin")->id(), "slug" => $slug]);
             $product = $this->productRepository->store($data);
 
             // Handle product images
             if (isset($data['images']) && is_array($data['images'])) {
                 $images = $data['images'];
                 foreach ($images as $index => $image) {
-                    // Check if the image is a valid UploadedFile instance
                     if ($image instanceof \Illuminate\Http\UploadedFile) {
                         try {
-                            // Validate the image file
                             if (!$image->isValid()) {
                                 Log::error('Invalid image file: ' . $image->getClientOriginalName());
                                 continue;
@@ -53,25 +59,51 @@ class ProductService
                             Log::info('Image uploaded successfully: ' . $image->getClientOriginalName());
                         } catch (\Exception $e) {
                             Log::error('Error uploading image: ' . $e->getMessage());
-                            // Continue with other images even if one fails
                         }
-                    } else {
-                        Log::warning('Invalid image data type for image index: ' . $index);
                     }
                 }
             }
 
+            // If Simple Product mode is chosen or no variants were supplied, build a default variant automatically
+            if (($data['product_type'] ?? 'simple') === 'simple' || empty($data['variants'])) {
+                $data['variants'] = [
+                    [
+                        'sku' => !empty($data['simple_sku']) ? $data['simple_sku'] : 'EVB-' . strtoupper(Str::slug(substr($data['name'], 0, 10))) . '-' . rand(100, 999),
+                        'buying_price' => $data['simple_buying_price'] ?? 0,
+                        'sell_price' => $data['price'] ?? 0,
+                        'discount_price' => null,
+                        'stock' => $data['simple_stock'] ?? 10,
+                        'weight' => 0,
+                        'status' => 'active',
+                    ]
+                ];
+            }
+
             // Handle product variants
             if (isset($data['variants'])) {
-                foreach ($data['variants'] as $variantData) {
+                foreach ($data['variants'] as $vIndex => $variantData) {
+                    $sellPrice = floatval($variantData['sell_price'] ?? $data['price'] ?? 0);
+                    $discountPrice = !empty($variantData['discount_price']) ? floatval($variantData['discount_price']) : 0;
+                    
+                    // Dynamically calculate discount amount percentage or fixed discount
+                    $discountAmount = null;
+                    if ($discountPrice > 0 && $sellPrice > $discountPrice) {
+                        $discountAmount = number_format((($sellPrice - $discountPrice) / $sellPrice) * 100, 2);
+                    }
+
+                    // Auto-generate SKU if missing
+                    $sku = !empty($variantData['sku']) 
+                        ? $variantData['sku'] 
+                        : 'EVB-' . strtoupper(Str::slug(substr($data['name'], 0, 10))) . '-' . ($vIndex + 1) . '-' . rand(100, 999);
+
                     $variant = $product->variants()->create([
-                        'sku' => $variantData['sku'],
-                        'buying_price' => $variantData['buying_price'],
-                        'sell_price' => $variantData['sell_price'],
-                        'discount_price' => $variantData['discount_price'] > 0 ? $variantData['discount_price'] : null,
-                        'discount_amount' => "25",
-                        'stock' => $variantData['stock'],
-                        'weight' => $variantData['weight'],
+                        'sku' => $sku,
+                        'buying_price' => $variantData['buying_price'] ?? 0,
+                        'sell_price' => $sellPrice,
+                        'discount_price' => $discountPrice > 0 ? $discountPrice : null,
+                        'discount_amount' => $discountAmount,
+                        'stock' => $variantData['stock'] ?? 0,
+                        'weight' => $variantData['weight'] ?? 0,
                         'status' => $variantData['status'] ?? 'active',
                     ]);
 
@@ -86,29 +118,27 @@ class ProductService
                         }
                     }
 
-                    // Handle variant images
-                    if (isset($variantData['images'])) {
+                    // Handle variant images (either dedicated upload OR gallery selection)
+                    if (isset($variantData['images']) && $variantData['images'] instanceof \Illuminate\Http\UploadedFile) {
                         $image = $variantData['images'];
-                        // Check if the image is a valid UploadedFile instance
-                        if ($image instanceof \Illuminate\Http\UploadedFile) {
-                            try {
-                                // Validate the image file
-                                if (!$image->isValid()) {
-                                    Log::error('Invalid variant image file: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
-                                } else {
-                                    $variantImage = $variant->images()->create([
-                                        'is_default' => true,
-                                    ]);
-
-                                    $variantImage->uploadImage($image, 'variant_images');
-
-                                    Log::info('Variant image uploaded successfully: ' . $image->getClientOriginalName() . ' for variant: ' . $variantData['sku']);
-                                }
-                            } catch (\Exception $e) {
-                                Log::error('Error uploading variant image: ' . $e->getMessage() . ' for variant: ' . $variantData['sku']);
+                        try {
+                            if ($image->isValid()) {
+                                $variantImage = $variant->images()->create(['is_default' => true]);
+                                $variantImage->uploadImage($image, 'variant_images');
                             }
-                        } else {
-                            Log::warning('Invalid variant image data type for variant: ' . $variantData['sku']);
+                        } catch (\Exception $e) {
+                            Log::error('Error uploading variant image: ' . $e->getMessage());
+                        }
+                    } elseif (isset($variantData['gallery_image_index']) && $variantData['gallery_image_index'] !== '') {
+                        // Inherit or map selected photo from main gallery
+                        $galleryIndex = intval($variantData['gallery_image_index']);
+                        $mainImages = $product->images;
+                        if (isset($mainImages[$galleryIndex])) {
+                            $targetMainImage = $mainImages[$galleryIndex];
+                            $variant->images()->create([
+                                'is_default' => true,
+                                'image_path' => $targetMainImage->image_path ?? null,
+                            ]);
                         }
                     }
 

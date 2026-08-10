@@ -229,16 +229,16 @@
                             @if (!$coupon->isValid())
                                 <div class="text-xs text-red-600 mt-1 max-w-xs text-left">
                                     @if ($coupon->status !== \App\Constants\CouponStatus::ACTIVE)
-                                        â€¢ Status is not active<br>
+                                        • Status is not active<br>
                                     @endif
                                     @if ($coupon->start_date > now())
-                                        â€¢ Start date is in the future ({{ $coupon->start_date->format('M d, Y H:i') }})<br>
+                                        • Start date is in the future ({{ $coupon->start_date->format('M d, Y H:i') }})<br>
                                     @endif
                                     @if ($coupon->end_date < now())
-                                        â€¢ End date has passed ({{ $coupon->end_date->format('M d, Y H:i') }})<br>
+                                        • End date has passed ({{ $coupon->end_date->format('M d, Y H:i') }})<br>
                                     @endif
                                     @if ($coupon->usage_limit !== null && $coupon->used_count >= $coupon->usage_limit)
-                                        â€¢ Usage limit reached ({{ $coupon->used_count }} / {{ $coupon->usage_limit }})
+                                        • Usage limit reached ({{ $coupon->used_count }} / {{ $coupon->usage_limit }})
                                     @endif
                                 </div>
                             @endif

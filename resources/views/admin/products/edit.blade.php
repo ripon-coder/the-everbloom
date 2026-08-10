@@ -56,8 +56,8 @@
                             Slug <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="slug" name="slug" value="{{ old('slug', $product->slug) }}"
-                            readonly
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-600 text-gray-900 dark:text-white @error('slug') border-red-500 @enderror">
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('slug') border-red-500 @enderror">
+                        <div id="slugFeedback" class="mt-1 text-xs font-semibold hidden"></div>
                         @error('slug')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -90,7 +90,7 @@
                                 class="text-red-500">*</span></label>
                         <select name="category_id" id="category_id"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('parent_id') border-red-500 @enderror">
-                            <option value="">ðŸ  None (Main Category)</option>
+                            <option value="">Select Category</option>
                             {!! \App\Helpers\CategoryHelper::BuildTree($allCategories, $parentId = null, $level = 0, $currentId = 0, $selectedParentId = old('category_id', $product->category_id)) !!}
                         </select>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Choose the main category for this product
@@ -722,11 +722,103 @@
     @push('scripts')
         <script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
         <script>
-            ClassicEditor
-                .create(document.querySelector('#description'))
-                .catch(error => {
-                    console.error(error);
-                });
+            document.addEventListener('DOMContentLoaded', function () {
+                const nameInput = document.getElementById('name');
+                const slugInput = document.getElementById('slug');
+                const slugFeedback = document.getElementById('slugFeedback');
+                const productId = {{ $product->id }};
+                let isSlugManuallyEdited = true;
+                let slugTimer = null;
+
+                function validateAndCheckSlug(slugVal) {
+                    if (!slugVal || !slugFeedback) {
+                        slugFeedback.className = 'hidden';
+                        return;
+                    }
+
+                    // Instant Client-Side Format Validation
+                    if (/\s/.test(slugVal)) {
+                        slugFeedback.className = 'mt-1 text-xs font-semibold text-red-600 block';
+                        slugFeedback.innerHTML = '✖ Spaces are not allowed in slugs! Use hyphens (e.g. redmi-note-10)';
+                        slugInput.classList.remove('border-green-500');
+                        slugInput.classList.add('border-red-500');
+                        return;
+                    }
+
+                    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(slugVal)) {
+                        slugFeedback.className = 'mt-1 text-xs font-semibold text-red-600 block';
+                        slugFeedback.innerHTML = '✖ Invalid format! Only letters, numbers, and hyphens are allowed.';
+                        slugInput.classList.remove('border-green-500');
+                        slugInput.classList.add('border-red-500');
+                        return;
+                    }
+
+                    slugFeedback.className = 'mt-1 text-xs font-semibold text-gray-500 block';
+                    slugFeedback.innerHTML = '⏳ Checking availability...';
+
+                    fetch(`/admin/products/check-slug?slug=${encodeURIComponent(slugVal)}&exclude_id=${productId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.available) {
+                                slugFeedback.className = 'mt-1 text-xs font-semibold text-green-600 block flex items-center';
+                                slugFeedback.innerHTML = `✓ ${data.message} (${data.slug})`;
+                                slugInput.classList.remove('border-red-500');
+                                slugInput.classList.add('border-green-500');
+                            } else {
+                                slugFeedback.className = 'mt-1 text-xs font-semibold text-red-600 block flex items-center';
+                                slugFeedback.innerHTML = `✖ ${data.message}`;
+                                slugInput.classList.remove('border-green-500');
+                                slugInput.classList.add('border-red-500');
+                            }
+                        })
+                        .catch(() => {
+                            slugFeedback.className = 'hidden';
+                        });
+                }
+
+                if (slugInput) {
+                    if (!slugInput.value.trim()) {
+                        isSlugManuallyEdited = false;
+                    }
+                    slugInput.addEventListener('input', function() {
+                        isSlugManuallyEdited = true;
+                        clearTimeout(slugTimer);
+                        slugTimer = setTimeout(() => {
+                            validateAndCheckSlug(slugInput.value);
+                        }, 200);
+                    });
+                }
+
+                if (nameInput && slugInput) {
+                    const generateSlug = function () {
+                        if (!isSlugManuallyEdited) {
+                            slugInput.value = nameInput.value
+                                .toLowerCase()
+                                .trim()
+                                .replace(/[^a-z0-9\s-]/g, '')
+                                .replace(/\s+/g, '-')
+                                .replace(/-+/g, '-');
+
+                            clearTimeout(slugTimer);
+                            slugTimer = setTimeout(() => {
+                                validateAndCheckSlug(slugInput.value);
+                            }, 200);
+                        }
+                    };
+
+                    nameInput.addEventListener('input', generateSlug);
+                    nameInput.addEventListener('keyup', generateSlug);
+                    nameInput.addEventListener('change', generateSlug);
+                }
+
+                if (document.querySelector('#description')) {
+                    ClassicEditor
+                        .create(document.querySelector('#description'))
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
         </script>
         <style>
             .ck-editor__editable_inline {

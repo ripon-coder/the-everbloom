@@ -27,6 +27,7 @@ Route::prefix('admin')->as("admin.")->group(function () {
         Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 
         // Product Management
+        Route::get('products/check-slug', [ProductController::class, 'checkSlug'])->name('products.check-slug');
         Route::resource("products", ProductController::class);
         Route::post('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
         Route::delete('products/{product}/force-delete', [ProductController::class, 'forceDelete'])->name('products.force-delete');

@@ -22,7 +22,7 @@
                         <div class="p-6 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
                             <div>
                                 <h1 class="text-xl font-bold text-gray-900 uppercase tracking-widest mb-1">Order Details</h1>
-                                <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Order #{{ $order->order_number }} â€¢ Placed on {{ $order->created_at->format('M d, Y') }}</p>
+                                <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Order #{{ $order->order_number }} • Placed on {{ $order->created_at->format('M d, Y') }}</p>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="flex flex-col items-end gap-1">

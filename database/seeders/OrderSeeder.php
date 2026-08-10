@@ -60,7 +60,7 @@ class OrderSeeder extends Seeder
                 'user_id' => $user->id,
                 'order_number' => Order::generateOrderNumber(),
                 'subtotal' => 0,
-                'discount_amount' => rand(0, 50),
+                'coupon_discount_amount' => rand(0, 50),
                 'tax_amount' => rand(5, 30),
                 'shipping_amount' => rand(0, 20),
                 'total_amount' => 0,
@@ -88,6 +88,7 @@ class OrderSeeder extends Seeder
                 $orderProducts[] = [
                     'product_id' => $product->id,
                     'quantity' => $quantity,
+                    'buying_price' => $unitPrice * 0.6,
                     'unit_price' => $unitPrice,
                     'total_price' => $totalPrice,
                     'discount_amount' => 0,
@@ -97,7 +98,7 @@ class OrderSeeder extends Seeder
 
             // Calculate totals
             $orderData['subtotal'] = $subtotal;
-            $orderData['total_amount'] = $subtotal + $orderData['tax_amount'] + $orderData['shipping_amount'] - $orderData['discount_amount'];
+            $orderData['total_amount'] = $subtotal + $orderData['tax_amount'] + $orderData['shipping_amount'] - $orderData['coupon_discount_amount'];
 
             // Create the order
             $order = Order::create($orderData);

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text("description")->nullable();
             $table->json("options")->nullable();
             $table->string("status")->default(CategoryStatus::ACTIVE);
+            $table->text("image")->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

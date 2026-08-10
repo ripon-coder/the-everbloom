@@ -138,8 +138,8 @@
             @else
                 <div
                     class="border-[2.5px] border-white text-white px-2 py-0.5 rounded-sm font-black text-2xl italic tracking-tighter leading-none">
-                    FERIWALA</div>
-                <div class="font-black text-2xl tracking-tighter text-white leading-none">RHAT</div>
+                    ENORSIA</div>
+                <div class="font-black text-2xl tracking-tighter text-white leading-none">TEST</div>
             @endif
         </a>
         <a href="{{ Auth::check() ? route('account') : route('login') }}"
@@ -274,9 +274,9 @@
                     <img src="{{ Storage::url($site_setting->site_logo) }}" alt="{{ $site_setting->site_name }}"
                         class="h-16 object-contain">
                 @else
-                    <div class="bg-black text-white px-3 py-1 rounded-sm font-black text-4xl italic tracking-tighter">FERIWALA
+                    <div class="bg-black text-white px-3 py-1 rounded-sm font-black text-4xl italic tracking-tighter">Enorsia
                     </div>
-                    <div class="font-black text-4xl tracking-tighter text-slate-800">RHAT</div>
+                    <div class="font-black text-4xl tracking-tighter text-slate-800">Test</div>
                 @endif
             </a>
 

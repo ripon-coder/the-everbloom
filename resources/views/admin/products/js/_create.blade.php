@@ -34,21 +34,31 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-
             const nameInput = document.getElementById('name');
             const slugInput = document.getElementById('slug');
-            const productImages = document.getElementById('productImages');
-            const imagePreview = document.getElementById('imagePreview');
-            const addVariantBtn = document.getElementById('addVariantBtn');
-            const variantsContainer = document.getElementById('variantsContainer');
 
-            // Populate variants from old input and display errors
-            populateVariantsFromOldInput();
+            // Live auto-generate slug from name input
+            if (nameInput && slugInput) {
+                nameInput.addEventListener('input', function() {
+                    slugInput.value = nameInput.value
+                        .toLowerCase()
+                        .trim()
+                        .replace(/[^a-z0-9\s-]/g, '')
+                        .replace(/\s+/g, '-')
+                        .replace(/-+/g, '-');
+                });
+            }
 
-            // Auto-generate slug
-            nameInput?.addEventListener('input', () => {
-                slugInput.value = nameInput.value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g,
-                    '-').replace(/-+/g, '-');
+            // Auto-generate missing SKUs for all variants on demand
+            document.getElementById('autoGenerateSkusBtn')?.addEventListener('click', function() {
+                const productName = nameInput ? nameInput.value.trim() : 'PROD';
+                const prefix = 'EVB-' + (productName ? productName.substring(0, 4).toUpperCase().replace(/[^A-Z0-9]/g, '') : 'ITEM');
+                
+                document.querySelectorAll('input[name^="variants"][name$="[sku]"]').forEach((skuField, idx) => {
+                    if (!skuField.value.trim()) {
+                        skuField.value = `${prefix}-${idx + 1}-${Math.floor(100 + Math.random() * 900)}`;
+                    }
+                });
             });
 
             // Image preview
@@ -102,6 +112,21 @@
                         };
                         reader.readAsDataURL(file);
                     });
+
+                    // Sync uploaded photos with all variant gallery dropdown pickers
+                    setTimeout(() => {
+                        document.querySelectorAll('.variant-gallery-picker').forEach(picker => {
+                            const currentVal = picker.value;
+                            picker.innerHTML = '<option value="">-- Use Main Product Image --</option>';
+                            Array.from(files).forEach((f, i) => {
+                                const opt = document.createElement('option');
+                                opt.value = i;
+                                opt.text = `Gallery Photo #${i + 1}: ${f.name.substring(0, 20)}`;
+                                picker.appendChild(opt);
+                            });
+                            picker.value = currentVal;
+                        });
+                    }, 200);
                 }
             });
 
@@ -401,30 +426,12 @@
                 }
             }
 
-            // Fix the addAttributeToVariant function to attach event listeners
-            const originalAddAttributeToVariant = addAttributeToVariant;
-            addAttributeToVariant = function(variantId) {
-                originalAddAttributeToVariant(variantId);
-
-                // Wait a bit for the DOM to update, then attach event listeners
-                setTimeout(() => {
-                    attachEventListeners();
-                }, 50);
-            };
-
-            // Fix the addManualVariantToForm function to attach event listeners
-            const originalAddManualVariantToForm = addManualVariantToForm;
-            addManualVariantToForm = function() {
-                originalAddManualVariantToForm();
-
-                // Wait a bit for the DOM to update, then attach event listeners
-                setTimeout(() => {
-                    attachEventListeners();
-                }, 50);
-            };
-
-            // Initial attachment of event listeners
+            // Event listener setup for dynamic variant elements
             setTimeout(() => {
+                if (typeof attachEventListeners === 'function') {
+                    attachEventListeners();
+                }
+            }, 100);
                 attachEventListeners();
             }, 100);
 
@@ -548,8 +555,25 @@
             const displayNumber = nextVariantNumber++;
 
             // Hide empty state and show variants container
-            document.getElementById('emptyVariantsState').classList.add('hidden');
-            document.getElementById('variantsContainer').classList.remove('hidden');
+            const emptyState = document.getElementById('emptyVariantsState');
+            const container = document.getElementById('variantsContainer');
+            if (emptyState) emptyState.classList.add('hidden');
+            if (container) container.classList.remove('hidden');
+            setTimeout(() => {
+                const productImages = document.getElementById('productImages');
+                if (productImages && productImages.files && productImages.files.length > 0) {
+                    const newPicker = document.querySelector(`[data-variant="${variantCount}"] .variant-gallery-picker`);
+                    if (newPicker) {
+                        newPicker.innerHTML = '<option value="">-- Use Main Product Image --</option>';
+                        Array.from(productImages.files).forEach((f, i) => {
+                            const opt = document.createElement('option');
+                            opt.value = i;
+                            opt.text = `Gallery Photo #${i + 1}: ${f.name.substring(0, 20)}`;
+                            newPicker.appendChild(opt);
+                        });
+                    }
+                }
+            }, 50);
 
             const variantHtml = `
     <div class="bg-gradient-to-br from-white dark:from-gray-800 to-gray-50 dark:to-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden" data-variant="${variantCount}">
@@ -735,25 +759,28 @@
                 </div>
             </div>
             
-            <!-- Variant Image Section -->
+            <!-- Variant Image Section (Gallery Selector & Custom Upload) -->
             <div>
                 <div class="flex items-center mb-4">
                     <svg class="w-5 h-5 text-pink-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
-                    <h4 class="text-md font-semibold text-gray-900 dark:text-white">Variant Image</h4>
+                    <h4 class="text-md font-semibold text-gray-900 dark:text-white">Variant Image (Attribute-Level Selector)</h4>
                 </div>
-                <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition duration-200">
-                    <input type="file" name="variants[${variantCount}][images]" accept="image/*" class="hidden" id="variant-image-${variantCount}" onchange="previewVariantImage(this, ${variantCount})">
-                    <label for="variant-image-${variantCount}" class="cursor-pointer">
-                        <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-3" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <p class="text-gray-600 dark:text-gray-300 mb-1">Click to upload variant image</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 2MB (single image only)</p>
-                    </label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Option 1: Select Main Uploaded Image</label>
+                        <select name="variants[${variantCount}][gallery_image_index]" class="variant-gallery-picker w-full text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg p-2.5">
+                            <option value="">-- Use Main Product Image --</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Automatically maps to uploaded product gallery photos.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Option 2: Upload Dedicated File</label>
+                        <input type="file" name="variants[${variantCount}][images]" accept="image/*" class="w-full text-sm text-gray-500 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-2" id="variant-image-${variantCount}" onchange="previewVariantImage(this, ${variantCount})">
+                    </div>
                 </div>
-                <div id="variant-image-preview-${variantCount}" class="mt-4 flex justify-center"></div>
+                <div id="variant-image-preview-${variantCount}" class="mt-2 flex flex-wrap gap-2"></div>
             </div>
         </div>
     </div>`;

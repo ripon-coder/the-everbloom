@@ -126,4 +126,47 @@ class ProductController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Product updated successfully.']);
     }
+
+    /**
+     * Live check slug availability & format validation via AJAX.
+     */
+    public function checkSlug(Request $request)
+    {
+        $rawSlug = trim($request->query('slug', ''));
+        $excludeId = $request->query('exclude_id');
+
+        if (empty($rawSlug)) {
+            return response()->json(['available' => false, 'message' => 'Slug cannot be empty']);
+        }
+
+        // Validate format: Slugs must only contain lowercase alphanumeric characters and single hyphens (no spaces allowed)
+        if (preg_match('/\s/', $rawSlug)) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Invalid slug format: Spaces are not allowed! Use hyphens (e.g. redmi-note-10)'
+            ]);
+        }
+
+        if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/i', $rawSlug)) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Invalid slug format! Only letters, numbers, and single hyphens are allowed.'
+            ]);
+        }
+
+        $formattedSlug = \Illuminate\Support\Str::slug($rawSlug);
+
+        $query = Product::where('slug', $formattedSlug);
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'slug' => $formattedSlug,
+            'message' => $exists ? 'Slug already taken!' : 'Slug is available!'
+        ]);
+    }
 }

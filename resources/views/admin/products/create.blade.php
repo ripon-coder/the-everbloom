@@ -54,8 +54,9 @@
                         <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Slug <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="slug" name="slug" value="{{ old('slug') }}" readonly
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-600 text-gray-900 dark:text-white @error('slug') border-red-500 @enderror">
+                        <input type="text" id="slug" name="slug" value="{{ old('slug') }}"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('slug') border-red-500 @enderror">
+                        <div id="slugFeedback" class="mt-1 text-xs font-semibold hidden"></div>
                         @error('slug')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -87,7 +88,7 @@
                                 class="text-red-500">*</span></label>
                         <select name="category_id" id="category_id"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 @error('parent_id') border-red-500 @enderror">
-                            <option value="">ðŸ  None (Main Category)</option>
+                            <option value="">Select Category</option>
                             {!! \App\Helpers\CategoryHelper::BuildTree($allCategories, $parentId = null, $level = 0, $currentId = 0, $selectedParentId = old('category_id')) !!}
                         </select>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Choose the main category for this product
@@ -102,7 +103,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
                     <div>
                         <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Price ({{ $currency_sign }}) <span class="text-red-500">*</span>
+                            Selling Price ({{ $currency_sign }}) <span class="text-red-500">*</span>
                         </label>
                         <input type="number" id="price" name="price" value="{{ old('price') }}" step="0.01"
                             min="0" required
@@ -113,7 +114,33 @@
                     </div>
 
                     <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label for="simple_stock" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Stock Quantity <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="simple_stock" name="simple_stock" value="{{ old('simple_stock', 10) }}" min="0" step="1"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+
+                    <div>
+                        <label for="simple_buying_price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Buying Price ({{ $currency_sign }})
+                        </label>
+                        <input type="number" id="simple_buying_price" name="simple_buying_price" value="{{ old('simple_buying_price', 0) }}" step="0.01" min="0"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+
+                    <div>
+                        <label for="simple_sku" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            SKU <span class="text-xs text-gray-500">(Auto if blank)</span>
+                        </label>
+                        <input type="text" id="simple_sku" name="simple_sku" value="{{ old('simple_sku') }}" placeholder="Auto-generated"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <div>
+                        <label for="is_free_delivery" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Is Free Delivery? <span class="text-red-500">*</span>
                         </label>
                         <select id="is_free_delivery" name="is_free_delivery" required
@@ -232,69 +259,6 @@
                 </div>
             </div>
 
-            <!-- Product Variants -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Product Variants</h2>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Create different versions of your product with
-                            unique attributes
-                        </p>
-                    </div>
-                    <button type="button" id="addVariantBtn"
-                        class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-xl transition duration-200 flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                            </path>
-                        </svg>
-                        <span class="font-medium">Add New Variant</span>
-                    </button>
-                </div>
-
-                <!-- Empty State -->
-                <div id="emptyVariantsState"
-                    class="text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-800">
-                    <svg class="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500 mb-4" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No variants yet</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4 max-w-md mx-auto">Start creating variants for your
-                        product by clicking the
-                        "Add New Variant" button above.</p>
-                    <div class="flex justify-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                        <div class="flex items-center">
-                            <svg class="w-4 h-4 mr-1 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            Add multiple attributes
-                        </div>
-                        <div class="flex items-center">
-                            <svg class="w-4 h-4 mr-1 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2h-8a2 2 0 01-2-2v-4z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            Set unique pricing
-                        </div>
-                        <div class="flex items-center">
-                            <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 01-.723 1.745 3.066 3.066 0 00-2.812 2.812 3.066 3.066 0 01-3.976 0 3.066 3.066 0 01-1.745-.723 3.066 3.066 0 00-2.812-2.812 3.066 3.066 0 010-3.976 3.066 3.066 0 01.723-1.745 3.066 3.066 0 002.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            Manage inventory
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Variants Container -->
-                <div id="variantsContainer" class="space-y-6 hidden"></div>
-            </div>
-
             <!-- Submit Buttons -->
             <div class="flex justify-end space-x-4">
                 <a href="{{ route('admin.products.index') }}"
@@ -314,11 +278,99 @@
     @push('scripts')
         <script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
         <script>
-            ClassicEditor
-                .create(document.querySelector('#description'))
-                .catch(error => {
-                    console.error(error);
-                });
+            document.addEventListener('DOMContentLoaded', function () {
+                const nameInput = document.getElementById('name');
+                const slugInput = document.getElementById('slug');
+                const slugFeedback = document.getElementById('slugFeedback');
+                let isSlugManuallyEdited = false;
+                let slugTimer = null;
+
+                function validateAndCheckSlug(slugVal) {
+                    if (!slugVal || !slugFeedback) {
+                        slugFeedback.className = 'hidden';
+                        return;
+                    }
+
+                    // Instant Client-Side Format Validation
+                    if (/\s/.test(slugVal)) {
+                        slugFeedback.className = 'mt-1 text-xs font-semibold text-red-600 block';
+                        slugFeedback.innerHTML = '✖ Spaces are not allowed in slugs! Use hyphens (e.g. redmi-note-10)';
+                        slugInput.classList.remove('border-green-500');
+                        slugInput.classList.add('border-red-500');
+                        return;
+                    }
+
+                    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(slugVal)) {
+                        slugFeedback.className = 'mt-1 text-xs font-semibold text-red-600 block';
+                        slugFeedback.innerHTML = '✖ Invalid format! Only letters, numbers, and hyphens are allowed.';
+                        slugInput.classList.remove('border-green-500');
+                        slugInput.classList.add('border-red-500');
+                        return;
+                    }
+
+                    slugFeedback.className = 'mt-1 text-xs font-semibold text-gray-500 block';
+                    slugFeedback.innerHTML = '⏳ Checking availability...';
+
+                    fetch(`/admin/products/check-slug?slug=${encodeURIComponent(slugVal)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.available) {
+                                slugFeedback.className = 'mt-1 text-xs font-semibold text-green-600 block flex items-center';
+                                slugFeedback.innerHTML = `✓ ${data.message} (${data.slug})`;
+                                slugInput.classList.remove('border-red-500');
+                                slugInput.classList.add('border-green-500');
+                            } else {
+                                slugFeedback.className = 'mt-1 text-xs font-semibold text-red-600 block flex items-center';
+                                slugFeedback.innerHTML = `✖ ${data.message}`;
+                                slugInput.classList.remove('border-green-500');
+                                slugInput.classList.add('border-red-500');
+                            }
+                        })
+                        .catch(() => {
+                            slugFeedback.className = 'hidden';
+                        });
+                }
+
+                if (slugInput) {
+                    slugInput.addEventListener('input', function() {
+                        isSlugManuallyEdited = true;
+                        clearTimeout(slugTimer);
+                        slugTimer = setTimeout(() => {
+                            validateAndCheckSlug(slugInput.value);
+                        }, 200);
+                    });
+                }
+
+                if (nameInput && slugInput) {
+                    const generateSlug = function () {
+                        if (!isSlugManuallyEdited) {
+                            slugInput.value = nameInput.value
+                                .toLowerCase()
+                                .trim()
+                                .replace(/[^a-z0-9\s-]/g, '')
+                                .replace(/\s+/g, '-')
+                                .replace(/-+/g, '-');
+                            
+                            clearTimeout(slugTimer);
+                            slugTimer = setTimeout(() => {
+                                validateAndCheckSlug(slugInput.value);
+                            }, 200);
+                        }
+                    };
+
+                    nameInput.addEventListener('input', generateSlug);
+                    nameInput.addEventListener('keyup', generateSlug);
+                    nameInput.addEventListener('change', generateSlug);
+                }
+
+                if (document.querySelector('#description')) {
+                    ClassicEditor
+                        .create(document.querySelector('#description'))
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
         </script>
         <style>
             .ck-editor__editable_inline {

@@ -240,7 +240,6 @@ class ProductVariantSeeder extends Seeder
                 'discount_price' => $discountPrice,
                 'stock' => rand(0, 100),
                 'status' => ProductVariantStatus::ACTIVE,
-                'track_stock' => true,
             ]);
             
             // Create variant attributes
