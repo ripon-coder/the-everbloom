@@ -8,6 +8,15 @@
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-900">Product Details</h1>
             <div class="flex space-x-3">
+                @if ($product->product_type === 'variant')
+                    <a href="{{ route('admin.variants.show', $product) }}"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Add Variant
+                    </a>
+                @endif
                 <a href="{{ route('admin.products.edit', $product) }}"
                     class="bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"

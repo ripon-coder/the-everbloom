@@ -35,6 +35,8 @@ Route::prefix('admin')->as("admin.")->group(function () {
 
         // Variants Management
         Route::get('variants', [\App\Http\Controllers\Admin\ProductVariantController::class, 'index'])->name('variants.index');
+        Route::get('variants/product/{product}', [\App\Http\Controllers\Admin\ProductVariantController::class, 'show'])->name('variants.show');
+        Route::post('variants/product/{product}', [\App\Http\Controllers\Admin\ProductVariantController::class, 'storeVariant'])->name('variants.store-variant');
         Route::get('variants/{variant}/edit', [\App\Http\Controllers\Admin\ProductVariantController::class, 'edit'])->name('variants.edit');
         Route::put('variants/{variant}', [\App\Http\Controllers\Admin\ProductVariantController::class, 'update'])->name('variants.update');
         Route::post('variants/{variant}/status', [\App\Http\Controllers\Admin\ProductVariantController::class, 'updateStatus'])->name('variants.update-status');
