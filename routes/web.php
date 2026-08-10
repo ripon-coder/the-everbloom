@@ -25,7 +25,8 @@ Route::get('/search/live', [ProductController::class, 'liveSearch'])->name('sear
 Route::get('/product/{slug?}', [ProductController::class, 'show'])->name('product.show');
 Route::post('/product/review', [\App\Http\Controllers\Frontend\ProductReviewController::class, 'store'])->name('product.review.store')->middleware(['auth', 'throttle:3,1']);
 
-// Cart Sync Route
+// Cart Routes
+Route::get('/cart', [\App\Http\Controllers\Frontend\CartController::class, 'index'])->name('cart');
 Route::post('/cart/sync', [\App\Http\Controllers\Frontend\CartController::class, 'sync'])->name('cart.sync');
 
 // Wishlist Routes

@@ -106,29 +106,33 @@
              class="relative overflow-hidden rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] backdrop-blur-xl border pointer-events-auto p-4 flex items-start gap-4 transition-all"
              :class="{
                  'bg-white/90 border-emerald-100': type === 'success',
-                 'bg-white/90 border-red-100': type === 'error'
+                 'bg-white/90 border-red-100': type === 'error',
+                 'bg-white/90 border-amber-100': type === 'info' || type === 'warning'
              }"
         >
             <!-- Background Glow -->
             <div class="absolute -right-4 -top-4 w-24 h-24 blur-3xl opacity-20 rounded-full"
-                 :class="type === 'success' ? 'bg-emerald-500' : 'bg-red-500'"></div>
+                 :class="type === 'success' ? 'bg-emerald-500' : (type === 'info' || type === 'warning' ? 'bg-amber-400' : 'bg-red-500')"></div>
 
             <!-- Icon Section -->
             <div class="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center shadow-sm"
-                 :class="type === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'">
+                 :class="type === 'success' ? 'bg-emerald-50 text-emerald-600' : (type === 'info' || type === 'warning' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600')">
                 <template x-if="type === 'success'">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                 </template>
                 <template x-if="type === 'error'">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </template>
+                <template x-if="type === 'info' || type === 'warning'">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </template>
             </div>
 
             <!-- Content -->
             <div class="flex-1 pt-0.5 pr-2">
                 <h4 class="text-[10px] font-black uppercase tracking-[0.2em] mb-1 opacity-40"
-                    :class="type === 'success' ? 'text-emerald-800' : 'text-red-800'"
-                    x-text="type === 'success' ? 'Success' : 'Attention'"></h4>
+                    :class="type === 'success' ? 'text-emerald-800' : (type === 'info' || type === 'warning' ? 'text-amber-800' : 'text-red-800')"
+                    x-text="type === 'success' ? 'Success' : (type === 'info' ? 'Notice' : (type === 'warning' ? 'Warning' : 'Attention'))"></h4>
                 <p class="text-[13px] font-bold text-gray-800 leading-tight" x-text="message"></p>
             </div>
 
@@ -140,10 +144,10 @@
             <!-- Progress Bar -->
             <div class="absolute bottom-0 left-0 h-1 bg-current opacity-20"
                  :style="`width: ${progress}%; transition: width 10ms linear;`"
-                 :class="type === 'success' ? 'text-emerald-500' : 'text-red-500'"></div>
+                 :class="type === 'success' ? 'text-emerald-500' : (type === 'info' || type === 'warning' ? 'text-amber-400' : 'text-red-500')"></div>
             <div class="absolute bottom-0 left-0 h-1 bg-current"
                  :style="`width: ${progress}%; transition: width 10ms linear;`"
-                 :class="type === 'success' ? 'text-emerald-500' : 'text-red-500'"></div>
+                 :class="type === 'success' ? 'text-emerald-500' : (type === 'info' || type === 'warning' ? 'text-amber-400' : 'text-red-500')"></div>
         </div>
     </div>
 

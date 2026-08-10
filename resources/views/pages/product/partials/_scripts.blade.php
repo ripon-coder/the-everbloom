@@ -265,6 +265,12 @@
                     }
                 }
 
+                const maxStock = parseInt(this.currentStock || 0);
+                if (maxStock <= 0) {
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { message: 'Sorry, this product is out of stock.', type: 'error' } }));
+                    return;
+                }
+
                 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
                 let currentTotalQty = cart.reduce((total, item) => total + item.quantity, 0);
@@ -274,6 +280,22 @@
                 }
 
                 const variant = this.getActiveVariant();
+
+                const existingItemIndex = cart.findIndex(item =>
+                    item.product_id === this.product.id &&
+                    item.variant_id === (variant ? variant.id : null)
+                );
+
+                const existingQty = existingItemIndex > -1 ? cart[existingItemIndex].quantity : 0;
+                if (existingQty + this.quantity > maxStock) {
+                    window.dispatchEvent(new CustomEvent('notify', { 
+                        detail: { 
+                            message: `Only ${maxStock} unit(s) available in stock.${existingQty > 0 ? ' You already have ' + existingQty + ' in your cart.' : ''}`, 
+                            type: 'error' 
+                        } 
+                    }));
+                    return;
+                }
 
                 let attributeLabels = {};
                 if (variant) {
@@ -297,11 +319,13 @@
                     variant_id: variant ? variant.id : null,
                     product_id: this.product.id,
                     name: this.product.name,
+                    slug: this.product.slug || null,
                     attributes: attributeLabels,
                     image: this.mainImage,
                     unit_base_price: unitBasePrice,
                     unit_final_price: unitFinalPrice,
                     quantity: this.quantity,
+                    available_stock: maxStock,
                     line_total: unitFinalPrice * this.quantity,
                     meta: {
                         is_flash_sale: isFlashSale,
@@ -310,13 +334,9 @@
                     }
                 };
 
-                const existingItemIndex = cart.findIndex(item =>
-                    item.product_id === cartItem.product_id &&
-                    item.variant_id === cartItem.variant_id
-                );
-
                 if (existingItemIndex > -1) {
                     cart[existingItemIndex].quantity += cartItem.quantity;
+                    cart[existingItemIndex].available_stock = maxStock;
                     cart[existingItemIndex].line_total = cart[existingItemIndex].quantity * cart[existingItemIndex].unit_final_price;
                 } else {
                     cart.push(cartItem);

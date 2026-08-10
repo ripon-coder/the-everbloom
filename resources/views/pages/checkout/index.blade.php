@@ -1,4 +1,291 @@
 <x-layouts.app title="Checkout | Feriwalarhat">
+    <script>
+        function checkoutPage() {
+            return {
+                userAddresses: {!! \Illuminate\Support\Js::from($userAddresses ?? []) !!},
+                sessionCart: {!! \Illuminate\Support\Js::from($sessionCart ?? []) !!},
+                selectedAddressId: '',
+                fullName: '',
+                phone: '',
+                address: '',
+                districtId: '',
+                paymentMethod: 'cod',
+                subtotal: 0,
+                shippingCost: 0,
+                discount: 0,
+                total: 0,
+                calculatedItems: [],
+                calculationErrors: [],
+                isCalculating: false,
+                isPlacingOrder: false,
+                isEditingCart: false,
+                couponCode: '',
+                couponApplied: false,
+                couponError: null,
+
+                get hasUnavailableItems() {
+                    return this.calculatedItems.some(item => !item.available);
+                },
+
+                get allItemsUnavailable() {
+                    return this.calculatedItems.length > 0 && this.calculatedItems.every(item => !item.available);
+                },
+
+                get isBillingIncomplete() {
+                    return !this.fullName || !this.phone || !this.address || !this.districtId;
+                },
+
+                formatPrice(price) {
+                    return parseFloat(price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                },
+
+                loadInitialCart() {
+                    let localCart = localStorage.getItem('cart');
+                    let parsed = null;
+                    if (localCart) {
+                        try {
+                            let p = JSON.parse(localCart);
+                            if (Array.isArray(p) && p.length > 0) parsed = p;
+                        } catch (e) {
+                            parsed = null;
+                        }
+                    }
+                    if (!parsed && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
+                        parsed = this.sessionCart;
+                    }
+
+                    if (!Array.isArray(parsed) || parsed.length === 0 || parsed.some(i => i.available === false || i.is_active === false)) {
+                        window.location.href = '{{ route("cart") }}';
+                        return;
+                    }
+
+                    this.calculatedItems = parsed.map(item => ({
+                        ...item,
+                        name: item.name || 'Product',
+                        available: item.available !== false && item.is_active !== false,
+                        unit_final_price: parseFloat(item.unit_final_price || 0),
+                        available_stock: parseInt(item.available_stock ?? 999),
+                        quantity: parseInt(item.quantity || 1)
+                    }));
+                    this.subtotal = this.calculatedItems.reduce((acc, i) => acc + (parseFloat(i.unit_final_price || 0) * parseInt(i.quantity || 1)), 0);
+                    this.total = this.subtotal;
+                },
+
+                init() {
+                    this.loadInitialCart();
+
+                    if (this.userAddresses && this.userAddresses.length > 0) {
+                        const defaultAddress = this.userAddresses.find(a => a.is_default == 1) || this.userAddresses[0];
+                        if (defaultAddress) {
+                            this.selectedAddressId = defaultAddress.id;
+                            this.applySavedAddress();
+                        }
+                    }
+
+                    this.calculateCart();
+
+                    this.$watch('districtId', () => {
+                        this.calculateCart();
+                    });
+                },
+
+                applySavedAddress() {
+                    if (this.selectedAddressId && this.userAddresses) {
+                        const addr = this.userAddresses.find(a => a.id == this.selectedAddressId);
+                        if (addr) {
+                            this.fullName = addr.name || '';
+                            this.phone = addr.phone || '';
+                            this.address = addr.address || '';
+                            this.districtId = addr.district_id || '';
+                        }
+                    } else {
+                        // User chose to enter a new address
+                        this.fullName = '';
+                        this.phone = '';
+                        this.address = '';
+                        this.districtId = '';
+                    }
+                },
+
+                calculateCart() {
+                    this.isCalculating = true;
+                    let cart = [];
+                    try {
+                        let localCart = localStorage.getItem('cart');
+                        if (localCart) {
+                            let parsed = JSON.parse(localCart);
+                            if (Array.isArray(parsed) && parsed.length > 0) cart = parsed;
+                        }
+                    } catch (e) {
+                        cart = [];
+                    }
+
+                    if (cart.length === 0 && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
+                        cart = this.sessionCart;
+                    }
+
+                    if (cart.length === 0 && this.calculatedItems.length > 0) {
+                        cart = this.calculatedItems;
+                    }
+
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+                    fetch('{{ route("checkout.calculate") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({
+                            cart: cart,
+                            district_id: this.districtId,
+                            coupon_code: this.couponApplied ? this.couponCode : ''
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.data) {
+                                if (data.data.errors && data.data.errors.length > 0) {
+                                    window.location.href = '{{ route("cart") }}';
+                                    return;
+                                }
+                                if (Array.isArray(data.data.items) && data.data.items.length > 0) {
+                                    this.calculatedItems = data.data.items.map(item => ({
+                                        ...item,
+                                        unit_final_price: parseFloat(item.unit_final_price || 0),
+                                        available_stock: parseInt(item.available_stock || 0)
+                                    }));
+                                }
+                                this.subtotal = parseFloat(data.data.subtotal || 0);
+                                this.shippingCost = parseFloat(data.data.shipping_cost || 0);
+                                this.discount = parseFloat(data.data.discount || 0);
+                                this.total = parseFloat(data.data.total || 0);
+                                
+                                if (data.data.coupon_error) {
+                                    this.couponError = data.data.coupon_error;
+                                    this.couponApplied = false;
+                                } else if (this.couponApplied && !data.data.coupon_error) {
+                                    this.couponError = null;
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Calculation error:', error);
+                        })
+                        .finally(() => {
+                            this.isCalculating = false;
+                        });
+                },
+
+                applyCoupon() {
+                    if (!this.couponCode) return;
+                    this.couponError = null;
+                    this.couponApplied = true;
+                    this.calculateCart();
+                },
+
+                removeCoupon() {
+                    this.couponCode = '';
+                    this.couponApplied = false;
+                    this.couponError = null;
+                    this.discount = 0;
+                    this.calculateCart();
+                },
+
+                placeOrder() {
+                    if (this.isBillingIncomplete || this.allItemsUnavailable || this.isPlacingOrder) return;
+
+                    this.isPlacingOrder = true;
+                    let cart = [];
+                    try {
+                        let localCart = localStorage.getItem('cart');
+                        if (localCart) {
+                            let parsed = JSON.parse(localCart);
+                            if (Array.isArray(parsed) && parsed.length > 0) cart = parsed;
+                        }
+                    } catch (e) {
+                        cart = [];
+                    }
+
+                    if (cart.length === 0 && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
+                        cart = this.sessionCart;
+                    }
+                    if (cart.length === 0 && this.calculatedItems.length > 0) {
+                        cart = this.calculatedItems;
+                    }
+
+                    fetch('{{ route("checkout.place-order") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            full_name: this.fullName,
+                            phone: this.phone,
+                            address: this.address,
+                            district_id: this.districtId,
+                            payment_method: this.paymentMethod,
+                            cart: cart,
+                            coupon_code: this.couponApplied ? this.couponCode : ''
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Clear the cart from localStorage
+                            localStorage.removeItem('cart');
+
+                            // Sync empty cart with session
+                            fetch('{{ route("cart.sync") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({ cart: [] })
+                            });
+
+                            // Update cart count in header without opening drawer
+                            window.dispatchEvent(new CustomEvent('cart-updated-internal'));
+
+                            window.dispatchEvent(new CustomEvent('notify', {
+                                detail: { message: 'Order placed successfully! Order #' + data.order_number, type: 'success' }
+                            }));
+
+                            // Redirect to account page after short delay
+                            setTimeout(() => {
+                                window.location.href = '{{ route("account") }}';
+                            }, 1500);
+                        } else {
+                            if (data.validation_errors && data.validation_errors.length > 0) {
+                                window.location.href = '{{ route("cart") }}';
+                                return;
+                            }
+                            window.dispatchEvent(new CustomEvent('notify', {
+                                detail: { message: data.message || 'Failed to place order.', type: 'error' }
+                            }));
+                            this.isPlacingOrder = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Order error:', error);
+                        window.dispatchEvent(new CustomEvent('notify', {
+                            detail: { message: 'Something went wrong. Please try again.', type: 'error' }
+                        }));
+                        this.isPlacingOrder = false;
+                    });
+                }
+            };
+        }
+
+        document.addEventListener('alpine:init', () => {
+            if (typeof Alpine !== 'undefined') {
+                Alpine.data('checkoutPage', () => checkoutPage());
+            }
+        });
+    </script>
+
     <div class="bg-gray-50 py-4 md:py-8" x-data="checkoutPage()">
         <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -148,22 +435,30 @@
                             <span class="text-xs font-bold text-gray-700 uppercase tracking-widest drop-shadow-sm">Calculating...</span>
                         </div>
 
-                        <h2 class="text-lg font-bold text-gray-900 uppercase tracking-widest mb-6">Order Summary</h2>
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-lg font-bold text-gray-900 uppercase tracking-widest">Order Summary</h2>
+                            <a href="{{ route('cart') }}" 
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-md border border-red-200 transition-colors shadow-xs">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                <span>Edit Cart</span>
+                            </a>
+                        </div>
 
                         <!-- Cart Items -->
                         <div
                             class="space-y-4 max-h-[300px] overflow-y-auto pt-2 pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent mb-6">
 
-                            <template x-for="item in calculatedItems" :key="item.variant_id || item.product_id">
+                            <template x-for="(item, index) in calculatedItems" :key="index">
                                 <div
                                     class="flex items-start gap-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0"
-                                    :class="!item.available && 'opacity-50'">
+                                    :class="!item.available && 'opacity-60 bg-red-50/20 p-2 rounded-md'">
                                     <div
                                         class="relative w-16 h-16 bg-gray-50 rounded border border-gray-200 flex items-center justify-center flex-shrink-0">
                                         <img :src="item.image || 'https://placehold.co/100x100?text=Product'"
                                             alt="Product" class="max-w-full max-h-full p-1 object-contain">
-                                        <span x-show="item.available"
-                                            class="absolute -top-2 -right-2 bg-slate-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full ring-2 ring-white shadow-sm"
+                                        <span class="absolute -top-2 -right-2 bg-slate-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full ring-2 ring-white shadow-sm"
                                             x-text="item.quantity"></span>
                                     </div>
                                     <div class="flex-1 min-w-0">
@@ -171,9 +466,9 @@
                                         <template x-for="(val, key) in item.attributes" :key="key">
                                             <p class="text-xs text-gray-500 mt-0.5" x-text="key + ': ' + val"></p>
                                         </template>
-                                        <p x-show="item.available" class="text-sm font-bold text-red-600 mt-1" x-text="'Tk. ' + item.unit_final_price.toFixed(2)"></p>
-                                        <p x-show="item.available && item.available_stock < 10" class="text-[11px] font-semibold text-amber-600 mt-0.5" x-text="'Only ' + item.available_stock + ' left'"></p>
-                                        <p x-show="!item.available" class="text-xs font-bold text-red-500 mt-1">Out of Stock</p>
+                                        <p class="text-sm font-bold text-red-600 mt-1 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price)"></p>
+                                        <p x-show="item.available && item.available_stock > 0 && item.available_stock < 10" class="text-[11px] font-semibold text-amber-600 mt-0.5" x-text="'Only ' + item.available_stock + ' left'"></p>
+                                        <p x-show="!item.available" class="text-xs font-bold text-red-500 mt-0.5" x-text="item.available_stock <= 0 ? 'Out of Stock' : ('Only ' + item.available_stock + ' available')"></p>
                                     </div>
                                 </div>
                             </template>
@@ -183,32 +478,10 @@
                             </div>
                         </div>
 
-                        <!-- Calculation Errors -->
-                        <div x-show="calculationErrors.length > 0"
-                             x-transition:enter="transition ease-out duration-300"
-                             x-transition:enter-start="opacity-0 -translate-y-2"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r shadow-sm">
-                            <div class="flex items-center mb-2">
-                                <svg class="w-4 h-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                </svg>
-                                <span class="text-xs font-bold text-red-800 uppercase tracking-wider">Attention Required</span>
-                            </div>
-                            <ul class="space-y-1">
-                                <template x-for="error in calculationErrors" :key="error">
-                                    <li class="text-[11px] text-red-700 leading-tight flex items-start">
-                                        <span class="mr-1.5 mt-1 block w-1 h-1 rounded-full bg-red-400 flex-shrink-0"></span>
-                                        <span x-text="error"></span>
-                                    </li>
-                                </template>
-                            </ul>
-                        </div>
-
                         <!-- Coupon Code -->
                         <div class="mb-6 border-y border-gray-100 py-4">
                             <div class="flex gap-2" x-show="!couponApplied">
-                                <input type="text" x-model="couponCode"
+                                <input type="text" x-model="couponCode" @input="couponError = null"
                                     class="flex-1 border-gray-300 rounded text-sm focus:ring-red-500 focus:border-red-500"
                                     placeholder="Coupon code">
                                 <button type="button" @click="applyCoupon()" :disabled="isCalculating || !couponCode"
@@ -230,15 +503,15 @@
                         <div class="space-y-3 mb-6 text-sm">
                             <div class="flex justify-between text-gray-600">
                                 <span>Subtotal</span>
-                                <span class="font-bold text-gray-900" x-text="'Tk. ' + subtotal.toFixed(2)"></span>
+                                <span class="font-bold text-gray-900 whitespace-nowrap" x-text="'Tk. ' + formatPrice(subtotal)"></span>
                             </div>
                             <div class="flex justify-between text-gray-600">
                                 <span>Shipping</span>
-                                <span class="font-bold text-gray-900" x-text="'Tk. ' + shippingCost.toFixed(2)"></span>
+                                <span class="font-bold text-gray-900 whitespace-nowrap" x-text="'Tk. ' + formatPrice(shippingCost)"></span>
                             </div>
                             <div x-show="discount > 0" class="flex justify-between text-green-600">
                                 <span>Discount</span>
-                                <span class="font-bold" x-text="'- Tk. ' + discount.toFixed(2)"></span>
+                                <span class="font-bold whitespace-nowrap" x-text="'- Tk. ' + formatPrice(discount)"></span>
                             </div>
                             <div class="flex justify-between items-end pt-4 border-t border-gray-200 mt-4">
                                 <span class="text-base font-bold text-gray-900 uppercase tracking-widest">Total</span>
@@ -246,8 +519,8 @@
                                     <span
                                         class="text-[10px] text-gray-400 block mb-0.5 uppercase tracking-wider">Including
                                         VAT</span>
-                                    <span class="text-2xl font-black text-red-600"
-                                        x-text="'Tk. ' + total.toFixed(2)"></span>
+                                    <span class="text-2xl font-black text-red-600 whitespace-nowrap"
+                                        x-text="'Tk. ' + formatPrice(total)"></span>
                                 </div>
                             </div>
                         </div>
@@ -260,7 +533,7 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            <span x-text="isPlacingOrder ? 'Processing...' : (isCalculating ? 'Calculating...' : 'Complete Order')"></span>
+                            <span x-text="isPlacingOrder ? 'Processing...' : (isCalculating ? 'Calculating...' : 'Complete Order')">Complete Order</span>
                             <svg x-show="!isCalculating && !isPlacingOrder" class="w-5 h-5" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -301,212 +574,4 @@
             </form>
         </div>
     </div>
-
-    <script>
-        function checkoutPage() {
-            return {
-                userAddresses: @json($userAddresses ?? []),
-                selectedAddressId: '',
-                fullName: '',
-                phone: '',
-                address: '',
-                districtId: '',
-                paymentMethod: 'cod',
-                subtotal: 0,
-                shippingCost: 0,
-                discount: 0,
-                total: 0,
-                calculatedItems: [],
-                calculationErrors: [],
-                isCalculating: false,
-                isPlacingOrder: false,
-                couponCode: '',
-                couponApplied: false,
-                couponError: null,
-
-                get hasUnavailableItems() {
-                    return this.calculatedItems.some(item => !item.available);
-                },
-
-                get allItemsUnavailable() {
-                    return this.calculatedItems.length > 0 && this.calculatedItems.every(item => !item.available);
-                },
-
-                get isBillingIncomplete() {
-                    return !this.fullName || !this.phone || !this.address || !this.districtId;
-                },
-
-                init() {
-                    if (this.userAddresses.length > 0) {
-                        const defaultAddress = this.userAddresses.find(a => a.is_default == 1) || this.userAddresses[0];
-                        if (defaultAddress) {
-                            this.selectedAddressId = defaultAddress.id;
-                            this.applySavedAddress();
-                        }
-                    }
-
-                    this.calculateCart();
-
-                    this.$watch('districtId', () => {
-                        this.calculateCart();
-                    });
-                },
-
-                applySavedAddress() {
-                    if (this.selectedAddressId) {
-                        const addr = this.userAddresses.find(a => a.id == this.selectedAddressId);
-                        if (addr) {
-                            this.fullName = addr.name;
-                            this.phone = addr.phone;
-                            this.address = addr.address;
-                            this.districtId = addr.district_id;
-                        }
-                    } else {
-                        // User chose to enter a new address
-                        this.fullName = '';
-                        this.phone = '';
-                        this.address = '';
-                        this.districtId = '';
-                    }
-                },
-
-                calculateCart() {
-                    this.isCalculating = true;
-                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-                    fetch('{{ route("checkout.calculate") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            cart: cart,
-                            district_id: this.districtId,
-                            coupon_code: this.couponApplied ? this.couponCode : ''
-                        })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.data) {
-                                this.calculatedItems = data.data.items;
-                                this.subtotal = data.data.subtotal;
-                                this.shippingCost = data.data.shipping_cost;
-                                this.discount = data.data.discount;
-                                this.total = data.data.total;
-                                this.calculationErrors = data.data.errors || [];
-                                if (this.calculationErrors.length > 0) {
-                                    window.dispatchEvent(new CustomEvent('notify', { 
-                                        detail: { message: 'Some items in your cart need attention.', type: 'error' } 
-                                    }));
-                                }
-                                
-                                if (data.data.coupon_error) {
-                                    this.couponError = data.data.coupon_error;
-                                    this.couponApplied = false;
-                                    window.dispatchEvent(new CustomEvent('notify', { 
-                                        detail: { message: data.data.coupon_error, type: 'error' } 
-                                    }));
-                                } else if (this.couponApplied && !data.data.coupon_error) {
-                                    window.dispatchEvent(new CustomEvent('notify', { 
-                                        detail: { message: 'Coupon applied successfully!', type: 'success' } 
-                                    }));
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Calculation error:', error);
-                            this.calculationErrors = ['Failed to calculate checkout totals. Please try again.'];
-                        })
-                        .finally(() => {
-                            this.isCalculating = false;
-                        });
-                },
-
-                applyCoupon() {
-                    if (!this.couponCode) return;
-                    this.couponError = null;
-                    this.couponApplied = true;
-                    this.calculateCart();
-                },
-
-                removeCoupon() {
-                    this.couponCode = '';
-                    this.couponApplied = false;
-                    this.couponError = null;
-                    this.discount = 0;
-                    this.calculateCart();
-                },
-
-                placeOrder() {
-                    if (this.isBillingIncomplete || this.allItemsUnavailable || this.isPlacingOrder) return;
-
-                    this.isPlacingOrder = true;
-                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-                    fetch('{{ route("checkout.place-order") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            full_name: this.fullName,
-                            phone: this.phone,
-                            address: this.address,
-                            district_id: this.districtId,
-                            payment_method: this.paymentMethod,
-                            cart: cart,
-                            coupon_code: this.couponApplied ? this.couponCode : ''
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Clear the cart from localStorage
-                            localStorage.removeItem('cart');
-
-                            // Sync empty cart with session
-                            fetch('{{ route("cart.sync") }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                },
-                                body: JSON.stringify({ cart: [] })
-                            });
-
-                            // Update cart count in header without opening drawer
-                            window.dispatchEvent(new CustomEvent('cart-updated-internal'));
-
-                            window.dispatchEvent(new CustomEvent('notify', {
-                                detail: { message: 'Order placed successfully! Order #' + data.order_number, type: 'success' }
-                            }));
-
-                            // Redirect to account page after short delay
-                            setTimeout(() => {
-                                window.location.href = '{{ route("account") }}';
-                            }, 1500);
-                        } else {
-                            // Show validation errors in the errors panel
-                            if (data.validation_errors && data.validation_errors.length > 0) {
-                                this.calculationErrors = data.validation_errors;
-                            }
-                            window.dispatchEvent(new CustomEvent('notify', {
-                                detail: { message: data.message || 'Failed to place order.', type: 'error' }
-                            }));
-                            this.isPlacingOrder = false;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Order error:', error);
-                        window.dispatchEvent(new CustomEvent('notify', {
-                            detail: { message: 'Something went wrong. Please try again.', type: 'error' }
-                        }));
-                        this.isPlacingOrder = false;
-                    });
-                }
-            }
-        }
-    </script>
 </x-layouts.app>

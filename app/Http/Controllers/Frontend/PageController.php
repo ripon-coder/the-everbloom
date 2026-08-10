@@ -3,16 +3,29 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\Contracts\CheckoutCalculationRepository;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PageController extends Controller
 {
-    public function checkout(): View
+    public function checkout(CheckoutCalculationRepository $checkoutCalculationRepository): View|RedirectResponse
     {
+        $sessionCart = session('cart', []);
+
+        if (empty($sessionCart)) {
+            return redirect()->route('cart');
+        }
+
+        $calcResult = $checkoutCalculationRepository->calculate($sessionCart);
+        if (!empty($calcResult['errors'])) {
+            return redirect()->route('cart');
+        }
+
         $districts = \App\Models\District::orderBy('name')->get();
         $userAddresses = auth()->check() ? auth()->user()->addresses()->get() : collect();
-        return view('pages.checkout.index', compact('districts', 'userAddresses'));
+        return view('pages.checkout.index', compact('districts', 'userAddresses', 'sessionCart'));
     }
 
     public function account(string $section = 'dashboard'): View

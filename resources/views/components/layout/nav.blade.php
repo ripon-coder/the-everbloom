@@ -1,5 +1,5 @@
 <script>
-    window.initialCartSession = @json(session('cart', []));
+    window.initialCartSession = {!! \Illuminate\Support\Js::from(session('cart', [])) !!};
 </script>
 <header class="w-full bg-white font-sans border-b border-gray-200" x-data="{ 
         isOpen: false, 
@@ -1187,8 +1187,12 @@
                 <span class="text-lg font-black text-slate-800">Tk. <span x-text="formatPrice(cartTotal)"></span></span>
             </div>
             <p class="text-xs text-gray-500 mb-4">Taxes and shipping calculated at checkout</p>
-            <a href="{{ route('checkout') }}"
-                class="block w-full bg-red-600 text-white text-center font-bold uppercase tracking-wide text-sm px-4 py-3.5 rounded hover:bg-red-700 transition-colors">Checkout</a>
+            <div class="flex flex-col gap-2">
+                <a href="{{ route('cart') }}"
+                    class="block w-full bg-slate-900 text-white text-center font-bold uppercase tracking-wide text-xs px-4 py-3 rounded hover:bg-black transition-colors">View & Edit Cart</a>
+                <a href="{{ route('checkout') }}"
+                    class="block w-full bg-red-600 text-white text-center font-bold uppercase tracking-wide text-xs px-4 py-3 rounded hover:bg-red-700 transition-colors">Checkout</a>
+            </div>
         </div>
     </div>
 </header>

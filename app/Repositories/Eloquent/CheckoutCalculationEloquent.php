@@ -37,8 +37,9 @@ class CheckoutCalculationEloquent implements CheckoutCalculationRepository
                 }
             ])->find($productId);
 
-            if (!$product) {
-                $errors[] = "Product #{$productId} not found.";
+            if (!$product || $product->status !== \App\Constants\ProductStatus::ACTIVE) {
+                $errors[] = "Product \"{$product?->name}\" is no longer available.";
+                $availableStock = 0;
                 continue;
             }
 
@@ -48,8 +49,8 @@ class CheckoutCalculationEloquent implements CheckoutCalculationRepository
 
             if ($variantId) {
                 $variant = ProductVariant::find($variantId);
-                if (!$variant) {
-                    $errors[] = "Variant for product {$product->name} not found.";
+                if (!$variant || $variant->status !== \App\Constants\ProductVariantStatus::ACTIVE) {
+                    $errors[] = "Selected variant for \"{$product->name}\" is no longer available.";
                     continue;
                 }
 
@@ -97,14 +98,24 @@ class CheckoutCalculationEloquent implements CheckoutCalculationRepository
             }
 
             // Cap quantity at 10 per item
-            if ($requestedQty > 10) {
+            $cappedQty = $requestedQty;
+            if ($cappedQty > 10) {
                 $errors[] = "Maximum 10 items allowed per product for {$product->name}.";
-                $requestedQty = 10;
+                $cappedQty = 10;
             }
 
-            if ($requestedQty > $availableStock) {
-                $errors[] = "Only {$availableStock} items available for {$product->name}.";
-                $requestedQty = $availableStock;
+            $isItemAvailable = true;
+            if ($availableStock <= 0) {
+                $errors[] = "\"{$product->name}\" is out of stock.";
+                $isItemAvailable = false;
+            } elseif ($cappedQty > $availableStock) {
+                $errors[] = "Only {$availableStock} unit(s) available for \"{$product->name}\".";
+                $isItemAvailable = false;
+            }
+
+            $lineTotal = $unitFinalPrice * $cappedQty;
+            if ($isItemAvailable) {
+                $subtotal += $lineTotal;
             }
 
             $itemData = [
@@ -115,19 +126,11 @@ class CheckoutCalculationEloquent implements CheckoutCalculationRepository
                 'image' => $item['image'] ?? null,
                 'unit_base_price' => $unitOriginalPrice,
                 'unit_final_price' => $unitFinalPrice,
-                'quantity' => $requestedQty,
+                'quantity' => $cappedQty,
                 'available_stock' => $availableStock,
-                'available' => $requestedQty > 0,
+                'available' => $isItemAvailable,
+                'line_total' => $lineTotal,
             ];
-
-            if ($requestedQty > 0) {
-                $lineTotal = $unitFinalPrice * $requestedQty;
-                $subtotal += $lineTotal;
-                $itemData['line_total'] = $lineTotal;
-            } else {
-                $itemData['line_total'] = 0;
-                $errors[] = "{$product->name} is out of stock.";
-            }
 
             $validatedItems[] = $itemData;
         }
