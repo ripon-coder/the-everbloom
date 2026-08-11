@@ -66,3 +66,4 @@ require __DIR__.'/admin.php';
 
 // Dynamic Pages (Catch-all) - Must be last
 Route::get('/{slug}', [PageController::class, 'dynamicPage'])->name('page.show');
+
