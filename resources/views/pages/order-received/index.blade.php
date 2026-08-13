@@ -156,7 +156,7 @@
 
                     <!-- 6. Bottom Actions (Hidden on Print) -->
                     <div class="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
-                        <a href="{{ route('account.order.show', $order->order_number) }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-xs">
+                        <a href="{{ auth()->check() ? route('account.order.show', $order->order_number) : route('track-order') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-xs">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             <span>Track Order</span>
                         </a>

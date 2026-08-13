@@ -97,11 +97,11 @@ class CheckoutCalculationEloquent implements CheckoutCalculationRepository
                 }
             }
 
-            // Cap quantity at 10 per item
+            // Cap quantity at 30 per item
             $cappedQty = $requestedQty;
-            if ($cappedQty > 10) {
-                $errors[] = "Maximum 10 items allowed per product for {$product->name}.";
-                $cappedQty = 10;
+            if ($cappedQty > 30) {
+                $errors[] = "Maximum 30 items allowed per product for {$product->name}.";
+                $cappedQty = 30;
             }
 
             $isItemAvailable = true;

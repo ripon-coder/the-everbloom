@@ -1200,4 +1200,7 @@
             </div>
         </div>
     </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <x-layout.mobile-nav />
 </header>

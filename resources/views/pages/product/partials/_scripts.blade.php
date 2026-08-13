@@ -371,6 +371,108 @@
                 }
             },
 
+            async buyNow(event) {
+                if (this.product.variants && this.product.variants.length > 0) {
+                    const variant = this.getActiveVariant();
+                    if (!variant) {
+                        window.dispatchEvent(new CustomEvent('notify', { detail: { message: 'Please select all options before proceeding.', type: 'error' } }));
+                        return;
+                    }
+                }
+
+                const maxStock = parseInt(this.currentStock || 0);
+                if (maxStock <= 0) {
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { message: 'Sorry, this product is out of stock.', type: 'error' } }));
+                    return;
+                }
+
+                if (this.quantity > 30) {
+                    window.dispatchEvent(new CustomEvent('notify', { detail: { message: 'You cannot add more than 30 products.', type: 'error' } }));
+                    return;
+                }
+
+                if (this.quantity > maxStock) {
+                    window.dispatchEvent(new CustomEvent('notify', { 
+                        detail: { message: `Only ${maxStock} unit(s) available in stock.`, type: 'error' } 
+                    }));
+                    return;
+                }
+
+                const variant = this.getActiveVariant();
+                let attributeLabels = {};
+                if (variant) {
+                    const attrs = variant.variant_attributes || variant.variantAttributes;
+                    if (attrs) {
+                        attrs.forEach(attr => {
+                            const valObj = attr.attribute_value || attr.attributeValue;
+                            if (valObj) {
+                                attributeLabels[attr.attribute.name] = valObj.value;
+                            }
+                        });
+                    }
+                }
+
+                const unitBasePrice = variant ? parseFloat(variant.sell_price || 0) : parseFloat(this.product.price || 0);
+                const unitFinalPrice = parseFloat(this.currentPrice || 0);
+                const isFlashSale = this.product.flash_sales && this.product.flash_sales.length > 0;
+
+                const buyNowItem = {
+                    variant_id: variant ? variant.id : null,
+                    product_id: this.product.id,
+                    name: this.product.name,
+                    slug: this.product.slug || null,
+                    attributes: attributeLabels,
+                    image: this.mainImage,
+                    unit_base_price: unitBasePrice,
+                    unit_final_price: unitFinalPrice,
+                    quantity: this.quantity,
+                    available_stock: maxStock,
+                    line_total: unitFinalPrice * this.quantity,
+                    meta: {
+                        is_flash_sale: isFlashSale,
+                        discount_applied: unitFinalPrice < unitBasePrice,
+                        free_delivery: this.product.is_free_delivery ?? false,
+                    }
+                };
+
+                // Store in a separate localStorage key 'buy_now_cart'
+                localStorage.setItem('buy_now_cart', JSON.stringify([buyNowItem]));
+
+                // Sync with server for real-time validation
+                try {
+                    const response = await fetch('/cart/sync', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ cart: [buyNowItem] })
+                    });
+                    const data = await response.json();
+                    if (data && data.cart && data.cart.length > 0) {
+                        const syncedItem = data.cart[0];
+                        buyNowItem.available_stock = syncedItem.available_stock;
+                        buyNowItem.is_active = syncedItem.is_active;
+                        buyNowItem.available = syncedItem.available;
+                        buyNowItem.quantity = syncedItem.quantity;
+                        buyNowItem.line_total = syncedItem.line_total;
+                        localStorage.setItem('buy_now_cart', JSON.stringify([buyNowItem]));
+
+                        if (syncedItem.is_active === false || syncedItem.available === false || parseInt(syncedItem.available_stock || 0) === 0) {
+                            window.dispatchEvent(new CustomEvent('notify', {
+                                detail: { message: syncedItem.status_message || 'This product is currently unavailable.', type: 'error' }
+                            }));
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Buy Now sync error:', e);
+                }
+
+                // Redirect to checkout with buy_now parameter
+                window.location.href = '{{ route("checkout") }}?type=buy_now';
+            },
+
             handleMouseMove(e) {
                 const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
                 const x = ((e.clientX - left) / width) * 100;

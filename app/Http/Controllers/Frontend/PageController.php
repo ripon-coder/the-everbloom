@@ -13,18 +13,9 @@ class PageController extends Controller
     public function checkout(CheckoutCalculationRepository $checkoutCalculationRepository)
     {
         $sessionCart = session('cart', []);
-
-        if (empty($sessionCart)) {
-            return redirect()->route('cart');
-        }
-
-        $calcResult = $checkoutCalculationRepository->calculate($sessionCart);
-        if (!empty($calcResult['errors'])) {
-            return redirect()->route('cart');
-        }
-
         $districts = \App\Models\District::orderBy('name')->get();
         $userAddresses = auth()->check() ? auth()->user()->addresses()->get() : collect();
+
         return response()
             ->view('pages.checkout.index', compact('districts', 'userAddresses', 'sessionCart'))
             ->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
@@ -55,17 +46,24 @@ class PageController extends Controller
 
     public function orderReceived(string $orderNumber): View
     {
-        $user = auth()->user();
-        $order = $user->orders()->where('order_number', $orderNumber)
+        $query = \App\Models\Order::where('order_number', $orderNumber)
             ->with([
                 'orderProducts.product.firstImage', 
                 'orderProducts.product.anyImage',
                 'orderProducts.productVariant.variantAttributes.attribute', 
                 'orderProducts.productVariant.variantAttributes.attributeValue', 
                 'orderAddress.district'
-            ])
-            ->firstOrFail();
+            ]);
 
+        if (auth()->check()) {
+            $order = $query->where(function($q) {
+                $q->where('user_id', auth()->id())->orWhereNull('user_id');
+            })->firstOrFail();
+        } else {
+            $order = $query->firstOrFail();
+        }
+
+        $user = auth()->user();
         return view('pages.order-received.index', compact('user', 'order'));
     }
 

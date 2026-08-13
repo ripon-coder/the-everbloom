@@ -34,10 +34,10 @@ Route::post('/wishlist/toggle', [\App\Http\Controllers\Frontend\WishlistControll
 Route::get('/wishlist/ids', [\App\Http\Controllers\Frontend\WishlistController::class, 'getWishlist'])->name('wishlist.ids')->middleware('auth');
 
 // Page Routes
-Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout')->middleware('auth');
+Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
 Route::post('/checkout/calculate', [\App\Http\Controllers\Frontend\CheckoutController::class, 'calculate'])->name('checkout.calculate');
-Route::post('/checkout/place-order', [\App\Http\Controllers\Frontend\CheckoutController::class, 'placeOrder'])->name('checkout.place-order')->middleware('auth');
-Route::get('/order-received/{order_number}', [PageController::class, 'orderReceived'])->name('order.received')->middleware('auth');
+Route::post('/checkout/place-order', [\App\Http\Controllers\Frontend\CheckoutController::class, 'placeOrder'])->name('checkout.place-order');
+Route::get('/order-received/{order_number}', [PageController::class, 'orderReceived'])->name('order.received');
 Route::get('/account/{section?}', [PageController::class, 'account'])->name('account')->middleware('auth');
 Route::post('/account/details', [\App\Http\Controllers\Frontend\AuthController::class, 'updateDetails'])->name('account.details.update')->middleware('auth');
 Route::get('/account/order/{order_number}', [PageController::class, 'orderShow'])->name('account.order.show')->middleware('auth');

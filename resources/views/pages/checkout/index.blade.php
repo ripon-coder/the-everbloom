@@ -23,6 +23,7 @@
                 couponCode: '',
                 couponApplied: false,
                 couponError: null,
+                isBuyNow: false,
 
                 get hasUnavailableItems() {
                     return this.calculatedItems.some(item => !item.available);
@@ -51,7 +52,11 @@
                 },
 
                 loadInitialCart() {
-                    let localCart = localStorage.getItem('cart');
+                    const urlParams = new URLSearchParams(window.location.search);
+                    this.isBuyNow = urlParams.get('type') === 'buy_now';
+
+                    let storageKey = this.isBuyNow ? 'buy_now_cart' : 'cart';
+                    let localCart = localStorage.getItem(storageKey);
                     let parsed = null;
                     if (localCart) {
                         try {
@@ -61,7 +66,7 @@
                             parsed = null;
                         }
                     }
-                    if (!parsed && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
+                    if (!parsed && !this.isBuyNow && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
                         parsed = this.sessionCart;
                     }
 
@@ -127,9 +132,10 @@
 
                 calculateCart() {
                     this.isCalculating = true;
+                    let storageKey = this.isBuyNow ? 'buy_now_cart' : 'cart';
                     let cart = [];
                     try {
-                        let localCart = localStorage.getItem('cart');
+                        let localCart = localStorage.getItem(storageKey);
                         if (localCart) {
                             let parsed = JSON.parse(localCart);
                             if (Array.isArray(parsed) && parsed.length > 0) cart = parsed;
@@ -138,7 +144,7 @@
                         cart = [];
                     }
 
-                    if (cart.length === 0 && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
+                    if (cart.length === 0 && !this.isBuyNow && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
                         cart = this.sessionCart;
                     }
 
@@ -250,9 +256,10 @@
                     if (this.isBillingIncomplete || this.allItemsUnavailable || this.isPlacingOrder) return;
 
                     this.isPlacingOrder = true;
+                    let storageKey = this.isBuyNow ? 'buy_now_cart' : 'cart';
                     let cart = [];
                     try {
-                        let localCart = localStorage.getItem('cart');
+                        let localCart = localStorage.getItem(storageKey);
                         if (localCart) {
                             let parsed = JSON.parse(localCart);
                             if (Array.isArray(parsed) && parsed.length > 0) cart = parsed;
@@ -261,7 +268,7 @@
                         cart = [];
                     }
 
-                    if (cart.length === 0 && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
+                    if (cart.length === 0 && !this.isBuyNow && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
                         cart = this.sessionCart;
                     }
                     if (cart.length === 0 && this.calculatedItems.length > 0) {
@@ -287,24 +294,29 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Set localStorage cart to empty array []
-                            localStorage.setItem('cart', '[]');
-                            window.initialCartSession = [];
+                            if (this.isBuyNow) {
+                                localStorage.removeItem('buy_now_cart');
+                            } else {
+                                // Set localStorage cart to empty array []
+                                localStorage.setItem('cart', '[]');
+                                window.initialCartSession = [];
+                                this.sessionCart = [];
+
+                                // Sync empty cart with session
+                                fetch('{{ route("cart.sync") }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                    },
+                                    body: JSON.stringify({ cart: [] })
+                                });
+
+                                // Update cart count in header without opening drawer
+                                window.dispatchEvent(new CustomEvent('cart-updated-internal'));
+                            }
+
                             this.calculatedItems = [];
-                            this.sessionCart = [];
-
-                            // Sync empty cart with session
-                            fetch('{{ route("cart.sync") }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                },
-                                body: JSON.stringify({ cart: [] })
-                            });
-
-                            // Update cart count in header without opening drawer
-                            window.dispatchEvent(new CustomEvent('cart-updated-internal'));
 
                             // Redirect to Order Received page immediately
                             window.location.href = '/order-received/' + data.order_number;

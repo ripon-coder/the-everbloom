@@ -251,7 +251,7 @@
                 </svg>
                 <span x-text="currentStock > 0 ? 'Add to Cart' : 'Out of Stock'">Add to Cart</span>
             </button>
-            <button :disabled="currentStock <= 0"
+            <button @click="buyNow($event)" :disabled="currentStock <= 0"
                 class="flex-1 bg-gray-900 hover:bg-black disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-md text-xs uppercase tracking-wide transition-colors">
                 Buy It Now
             </button>

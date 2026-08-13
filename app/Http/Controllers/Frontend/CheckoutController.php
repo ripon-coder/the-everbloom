@@ -57,17 +57,15 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:cod,online',
             'cart'           => 'required|array|min:1',
             'cart.*.product_id' => 'required|integer',
-            'cart.*.quantity'    => 'required|integer|min:1|max:10',
+            'cart.*.quantity'    => 'required|integer|min:1|max:30',
             'coupon_code'    => 'nullable|string',
         ]);
 
         $user = auth()->user();
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Please login to place an order.'], 401);
-        }
+        $userId = $user ? $user->id : null;
 
-        // Cache lock: prevent duplicate order submission (10 second lock per user)
-        $lockKey = 'order_lock_user_' . $user->id;
+        // Cache lock: prevent duplicate order submission (10 second lock per user/ip)
+        $lockKey = $userId ? 'order_lock_user_' . $userId : 'order_lock_ip_' . md5($request->ip() . '_' . $request->input('phone'));
         $lock = Cache::lock($lockKey, 10);
 
         if (!$lock->get()) {
@@ -150,7 +148,7 @@ class CheckoutController extends Controller
 
             // Build order data
             $orderInfo = [
-                'user_id'                => $user->id,
+                'user_id'                => $userId,
                 'order_number'           => Order::generateOrderNumber(),
                 'subtotal'               => $subtotal,
                 'total_amount'           => $totalAmount,
@@ -187,7 +185,7 @@ class CheckoutController extends Controller
 
             // Build shipping address
             $shippingAddress = [
-                'user_id'      => $user->id,
+                'user_id'      => $userId,
                 'name'         => $request->input('full_name'),
                 'phone_number' => $request->input('phone'),
                 'address'      => $request->input('address'),
@@ -333,8 +331,8 @@ class CheckoutController extends Controller
             }
 
             // --- Quantity cap ---
-            if ($requestedQty > 10) {
-                $errors[] = "Maximum 10 units allowed per product for \"{$product->name}\".";
+            if ($requestedQty > 30) {
+                $errors[] = "Maximum 30 units allowed per product for \"{$product->name}\".";
                 continue;
             }
 

@@ -48,7 +48,7 @@
     </style>
     @stack('styles')
 </head>
-<body class="antialiased bg-gray-50 text-gray-900">
+<body class="antialiased bg-gray-50 text-gray-900 pb-16 md:pb-0">
     <x-layout.nav />
     
     <main class="min-h-screen bg-white">
@@ -152,6 +152,9 @@
                  :class="type === 'success' ? 'text-emerald-500' : (type === 'info' || type === 'warning' ? 'text-amber-400' : 'text-danger')"></div>
         </div>
     </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <x-layout.mobile-nav />
 
     @stack('scripts')
 </body>
