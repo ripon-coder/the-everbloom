@@ -146,8 +146,8 @@
         </div>
     @endif
 
-    <div class="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed">
-        {!! $product->description ?? 'No description available.' !!}
+    <div class="text-[11px] sm:text-xs text-gray-600 mb-4 leading-relaxed">
+        {!! $product->short_description ? \Illuminate\Support\Str::words($product->short_description, 100) : \Illuminate\Support\Str::words(strip_tags($product->description ?? 'No description available.'), 100) !!}
     </div>
 
     <div class="space-y-4">

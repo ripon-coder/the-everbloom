@@ -164,7 +164,7 @@
             @else
                 <div class="text-center py-6 bg-white border border-dashed border-gray-200">
                     <svg class="w-8 h-8 text-gray-200 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                    <p class="text-sm text-gray-500 mb-3">Login to share your review</p>
+                    <p class="text-[11px] text-gray-500 mb-3">Login to share your review</p>
                     <a href="{{ route('login') }}" class="inline-block bg-primary hover:bg-primary-dark text-white font-bold py-2.5 px-8 text-[10px] uppercase tracking-wide transition-colors">
                         Login to Review
                     </a>
@@ -193,7 +193,7 @@
                             <!-- Name + Date Row -->
                             <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[13px] font-bold text-gray-900">{{ $review->user->name }}</span>
+                                    <span class="text-[12px] font-bold text-gray-900">{{ $review->user->name }}</span>
                                     @if($review->rating >= 4)
                                         <span class="bg-primary/10 text-primary text-[9px] font-bold px-1.5 py-0.5 uppercase">Verified</span>
                                     @endif
@@ -210,15 +210,15 @@
                                 <span class="text-[10px] font-bold text-gray-500">{{ ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][$review->rating] ?? '' }}</span>
                             </div>
                             <!-- Review Text -->
-                            <p class="text-[13px] text-gray-600 leading-relaxed">{{ $review->review }}</p>
+                            <p class="text-[11px] text-gray-600 leading-relaxed">{{ $review->review }}</p>
                         </div>
                     </div>
                 </div>
             @empty
                 <div class="text-center py-12">
                     <svg class="w-12 h-12 text-gray-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                    <p class="text-sm text-gray-400 font-medium">No reviews yet</p>
-                    <p class="text-xs text-gray-300 mt-1">Be the first to review this product!</p>
+                    <p class="text-[11px] text-gray-400 font-medium">No reviews yet</p>
+                    <p class="text-[11px] text-gray-300 mt-1">Be the first to review this product!</p>
                 </div>
             @endforelse
         </div>
