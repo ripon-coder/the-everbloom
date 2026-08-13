@@ -18,6 +18,20 @@ Alpine.store('cartDrawer', {
     }
 });
 
+// Register Alpine Mobile Menu Store
+Alpine.store('mobileMenu', {
+    isOpen: false,
+    open() {
+        this.isOpen = true;
+    },
+    close() {
+        this.isOpen = false;
+    },
+    toggle() {
+        this.isOpen = !this.isOpen;
+    }
+});
+
 // Register Alpine Cart Drawer Component Data
 Alpine.data('cartDrawerData', () => ({
     cart: [],

@@ -2,7 +2,13 @@
     window.initialCartSession = {!! \Illuminate\Support\Js::from(session('cart', [])) !!};
 </script>
 <header class="w-full bg-white font-sans border-b border-gray-200" x-data="{ 
-        isOpen: false, 
+        isMobileMenuOpen: false, 
+        toggleMobileMenu() {
+            this.isMobileMenuOpen = !this.isMobileMenuOpen;
+        },
+        closeMobileMenu() {
+            this.isMobileMenuOpen = false;
+        },
         activeTab: 'categories', 
         isCartOpen: false,
         cart: [],
@@ -136,7 +142,7 @@
     @cart-updated.window="loadCart(); syncWithServer(); if ($store.cartDrawer) $store.cartDrawer.open(); isCartOpen = true">
     <!-- Mobile Header -->
     <div class="md:hidden bg-black text-white px-4 py-3 flex items-center justify-between">
-        <button @click="isOpen = true" class="text-gray-300 hover:text-white">
+        <button type="button" @click="console.log('Hamburger clicked, current state:', isMobileMenuOpen); toggleMobileMenu(); console.log('New state:', isMobileMenuOpen);" class="text-gray-300 hover:text-white p-1 focus:outline-none cursor-pointer" aria-label="Toggle Navigation Menu">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
                 </path>
@@ -151,16 +157,6 @@
             @endif
         </a>
         <div class="flex items-center gap-3">
-            <button @click="$store.cartDrawer ? $store.cartDrawer.open() : (isCartOpen = true)" class="text-gray-300 hover:text-white relative p-1 focus:outline-none" aria-label="Open Cart">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 000-4z">
-                    </path>
-                </svg>
-                <span x-show="cartCount > 0" x-text="cartCount"
-                    class="absolute -top-1 -right-1.5 bg-accent text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-black"
-                    x-cloak></span>
-            </button>
             <a href="{{ Auth::check() ? route('account') : route('login') }}"
                 class="text-gray-300 hover:text-white relative">
                 @auth
@@ -359,10 +355,10 @@
             </div>
 
             <!-- Actions -->
-            <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+            <div class="flex items-center gap-3 sm:gap-5 flex-shrink-0">
                 <!-- Wishlist -->
                 <a href="{{ route('account', 'wishlist') }}"
-                    class="hidden lg:flex items-center gap-2 bg-primary text-white px-5 py-2.5 text-xs font-bold hover:bg-primary-dark transition-colors">
+                    class="hidden lg:flex items-center gap-2 bg-primary text-white px-4 py-2 text-xs font-bold hover:bg-primary-dark transition-colors">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path
                             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z">
@@ -371,104 +367,81 @@
                     Wishlist (<span x-text="wishlistCount"></span>)
                 </a>
 
-                <div class="hidden lg:block w-px h-8 bg-gray-200 mx-2"></div>
+                <div class="hidden lg:block w-px h-6 bg-gray-200"></div>
 
                 <!-- Account -->
                 @auth
                     <div class="relative" x-data="{ accountOpen: false }" @mouseenter="accountOpen = true"
                         @mouseleave="accountOpen = false" @click.away="accountOpen = false">
-                        <button @click="accountOpen = !accountOpen" class="flex items-center gap-3 group text-left">
-                            <div
-                                class="w-[42px] h-[42px] rounded-full bg-primary-50 border border-primary-200 shadow-sm flex items-center justify-center transition-all overflow-hidden group-hover:border-primary">
+                        <button @click="accountOpen = !accountOpen" class="flex items-center gap-2.5 group text-left">
+                            <div class="w-9 h-9 bg-gray-50 border border-gray-200 flex items-center justify-center transition-all overflow-hidden group-hover:border-primary">
                                 @if(Auth::user()->profile_image)
                                     <img src="{{ Auth::user()->profile_image }}" class="w-full h-full object-cover">
                                 @else
-                                    <span class="text-primary font-bold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                    <span class="text-primary font-bold text-xs">{{ substr(Auth::user()->name, 0, 1) }}</span>
                                 @endif
                             </div>
                             <div class="hidden sm:flex flex-col">
-                                <span
-                                    class="text-[11px] text-gray-500 font-medium uppercase tracking-wider leading-none mb-1">Welcome
-                                    back,</span>
-                                <span
-                                    class="text-[14px] font-black text-slate-800 leading-none group-hover:text-primary transition-colors truncate max-w-[100px]">{{ explode(' ', Auth::user()->name)[0] }}</span>
+                                <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider leading-none mb-1">Welcome back,</span>
+                                <span class="text-xs font-bold text-slate-900 leading-none group-hover:text-primary transition-colors truncate max-w-[110px]">{{ explode(' ', Auth::user()->name)[0] }}</span>
                             </div>
                         </button>
 
                         <div x-show="accountOpen" style="display: none;"
                             x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0 translate-y-2"
+                            x-transition:enter-start="opacity-0 translate-y-1"
                             x-transition:enter-end="opacity-100 translate-y-0"
                             x-transition:leave="transition ease-in duration-150"
                             x-transition:leave-start="opacity-100 translate-y-0"
-                            x-transition:leave-end="opacity-0 translate-y-2"
-                            class="absolute right-0 top-full pt-3 w-48 z-50">
-                            <div class="relative shadow-xl rounded-lg">
-                                <!-- Triangle pointer -->
-                                <div
-                                    class="absolute -top-2 right-5 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45 z-0">
-                                </div>
-                                <div class="relative bg-white z-10 border border-gray-100 rounded-lg overflow-hidden">
-                                    <a href="{{ route('account') }}"
-                                        class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">My
-                                        Accounts</a>
-                                    <a href="{{ route('account', 'orders') }}"
-                                        class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">My
-                                        Orders</a>
-                                    <form method="POST" action="{{ route('logout') }}" class="w-full m-0">
-                                        @csrf
-                                        <button type="submit"
-                                            class="block w-full text-left px-4 py-2.5 text-[13px] font-semibold text-danger hover:bg-danger/10 border-t border-gray-100 transition-colors">Sign
-                                            Out</button>
-                                    </form>
-                                </div>
+                            x-transition:leave-end="opacity-0 translate-y-1"
+                            class="absolute right-0 top-full pt-2 w-44 z-50">
+                            <div class="bg-white border border-gray-200 shadow-md">
+                                <a href="{{ route('account') }}"
+                                    class="block px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">My Account</a>
+                                <a href="{{ route('account', 'orders') }}"
+                                    class="block px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">My Orders</a>
+                                <form method="POST" action="{{ route('logout') }}" class="w-full m-0">
+                                    @csrf
+                                    <button type="submit"
+                                        class="block w-full text-left px-4 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 border-t border-gray-100 transition-colors">Sign Out</button>
+                                </form>
                             </div>
                         </div>
                     </div>
                 @else
-                    <a href="{{ route('login') }}" class="flex items-center gap-3 group">
-                        <div
-                            class="w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-primary-200 group-hover:bg-primary-50 transition-all">
-                            <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-primary transition-colors"
+                    <a href="{{ route('login') }}" class="flex items-center gap-2.5 group">
+                        <div class="w-9 h-9 bg-gray-50 border border-gray-200 flex items-center justify-center group-hover:border-primary group-hover:bg-primary-50 transition-all">
+                            <svg class="w-4 h-4 text-slate-600 group-hover:text-primary transition-colors"
                                 fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </div>
                         <div class="hidden sm:flex flex-col">
-                            <span
-                                class="text-[11px] text-gray-500 font-medium uppercase tracking-wider leading-none mb-1">Hello,
-                                Sign In</span>
-                            <span
-                                class="text-[14px] font-black text-slate-800 leading-none group-hover:text-primary transition-colors">My
-                                Account</span>
+                            <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider leading-none mb-1">Sign In</span>
+                            <span class="text-xs font-bold text-slate-900 leading-none group-hover:text-primary transition-colors">My Account</span>
                         </div>
                     </a>
                 @endauth
 
-                <div class="hidden sm:block w-px h-8 bg-gray-200 mx-1"></div>
+                <div class="hidden sm:block w-px h-6 bg-gray-200"></div>
 
                 <!-- Cart -->
-                <button @click="$store.cartDrawer ? $store.cartDrawer.open() : (isCartOpen = true)" class="flex items-center gap-3 group text-left">
-                    <div
-                        class="relative w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-primary-200 group-hover:bg-primary-50 transition-all">
-                        <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-primary transition-colors"
+                <button @click="$store.cartDrawer ? $store.cartDrawer.open() : (isCartOpen = true)" class="flex items-center gap-2.5 group text-left">
+                    <div class="relative w-9 h-9 bg-gray-50 border border-gray-200 flex items-center justify-center group-hover:border-primary group-hover:bg-primary-50 transition-all">
+                        <svg class="w-4 h-4 text-slate-700 group-hover:text-primary transition-colors"
                             fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z">
                             </path>
                         </svg>
                         <span x-show="cartCount > 0" x-text="cartCount"
-                            class="absolute -top-1.5 -right-1.5 bg-accent text-white text-[10px] font-bold w-[20px] h-[20px] flex items-center justify-center rounded-full border-2 border-white shadow-sm transform group-hover:scale-110 transition-transform"
+                            class="absolute -top-1 -right-1 bg-accent text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center border border-white"
                             x-cloak></span>
                     </div>
                     <div class="hidden sm:flex flex-col">
-                        <span
-                            class="text-[11px] text-gray-500 font-medium uppercase tracking-wider leading-none mb-1">My
-                            Cart</span>
-                        <span
-                            class="text-[14px] font-black text-slate-800 leading-none group-hover:text-primary transition-colors"><span
-                                x-text="cartCount"></span> Items</span>
+                        <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider leading-none mb-1">My Cart</span>
+                        <span class="text-xs font-bold text-slate-900 leading-none group-hover:text-primary transition-colors"><span x-text="cartCount"></span> Items</span>
                     </div>
                 </button>
             </div>
@@ -480,15 +453,15 @@
 
         <div class="flex items-center flex-1">
             <!-- Categories Dropdown -->
-            <div class="relative group h-full flex items-center mr-6 z-50">
-                <button
-                    class="flex items-center justify-between w-64 bg-slate-50 px-4 py-3 text-blue-600 font-medium border-x border-gray-200">
+            <div class="relative h-full flex items-center mr-6 z-50" x-data="{ catOpen: false }" @click.away="catOpen = false">
+                <button @click="catOpen = !catOpen" type="button"
+                    class="flex items-center justify-between w-64 bg-slate-50 px-4 py-3 text-slate-800 hover:text-primary font-medium border-x border-gray-200 transition-colors">
                     <div class="flex items-center mr-3">
                         <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
-                        <span class="text-[13px] uppercase tracking-wide font-semibold">Gadgets</span>
+                        <span class="text-xs uppercase tracking-wide font-semibold">Categories</span>
                     </div>
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -496,8 +469,12 @@
                 </button>
 
                 <!-- Main Dropdown -->
-                <div
-                    class="absolute left-0 top-full w-64 bg-white border border-gray-100 shadow-md hidden group-hover:block transition-all duration-200">
+                <div x-show="catOpen" style="display: none;"
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 translate-y-1"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-100"
+                    class="absolute left-0 top-full w-64 bg-white border border-gray-200 shadow-md z-50">
                     <ul class="flex flex-col">
 
                         <!-- Item 1 -->
@@ -523,19 +500,19 @@
 
                             <!-- Submenu -->
                             <div x-show="hover" style="display: none;"
-                                class="absolute left-full top-0 w-80 bg-white rounded-lg shadow-xl border border-gray-100 z-50 ml-1">
-                                <ul class="py-3 px-2 flex flex-col gap-1">
+                                class="absolute left-full top-0 w-80 bg-white border border-gray-200 shadow-md z-50 ml-1">
+                                <ul class="py-2 px-1 flex flex-col gap-0.5">
                                     <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
+                                            class="block px-4 py-2 text-xs text-slate-800 hover:text-primary hover:bg-slate-50 uppercase tracking-wide font-medium transition-colors">Sample
                                             Category 1</a></li>
                                     <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
+                                            class="block px-4 py-2 text-xs text-slate-800 hover:text-primary hover:bg-slate-50 uppercase tracking-wide font-medium transition-colors">Sample
                                             Category 2</a></li>
                                     <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
+                                            class="block px-4 py-2 text-xs text-slate-800 hover:text-primary hover:bg-slate-50 uppercase tracking-wide font-medium transition-colors">Sample
                                             Category 3</a></li>
                                     <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
+                                            class="block px-4 py-2 text-xs text-slate-800 hover:text-primary hover:bg-slate-50 uppercase tracking-wide font-medium transition-colors">Sample
                                             Category 4</a></li>
                                 </ul>
                             </div>
@@ -824,15 +801,23 @@
     </div>
 
     <!-- Mobile Drawer Overlay -->
-    <div x-show="isOpen" style="display: none;" class="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden"
-        @click="isOpen = false" x-transition.opacity></div>
+    <div x-show="isMobileMenuOpen" x-cloak style="display: none;" class="fixed inset-0 bg-black/60 z-[999999] md:hidden"
+        @click="closeMobileMenu()" x-transition.opacity></div>
 
     <!-- Mobile Drawer Menu -->
-    <div x-show="isOpen" style="display: none;" x-transition:enter="transform transition ease-in-out duration-300"
+    <div x-show="isMobileMenuOpen" x-cloak style="display: none;" x-transition:enter="transform transition ease-in-out duration-300"
         x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
         x-transition:leave="transform transition ease-in-out duration-300" x-transition:leave-start="translate-x-0"
         x-transition:leave-end="-translate-x-full"
-        class="fixed inset-y-0 left-0 w-[85%] max-w-sm bg-white z-50 md:hidden flex flex-col">
+        class="fixed inset-y-0 left-0 w-[85%] max-w-sm bg-white z-[1000000] md:hidden flex flex-col shadow-2xl">
+
+        <!-- Mobile Drawer Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-slate-900 text-white shrink-0">
+            <span class="text-xs font-bold uppercase tracking-wider">Menu</span>
+            <button @click="closeMobileMenu()" type="button" class="p-1 text-gray-300 hover:text-white transition-colors" title="Close Menu">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
 
         <!-- Tabs -->
         <div class="flex border-b border-gray-200 shrink-0">
