@@ -4,7 +4,7 @@
             
             <!-- Breadcrumbs -->
             <nav class="flex text-xs font-medium text-gray-500 uppercase tracking-wider mb-6 md:mb-8">
-                <a href="{{ route('home') }}" class="hover:text-red-600 transition-colors">Home</a>
+                <a href="{{ route('home') }}" class="hover:text-primary transition-colors">Home</a>
                 <span class="mx-2">/</span>
                 <span class="text-gray-900">My Account</span>
             </nav>

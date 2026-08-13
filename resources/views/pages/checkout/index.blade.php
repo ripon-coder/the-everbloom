@@ -342,9 +342,9 @@
 
             <!-- Breadcrumbs -->
             <nav class="flex text-xs font-medium text-gray-500 uppercase tracking-wider mb-6 md:mb-8">
-                <a href="{{ route('home') }}" class="hover:text-red-600 transition-colors">Home</a>
+                <a href="{{ route('home') }}" class="hover:text-primary transition-colors">Home</a>
                 <span class="mx-2">/</span>
-                <a href="{{ route('shop') }}" class="hover:text-red-600 transition-colors">Shop</a>
+                <a href="{{ route('shop') }}" class="hover:text-primary transition-colors">Shop</a>
                 <span class="mx-2">/</span>
                 <span class="text-gray-900">Checkout</span>
             </nav>
@@ -362,7 +362,7 @@
                         @if(auth()->check() && $userAddresses->count() > 0)
                             <div class="mb-4">
                                 <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Saved Addresses</label>
-                                <select x-model="selectedAddressId" @change="applySavedAddress()" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5 cursor-pointer bg-gray-50">
+                                <select x-model="selectedAddressId" @change="applySavedAddress()" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5 cursor-pointer bg-gray-50">
                                     <option value="">-- Or enter new address below --</option>
                                     <template x-for="addr in userAddresses" :key="addr.id">
                                         <option :value="addr.id" x-text="addr.name + ' (' + addr.type + ') - ' + addr.phone"></option>
@@ -377,7 +377,7 @@
                                     class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Full
                                     Name *</label>
                                 <input type="text" x-model="fullName"
-                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5"
+                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5"
                                     placeholder="Enter your full name" required>
                             </div>
 
@@ -386,7 +386,7 @@
                                     class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Phone
                                     Number *</label>
                                 <input type="tel" x-model="phone"
-                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5"
+                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5"
                                     placeholder="e.g. 017xxxxxxxx" required>
                             </div>
 
@@ -395,7 +395,7 @@
                                     class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Full
                                     Address *</label>
                                 <textarea rows="2" x-model="address"
-                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5"
+                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5"
                                     placeholder="House/Road/Area" required></textarea>
                             </div>
 
@@ -404,7 +404,7 @@
                                     class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">City
                                     / District *</label>
                                 <select x-model="districtId"
-                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5 cursor-pointer">
+                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5 cursor-pointer">
                                     <option value="">Select City</option>
                                     @foreach($districts as $district)
                                         <option value="{{ $district->id }}">{{ $district->name }}</option>
@@ -414,9 +414,9 @@
                         </div>
 
                         @if(auth()->check() && $userAddresses->count() == 0)
-                            <div class="mt-5 p-3 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-100 flex items-start gap-2.5">
-                                <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <span>You don't have any saved addresses. To speed up future checkouts, you can save your addresses in your <a href="{{ route('account') }}" class="font-bold underline hover:text-blue-900">Account Dashboard</a>.</span>
+                            <div class="mt-5 p-3 bg-primary-50 text-primary-900 text-xs rounded-md border border-primary-100 flex items-start gap-2.5">
+                                <svg class="w-4 h-4 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span>You don't have any saved addresses. To speed up future checkouts, you can save your addresses in your <a href="{{ route('account') }}" class="font-bold underline hover:text-primary-dark">Account Dashboard</a>.</span>
                             </div>
                         @endif
                     </div>
@@ -430,10 +430,10 @@
                         <div class="space-y-3">
                             <label
                                 class="flex items-center justify-between p-4 border rounded-md cursor-pointer transition-colors"
-                                :class="paymentMethod === 'cod' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'">
+                                :class="paymentMethod === 'cod' ? 'border-primary bg-primary-50' : 'border-gray-200 hover:border-gray-300'">
                                 <div class="flex items-center gap-3">
                                     <input type="radio" name="payment" value="cod" x-model="paymentMethod"
-                                        class="w-4 h-4 text-red-600 focus:ring-red-500 border-gray-300">
+                                        class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
                                     <span class="text-sm font-bold text-gray-900">Cash on Delivery (COD)</span>
                                 </div>
                                 <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor"
@@ -446,10 +446,10 @@
 
                             <label
                                 class="flex items-center justify-between p-4 border rounded-md cursor-pointer transition-colors"
-                                :class="paymentMethod === 'online' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'">
+                                :class="paymentMethod === 'online' ? 'border-primary bg-primary-50' : 'border-gray-200 hover:border-gray-300'">
                                 <div class="flex items-center gap-3">
                                     <input type="radio" name="payment" value="online" x-model="paymentMethod"
-                                        class="w-4 h-4 text-red-600 focus:ring-red-500 border-gray-300">
+                                        class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
                                     <span class="text-sm font-bold text-gray-900">Online Payment (bKash, Cards)</span>
                                 </div>
                                 <div class="flex gap-1">
@@ -479,7 +479,7 @@
                         <div x-show="isCalculating" 
                              class="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-lg"
                              x-transition.opacity>
-                            <svg class="animate-spin h-8 w-8 text-red-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg class="animate-spin h-8 w-8 text-primary mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
@@ -489,7 +489,7 @@
                         <div class="flex items-center justify-between mb-6">
                             <h2 class="text-lg font-bold text-gray-900 uppercase tracking-widest">Order Summary</h2>
                             <a href="{{ route('cart') }}" 
-                               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-md border border-red-200 transition-colors shadow-xs">
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-primary bg-primary-50 hover:bg-primary-100 rounded-md border border-primary-200 transition-colors shadow-xs">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
@@ -504,7 +504,7 @@
                             <template x-for="(item, index) in calculatedItems" :key="index">
                                 <div
                                     class="flex items-start gap-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0"
-                                    :class="!item.available && 'opacity-60 bg-red-50/20 p-2 rounded-md'">
+                                    :class="!item.available && 'opacity-60 bg-danger/10 p-2 rounded-md'">
                                     <div
                                         class="relative w-16 h-16 bg-gray-50 rounded border border-gray-200 flex items-center justify-center flex-shrink-0">
                                         <img :src="item.image || 'https://placehold.co/100x100?text=Product'"
@@ -517,9 +517,9 @@
                                         <template x-for="(val, key) in item.attributes" :key="key">
                                             <p class="text-xs text-gray-500 mt-0.5" x-text="key + ': ' + val"></p>
                                         </template>
-                                        <p class="text-sm font-bold text-red-600 mt-1 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price)"></p>
+                                        <p class="text-sm font-bold text-primary mt-1 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price)"></p>
                                         <p x-show="item.available && item.available_stock > 0 && item.available_stock < 10" class="text-[11px] font-semibold text-amber-600 mt-0.5" x-text="'Only ' + item.available_stock + ' left'"></p>
-                                        <p x-show="!item.available" class="text-xs font-bold text-red-500 mt-0.5" x-text="item.available_stock <= 0 ? 'Out of Stock' : ('Only ' + item.available_stock + ' available')"></p>
+                                        <p x-show="!item.available" class="text-xs font-bold text-danger mt-0.5" x-text="item.available_stock <= 0 ? 'Out of Stock' : ('Only ' + item.available_stock + ' available')"></p>
                                     </div>
                                 </div>
                             </template>
@@ -533,12 +533,12 @@
                         <div class="mb-6 border-y border-gray-100 py-4">
                             <div class="flex gap-2" x-show="!couponApplied">
                                 <input type="text" x-model="couponCode" @input="couponError = null"
-                                    class="flex-1 border-gray-300 rounded text-sm focus:ring-red-500 focus:border-red-500"
+                                    class="flex-1 border-gray-300 rounded text-sm focus:ring-primary focus:border-primary"
                                     placeholder="Coupon code">
                                 <button type="button" @click="applyCoupon()" :disabled="isCalculating || !couponCode"
                                     class="bg-gray-900 text-white px-4 py-2 rounded text-sm font-bold uppercase tracking-wider hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Apply</button>
                             </div>
-                            <div x-show="couponError" x-transition class="flex items-center gap-1.5 mt-2 text-red-600 bg-red-50 px-2.5 py-2 rounded border border-red-100 shadow-sm">
+                            <div x-show="couponError" x-transition class="flex items-center gap-1.5 mt-2 text-danger bg-danger/10 px-2.5 py-2 rounded border border-danger/20 shadow-sm">
                                 <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                                 </svg>
@@ -546,7 +546,7 @@
                             </div>
                             <div x-show="couponApplied" class="flex items-center justify-between mt-2 bg-green-50 border border-green-200 rounded px-3 py-2">
                                 <span class="text-xs text-green-700 font-bold" x-text="`Coupon '${couponCode}' applied!`"></span>
-                                <button type="button" @click="removeCoupon()" class="text-xs text-red-500 font-bold hover:underline">Remove</button>
+                                <button type="button" @click="removeCoupon()" class="text-xs text-danger font-bold hover:underline">Remove</button>
                             </div>
                         </div>
 
@@ -570,7 +570,7 @@
                                     <span
                                         class="text-[10px] text-gray-400 block mb-0.5 uppercase tracking-wider">Including
                                         VAT</span>
-                                    <span class="text-2xl font-black text-red-600 whitespace-nowrap"
+                                    <span class="text-2xl font-black text-primary whitespace-nowrap"
                                         x-text="'Tk. ' + formatPrice(total)"></span>
                                 </div>
                             </div>
@@ -579,7 +579,7 @@
                         <!-- Submit Button -->
                         <button type="button" @click="placeOrder()"
                             :disabled="isCalculating || isPlacingOrder || calculatedItems.length === 0 || allItemsUnavailable || isBillingIncomplete"
-                            class="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-md text-sm uppercase tracking-widest transition-colors shadow-md flex items-center justify-center gap-2">
+                            class="w-full bg-primary hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-md text-sm uppercase tracking-widest transition-colors shadow-md flex items-center justify-center gap-2">
                             <svg x-show="isPlacingOrder" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

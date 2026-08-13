@@ -12,15 +12,15 @@
                     <form class="space-y-5" method="POST" action="{{ route('login.post') }}">
                         @csrf
                         @if($errors->any())
-                            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                            <div class="bg-danger/10 border-l-4 border-danger p-4 mb-4">
                                 <div class="flex">
                                     <div class="flex-shrink-0">
-                                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <svg class="h-5 w-5 text-danger" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                                         </svg>
                                     </div>
                                     <div class="ml-3">
-                                        <p class="text-sm text-red-700 font-medium">
+                                        <p class="text-sm text-danger font-medium">
                                             {{ $errors->first() }}
                                         </p>
                                     </div>
@@ -34,7 +34,7 @@
                                    name="phone" 
                                    id="phone"
                                    value="{{ old('phone') }}" 
-                                   class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" 
+                                   class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-3" 
                                    placeholder="01XXXXXXXXX" 
                                    required
                                    maxlength="11"
@@ -44,13 +44,13 @@
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">Password</label>
-                                <a href="{{ route('password.request') }}" class="text-[11px] font-bold text-red-600 hover:text-red-700 transition-colors">Forgot Password?</a>
+                                <a href="{{ route('password.request') }}" class="text-[11px] font-bold text-primary hover:text-primary-dark transition-colors">Forgot Password?</a>
                             </div>
-                            <input type="password" name="password" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Enter your password" required>
+                            <input type="password" name="password" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-3" placeholder="Enter your password" required>
                         </div>
                         
                         <div class="flex items-center">
-                            <input type="checkbox" name="remember" id="remember" class="rounded border-gray-300 text-red-600 focus:ring-red-500 h-4 w-4">
+                            <input type="checkbox" name="remember" id="remember" class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4">
                             <label for="remember" class="ml-2 text-sm text-gray-600 font-medium">Remember me</label>
                         </div>
 
@@ -71,21 +71,21 @@
                     
                     <ul class="space-y-4 mb-10">
                         <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <svg class="w-5 h-5 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                             <span class="text-sm text-gray-700 font-medium">Faster checkout process</span>
                         </li>
                         <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <svg class="w-5 h-5 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                             <span class="text-sm text-gray-700 font-medium">Save multiple shipping addresses</span>
                         </li>
                         <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <svg class="w-5 h-5 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                             <span class="text-sm text-gray-700 font-medium">View and track your orders</span>
                         </li>
                     </ul>
                     
                     <div>
-                        <a href="{{ route('register') }}" class="inline-block w-full text-center bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded text-sm font-bold uppercase tracking-widest transition-colors shadow-md">
+                        <a href="{{ route('register') }}" class="inline-block w-full text-center bg-primary hover:bg-primary-dark text-white px-8 py-3.5 rounded text-sm font-bold uppercase tracking-widest transition-colors shadow-md">
                             Create An Account
                         </a>
                     </div>

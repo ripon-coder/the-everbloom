@@ -2,12 +2,12 @@
     <div class="flex gap-8 border-b border-gray-100 mb-8">
         <button @click="activeTab = 'description'" 
                 class="pb-4 text-xs font-bold uppercase tracking-widest border-b-2 transition-all"
-                :class="activeTab === 'description' ? 'border-red-600 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600'">
+                :class="activeTab === 'description' ? 'border-primary text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600'">
             Description
         </button>
         <button @click="activeTab = 'specifications'" 
                 class="pb-4 text-xs font-bold uppercase tracking-widest border-b-2 transition-all"
-                :class="activeTab === 'specifications' ? 'border-red-600 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600'">
+                :class="activeTab === 'specifications' ? 'border-primary text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600'">
             Specifications
         </button>
     </div>

@@ -4,7 +4,7 @@
             
             <!-- Breadcrumbs -->
             <nav class="flex text-xs font-medium text-gray-500 uppercase tracking-wider mb-6">
-                <a href="{{ route('home') }}" class="hover:text-red-600 transition-colors">Home</a>
+                <a href="{{ route('home') }}" class="hover:text-primary transition-colors">Home</a>
                 <span class="mx-2">/</span>
                 <span class="text-gray-900">Shop</span>
             </nav>
@@ -18,7 +18,7 @@
                             <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">Categories</h3>
                             <ul class="space-y-3">
                                 <li>
-                                    <a href="{{ route('shop') }}" class="flex items-center justify-between text-sm {{ !request('category') ? 'text-red-600 font-bold' : 'text-gray-600 hover:text-red-600' }}">
+                                    <a href="{{ route('shop') }}" class="flex items-center justify-between text-sm {{ !request('category') ? 'text-primary font-bold' : 'text-gray-600 hover:text-primary' }}">
                                         <span>All Products</span>
                                     </a>
                                 </li>
@@ -31,12 +31,12 @@
                                     <li x-data="{ open: {{ $isOpen ? 'true' : 'false' }} }">
                                         <div class="flex items-center justify-between group">
                                             <a href="{{ route('shop', array_merge(request()->query(), ['category' => $category->slug])) }}" 
-                                               class="flex-1 py-1 text-sm {{ $isParentActive ? 'text-red-600 font-bold' : 'text-gray-600 group-hover:text-red-600' }} transition-colors">
+                                               class="flex-1 py-1 text-sm {{ $isParentActive ? 'text-primary font-bold' : 'text-gray-600 group-hover:text-primary' }} transition-colors">
                                                 {{ $category->name }}
                                             </a>
                                             @if($category->children->count() > 0)
                                                 <button @click="open = !open" 
-                                                        class="p-1 text-gray-400 hover:text-red-600 focus:outline-none transition-transform duration-200" 
+                                                        class="p-1 text-gray-400 hover:text-primary focus:outline-none transition-transform duration-200" 
                                                         :class="open ? 'rotate-180' : ''">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -55,7 +55,7 @@
                                                 @foreach($category->children as $child)
                                                     <li>
                                                         <a href="{{ route('shop', array_merge(request()->query(), ['category' => $child->slug])) }}" 
-                                                           class="block py-1 text-[13px] {{ request('category') === $child->slug ? 'text-red-600 font-bold' : 'text-gray-500 hover:text-red-600' }} transition-colors">
+                                                           class="block py-1 text-[13px] {{ request('category') === $child->slug ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary' }} transition-colors">
                                                             {{ $child->name }}
                                                         </a>
                                                     </li>
@@ -71,11 +71,11 @@
                         <div>
                             <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">Price Range</h3>
                             <div class="space-y-4">
-                                <input type="range" min="0" max="10000" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-red-600">
+                                <input type="range" min="0" max="10000" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary">
                                 <div class="flex items-center gap-2">
-                                    <input type="number" placeholder="Min" class="w-full border-gray-200 rounded text-sm px-2 py-1 focus:border-red-600 focus:ring-0">
+                                    <input type="number" placeholder="Min" class="w-full border-gray-200 rounded text-sm px-2 py-1 focus:border-primary focus:ring-0">
                                     <span class="text-gray-400">-</span>
-                                    <input type="number" placeholder="Max" class="w-full border-gray-200 rounded text-sm px-2 py-1 focus:border-red-600 focus:ring-0">
+                                    <input type="number" placeholder="Max" class="w-full border-gray-200 rounded text-sm px-2 py-1 focus:border-primary focus:ring-0">
                                 </div>
                                 <button class="w-full bg-gray-900 text-white text-xs font-bold uppercase tracking-wider py-2 rounded hover:bg-black transition-colors">Apply</button>
                             </div>
@@ -107,7 +107,7 @@
 
                         <div class="flex items-center gap-4">
                             <label class="text-xs font-bold text-gray-500 uppercase">Sort By:</label>
-                            <select onchange="window.location.href=this.value" class="border-gray-200 rounded text-sm text-gray-700 focus:border-red-600 focus:ring-0 py-1.5 pl-3 pr-8 cursor-pointer">
+                            <select onchange="window.location.href=this.value" class="border-gray-200 rounded text-sm text-gray-700 focus:border-primary focus:ring-0 py-1.5 pl-3 pr-8 cursor-pointer">
                                 <option value="{{ route('shop', array_merge(request()->query(), ['sort' => 'latest'])) }}" {{ request('sort') === 'latest' || !request('sort') ? 'selected' : '' }}>Latest Arrivals</option>
                                 <option value="{{ route('shop', array_merge(request()->query(), ['sort' => 'popular'])) }}" {{ request('sort') === 'popular' ? 'selected' : '' }}>Popularity</option>
                                 <option value="{{ route('shop', array_merge(request()->query(), ['sort' => 'price_asc'])) }}" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
@@ -139,7 +139,7 @@
                             </div>
                             <h3 class="text-lg font-bold text-gray-900 mb-2">No Products Found</h3>
                             <p class="text-sm text-gray-500 mb-6">We couldn't find any products matching your current filters.</p>
-                            <a href="{{ route('shop') }}" class="inline-flex items-center justify-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                            <a href="{{ route('shop') }}" class="inline-flex items-center justify-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark">
                                 Clear All Filters
                             </a>
                         </div>

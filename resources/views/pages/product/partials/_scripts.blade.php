@@ -360,13 +360,13 @@
                 if (btn) {
                     const originalText = btn.innerHTML;
                     btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Added!`;
-                    btn.classList.add('bg-green-600', 'hover:bg-green-700');
-                    btn.classList.remove('bg-red-600', 'hover:bg-red-700');
+                    btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+                    btn.classList.remove('bg-primary', 'hover:bg-primary-dark');
 
                     setTimeout(() => {
                         btn.innerHTML = originalText;
-                        btn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                        btn.classList.add('bg-red-600', 'hover:bg-red-700');
+                        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                        btn.classList.add('bg-primary', 'hover:bg-primary-dark');
                     }, 2000);
                 }
             },

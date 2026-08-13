@@ -8,7 +8,7 @@
              :style="zoomStyle" />
         
         @if($product->old_price > 0)
-            <div class="absolute top-3 left-3 bg-red-600 text-white text-[9px] font-bold px-2 py-1 rounded-md z-10">
+            <div class="absolute top-3 left-3 bg-accent text-white text-[9px] font-bold px-2 py-1 rounded-md z-10 shadow-sm">
                 {{ round((($product->old_price - $product->price) / $product->old_price) * 100) }}% OFF
             </div>
         @endif
@@ -19,7 +19,7 @@
         <template x-for="(img, index) in allImages" :key="index">
             <button @click="mainImage = img" 
                     class="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 border rounded-md transition-all overflow-hidden"
-                    :class="mainImage === img ? 'border-red-600 ring-1 ring-red-600' : 'border-gray-200 hover:border-gray-400'">
+                    :class="mainImage === img ? 'border-primary ring-1 ring-primary' : 'border-gray-200 hover:border-gray-400'">
                 <img :src="img" class="w-full h-full object-contain p-1" />
             </button>
         </template>

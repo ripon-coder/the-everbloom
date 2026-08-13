@@ -8,9 +8,9 @@
                         <img src="{{ $relProduct->img }}" alt="{{ $relProduct->name }}" class="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300">
                     </div>
                     <div class="flex flex-col gap-1.5 flex-1 min-w-0">
-                        <h4 class="text-sm font-bold text-gray-800 line-clamp-2 group-hover:text-red-600 transition-colors leading-snug">{{ $relProduct->name }}</h4>
+                        <h4 class="text-sm font-bold text-gray-800 line-clamp-2 group-hover:text-primary transition-colors leading-snug">{{ $relProduct->name }}</h4>
                         <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-sm font-black text-red-600">Tk.{{ number_format($relProduct->price) }}</span>
+                            <span class="text-sm font-black text-primary">Tk.{{ number_format($relProduct->price) }}</span>
                             @if($relProduct->old_price)
                                 <span class="text-[11px] text-gray-400 line-through">Tk.{{ number_format($relProduct->old_price) }}</span>
                             @endif
@@ -19,7 +19,7 @@
                 </a>
             @endforeach
         </div>
-        <a href="{{ route('shop') }}" class="block text-center mt-8 text-[10px] font-bold text-gray-400 uppercase tracking-widest hover:text-red-600 transition-colors">
+        <a href="{{ route('shop') }}" class="block text-center mt-8 text-[10px] font-bold text-gray-400 uppercase tracking-widest hover:text-primary transition-colors">
             View Full Shop
         </a>
     </div>

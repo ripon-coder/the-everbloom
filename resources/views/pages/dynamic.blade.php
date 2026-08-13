@@ -6,7 +6,7 @@
     <div class="bg-gray-50 border-b border-gray-200 py-4">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav class="text-sm text-gray-500">
-                <a href="{{ route('home') }}" class="hover:text-red-600">Home</a>
+                <a href="{{ route('home') }}" class="hover:text-primary">Home</a>
                 <span class="mx-2">/</span>
                 <span class="text-gray-900">{{ $page->title }}</span>
             </nav>

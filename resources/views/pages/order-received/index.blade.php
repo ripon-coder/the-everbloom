@@ -70,7 +70,7 @@
                         </div>
                         <div>
                             <span class="font-extrabold text-gray-400 uppercase tracking-widest block mb-1">Total Amount</span>
-                            <span class="font-black text-red-600 block text-sm">Tk. {{ number_format($order->total_amount, 2) }}</span>
+                            <span class="font-black text-primary block text-sm">Tk. {{ number_format($order->total_amount, 2) }}</span>
                         </div>
                     </div>
 
@@ -78,7 +78,7 @@
                     @if($order->orderAddress)
                         <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/50 space-y-1.5 text-xs sm:text-sm">
                             <h3 class="text-xs font-extrabold text-gray-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                 <span>Delivery Address</span>
                             </h3>
                             <p class="font-extrabold text-gray-900 text-sm">{{ $order->orderAddress->name }} &bull; {{ $order->orderAddress->phone_number }}</p>
@@ -143,20 +143,20 @@
                             <span class="font-bold text-gray-900">Tk. {{ number_format($order->shipping_amount, 2) }}</span>
                         </div>
                         @if($order->coupon_discount_amount > 0)
-                            <div class="flex justify-between text-emerald-600 font-semibold">
+                            <div class="flex justify-between text-primary font-semibold">
                                 <span>Discount (Coupon: {{ $order->coupon_used }})</span>
                                 <span>- Tk. {{ number_format($order->coupon_discount_amount, 2) }}</span>
                             </div>
                         @endif
                         <div class="pt-3 border-t border-gray-200 flex justify-between items-end">
                             <span class="text-sm font-extrabold text-gray-900 uppercase">Total Amount</span>
-                            <span class="text-xl font-black text-red-600">Tk. {{ number_format($order->total_amount, 2) }}</span>
+                            <span class="text-xl font-black text-primary">Tk. {{ number_format($order->total_amount, 2) }}</span>
                         </div>
                     </div>
 
                     <!-- 6. Bottom Actions (Hidden on Print) -->
                     <div class="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
-                        <a href="{{ route('account.order.show', $order->order_number) }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-xs">
+                        <a href="{{ route('account.order.show', $order->order_number) }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-xs">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             <span>Track Order</span>
                         </a>

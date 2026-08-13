@@ -17,13 +17,13 @@
 <div class="flex flex-col">
     @if($flashSale)
         <div
-            class="mb-4 bg-red-50 border border-red-200 rounded-md p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            class="mb-4 bg-accent-50 border border-accent-200 rounded-md p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-red-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-accent-dark animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
                     </path>
                 </svg>
-                <span class="text-sm font-black text-red-600 uppercase tracking-wide">{{ $flashSale->name }}</span>
+                <span class="text-sm font-black text-accent-dark uppercase tracking-wide">{{ $flashSale->name }}</span>
             </div>
 
             @php
@@ -49,23 +49,23 @@
                                 }
                             }
                         }">
-                <span class="text-xs font-bold text-red-500 mr-1 uppercase tracking-wider">Ends in:</span>
+                <span class="text-xs font-bold text-accent-dark mr-1 uppercase tracking-wider">Ends in:</span>
                 <template x-if="days > 0">
                     <span
-                        class="w-6 h-6 flex items-center justify-center bg-red-600 text-white rounded text-xs font-bold shadow-sm"
+                        class="w-6 h-6 flex items-center justify-center bg-accent text-white rounded text-xs font-bold shadow-sm"
                         x-text="days"></span>
                 </template>
-                <template x-if="days > 0"><span class="text-red-600 font-bold">:</span></template>
+                <template x-if="days > 0"><span class="text-accent-dark font-bold">:</span></template>
                 <span
-                    class="w-6 h-6 flex items-center justify-center bg-red-600 text-white rounded text-xs font-bold shadow-sm"
+                    class="w-6 h-6 flex items-center justify-center bg-accent text-white rounded text-xs font-bold shadow-sm"
                     x-text="hours.toString().padStart(2, '0')"></span>
-                <span class="text-red-600 font-bold">:</span>
+                <span class="text-accent-dark font-bold">:</span>
                 <span
-                    class="w-6 h-6 flex items-center justify-center bg-red-600 text-white rounded text-xs font-bold shadow-sm"
+                    class="w-6 h-6 flex items-center justify-center bg-accent text-white rounded text-xs font-bold shadow-sm"
                     x-text="minutes.toString().padStart(2, '0')"></span>
-                <span class="text-red-600 font-bold">:</span>
+                <span class="text-accent-dark font-bold">:</span>
                 <span
-                    class="w-6 h-6 flex items-center justify-center bg-red-600 text-white rounded text-xs font-bold shadow-sm"
+                    class="w-6 h-6 flex items-center justify-center bg-accent text-white rounded text-xs font-bold shadow-sm"
                     x-text="seconds.toString().padStart(2, '0')"></span>
             </div>
         </div>
@@ -87,22 +87,22 @@
             </div>
             <span class="text-gray-400 font-medium">({{ $product->reviews->count() }} reviews)</span>
             <template x-if="currentStock > 0">
-                <span class="inline-flex items-center gap-1 text-emerald-600 font-semibold">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block"></span>
+                <span class="inline-flex items-center gap-1 text-primary font-semibold">
+                    <span class="w-1.5 h-1.5 bg-primary rounded-full inline-block"></span>
                     <span x-show="currentStock >= 10">In Stock</span>
                     <span x-show="currentStock < 10">Only <span x-text="currentStock"></span> left!</span>
                 </span>
             </template>
             <template x-if="currentStock <= 0">
-                <span class="inline-flex items-center gap-1 text-red-600 font-semibold">
-                    <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+                <span class="inline-flex items-center gap-1 text-danger font-semibold">
+                    <span class="w-1.5 h-1.5 bg-danger rounded-full inline-block"></span>
                     Out of Stock
                 </span>
             </template>
             @if($product->is_free_delivery)
                 <span class="text-gray-300">|</span>
                 <span
-                    class="inline-flex items-center gap-1.5 text-blue-600 font-bold uppercase tracking-wider text-[10px] md:text-xs">
+                    class="inline-flex items-center gap-1.5 text-primary font-bold uppercase tracking-wider text-[10px] md:text-xs">
                     <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
@@ -130,16 +130,16 @@
         <div class="flex items-center justify-between gap-4">
             <div class="flex flex-col gap-1">
                 <div class="flex items-baseline gap-3 md:gap-4">
-                    <span class="text-2xl md:text-3xl font-bold text-red-600">Tk. <span
+                    <span class="text-2xl md:text-3xl font-bold text-primary">Tk. <span
                             x-text="formatPrice(currentPrice)">{{ number_format($initialPrice, 2) }}</span></span>
                     <template x-if="currentOldPrice">
-                        <span class="text-base md:text-lg text-red-600/70 line-through font-medium">Tk. <span
+                        <span class="text-base md:text-lg text-gray-400 line-through font-medium">Tk. <span
                                 x-text="formatPrice(currentOldPrice)">{{ number_format($initialOldPrice, 2) }}</span></span>
                     </template>
                 </div>
                 <!-- Savings Info -->
                 <div class="h-4 md:h-5">
-                    <div x-show="currentOldPrice > 0" x-cloak class="text-[10px] md:text-xs font-bold text-green-600">
+                    <div x-show="currentOldPrice > 0" x-cloak class="text-[10px] md:text-xs font-bold text-primary">
                         You Save: Tk. <span
                             x-text="formatPrice(currentOldPrice - currentPrice)">{{ $initialOldPrice > 0 ? number_format($initialOldPrice - $initialPrice, 2) : '0.00' }}</span>
                         (<span
@@ -152,7 +152,7 @@
             <!-- Wishlist Button -->
             <button @click="toggleWishlist()"
                 class="group relative flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300"
-                :class="isInWishlist ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600'"
+                :class="isInWishlist ? 'bg-primary-50 text-primary' : 'bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600'"
                 :title="isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'">
                 <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" 
                     :class="isInWishlist ? 'fill-current' : 'fill-none'"
@@ -170,15 +170,15 @@
     </div>
 
     @if($product->is_free_delivery)
-        <div class="mb-4 bg-blue-50 border border-blue-100 rounded-md p-3 flex items-center gap-3">
-            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-blue-600 flex-shrink-0">
+        <div class="mb-4 bg-primary-50 border border-primary-100 rounded-md p-3 flex items-center gap-3">
+            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary flex-shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
             </div>
             <div>
-                <p class="text-[13px] font-extrabold text-blue-900 leading-none mb-1">Free Express Shipping</p>
-                <p class="text-[11px] text-blue-700 font-medium">Eligible for free delivery to your doorstep.</p>
+                <p class="text-[13px] font-extrabold text-primary-900 leading-none mb-1">Free Express Shipping</p>
+                <p class="text-[11px] text-primary-700 font-medium">Eligible for free delivery to your doorstep.</p>
             </div>
         </div>
     @endif
@@ -218,7 +218,7 @@
                             :disabled="!isOptionAvailable('{{ $name }}', {{ $id }})"
                             class="px-3 py-1.5 rounded-md border text-xs md:text-sm font-medium transition-all disabled:opacity-10 disabled:cursor-not-allowed"
                             :class="{
-                                'border-red-600 bg-red-50 text-red-600': selectedAttributes['{{ $name }}'] === {{ $id }},
+                                'border-primary bg-primary-50 text-primary font-bold shadow-xs': selectedAttributes['{{ $name }}'] === {{ $id }},
                                 'border-gray-200 text-gray-600 hover:border-gray-400': selectedAttributes['{{ $name }}'] !== {{ $id }},
                                 'opacity-30 grayscale': !isOptionCompatible('{{ $name }}', {{ $id }}) && selectedAttributes['{{ $name }}'] !== {{ $id }}
                             }">
@@ -244,7 +244,7 @@
         <!-- Action Buttons (Desktop Only) -->
         <div class="hidden md:flex flex-col sm:flex-row gap-2 pt-2">
             <button @click="addToCart($event)" :disabled="currentStock <= 0"
-                class="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-md text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
+                class="flex-1 bg-primary hover:bg-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-md text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />

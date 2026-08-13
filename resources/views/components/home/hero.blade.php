@@ -27,7 +27,7 @@
                                     @if($slider->btn_text && $slider->btn_link)
                                         <div class="pt-2 animate-fade-in-up delay-200">
                                             <a href="{{ $slider->btn_link }}"
-                                                class="inline-flex items-center px-4 py-2 sm:px-6 sm:py-3 bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-bold rounded-full transition-all transform hover:scale-105 shadow-lg">
+                                                class="inline-flex items-center px-4 py-2 sm:px-6 sm:py-3 bg-primary hover:bg-primary-dark text-white text-xs sm:text-sm font-bold rounded-full transition-all transform hover:scale-105 shadow-glow-emerald">
                                                 {{ $slider->btn_text }}
                                                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -55,7 +55,7 @@
                 </h1>
                 <p class="text-lg sm:text-2xl md:text-3xl font-bold text-slate-600 mt-2">
                     ডেলিভারি হবে <span
-                        class="text-red-600 font-black text-2xl sm:text-4xl md:text-5xl drop-shadow-md">সেইইইই</span> স্পিডে
+                        class="text-primary font-black text-2xl sm:text-4xl md:text-5xl drop-shadow-md">সেইইইই</span> স্পিডে
                     সারা দেশে
                 </p>
             </div>
@@ -67,7 +67,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <style>
         .swiper-pagination-bullet-active {
-            background: #ef4444 !important;
+            background: #059669 !important;
             width: 24px !important;
             border-radius: 4px !important;
         }

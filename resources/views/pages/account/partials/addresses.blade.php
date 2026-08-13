@@ -97,7 +97,7 @@
             <template x-for="address in addresses" :key="address.id">
                 <div class="border border-gray-200 rounded-lg p-5 relative">
                     <template x-if="address.is_default">
-                        <span class="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg rounded-tr-lg uppercase tracking-wider">Default</span>
+                        <span class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg rounded-tr-lg uppercase tracking-wider">Default</span>
                     </template>
                     <h4 class="font-bold text-gray-900 mb-2">
                         <span x-text="address.name"></span> 
@@ -111,8 +111,8 @@
                         Phone: <span x-text="address.phone"></span>
                     </address>
                     <div class="flex items-center gap-3">
-                        <button @click="openEditModal(address)" class="text-xs font-bold text-slate-800 hover:text-red-600 uppercase tracking-wider">Edit</button>
-                        <button @click="deleteAddress(address.id)" class="text-xs font-bold text-gray-400 hover:text-red-600 uppercase tracking-wider">Delete</button>
+                        <button @click="openEditModal(address)" class="text-xs font-bold text-slate-800 hover:text-primary uppercase tracking-wider">Edit</button>
+                        <button @click="deleteAddress(address.id)" class="text-xs font-bold text-gray-400 hover:text-danger uppercase tracking-wider">Delete</button>
                     </div>
                 </div>
             </template>

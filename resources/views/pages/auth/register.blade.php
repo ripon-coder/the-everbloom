@@ -12,15 +12,15 @@
                     <form class="space-y-5" method="POST" action="{{ route('register.post') }}">
                         @csrf
                         @if($errors->any())
-                            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                            <div class="bg-danger/10 border-l-4 border-danger p-4 mb-4">
                                 <div class="flex">
                                     <div class="flex-shrink-0">
-                                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <svg class="h-5 w-5 text-danger" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                                         </svg>
                                     </div>
                                     <div class="ml-3">
-                                        <ul class="list-disc list-inside text-sm text-red-700 font-medium">
+                                        <ul class="list-disc list-inside text-sm text-danger font-medium">
                                             @foreach($errors->all() as $error)
                                                 <li>{{ $error }}</li>
                                             @endforeach
@@ -33,11 +33,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
                                 <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">First Name *</label>
-                                <input type="text" name="first_name" value="{{ old('first_name') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="First Name" required>
+                                <input type="text" name="first_name" value="{{ old('first_name') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-3" placeholder="First Name" required>
                             </div>
                             <div>
                                 <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Last Name *</label>
-                                <input type="text" name="last_name" value="{{ old('last_name') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Last Name" required>
+                                <input type="text" name="last_name" value="{{ old('last_name') }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-3" placeholder="Last Name" required>
                             </div>
                         </div>
 
@@ -47,7 +47,7 @@
                                    name="phone" 
                                    id="phone"
                                    value="{{ old('phone') }}" 
-                                   class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" 
+                                   class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-3" 
                                    placeholder="01XXXXXXXXX" 
                                    required
                                    maxlength="11"
@@ -56,21 +56,21 @@
                         
                         <div>
                             <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Password *</label>
-                            <input type="password" name="password" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Create a password" required>
+                            <input type="password" name="password" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-3" placeholder="Create a password" required>
                         </div>
 
                         <div>
                             <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Confirm Password *</label>
-                            <input type="password" name="password_confirmation" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-3" placeholder="Confirm your password" required>
+                            <input type="password" name="password_confirmation" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-3" placeholder="Confirm your password" required>
                         </div>
                         
                         <div class="flex items-start mt-2">
-                            <input type="checkbox" name="terms" id="terms" class="rounded border-gray-300 text-red-600 focus:ring-red-500 h-4 w-4 mt-0.5" required>
-                            <label for="terms" class="ml-2 text-sm text-gray-600 font-medium">I agree to the <a href="#" class="text-red-600 hover:underline">Terms of Service</a> and <a href="#" class="text-red-600 hover:underline">Privacy Policy</a>.</label>
+                            <input type="checkbox" name="terms" id="terms" class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4 mt-0.5" required>
+                            <label for="terms" class="ml-2 text-sm text-gray-600 font-medium">I agree to the <a href="#" class="text-primary hover:underline">Terms of Service</a> and <a href="#" class="text-primary hover:underline">Privacy Policy</a>.</label>
                         </div>
 
                         <div class="pt-2">
-                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded text-sm font-bold uppercase tracking-widest transition-colors shadow-md">
+                            <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white px-8 py-3.5 rounded text-sm font-bold uppercase tracking-widest transition-colors shadow-md">
                                 Register
                             </button>
                         </div>
@@ -86,7 +86,7 @@
                     
                     <div class="mb-10">
                         <div class="flex items-center gap-4 mb-4">
-                            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                            <div class="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center text-primary">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                             </div>
                             <div>
@@ -95,7 +95,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <div class="w-10 h-10 rounded-full bg-accent-50 flex items-center justify-center text-accent">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                             </div>
                             <div>

@@ -7,7 +7,7 @@
         <!-- Timer Component (Alpine.js) -->
         <div x-data="flashSaleTimer('{{ $endTime }}')" class="flex gap-2 text-sm font-medium mt-2 md:mt-0">
             <template x-if="isExpired">
-                <span class="text-red-500 font-medium mt-2 md:mt-0">Flash Sale Ended</span>
+                <span class="text-danger font-medium mt-2 md:mt-0">Flash Sale Ended</span>
             </template>
             <template x-if="!isExpired">
                 <div class="flex gap-2 text-sm font-medium mt-2 md:mt-0">

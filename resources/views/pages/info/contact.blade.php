@@ -24,7 +24,7 @@
                     @endif
 
                     @if($errors->any())
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 text-sm" role="alert">
+                        <div class="bg-danger/10 border border-danger/20 text-danger px-4 py-3 rounded relative mb-6 text-sm" role="alert">
                             <ul class="list-disc list-inside">
                                 @foreach($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -38,26 +38,26 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
                                 <label class="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-1">Your Name *</label>
-                                <input type="text" name="name" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="Enter your name" required>
+                                <input type="text" name="name" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5" placeholder="Enter your name" required>
                             </div>
                             <div>
                                 <label class="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-1">Email Address *</label>
-                                <input type="email" name="email" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="Enter your email" required>
+                                <input type="email" name="email" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5" placeholder="Enter your email" required>
                             </div>
                         </div>
 
                         <div>
                             <label class="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-1">Subject *</label>
-                            <input type="text" name="subject" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="Brief subject" required>
+                            <input type="text" name="subject" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5" placeholder="Brief subject" required>
                         </div>
 
                         <div>
                             <label class="text-xs font-bold text-gray-600 uppercase tracking-wide block mb-1">Message *</label>
-                            <textarea name="message" rows="5" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-red-500 focus:border-red-500 py-2.5" placeholder="How can we help you?" required></textarea>
+                            <textarea name="message" rows="5" class="w-full border-gray-300 rounded shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5" placeholder="How can we help you?" required></textarea>
                         </div>
 
                         <div class="pt-2">
-                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-md text-sm font-bold uppercase tracking-widest transition-colors shadow-sm">
+                            <button type="submit" class="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-md text-sm font-bold uppercase tracking-widest transition-colors shadow-sm">
                                 Send Message
                             </button>
                         </div>
@@ -80,8 +80,8 @@
                         <div>
                             <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Contact Details</h4>
                             <p class="text-sm text-gray-700 leading-relaxed">
-                                Phone: <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}" class="text-red-600 hover:underline">{{ $site_setting->site_phone ?? '+88 01720 000000' }}</a><br>
-                                Email: <a href="mailto:{{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}" class="text-red-600 hover:underline">{{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}</a>
+                                Phone: <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}" class="text-primary hover:underline">{{ $site_setting->site_phone ?? '+88 01720 000000' }}</a><br>
+                                Email: <a href="mailto:{{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}" class="text-primary hover:underline">{{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}</a>
                             </p>
                         </div>
 

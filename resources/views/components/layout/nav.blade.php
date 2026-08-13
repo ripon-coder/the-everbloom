@@ -154,7 +154,7 @@
                     <img src="{{ Auth::user()->profile_image }}" class="w-7 h-7 rounded-full object-cover border border-white">
                 @else
                     <div
-                        class="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-[11px] font-bold text-white border border-white">
+                        class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-[11px] font-bold text-white border border-white">
                         {{ substr(Auth::user()->name, 0, 1) }}
                     </div>
                 @endif
@@ -195,7 +195,7 @@
                     <div class="flex-1 min-w-0">
                         <h4 class="text-sm font-bold text-gray-900 truncate" x-text="product.name"></h4>
                         <div class="flex items-center gap-2 mt-1">
-                            <span class="text-sm font-black text-red-600" x-text="'৳' + formatPrice(product.price)"></span>
+                            <span class="text-sm font-black text-primary" x-text="'৳' + formatPrice(product.price)"></span>
                             <span x-show="product.old_price" class="text-xs text-gray-400 line-through" x-text="'৳' + formatPrice(product.old_price)"></span>
                         </div>
                     </div>
@@ -205,7 +205,7 @@
                 No products found for "<span x-text="searchQuery"></span>"
             </div>
             <a x-show="searchResults.length > 0" :href="'{{ route('shop') }}?search=' + searchQuery" 
-                class="block p-3 text-center text-sm font-bold text-blue-600 bg-gray-50 hover:bg-gray-100 transition-colors">
+                class="block p-3 text-center text-sm font-bold text-primary bg-gray-50 hover:bg-gray-100 transition-colors">
                 View all results
             </a>
         </div>
@@ -241,7 +241,7 @@
             </div>
             <div class="flex items-center gap-4">
                 <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}"
-                    class="hover:text-red-500 transition-colors flex items-center gap-1">
+                    class="hover:text-primary transition-colors flex items-center gap-1">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
@@ -251,7 +251,7 @@
                 </a>
                 <span class="text-gray-600">|</span>
                 <a href="mailto:{{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}"
-                    class="hover:text-red-500 transition-colors flex items-center gap-1">
+                    class="hover:text-primary transition-colors flex items-center gap-1">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
@@ -260,11 +260,11 @@
                     {{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}
                 </a>
                 <span class="text-gray-600">|</span>
-                <a href="{{ route('track-order') }}" class="hover:text-red-500 transition-colors">Track Order</a>
+                <a href="{{ route('track-order') }}" class="hover:text-primary transition-colors">Track Order</a>
                 <span class="text-gray-600">|</span>
-                <a href="{{ route('about') }}" class="hover:text-red-500 transition-colors">About Us</a>
+                <a href="{{ route('about') }}" class="hover:text-primary transition-colors">About Us</a>
                 <span class="text-gray-600">|</span>
-                <a href="{{ route('contact') }}" class="hover:text-red-500 transition-colors">Contact Us</a>
+                <a href="{{ route('contact') }}" class="hover:text-primary transition-colors">Contact Us</a>
             </div>
         </div>
     </div>
@@ -288,12 +288,12 @@
             <!-- Search Bar -->
             <div class="flex-1 max-w-3xl relative">
                 <form action="{{ route('shop') }}" method="GET"
-                    class="flex items-center h-11 border border-gray-300 rounded-full overflow-hidden bg-gray-50 focus-within:border-red-500 transition-colors">
+                    class="flex items-center h-11 border border-gray-300 rounded-full overflow-hidden bg-gray-50 focus-within:border-primary transition-colors">
                     <input type="text" name="search" x-model="searchQuery" @input.debounce.300ms="fetchSearchResults()"
                         @focus="showSearchResults = searchResults.length > 0"
                         class="flex-1 h-full px-5 text-sm bg-transparent border-none focus:ring-0 outline-none w-full"
                         placeholder="Search for products..." autocomplete="off">
-                    <button type="submit" class="h-full px-6 bg-slate-900 text-white hover:bg-red-600 transition-colors flex items-center justify-center">
+                    <button type="submit" class="h-full px-6 bg-slate-900 text-white hover:bg-primary transition-colors flex items-center justify-center">
                         <svg x-show="!isSearching" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -313,15 +313,15 @@
                     class="absolute left-0 right-0 top-full mt-2 bg-white shadow-2xl rounded-xl z-[100] max-h-[480px] overflow-hidden border border-gray-100">
                     <div class="overflow-y-auto max-h-[420px]">
                         <template x-for="product in searchResults" :key="product.id">
-                            <a :href="'/product/' + product.slug" class="flex items-center gap-4 p-4 hover:bg-red-50 border-b border-gray-50 last:border-0 transition-all group">
+                            <a :href="'/product/' + product.slug" class="flex items-center gap-4 p-4 hover:bg-primary-50 border-b border-gray-50 last:border-0 transition-all group">
                                 <div class="w-16 h-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
                                     <img :src="product.img" :alt="product.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <h4 class="text-[14px] font-bold text-gray-900 group-hover:text-red-600 transition-colors truncate" x-text="product.name"></h4>
+                                    <h4 class="text-[14px] font-bold text-gray-900 group-hover:text-primary transition-colors truncate" x-text="product.name"></h4>
                                     <p class="text-xs text-gray-500 mt-0.5 truncate" x-text="product.category_name"></p>
                                     <div class="flex items-center gap-3 mt-1.5">
-                                        <span class="text-[15px] font-black text-red-600" x-text="'৳' + formatPrice(product.price)"></span>
+                                        <span class="text-[15px] font-black text-primary" x-text="'৳' + formatPrice(product.price)"></span>
                                         <span x-show="product.old_price" class="text-xs text-gray-400 line-through font-medium" x-text="'৳' + formatPrice(product.old_price)"></span>
                                     </div>
                                 </div>
@@ -339,7 +339,7 @@
                     </div>
 
                     <a x-show="searchResults.length > 0" :href="'{{ route('shop') }}?search=' + searchQuery" 
-                        class="block p-4 text-center text-sm font-black text-white bg-slate-900 hover:bg-red-600 transition-colors">
+                        class="block p-4 text-center text-sm font-black text-white bg-slate-900 hover:bg-primary transition-colors">
                         View All Results for "<span x-text="searchQuery"></span>"
                     </a>
                 </div>
@@ -349,7 +349,7 @@
             <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
                 <!-- Wishlist -->
                 <a href="{{ route('account', 'wishlist') }}"
-                    class="hidden lg:flex items-center gap-2 bg-[#E60000] text-white px-5 py-2.5 rounded-md text-[14px] font-bold hover:bg-red-700 transition-colors">
+                    class="hidden lg:flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-md text-[14px] font-bold hover:bg-primary-dark transition-colors">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path
                             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z">
@@ -366,11 +366,11 @@
                         @mouseleave="accountOpen = false" @click.away="accountOpen = false">
                         <button @click="accountOpen = !accountOpen" class="flex items-center gap-3 group text-left">
                             <div
-                                class="w-[42px] h-[42px] rounded-full bg-red-50 border border-red-200 shadow-sm flex items-center justify-center transition-all overflow-hidden group-hover:border-red-400">
+                                class="w-[42px] h-[42px] rounded-full bg-primary-50 border border-primary-200 shadow-sm flex items-center justify-center transition-all overflow-hidden group-hover:border-primary">
                                 @if(Auth::user()->profile_image)
                                     <img src="{{ Auth::user()->profile_image }}" class="w-full h-full object-cover">
                                 @else
-                                    <span class="text-red-600 font-bold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                    <span class="text-primary font-bold">{{ substr(Auth::user()->name, 0, 1) }}</span>
                                 @endif
                             </div>
                             <div class="hidden sm:flex flex-col">
@@ -378,7 +378,7 @@
                                     class="text-[11px] text-gray-500 font-medium uppercase tracking-wider leading-none mb-1">Welcome
                                     back,</span>
                                 <span
-                                    class="text-[14px] font-black text-slate-800 leading-none group-hover:text-red-600 transition-colors truncate max-w-[100px]">{{ explode(' ', Auth::user()->name)[0] }}</span>
+                                    class="text-[14px] font-black text-slate-800 leading-none group-hover:text-primary transition-colors truncate max-w-[100px]">{{ explode(' ', Auth::user()->name)[0] }}</span>
                             </div>
                         </button>
 
@@ -397,15 +397,15 @@
                                 </div>
                                 <div class="relative bg-white z-10 border border-gray-100 rounded-lg overflow-hidden">
                                     <a href="{{ route('account') }}"
-                                        class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors">My
+                                        class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">My
                                         Accounts</a>
                                     <a href="{{ route('account', 'orders') }}"
-                                        class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors">My
+                                        class="block px-4 py-2.5 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">My
                                         Orders</a>
                                     <form method="POST" action="{{ route('logout') }}" class="w-full m-0">
                                         @csrf
                                         <button type="submit"
-                                            class="block w-full text-left px-4 py-2.5 text-[13px] font-semibold text-red-600 hover:bg-red-50 border-t border-gray-100 transition-colors">Sign
+                                            class="block w-full text-left px-4 py-2.5 text-[13px] font-semibold text-danger hover:bg-danger/10 border-t border-gray-100 transition-colors">Sign
                                             Out</button>
                                     </form>
                                 </div>
@@ -415,8 +415,8 @@
                 @else
                     <a href="{{ route('login') }}" class="flex items-center gap-3 group">
                         <div
-                            class="w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-red-200 group-hover:bg-red-50 transition-all">
-                            <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-red-600 transition-colors"
+                            class="w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-primary-200 group-hover:bg-primary-50 transition-all">
+                            <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-primary transition-colors"
                                 fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -427,7 +427,7 @@
                                 class="text-[11px] text-gray-500 font-medium uppercase tracking-wider leading-none mb-1">Hello,
                                 Sign In</span>
                             <span
-                                class="text-[14px] font-black text-slate-800 leading-none group-hover:text-red-600 transition-colors">My
+                                class="text-[14px] font-black text-slate-800 leading-none group-hover:text-primary transition-colors">My
                                 Account</span>
                         </div>
                     </a>
@@ -438,15 +438,15 @@
                 <!-- Cart -->
                 <button @click="isCartOpen = true" class="flex items-center gap-3 group text-left">
                     <div
-                        class="relative w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-red-200 group-hover:bg-red-50 transition-all">
-                        <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-red-600 transition-colors"
+                        class="relative w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-primary-200 group-hover:bg-primary-50 transition-all">
+                        <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-primary transition-colors"
                             fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
                             </path>
                         </svg>
                         <span x-show="cartCount > 0" x-text="cartCount"
-                            class="absolute -top-1.5 -right-1.5 bg-[#E60000] text-white text-[10px] font-bold w-[20px] h-[20px] flex items-center justify-center rounded-full border-2 border-white shadow-sm transform group-hover:scale-110 transition-transform"
+                            class="absolute -top-1.5 -right-1.5 bg-accent text-white text-[10px] font-bold w-[20px] h-[20px] flex items-center justify-center rounded-full border-2 border-white shadow-sm transform group-hover:scale-110 transition-transform"
                             x-cloak></span>
                     </div>
                     <div class="hidden sm:flex flex-col">
@@ -454,7 +454,7 @@
                             class="text-[11px] text-gray-500 font-medium uppercase tracking-wider leading-none mb-1">My
                             Cart</span>
                         <span
-                            class="text-[14px] font-black text-slate-800 leading-none group-hover:text-red-600 transition-colors"><span
+                            class="text-[14px] font-black text-slate-800 leading-none group-hover:text-primary transition-colors"><span
                                 x-text="cartCount"></span> Items</span>
                     </div>
                 </button>
@@ -796,15 +796,13 @@
 
                     </ul>
                 </div>
-            </div>
-
-            <!-- Links -->
+                        <!-- Links -->
             <nav class="hidden md:flex items-center flex-wrap">
                 <a href="{{ route('home') }}"
-                    class="mx-3 text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->routeIs('home') ? 'text-red-600 border-red-600 font-black' : 'text-slate-700 hover:text-red-600 border-transparent font-bold' }}">Home</a>
+                    class="mx-3 text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->routeIs('home') ? 'text-primary border-primary font-black' : 'text-slate-700 hover:text-primary border-transparent font-bold' }}">Home</a>
                 @foreach($header_menus as $menu)
                     <a href="{{ $menu->url }}"
-                        class="mx-3 text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->url() == url($menu->url) ? 'text-red-600 border-red-600 font-black' : 'text-slate-700 hover:text-red-600 border-transparent font-bold' }}">{{ $menu->name }}</a>
+                        class="mx-3 text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->url() == url($menu->url) ? 'text-primary border-primary font-black' : 'text-slate-700 hover:text-primary border-transparent font-bold' }}">{{ $menu->name }}</a>
                 @endforeach
             </nav>
         </div>
@@ -836,18 +834,18 @@
         <div x-show="activeTab === 'menu'" style="display: none;" class="flex-1 overflow-y-auto pb-20">
             <ul class="flex flex-col">
                 <li class="border-b border-gray-100"><a href="{{ route('home') }}"
-                        class="block px-6 py-4 text-[14px] font-bold tracking-wide transition-colors {{ request()->routeIs('home') ? 'text-red-600' : 'text-slate-800 hover:text-red-600' }}">Home</a>
+                        class="block px-6 py-4 text-[14px] font-bold tracking-wide transition-colors {{ request()->routeIs('home') ? 'text-primary' : 'text-slate-800 hover:text-primary' }}">Home</a>
                 </li>
                 @foreach($header_menus as $menu)
                     <li class="border-b border-gray-100"><a href="{{ $menu->url }}"
-                            class="block px-6 py-4 text-[14px] font-bold tracking-wide transition-colors {{ request()->url() == url($menu->url) ? 'text-red-600' : 'text-slate-800 hover:text-red-600' }}">{{ $menu->name }}</a>
+                            class="block px-6 py-4 text-[14px] font-bold tracking-wide transition-colors {{ request()->url() == url($menu->url) ? 'text-primary' : 'text-slate-800 hover:text-primary' }}">{{ $menu->name }}</a>
                     </li>
                 @endforeach
             </ul>
             <div class="px-6 py-6 mt-4 border-t border-gray-200">
                 <div class="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-4">Contact & Support</div>
                 <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}"
-                    class="flex items-center gap-3 text-slate-700 hover:text-red-600 font-medium mb-4">
+                    class="flex items-center gap-3 text-slate-700 hover:text-primary font-medium mb-4">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
@@ -856,7 +854,7 @@
                     {{ $site_setting->site_phone ?? '+88 01720 000000' }}
                 </a>
                 <a href="mailto:{{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}"
-                    class="flex items-center gap-3 text-slate-700 hover:text-red-600 font-medium">
+                    class="flex items-center gap-3 text-slate-700 hover:text-primary font-medium">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
@@ -1065,7 +1063,7 @@
             <span class="text-[11px] font-bold uppercase">WhatsApp</span>
         </a>
         <a href="{{ route('home') }}"
-            class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('home') ? 'text-red-600' : 'text-slate-700 hover:text-red-600' }}">
+            class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('home') ? 'text-primary' : 'text-slate-700 hover:text-primary' }}">
             <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
@@ -1074,7 +1072,7 @@
             <span class="text-[11px] font-bold uppercase">Home</span>
         </a>
         <a href="{{ route('shop') }}"
-            class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('shop') ? 'text-red-600' : 'text-slate-700 hover:text-red-600' }}">
+            class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('shop') ? 'text-primary' : 'text-slate-700 hover:text-primary' }}">
             <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
@@ -1088,7 +1086,7 @@
                 </path>
             </svg>
             <span x-show="cartCount > 0" x-text="cartCount"
-                class="absolute -top-1 -right-2 bg-red-600 text-white text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white"
+                class="absolute -top-1 -right-2 bg-accent text-white text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white"
                 x-cloak></span>
             <span class="text-[11px] font-bold uppercase text-slate-800">Cart</span>
         </button>
@@ -1117,7 +1115,7 @@
                 <span x-text="cartCount"
                     class="bg-gray-100 text-gray-600 text-[11px] font-bold px-2 py-0.5 rounded-full ml-1"></span>
             </div>
-            <button @click="isCartOpen = false" class="text-gray-400 hover:text-red-600 transition-colors">
+            <button @click="isCartOpen = false" class="text-gray-400 hover:text-primary transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                     </path>
@@ -1136,7 +1134,7 @@
                     </path>
                 </svg>
                 <p class="font-medium text-slate-800">Your cart is empty.</p>
-                <button @click="isCartOpen = false" class="text-red-600 text-sm font-bold hover:underline">Continue
+                <button @click="isCartOpen = false" class="text-primary text-sm font-bold hover:underline">Continue
                     Shopping</button>
             </div>
 
@@ -1149,7 +1147,7 @@
                         </div>
                         <div class="flex-1 flex flex-col justify-between">
                             <div>
-                                <h4 class="text-[14px] font-bold text-slate-800 leading-tight mb-1 group-hover:text-red-600 transition-colors"
+                                <h4 class="text-[14px] font-bold text-slate-800 leading-tight mb-1 group-hover:text-primary transition-colors"
                                     x-text="item.name"></h4>
 
                                 <!-- Attributes Display -->
@@ -1174,7 +1172,7 @@
                                             class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">+</button>
                                     </div>
                                     <button @click="removeItem(index)"
-                                        class="text-[12px] text-gray-400 hover:text-red-600 underline font-medium">Remove</button>
+                                        class="text-[12px] text-gray-400 hover:text-danger underline font-medium">Remove</button>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -1198,7 +1196,7 @@
                 <a href="{{ route('cart') }}"
                     class="block w-full bg-slate-900 text-white text-center font-bold uppercase tracking-wide text-xs px-4 py-3 rounded hover:bg-black transition-colors">View & Edit Cart</a>
                 <a href="{{ route('checkout') }}"
-                    class="block w-full bg-red-600 text-white text-center font-bold uppercase tracking-wide text-xs px-4 py-3 rounded hover:bg-red-700 transition-colors">Checkout</a>
+                    class="block w-full bg-primary text-white text-center font-bold uppercase tracking-wide text-xs px-4 py-3 rounded hover:bg-primary-dark transition-colors">Checkout</a>
             </div>
         </div>
     </div>

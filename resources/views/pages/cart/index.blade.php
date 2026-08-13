@@ -4,9 +4,9 @@
 
             <!-- Breadcrumbs -->
             <nav class="flex text-xs font-medium text-gray-500 uppercase tracking-wider mb-6 md:mb-8">
-                <a href="{{ route('home') }}" class="hover:text-red-600 transition-colors">Home</a>
+                <a href="{{ route('home') }}" class="hover:text-primary transition-colors">Home</a>
                 <span class="mx-2">/</span>
-                <a href="{{ route('shop') }}" class="hover:text-red-600 transition-colors">Shop</a>
+                <a href="{{ route('shop') }}" class="hover:text-primary transition-colors">Shop</a>
                 <span class="mx-2">/</span>
                 <span class="text-gray-900 font-bold">Shopping Cart</span>
             </nav>
@@ -15,18 +15,18 @@
             <div class="flex items-center justify-between mb-6 md:mb-8">
                 <div class="flex items-center gap-3">
                     <h1 class="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tight">Shopping Cart</h1>
-                    <span x-show="cart.length > 0" class="bg-red-100 text-red-600 text-xs md:text-sm font-black px-2.5 py-1 rounded-full" x-text="cartCount + ' items'"></span>
+                    <span x-show="cart.length > 0" class="bg-primary-50 text-primary text-xs md:text-sm font-black px-2.5 py-1 rounded-full" x-text="cartCount + ' items'"></span>
                 </div>
-                <a href="{{ route('shop') }}" class="hidden sm:inline-flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-red-600 transition-colors uppercase tracking-wider">
+                <a href="{{ route('shop') }}" class="hidden sm:inline-flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-primary transition-colors uppercase tracking-wider">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     <span>Continue Shopping</span>
                 </a>
             </div>
 
             <!-- Inactive/Unavailable Items Warning Banner -->
-            <div x-show="hasInactiveItems" x-cloak class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r shadow-sm flex items-center gap-3">
-                <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v3a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                <span class="text-xs font-bold text-red-800">Attention: One or more items in your cart are no longer available (inactive or out of stock). Please remove unavailable items to proceed to checkout.</span>
+            <div x-show="hasInactiveItems" x-cloak class="mb-6 bg-danger/10 border-l-4 border-danger p-4 rounded-r shadow-sm flex items-center gap-3">
+                <svg class="w-5 h-5 text-danger flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v3a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                <span class="text-xs font-bold text-danger">Attention: One or more items in your cart are no longer available (inactive or out of stock). Please remove unavailable items to proceed to checkout.</span>
             </div>
 
             <!-- Cart Body -->
@@ -47,7 +47,7 @@
                         <!-- Items List -->
                         <div class="divide-y divide-gray-100">
                             <template x-for="(item, index) in cart" :key="index">
-                                <div class="p-4 sm:p-6 transition-colors" :class="item.is_active === false || item.available === false ? 'bg-red-50/60 opacity-70 grayscale' : 'hover:bg-gray-50/50'">
+                                <div class="p-4 sm:p-6 transition-colors" :class="item.is_active === false || item.available === false ? 'bg-danger/10 opacity-70 grayscale' : 'hover:bg-gray-50/50'">
                                     <div class="flex flex-col sm:grid sm:grid-cols-12 gap-4 sm:items-center">
                                         
                                         <!-- Product Info -->
@@ -56,7 +56,7 @@
                                                 <img :src="item.image || 'https://placehold.co/100x100?text=Product'" :alt="item.name" class="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-110">
                                             </a>
                                             <div class="flex-1 min-w-0 pr-7 sm:pr-0">
-                                                <h3 class="text-sm md:text-base font-extrabold text-gray-900 hover:text-red-600 transition-colors leading-tight line-clamp-2 sm:truncate">
+                                                <h3 class="text-sm md:text-base font-extrabold text-gray-900 hover:text-primary transition-colors leading-tight line-clamp-2 sm:truncate">
                                                     <a :href="item.slug ? ('/product/' + item.slug) : '#'" x-text="item.name"></a>
                                                 </h3>
                                                 
@@ -71,8 +71,8 @@
                                                 </div>
 
                                                 <template x-if="item.is_active === false || item.available === false">
-                                                    <p class="text-[11px] font-bold text-red-600 bg-red-100/80 px-2.5 py-0.5 rounded-md mt-1.5 inline-flex items-center gap-1">
-                                                        <svg class="w-3 h-3 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                                    <p class="text-[11px] font-bold text-danger bg-danger/10 px-2.5 py-0.5 rounded-md mt-1.5 inline-flex items-center gap-1">
+                                                        <svg class="w-3 h-3 text-danger flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
                                                         <span x-text="item.status_message || 'No Longer Available'"></span>
                                                     </p>
                                                 </template>
@@ -86,7 +86,7 @@
                                             </div>
 
                                             <!-- Mobile Top-Right Trash Button -->
-                                            <button type="button" @click="removeItem(index)" class="absolute top-0 right-0 sm:hidden p-1 text-gray-400 hover:text-red-600 transition-colors" title="Remove item">
+                                            <button type="button" @click="removeItem(index)" class="absolute top-0 right-0 sm:hidden p-1 text-gray-400 hover:text-danger transition-colors" title="Remove item">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
                                         </div>
@@ -104,7 +104,7 @@
                                             <!-- Mobile Price Display -->
                                             <div class="sm:hidden flex flex-col">
                                                 <span class="text-xs text-gray-400 uppercase font-semibold">Total</span>
-                                                <span class="text-base font-black text-red-600 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price * item.quantity)"></span>
+                                                <span class="text-base font-black text-primary whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price * item.quantity)"></span>
                                             </div>
 
                                             <!-- Stepper Controls -->
@@ -117,8 +117,8 @@
 
                                         <!-- Subtotal & Remove Action (Desktop) -->
                                         <div class="hidden sm:flex sm:col-span-3 flex-col items-end justify-center whitespace-nowrap">
-                                            <span class="text-base font-black text-red-600 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price * item.quantity)"></span>
-                                            <button type="button" @click="removeItem(index)" class="text-xs font-semibold text-gray-400 hover:text-red-600 mt-1 flex items-center gap-1 transition-colors" title="Remove Item">
+                                            <span class="text-base font-black text-primary whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price * item.quantity)"></span>
+                                            <button type="button" @click="removeItem(index)" class="text-xs font-semibold text-gray-400 hover:text-danger mt-1 flex items-center gap-1 transition-colors" title="Remove Item">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                 <span>Remove</span>
                                             </button>
@@ -135,7 +135,7 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                                 <span>Continue Shopping</span>
                             </a>
-                            <button type="button" @click="clearCart()" class="w-auto inline-flex items-center justify-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100/80 border border-red-200 px-4 py-2.5 rounded-lg transition-colors uppercase tracking-wider">
+                            <button type="button" @click="clearCart()" class="w-auto inline-flex items-center justify-center gap-1.5 text-xs font-bold text-danger hover:text-danger-dark bg-danger/10 hover:bg-danger/20 border border-danger/30 px-4 py-2.5 rounded-lg transition-colors uppercase tracking-wider">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 <span>Clear Shopping Cart</span>
                             </button>
@@ -156,14 +156,14 @@
                             </div>
                             <div class="flex justify-between text-gray-600">
                                 <span>Estimated Shipping</span>
-                                <span class="text-xs font-bold text-emerald-600">Calculated at Checkout</span>
+                                <span class="text-xs font-bold text-primary">Calculated at Checkout</span>
                             </div>
                             <div class="pt-4 border-t border-gray-200 flex justify-between items-end">
                                 <div>
                                     <span class="text-base font-extrabold text-gray-900 uppercase tracking-wider block">Estimated Total</span>
                                     <span class="text-[10px] text-gray-400">Taxes & shipping added at checkout</span>
                                 </div>
-                                <span class="text-2xl font-black text-red-600 whitespace-nowrap" x-text="'Tk. ' + formatPrice(cartTotal)"></span>
+                                <span class="text-2xl font-black text-primary whitespace-nowrap" x-text="'Tk. ' + formatPrice(cartTotal)"></span>
                             </div>
                         </div>
 
@@ -171,7 +171,7 @@
                         <template x-if="!hasInactiveItems">
                             <button type="button" @click="proceedToCheckout()"
                                :disabled="checkingOut"
-                               class="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-md text-sm uppercase tracking-widest transition-colors shadow-md flex items-center justify-center gap-2">
+                               class="w-full bg-primary hover:bg-primary-dark disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-md text-sm uppercase tracking-widest transition-colors shadow-md flex items-center justify-center gap-2">
                                 <template x-if="!checkingOut">
                                     <span class="flex items-center gap-2">
                                         <span>Proceed to Checkout</span>
@@ -196,15 +196,15 @@
                         <!-- Trust Guarantees -->
                         <div class="pt-4 border-t border-gray-100 space-y-3 text-xs text-gray-500">
                             <div class="flex items-center gap-2.5">
-                                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <svg class="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                 <span>100% Authentic & Genuine Products</span>
                             </div>
                             <div class="flex items-center gap-2.5">
-                                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                <svg class="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                                 <span>Encrypted & Safe Checkout</span>
                             </div>
                             <div class="flex items-center gap-2.5">
-                                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                                <svg class="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                                 <span>Cash on Delivery Available</span>
                             </div>
                         </div>
@@ -216,14 +216,14 @@
 
             <!-- Empty Cart State -->
             <div x-show="cart.length === 0" class="bg-white border border-gray-200 rounded-lg p-12 text-center max-w-5xl mx-auto shadow-sm my-8">
-                <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-5">
+                <div class="w-20 h-20 bg-primary-50 text-primary rounded-full flex items-center justify-center mx-auto mb-5">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                 </div>
                 <h2 class="text-xl font-extrabold text-gray-900 mb-2">Your Shopping Cart is Empty</h2>
                 <p class="text-sm text-gray-500 mb-6">Looks like you haven't added any products to your cart yet. Explore our shop to find awesome products!</p>
-                <a href="{{ route('shop') }}" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3.5 rounded-md text-xs uppercase tracking-widest transition-colors shadow-md">
+                <a href="{{ route('shop') }}" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold px-8 py-3.5 rounded-md text-xs uppercase tracking-widest transition-colors shadow-md">
                     <span>Explore Products</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l7-7m7-7H3"/></svg>
                 </a>
             </div>
 

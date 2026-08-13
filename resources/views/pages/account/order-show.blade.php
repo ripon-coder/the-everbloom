@@ -4,9 +4,9 @@
             
             <!-- Breadcrumbs -->
             <nav class="flex text-xs font-medium text-gray-500 uppercase tracking-wider mb-6 md:mb-8">
-                <a href="{{ route('home') }}" class="hover:text-red-600 transition-colors">Home</a>
+                <a href="{{ route('home') }}" class="hover:text-primary transition-colors">Home</a>
                 <span class="mx-2">/</span>
-                <a href="{{ route('account', 'orders') }}" class="hover:text-red-600 transition-colors">My Orders</a>
+                <a href="{{ route('account', 'orders') }}" class="hover:text-primary transition-colors">My Orders</a>
                 <span class="mx-2">/</span>
                 <span class="text-gray-900">Order #{{ $order->order_number }}</span>
             </nav>
@@ -94,7 +94,7 @@
                                             @if($order->discount_amount > 0)
                                             <tr>
                                                 <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Discount</td>
-                                                <td class="px-4 py-3 text-right font-bold text-red-600 whitespace-nowrap">- Tk. {{ number_format($order->discount_amount, 2) }}</td>
+                                                <td class="px-4 py-3 text-right font-bold text-primary whitespace-nowrap">- Tk. {{ number_format($order->discount_amount, 2) }}</td>
                                             </tr>
                                             @endif
                                             <tr>
@@ -103,7 +103,7 @@
                                             </tr>
                                             <tr class="bg-gray-100/50">
                                                 <td colspan="3" class="px-4 py-4 text-right text-sm font-bold text-gray-900 uppercase tracking-widest whitespace-nowrap">Total</td>
-                                                <td class="px-4 py-4 text-right text-lg font-bold text-red-600 whitespace-nowrap">Tk. {{ number_format($order->total_amount, 2) }}</td>
+                                                <td class="px-4 py-4 text-right text-lg font-bold text-primary whitespace-nowrap">Tk. {{ number_format($order->total_amount, 2) }}</td>
                                             </tr>
                                         </tfoot>
                                     </table>

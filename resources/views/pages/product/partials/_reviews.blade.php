@@ -51,14 +51,14 @@
              class="mb-6 p-4 rounded-xl flex items-center gap-3 border shadow-sm"
              :class="{
                 'bg-emerald-50 border-emerald-100 text-emerald-800': localType === 'success',
-                'bg-red-50 border-red-100 text-red-800': localType === 'error'
+                'bg-danger/10 border-danger/20 text-danger': localType === 'error'
              }">
             <div class="flex-shrink-0">
                 <template x-if="localType === 'success'">
                     <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                 </template>
                 <template x-if="localType === 'error'">
-                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg class="w-5 h-5 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </template>
             </div>
             <p class="text-[11px] font-bold uppercase tracking-wider" x-text="localMessage"></p>
@@ -73,7 +73,7 @@
             <form @submit.prevent="submitReview()" class="space-y-4">
                 <div class="grid grid-cols-1 gap-4">
                     <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Rating <span class="text-red-600">*</span></label>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Rating <span class="text-danger">*</span></label>
                         <div class="flex gap-1 py-2">
                             @for($i=1; $i<=5; $i++)
                                 <button type="button" 
@@ -90,8 +90,8 @@
                     </div>
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Your Review <span class="text-red-600">*</span></label>
-                    <textarea x-model="reviewText" rows="3" class="w-full border-gray-200 rounded-md text-sm focus:border-red-600 focus:ring-0 disabled:bg-gray-50 disabled:text-gray-400" placeholder="What did you think?" :disabled="isSubmitting" required></textarea>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Your Review <span class="text-danger">*</span></label>
+                    <textarea x-model="reviewText" rows="3" class="w-full border-gray-200 rounded-md text-sm focus:border-primary focus:ring-0 disabled:bg-gray-50 disabled:text-gray-400" placeholder="What did you think?" :disabled="isSubmitting" required></textarea>
                 </div>
                 <button type="submit" 
                     :disabled="rating === 0 || isSubmitting" 
@@ -108,7 +108,7 @@
         @else
             <div class="text-center py-4 bg-white rounded-md border border-dashed border-gray-200">
                 <p class="text-sm text-gray-600 mb-4">You must be logged in to post a review.</p>
-                <a href="{{ route('login') }}" class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-6 rounded-md text-[10px] uppercase transition-colors">
+                <a href="{{ route('login') }}" class="inline-block bg-primary hover:bg-primary-dark text-white font-bold py-2.5 px-6 rounded-md text-[10px] uppercase transition-colors">
                     Login to Review
                 </a>
             </div>

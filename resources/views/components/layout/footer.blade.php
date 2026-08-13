@@ -4,12 +4,12 @@
 
             <!-- Column 1: Support -->
             <div>
-                <h3 class="text-red-600 font-bold uppercase mb-6 tracking-wide text-lg">SUPPORT</h3>
+                <h3 class="text-primary font-bold uppercase mb-6 tracking-wide text-lg">SUPPORT</h3>
 
                 <div class="space-y-4">
                     <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-full border border-gray-700 hover:border-red-500 transition-colors text-white group">
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-red-500" fill="none" stroke="currentColor"
+                        class="flex items-center gap-3 px-4 py-3 rounded-full border border-gray-700 hover:border-primary transition-colors text-white group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-primary" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
@@ -19,8 +19,8 @@
                     </a>
 
                     <a href="mailto:{{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}"
-                        class="flex items-center gap-3 px-4 py-3 rounded-full border border-gray-700 hover:border-red-500 transition-colors text-white group">
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-red-500" fill="none" stroke="currentColor"
+                        class="flex items-center gap-3 px-4 py-3 rounded-full border border-gray-700 hover:border-primary transition-colors text-white group">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-primary" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
@@ -64,7 +64,7 @@
                     @endif
                     @if($site_setting && $site_setting->youtube_url)
                         <a href="{{ $site_setting->youtube_url }}" target="_blank"
-                            class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white hover:bg-red-700 transition-colors">
+                            class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary-dark transition-colors">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                 <path
                                     d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
@@ -85,7 +85,7 @@
 
             <!-- Column 2: Quick Links -->
             <div>
-                <h3 class="text-red-600 font-bold uppercase mb-6 tracking-wide text-lg">Quick Links</h3>
+                <h3 class="text-primary font-bold uppercase mb-6 tracking-wide text-lg">Quick Links</h3>
                 <ul class="space-y-3">
                     @php
                         $policySlugs = ['privacy_policy', 'return_policy', 'refund_policy', 'cookie_policy', 'accessibility', 'terms_conditions'];
@@ -95,30 +95,30 @@
 
                     @foreach($quickLinks as $page)
                         <li><a href="{{ route('page.show', $page->slug) }}"
-                                class="text-gray-400 hover:text-red-500 transition-colors text-sm font-medium">{{ $page->title }}</a>
+                                class="text-gray-400 hover:text-primary transition-colors text-sm font-medium">{{ $page->title }}</a>
                         </li>
                     @endforeach
                     <li><a href="{{ route('contact') }}"
-                            class="text-gray-400 hover:text-red-500 transition-colors text-sm font-medium">Contact
+                            class="text-gray-400 hover:text-primary transition-colors text-sm font-medium">Contact
                             Us</a></li>
                 </ul>
             </div>
 
             <!-- Column 3: Policy -->
             <div>
-                <h3 class="text-red-600 font-bold uppercase mb-6 tracking-wide text-lg">Policy</h3>
+                <h3 class="text-primary font-bold uppercase mb-6 tracking-wide text-lg">Policy</h3>
                 <ul class="space-y-3">
                     @foreach($policyLinks as $page)
                         <li><a href="{{ route('page.show', $page->slug) }}"
-                                class="text-gray-400 hover:text-red-500 transition-colors text-sm font-medium">{{ $page->title }}</a>
+                                class="text-gray-400 hover:text-primary transition-colors text-sm font-medium">{{ $page->title }}</a>
                         </li>
                     @endforeach
                     @if($policyLinks->isEmpty())
                         <li><a href="#"
-                                class="text-gray-400 hover:text-red-500 transition-colors text-sm font-medium">Privacy
+                                class="text-gray-400 hover:text-primary transition-colors text-sm font-medium">Privacy
                                 Policy</a></li>
                         <li><a href="#"
-                                class="text-gray-400 hover:text-red-500 transition-colors text-sm font-medium">Return
+                                class="text-gray-400 hover:text-primary transition-colors text-sm font-medium">Return
                                 Policy</a></li>
                     @endif
                 </ul>
@@ -126,7 +126,7 @@
 
             <!-- Column 4: Stay Connected -->
             <div>
-                <h3 class="text-red-600 font-bold uppercase mb-6 tracking-wide text-lg">Stay Connected</h3>
+                <h3 class="text-primary font-bold uppercase mb-6 tracking-wide text-lg">Stay Connected</h3>
 
                 <div class="mb-4">
                     <div class="flex items-center gap-2 mb-2">
@@ -158,14 +158,14 @@
         </div>
 
         <div class="pt-6 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p class="text-gray-500 text-xs font-medium">Â© {{ date('Y') }} {{ $site_setting->site_name ?? 'FERIWALARHAT' }}.
+            <p class="text-gray-500 text-xs font-medium">© {{ date('Y') }} {{ $site_setting->site_name ?? 'FERIWALARHAT' }}.
                 All rights reserved.</p>
             <div class="flex items-center">
                 <img src="https://securepay.sslcommerz.com/public/image/SSLCommerz-Pay-With-logo-All-Size-03.png"
                     alt="Payment Methods" class="h-8 object-contain">
             </div>
             <p class="text-gray-500 text-xs font-medium">Design & Developed by <a href="#"
-                    class="text-red-500 hover:underline">Feriwalarhat</a></p>
+                    class="text-primary hover:underline">Feriwalarhat</a></p>
         </div>
     </div>
 </footer>
