@@ -15,7 +15,7 @@
     </div>
 
     <!-- Thumbnails -->
-    <div class="flex gap-0 md:gap-2 overflow-x-auto px-0 md:px-0 py-2 md:py-0 scrollbar-hide">
+    <div class="flex gap-2 overflow-x-auto px-0 md:px-0 py-2 md:py-0 scrollbar-hide">
         <template x-for="(img, index) in allImages" :key="index">
             <button @click="mainImage = img" 
                     class="flex-shrink-0 w-16 h-16 md:w-[72px] md:h-[72px] border-2 transition-all overflow-hidden"

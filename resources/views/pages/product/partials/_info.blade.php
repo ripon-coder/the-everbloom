@@ -146,7 +146,7 @@
         </div>
     @endif
 
-    <div class="text-sm text-gray-500 mb-4 leading-relaxed line-clamp-2 md:line-clamp-3">
+    <div class="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed">
         {!! $product->description ?? 'No description available.' !!}
     </div>
 

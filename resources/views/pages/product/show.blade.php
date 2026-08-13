@@ -1,5 +1,5 @@
 <x-layouts.app :title="($product->meta_title ? $product->meta_title : $product->name) . ' | Feriwalarhat'" :description="$product->meta_description">
-    <div class="product-page-container bg-white pb-6" x-data="productDetails({{ $product->toJson() }})" x-init="init()">
+    <div class="product-page-container bg-white pb-32 md:pb-12" x-data="productDetails({{ $product->toJson() }})" x-init="init()">
         <!-- Breadcrumbs (desktop only) -->
         <div class="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <nav class="flex items-center text-[11px] font-medium text-gray-400 uppercase tracking-wider">
