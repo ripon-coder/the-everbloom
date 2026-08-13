@@ -47,68 +47,60 @@
                         </div>
 
                         <div class="p-6 space-y-8">
-                            <!-- Items Table -->
+                            <!-- Items List (DIV based) -->
                             <div>
                                 <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Order Items</h3>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-left text-sm text-gray-600">
-                                        <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase tracking-wider font-bold border-y border-gray-100">
-                                            <tr>
-                                                <th class="px-4 py-3 min-w-[200px]">Product</th>
-                                                <th class="px-4 py-3 text-center">Price</th>
-                                                <th class="px-4 py-3 text-center">Qty</th>
-                                                <th class="px-4 py-3 text-right">Subtotal</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-50">
-                                            @foreach($order->orderProducts as $item)
-                                                <tr>
-                                                    <td class="px-4 py-4">
-                                                        <div class="flex items-center gap-3">
-                                                            @if($item->product && $item->product->firstImage)
-                                                                <img src="{{ $item->product->firstImage->getImageUrl() }}" alt="{{ $item->product->name }}" class="w-12 h-12 object-cover border border-gray-100 flex-shrink-0">
-                                                             @else
-                                                                 <div class="w-12 h-12 bg-gray-100 border border-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
-                                                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                                                 </div>
-                                                             @endif
-                                                             <div class="min-w-0">
-                                                                 <p class="font-bold text-gray-900 leading-tight">{{ $item->product_name ?? $item->product->name ?? 'Product' }}</p>
-                                                                 @if($item->variant_name)
-                                                                     <p class="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">{{ $item->variant_name }}</p>
-                                                                 @endif
-                                                             </div>
-                                                         </div>
-                                                     </td>
-                                                     <td class="px-4 py-4 text-center whitespace-nowrap">Tk. {{ number_format($item->unit_price, 2) }}</td>
-                                                     <td class="px-4 py-4 text-center whitespace-nowrap">{{ $item->quantity }}</td>
-                                                     <td class="px-4 py-4 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($item->total_price, 2) }}</td>
-                                                 </tr>
-                                             @endforeach
-                                         </tbody>
-                                         <tfoot class="border-t border-gray-100 bg-gray-50/30">
-                                             <tr>
-                                                 <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Subtotal</td>
-                                                 <td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($order->subtotal, 2) }}</td>
-                                             </tr>
-                                             @if($order->discount_amount > 0)
-                                             <tr>
-                                                 <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Discount</td>
-                                                 <td class="px-4 py-3 text-right font-bold text-primary whitespace-nowrap">- Tk. {{ number_format($order->discount_amount, 2) }}</td>
-                                             </tr>
-                                             @endif
-                                             <tr>
-                                                 <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Shipping</td>
-                                                 <td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($order->shipping_amount, 2) }}</td>
-                                             </tr>
-                                             <tr class="bg-gray-100/50">
-                                                 <td colspan="3" class="px-4 py-4 text-right text-xs font-bold text-gray-900 uppercase tracking-widest whitespace-nowrap">Total</td>
-                                                 <td class="px-4 py-4 text-right text-base font-bold text-primary whitespace-nowrap">Tk. {{ number_format($order->total_amount, 2) }}</td>
-                                             </tr>
-                                         </tfoot>
-                                     </table>
-                                 </div>
-                             </div>
+                                <div class="divide-y divide-gray-100 border border-gray-100">
+                                    @foreach($order->orderProducts as $item)
+                                        <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
+                                            <div class="flex items-center gap-3.5">
+                                                @if($item->product && $item->product->firstImage)
+                                                    <img src="{{ $item->product->firstImage->getImageUrl() }}" alt="{{ $item->product->name }}" class="w-14 h-14 object-cover border border-gray-100 flex-shrink-0">
+                                                @else
+                                                    <div class="w-14 h-14 bg-gray-100 border border-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0 text-[10px] font-bold">
+                                                        No Image
+                                                    </div>
+                                                @endif
+                                                <div class="min-w-0">
+                                                    <p class="font-bold text-gray-900 text-sm leading-snug">{{ $item->product_name ?? $item->product->name ?? 'Product' }}</p>
+                                                    @if($item->variant_name)
+                                                        <p class="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">{{ $item->variant_name }}</p>
+                                                    @endif
+                                                    <p class="text-xs text-gray-500 mt-1">
+                                                        <span>Tk. {{ number_format($item->unit_price, 2) }}</span> &times; <span class="font-bold text-gray-800">{{ $item->quantity }}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="text-left sm:text-right font-black text-sm text-gray-900 border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-50">
+                                                <span class="sm:hidden text-xs text-gray-400 font-bold uppercase mr-1">Subtotal:</span>
+                                                Tk. {{ number_format($item->total_price, 2) }}
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <!-- Summary Breakdown (DIV based) -->
+                                <div class="mt-4 bg-gray-50/70 border border-gray-100 p-4 space-y-2.5 text-xs sm:text-sm">
+                                    <div class="flex justify-between text-gray-600">
+                                        <span>Subtotal</span>
+                                        <span class="font-bold text-gray-900">Tk. {{ number_format($order->subtotal, 2) }}</span>
+                                    </div>
+                                    @if($order->discount_amount > 0)
+                                        <div class="flex justify-between text-primary font-semibold">
+                                            <span>Discount</span>
+                                            <span>- Tk. {{ number_format($order->discount_amount, 2) }}</span>
+                                        </div>
+                                    @endif
+                                    <div class="flex justify-between text-gray-600">
+                                        <span>Shipping Charge</span>
+                                        <span class="font-bold text-gray-900">Tk. {{ number_format($order->shipping_amount, 2) }}</span>
+                                    </div>
+                                    <div class="pt-3 border-t border-gray-200 flex justify-between items-center bg-gray-100/50 p-2.5 -mx-4 -mb-4 mt-2">
+                                        <span class="text-xs font-bold text-gray-900 uppercase tracking-widest">Total Amount</span>
+                                        <span class="text-base font-black text-primary">Tk. {{ number_format($order->total_amount, 2) }}</span>
+                                    </div>
+                                </div>
+                            </div>
 
                              <!-- Addresses & Summary -->
                              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">

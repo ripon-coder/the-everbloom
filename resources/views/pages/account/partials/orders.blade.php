@@ -1,51 +1,47 @@
 <!-- Orders Section -->
-<div class="space-y-6">
-    <div class="bg-white border border-gray-200 overflow-hidden">
-        <div class="p-5 md:p-6 border-b border-gray-100 flex items-center justify-between">
-            <h2 class="text-xs font-bold text-gray-900 uppercase tracking-widest">Order History</h2>
-        </div>
-        
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-gray-600 whitespace-nowrap">
-                <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase tracking-wider font-bold">
-                    <tr>
-                        <th class="px-6 py-3.5">Order ID</th>
-                        <th class="px-6 py-3.5">Date</th>
-                        <th class="px-6 py-3.5">Status</th>
-                        <th class="px-6 py-3.5">Total</th>
-                        <th class="px-6 py-3.5 text-right">Action</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse($orders as $order)
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-3.5 font-bold text-gray-900">#{{ $order->order_number }}</td>
-                            <td class="px-6 py-3.5">{{ $order->created_at->format('M d, Y') }}</td>
-                            <td class="px-6 py-3.5">
-                                <span class="px-2 py-0.5 {{ $order->getStatusColor() }} text-[10px] font-bold uppercase tracking-wider">
-                                    {{ $order->getStatusText() }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 font-bold text-gray-900">Tk. {{ number_format($order->total_amount, 2) }}</td>
-                            <td class="px-6 py-4 text-right">
-                                <a href="{{ route('account.order.show', $order->order_number) }}" class="text-primary hover:text-primary-dark font-bold text-xs uppercase tracking-wider">View</a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-gray-500 italic">
-                                No orders found yet.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @if($orders->hasPages())
-            <div class="p-4 border-t border-gray-100 bg-gray-50/50 flex justify-center">
-                {{ $orders->links() }}
-            </div>
-        @endif
+<div class="space-y-4">
+    <div class="flex items-center justify-between pb-2 border-b border-gray-200">
+        <h2 class="text-xs font-bold text-gray-900 uppercase tracking-widest">Order History</h2>
+        <span class="text-xs text-gray-500 font-medium">{{ $orders->total() }} Total Orders</span>
     </div>
+    
+    <!-- Orders List with Gap -->
+    <div class="space-y-3.5">
+        @forelse($orders as $order)
+            <div class="bg-white border border-gray-200 p-4 sm:p-5 hover:border-gray-300 hover:shadow-sm transition-all rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+                <!-- Left: Order Info -->
+                <div class="space-y-1">
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-gray-900 text-sm">#{{ $order->order_number }}</span>
+                        <span class="px-2 py-0.5 {{ $order->getStatusColor() }} text-[10px] font-bold uppercase tracking-wider rounded-none">
+                            {{ $order->getStatusText() }}
+                        </span>
+                    </div>
+                    <p class="text-xs text-gray-500 font-medium">Placed on {{ $order->created_at->format('M d, Y') }}</p>
+                </div>
+
+                <!-- Right: Total & Action -->
+                <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100">
+                    <div class="text-left sm:text-right">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block sm:inline">Total: </span>
+                        <span class="font-black text-gray-900 text-sm">Tk. {{ number_format($order->total_amount, 2) }}</span>
+                    </div>
+                    <a href="{{ route('account.order.show', $order->order_number) }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-900 hover:text-white hover:bg-primary uppercase tracking-wider border border-gray-300 hover:border-primary px-3.5 py-2 transition-colors bg-gray-50 rounded-none">
+                        <span>View Details</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+            </div>
+        @empty
+            <div class="bg-white border border-gray-200 p-12 text-center text-gray-500 italic text-sm rounded-none">
+                No orders found yet.
+            </div>
+        @endforelse
+    </div>
+
+    @if($orders->hasPages())
+        <div class="pt-4 flex justify-center">
+            {{ $orders->links() }}
+        </div>
+    @endif
 </div>
