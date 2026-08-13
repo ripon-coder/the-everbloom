@@ -241,8 +241,8 @@
             </div>
         </div>
 
-        <!-- Action Buttons (Desktop Only) -->
-        <div class="hidden md:flex flex-col sm:flex-row gap-2 pt-2">
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-2 pt-2">
             <button @click="addToCart($event)" :disabled="currentStock <= 0"
                 class="flex-1 bg-primary hover:bg-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-md text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

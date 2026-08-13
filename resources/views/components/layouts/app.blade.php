@@ -38,7 +38,6 @@
             echo '@vite(["resources/css/app.css", "resources/js/app.js"])';
         }
     @endphp
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -152,6 +151,9 @@
                  :class="type === 'success' ? 'text-emerald-500' : (type === 'info' || type === 'warning' ? 'text-amber-400' : 'text-danger')"></div>
         </div>
     </div>
+
+    <!-- Global Right Side Cart Drawer -->
+    <x-layout.cart-drawer />
 
     <!-- Mobile Bottom Navigation Bar -->
     <x-layout.mobile-nav />

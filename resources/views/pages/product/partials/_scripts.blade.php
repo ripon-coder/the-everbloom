@@ -271,7 +271,19 @@
                     return;
                 }
 
-                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                let rawCart = localStorage.getItem('cart');
+                let cart = [];
+                try {
+                    cart = rawCart ? JSON.parse(rawCart) : [];
+                } catch(e) {
+                    cart = [];
+                }
+                if (cart && typeof cart === 'object' && !Array.isArray(cart)) {
+                    cart = Object.values(cart);
+                }
+                if (!Array.isArray(cart)) {
+                    cart = [];
+                }
 
                 let currentTotalQty = cart.reduce((total, item) => total + item.quantity, 0);
                 if (currentTotalQty + this.quantity > 30) {
@@ -353,7 +365,11 @@
                     body: JSON.stringify({ cart: cart })
                 }).catch(err => console.error('Cart sync error:', err));
 
-                window.dispatchEvent(new CustomEvent('cart-updated'));
+                window.dispatchEvent(new CustomEvent('cart-updated', { detail: { cart: cart } }));
+                window.dispatchEvent(new CustomEvent('open-cart-drawer'));
+                if (window.Alpine && window.Alpine.store('cartDrawer')) {
+                    window.Alpine.store('cartDrawer').open();
+                }
 
                 // Optional UI feedback
                 const btn = event.currentTarget;

@@ -25,31 +25,38 @@
     </div>
 
     <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('flashSaleTimer', (endTime) => ({
-                hours: '00',
-                minutes: '00',
-                seconds: '00',
-                isExpired: false,
-                interval: null,
-                init() {
-                    this.calculateTimeLeft();
-                    this.interval = setInterval(() => {
+        function registerFlashSaleTimer() {
+            if (typeof Alpine !== 'undefined') {
+                Alpine.data('flashSaleTimer', (endTime) => ({
+                    hours: '00',
+                    minutes: '00',
+                    seconds: '00',
+                    isExpired: false,
+                    interval: null,
+                    init() {
                         this.calculateTimeLeft();
-                    }, 1000);
-                },
-                calculateTimeLeft() {
-                    const diff = new Date(endTime).getTime() - new Date().getTime();
-                    if (diff <= 0) {
-                        this.isExpired = true;
-                        if(this.interval) clearInterval(this.interval);
-                        return;
+                        this.interval = setInterval(() => {
+                            this.calculateTimeLeft();
+                        }, 1000);
+                    },
+                    calculateTimeLeft() {
+                        const diff = new Date(endTime).getTime() - new Date().getTime();
+                        if (diff <= 0) {
+                            this.isExpired = true;
+                            if(this.interval) clearInterval(this.interval);
+                            return;
+                        }
+                        this.hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+                        this.minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+                        this.seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
                     }
-                    this.hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
-                    this.minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
-                    this.seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
-                }
-            }))
-        })
+                }));
+            }
+        }
+        if (typeof Alpine !== 'undefined') {
+            registerFlashSaleTimer();
+        } else {
+            document.addEventListener('alpine:init', registerFlashSaleTimer);
+        }
     </script>
 </section>

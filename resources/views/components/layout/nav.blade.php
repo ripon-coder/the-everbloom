@@ -21,6 +21,10 @@
             window.addEventListener('cart-updated-internal', () => {
                 this.loadCart();
             });
+            window.addEventListener('open-cart-drawer', () => {
+                this.loadCart();
+                this.isCartOpen = true;
+            });
 
             window.addEventListener('wishlist-updated', () => {
                 this.loadWishlist();
@@ -127,7 +131,9 @@
                 this.isSearching = false;
             }
         }
-    }">
+    }"
+    @open-cart-drawer.window="loadCart(); if ($store.cartDrawer) $store.cartDrawer.open(); isCartOpen = true"
+    @cart-updated.window="loadCart(); syncWithServer(); if ($store.cartDrawer) $store.cartDrawer.open(); isCartOpen = true">
     <!-- Mobile Header -->
     <div class="md:hidden bg-black text-white px-4 py-3 flex items-center justify-between">
         <button @click="isOpen = true" class="text-gray-300 hover:text-white">
@@ -147,24 +153,36 @@
                 <div class="font-black text-2xl tracking-tighter text-white leading-none">TEST</div>
             @endif
         </a>
-        <a href="{{ Auth::check() ? route('account') : route('login') }}"
-            class="text-gray-300 hover:text-white relative">
-            @auth
-                @if(Auth::user()->profile_image)
-                    <img src="{{ Auth::user()->profile_image }}" class="w-7 h-7 rounded-full object-cover border border-white">
-                @else
-                    <div
-                        class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-[11px] font-bold text-white border border-white">
-                        {{ substr(Auth::user()->name, 0, 1) }}
-                    </div>
-                @endif
-            @else
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex items-center gap-3">
+            <button @click="$store.cartDrawer ? $store.cartDrawer.open() : (isCartOpen = true)" class="text-gray-300 hover:text-white relative p-1 focus:outline-none" aria-label="Open Cart">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 000-4z">
+                    </path>
                 </svg>
-            @endauth
-        </a>
+                <span x-show="cartCount > 0" x-text="cartCount"
+                    class="absolute -top-1 -right-1.5 bg-accent text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-black"
+                    x-cloak></span>
+            </button>
+            <a href="{{ Auth::check() ? route('account') : route('login') }}"
+                class="text-gray-300 hover:text-white relative">
+                @auth
+                    @if(Auth::user()->profile_image)
+                        <img src="{{ Auth::user()->profile_image }}" class="w-7 h-7 rounded-full object-cover border border-white">
+                    @else
+                        <div
+                            class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-[11px] font-bold text-white border border-white">
+                            {{ substr(Auth::user()->name, 0, 1) }}
+                        </div>
+                    @endif
+                @else
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                @endauth
+            </a>
+        </div>
     </div>
 
     <!-- Mobile Search Bar -->
@@ -436,7 +454,7 @@
                 <div class="hidden sm:block w-px h-8 bg-gray-200 mx-1"></div>
 
                 <!-- Cart -->
-                <button @click="isCartOpen = true" class="flex items-center gap-3 group text-left">
+                <button @click="$store.cartDrawer ? $store.cartDrawer.open() : (isCartOpen = true)" class="flex items-center gap-3 group text-left">
                     <div
                         class="relative w-[42px] h-[42px] rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center group-hover:border-primary-200 group-hover:bg-primary-50 transition-all">
                         <svg class="w-[22px] h-[22px] text-slate-600 group-hover:text-primary transition-colors"
@@ -1041,166 +1059,4 @@
             </ul>
         </div>
     </div>
-
-    <!-- Mobile Bottom Navigation -->
-    <div
-        class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 flex justify-around items-center py-2 pb-safe shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-        <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}"
-            class="flex flex-col items-center gap-1 text-slate-700">
-            <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-                </path>
-            </svg>
-            <span class="text-[11px] font-bold uppercase">Call</span>
-        </a>
-        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $site_setting->site_phone ?? '8801720000000') }}"
-            class="flex flex-col items-center gap-1 text-slate-700" target="_blank">
-            <svg class="w-[22px] h-[22px]" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                    d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.12.553 4.186 1.602 5.998L.14 23.473l5.59-1.467A11.967 11.967 0 0012.031 24c6.646 0 12.031-5.385 12.031-12.031S18.677 0 12.031 0zM17.9 16.73c-.25.703-1.43 1.343-2.001 1.41-.531.062-1.218.156-3.86-1.023-3.187-1.422-5.265-4.664-5.422-4.882-.156-.219-1.296-1.727-1.296-3.297 0-1.57.812-2.344 1.11-2.656.296-.312.64-.39.86-.39.218 0 .437.008.624.008.188 0 .469-.07.72.547.25.61 1.077 2.624 1.171 2.812.094.187.157.406.032.656-.125.25-.188.406-.375.625-.188.219-.406.453-.562.61-.172.171-.36.359-.14.734.218.375.984 1.625 2.11 2.625 1.453 1.281 2.671 1.671 3.046 1.843.375.172.594.141.813-.11.218-.25.937-1.093 1.187-1.468.25-.375.5-.312.844-.187.344.125 2.187 1.031 2.562 1.218.375.188.625.282.72.438.093.156.093.906-.157 1.609z" />
-            </svg>
-            <span class="text-[11px] font-bold uppercase">WhatsApp</span>
-        </a>
-        <a href="{{ route('home') }}"
-            class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('home') ? 'text-primary' : 'text-slate-700 hover:text-primary' }}">
-            <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-                </path>
-            </svg>
-            <span class="text-[11px] font-bold uppercase">Home</span>
-        </a>
-        <a href="{{ route('shop') }}"
-            class="flex flex-col items-center gap-1 transition-colors {{ request()->routeIs('shop') ? 'text-primary' : 'text-slate-700 hover:text-primary' }}">
-            <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-            </svg>
-            <span class="text-[11px] font-bold uppercase">Shop</span>
-        </a>
-        <button @click="isCartOpen = true" class="flex flex-col items-center gap-1 text-slate-700 relative">
-            <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
-                </path>
-            </svg>
-            <span x-show="cartCount > 0" x-text="cartCount"
-                class="absolute -top-1 -right-2 bg-accent text-white text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white"
-                x-cloak></span>
-            <span class="text-[11px] font-bold uppercase text-slate-800">Cart</span>
-        </button>
-    </div>
-
-    <!-- Cart Drawer Overlay -->
-    <div x-show="isCartOpen" style="display: none;" class="fixed inset-0 bg-black bg-opacity-50 z-[60]"
-        @click="isCartOpen = false" x-transition.opacity></div>
-
-    <!-- Cart Drawer Menu -->
-    <div x-show="isCartOpen" style="display: none;" x-transition:enter="transform transition ease-in-out duration-300"
-        x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
-        x-transition:leave="transform transition ease-in-out duration-300" x-transition:leave-start="translate-x-0"
-        x-transition:leave-end="translate-x-full"
-        class="fixed inset-y-0 right-0 w-full max-w-[360px] bg-white z-[60] shadow-2xl flex flex-col">
-
-        <!-- Cart Header -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
-            <div class="flex items-center gap-2">
-                <svg class="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
-                    </path>
-                </svg>
-                <h2 class="text-lg font-bold text-slate-800">Your Cart</h2>
-                <span x-text="cartCount"
-                    class="bg-gray-100 text-gray-600 text-[11px] font-bold px-2 py-0.5 rounded-full ml-1"></span>
-            </div>
-            <button @click="isCartOpen = false" class="text-gray-400 hover:text-primary transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                    </path>
-                </svg>
-            </button>
-        </div>
-
-        <!-- Cart Content -->
-        <div class="flex-1 overflow-y-auto px-5 py-6">
-            <!-- Empty Cart -->
-            <div x-show="cartCount === 0 || cart.length === 0"
-                class="flex flex-col items-center justify-center h-full text-gray-500 space-y-4">
-                <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
-                    </path>
-                </svg>
-                <p class="font-medium text-slate-800">Your cart is empty.</p>
-                <button @click="isCartOpen = false" class="text-primary text-sm font-bold hover:underline">Continue
-                    Shopping</button>
-            </div>
-
-            <div x-show="cartCount > 0 && cart.length > 0">
-                <template x-for="(item, index) in cart" :key="index">
-                    <div x-show="parseInt(item.quantity || 0) > 0" class="flex gap-4 mb-6 pb-6 border-b border-gray-100 group">
-                        <div class="w-20 h-20 bg-gray-50 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
-                            <img :src="item.image" :alt="item.name"
-                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        </div>
-                        <div class="flex-1 flex flex-col justify-between">
-                            <div>
-                                <h4 class="text-[14px] font-bold text-slate-800 leading-tight mb-1 group-hover:text-primary transition-colors"
-                                    x-text="item.name"></h4>
-
-                                <!-- Attributes Display -->
-                                <template x-if="item.attributes && Object.keys(item.attributes).length > 0">
-                                    <div class="text-[11px] text-gray-500 mb-2 flex flex-wrap gap-1">
-                                        <template x-for="(val, key) in item.attributes" :key="key">
-                                            <span>
-                                                <span x-text="key + ':'" class="font-medium"></span>
-                                                <span x-text="val"></span>
-                                            </span>
-                                        </template>
-                                    </div>
-                                </template>
-
-                                <div class="flex items-center gap-3 mt-1">
-                                    <div class="flex items-center border border-gray-200 rounded-md bg-white">
-                                        <button @click="updateQuantity(index, -1)"
-                                            class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">-</button>
-                                        <span x-text="item.quantity"
-                                            class="px-2 py-1 text-[13px] font-bold text-slate-800 border-x border-gray-200"></span>
-                                        <button @click="updateQuantity(index, 1)"
-                                            class="px-2 py-1 text-gray-400 hover:text-slate-800 transition-colors">+</button>
-                                    </div>
-                                    <button @click="removeItem(index)"
-                                        class="text-[12px] text-gray-400 hover:text-danger underline font-medium">Remove</button>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[15px] font-black text-slate-800">Tk. <span
-                                        x-text="formatPrice((item.unit_final_price || 0) * (item.quantity || 0))"></span></span>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </div>
-
-        <!-- Cart Footer (Sticky) -->
-        <div class="border-t border-gray-200 p-5 bg-gray-50 mt-auto" x-show="cartCount > 0">
-            <div class="flex items-center justify-between mb-4">
-                <span class="text-slate-600 font-medium">Subtotal</span>
-                <span class="text-lg font-black text-slate-800">Tk. <span x-text="formatPrice(cartTotal)"></span></span>
-            </div>
-            <p class="text-xs text-gray-500 mb-4">Taxes and shipping calculated at checkout</p>
-            <div class="flex flex-col gap-2">
-                <a href="{{ route('cart') }}"
-                    class="block w-full bg-slate-900 text-white text-center font-bold uppercase tracking-wide text-xs px-4 py-3 rounded hover:bg-black transition-colors">View & Edit Cart</a>
-                <a href="{{ route('checkout') }}"
-                    class="block w-full bg-primary text-white text-center font-bold uppercase tracking-wide text-xs px-4 py-3 rounded hover:bg-primary-dark transition-colors">Checkout</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mobile Bottom Navigation Bar -->
-    <x-layout.mobile-nav />
 </header>

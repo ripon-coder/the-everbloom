@@ -67,13 +67,27 @@
             <a href="{{ $slug ? route('product.show', $slug) : '#' }}">{{ $name }}</a>
         </h3>
         
-        <div class="mt-auto pt-3 flex items-end justify-between">
+        <div class="mt-auto pt-3 flex items-center justify-between gap-2">
             <div class="flex flex-col">
                 @if(!empty($oldPrice) && (float)$oldPrice > (float)$price)
-                    <span class="text-[12px] font-medium text-slate-400 line-through mb-0.5">Tk. {{ is_numeric($oldPrice) ? number_format((float)$oldPrice, 2) : $oldPrice }}</span>
+                    <span class="text-[11px] font-medium text-slate-400 line-through mb-0.5">Tk. {{ is_numeric($oldPrice) ? number_format((float)$oldPrice, 2) : $oldPrice }}</span>
                 @endif
-                <span class="text-[16px] font-black text-primary leading-none">Tk. {{ is_numeric($price) ? number_format((float)$price, 2) : $price }}</span>
+                <span class="text-[14px] sm:text-[16px] font-black text-primary leading-none">Tk. {{ is_numeric($price) ? number_format((float)$price, 2) : $price }}</span>
             </div>
+
+            @if(isset($productObj->id))
+                <button type="button" @click.prevent.stop="window.addQuickToCart({
+                    id: {{ $productObj->id }},
+                    name: '{{ addslashes($name) }}',
+                    price: {{ (float)$price }},
+                    image: '{{ addslashes($imgUrl) }}',
+                    slug: '{{ addslashes($slug) }}'
+                })" class="w-8 h-8 rounded-full bg-primary hover:bg-primary-dark text-white flex items-center justify-center transition-colors shadow-xs shrink-0" title="Add to Cart">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 000-4z"></path>
+                    </svg>
+                </button>
+            @endif
         </div>
     </div>
 </div>

@@ -342,11 +342,16 @@
             };
         }
 
-        document.addEventListener('alpine:init', () => {
+        function registerCheckoutPage() {
             if (typeof Alpine !== 'undefined') {
                 Alpine.data('checkoutPage', () => checkoutPage());
             }
-        });
+        }
+        if (typeof Alpine !== 'undefined') {
+            registerCheckoutPage();
+        } else {
+            document.addEventListener('alpine:init', registerCheckoutPage);
+        }
     </script>
 
     <div class="bg-gray-50 py-4 md:py-8" x-data="checkoutPage()">
