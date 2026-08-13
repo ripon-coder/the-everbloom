@@ -1,6 +1,7 @@
 <div x-data="cartDrawerData">
     <!-- Backdrop Overlay -->
     <div x-show="$store.cartDrawer ? $store.cartDrawer.isOpen : false" 
+        x-cloak style="display: none;"
         class="fixed inset-0 bg-black/60 z-[999999]"
         @click="$store.cartDrawer.close()"
         x-transition:enter="transition ease-out duration-300"
@@ -12,6 +13,7 @@
 
     <!-- Right-Side Drawer Panel -->
     <div x-show="$store.cartDrawer ? $store.cartDrawer.isOpen : false" 
+        x-cloak style="display: none;"
         x-transition:enter="transform transition ease-in-out duration-300"
         x-transition:enter-start="translate-x-full" 
         x-transition:enter-end="translate-x-0"
@@ -80,7 +82,7 @@
                                 </div>
                             </div>
                             <div class="text-right mt-2">
-                                <span class="text-[14px] font-black text-slate-800">Tk. <span x-text="formatPrice((item ? (item.unit_final_price || item.unit_base_price || item.price || 0) : 0) * (item ? (item.quantity || 1) : 1))"></span></span>
+                                <span class="text-[14px] font-bold text-slate-800">Tk. <span x-text="formatPrice((item ? (item.unit_final_price || item.unit_base_price || item.price || 0) : 0) * (item ? (item.quantity || 1) : 1))"></span></span>
                             </div>
                         </div>
                     </div>
@@ -92,7 +94,7 @@
         <div class="border-t border-gray-200 p-5 bg-gray-50 mt-auto shrink-0" x-show="cart && cart.length > 0">
             <div class="flex items-center justify-between mb-3">
                 <span class="text-slate-600 font-medium text-sm">Subtotal</span>
-                <span class="text-lg font-black text-slate-800">Tk. <span x-text="formatPrice(cartTotal)"></span></span>
+                <span class="text-base font-bold text-slate-800">Tk. <span x-text="formatPrice(cartTotal)"></span></span>
             </div>
             <p class="text-xs text-gray-500 mb-4">Taxes and shipping calculated at checkout</p>
             <div class="flex flex-col gap-2">

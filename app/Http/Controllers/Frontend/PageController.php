@@ -28,7 +28,7 @@ class PageController extends Controller
         $user = auth()->user();
         $addresses = $user->addresses()->with('district')->get();
         $districts = \App\Models\District::orderBy('name')->get();
-        $orders = $user->orders()->latest()->get();
+        $orders = $user->orders()->latest()->paginate(10);
         $wishlist = $user->wishlists()->with('product.firstImage')->latest()->paginate(20);
 
         return view('pages.account.index', compact('user', 'addresses', 'districts', 'section', 'orders', 'wishlist'));

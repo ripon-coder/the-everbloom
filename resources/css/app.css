@@ -1,4 +1,37 @@
-@import "flowbite/dist/flowbite.css"; /* ✅ correct path */
+@import "flowbite/dist/flowbite.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    font-size: 12px; /* Mobile base: xs (12px) */
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  @media (min-width: 640px) {
+    html {
+      font-size: 13.5px; /* PC / Tablet base: sm */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 14px; /* PC base: sm */
+    }
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-size: 1rem; /* Mobile: xs (12px), PC: sm (13.5px-14px) */
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: #1e293b;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.015em;
+  }
+}

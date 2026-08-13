@@ -145,12 +145,9 @@
         <a href="/" class="flex-shrink-0 flex items-center gap-1">
             @if($site_setting && $site_setting->site_logo)
                 <img src="{{ Storage::url($site_setting->site_logo) }}" alt="{{ $site_setting->site_name }}"
-                    class="h-10 object-contain filter invert brightness-0">
+                    class="h-9 object-contain filter invert brightness-0">
             @else
-                <div
-                    class="border-[2.5px] border-white text-white px-2 py-0.5 rounded-sm font-black text-2xl italic tracking-tighter leading-none">
-                    ENORSIA</div>
-                <div class="font-black text-2xl tracking-tighter text-white leading-none">TEST</div>
+                <span class="text-base font-bold text-white uppercase tracking-wider">{{ $site_setting->site_name ?? 'Feriwalarhat' }}</span>
             @endif
         </a>
         <div class="flex items-center gap-3">
@@ -197,7 +194,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
-                <svg x-show="isSearching" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg x-show="isSearching" x-cloak class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -213,7 +210,7 @@
                     <div class="flex-1 min-w-0">
                         <h4 class="text-sm font-bold text-gray-900 truncate" x-text="product.name"></h4>
                         <div class="flex items-center gap-2 mt-1">
-                            <span class="text-sm font-black text-primary" x-text="'৳' + formatPrice(product.price)"></span>
+                            <span class="text-sm font-semibold text-primary" x-text="'৳' + formatPrice(product.price)"></span>
                             <span x-show="product.old_price" class="text-xs text-gray-400 line-through" x-text="'৳' + formatPrice(product.old_price)"></span>
                         </div>
                     </div>
@@ -295,18 +292,16 @@
             <a href="/" class="flex-shrink-0 flex items-center gap-1">
                 @if($site_setting && $site_setting->site_logo)
                     <img src="{{ Storage::url($site_setting->site_logo) }}" alt="{{ $site_setting->site_name }}"
-                        class="h-16 object-contain">
+                        class="h-12 object-contain">
                 @else
-                    <div class="bg-black text-white px-3 py-1 rounded-sm font-black text-4xl italic tracking-tighter">Enorsia
-                    </div>
-                    <div class="font-black text-4xl tracking-tighter text-slate-800">Test</div>
+                    <span class="text-xl font-extrabold text-slate-900 uppercase tracking-tight">{{ $site_setting->site_name ?? 'FERIWALARHAT' }}</span>
                 @endif
             </a>
 
             <!-- Search Bar -->
             <div class="flex-1 max-w-3xl relative">
                 <form action="{{ route('shop') }}" method="GET"
-                    class="flex items-center h-11 border border-gray-300 rounded-full overflow-hidden bg-gray-50 focus-within:border-primary transition-colors">
+                    class="flex items-center h-10 border border-gray-200 bg-gray-50 focus-within:border-primary focus-within:bg-white transition-colors">
                     <input type="text" name="search" x-model="searchQuery" @input.debounce.300ms="fetchSearchResults()"
                         @focus="showSearchResults = searchResults.length > 0"
                         class="flex-1 h-full px-5 text-sm bg-transparent border-none focus:ring-0 outline-none w-full"
@@ -316,7 +311,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <svg x-show="isSearching" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg x-show="isSearching" x-cloak class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -367,7 +362,7 @@
             <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
                 <!-- Wishlist -->
                 <a href="{{ route('account', 'wishlist') }}"
-                    class="hidden lg:flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-md text-[14px] font-bold hover:bg-primary-dark transition-colors">
+                    class="hidden lg:flex items-center gap-2 bg-primary text-white px-5 py-2.5 text-xs font-bold hover:bg-primary-dark transition-colors">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path
                             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z">

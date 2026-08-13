@@ -17,24 +17,24 @@
 
                 <!-- Main Content -->
                 <div class="flex-1">
-                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                    <div class="bg-white border border-gray-200 overflow-hidden">
                         <!-- Header -->
-                        <div class="p-6 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
+                        <div class="p-5 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
                             <div>
-                                <h1 class="text-xl font-bold text-gray-900 uppercase tracking-widest mb-1">Order Details</h1>
-                                <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Order #{{ $order->order_number }} • Placed on {{ $order->created_at->format('M d, Y') }}</p>
+                                <h1 class="text-sm font-bold text-gray-900 uppercase tracking-widest mb-1">Order Details</h1>
+                                <p class="text-xs text-gray-500 font-medium">Order #{{ $order->order_number }} • Placed on {{ $order->created_at->format('M d, Y') }}</p>
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="flex flex-col items-end gap-1">
                                     <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Order Status</span>
-                                    <span class="px-3 py-1 {{ $order->getStatusColor() }} text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                    <span class="px-2.5 py-0.5 {{ $order->getStatusColor() }} text-[10px] font-bold uppercase tracking-wider">
                                         {{ $order->getStatusText() }}
                                     </span>
                                 </div>
                                 @if($order->payment_status)
                                     <div class="flex flex-col items-end gap-1">
                                         <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Payment Status</span>
-                                        <span class="px-3 py-1 {{ $order->getPaymentStatusColor() }} text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                        <span class="px-2.5 py-0.5 {{ $order->getPaymentStatusColor() }} text-[10px] font-bold uppercase tracking-wider">
                                             @if($order->payment_method === 'cod' && $order->payment_status === 'pending')
                                                 COD
                                             @else
@@ -66,68 +66,68 @@
                                                     <td class="px-4 py-4">
                                                         <div class="flex items-center gap-3">
                                                             @if($item->product && $item->product->firstImage)
-                                                                <img src="{{ $item->product->firstImage->getImageUrl() }}" alt="{{ $item->product->name }}" class="w-12 h-12 rounded object-cover border border-gray-100 flex-shrink-0">
-                                                            @else
-                                                                <div class="w-12 h-12 bg-gray-100 rounded border border-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
-                                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                                                </div>
-                                                            @endif
-                                                            <div class="min-w-0">
-                                                                <p class="font-bold text-gray-900 leading-tight">{{ $item->product_name ?? $item->product->name ?? 'Product' }}</p>
-                                                                @if($item->variant_name)
-                                                                    <p class="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">{{ $item->variant_name }}</p>
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-4 py-4 text-center whitespace-nowrap">Tk. {{ number_format($item->unit_price, 2) }}</td>
-                                                    <td class="px-4 py-4 text-center whitespace-nowrap">{{ $item->quantity }}</td>
-                                                    <td class="px-4 py-4 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($item->total_price, 2) }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                        <tfoot class="border-t border-gray-100 bg-gray-50/30">
-                                            <tr>
-                                                <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Subtotal</td>
-                                                <td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($order->subtotal, 2) }}</td>
-                                            </tr>
-                                            @if($order->discount_amount > 0)
-                                            <tr>
-                                                <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Discount</td>
-                                                <td class="px-4 py-3 text-right font-bold text-primary whitespace-nowrap">- Tk. {{ number_format($order->discount_amount, 2) }}</td>
-                                            </tr>
-                                            @endif
-                                            <tr>
-                                                <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Shipping</td>
-                                                <td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($order->shipping_amount, 2) }}</td>
-                                            </tr>
-                                            <tr class="bg-gray-100/50">
-                                                <td colspan="3" class="px-4 py-4 text-right text-sm font-bold text-gray-900 uppercase tracking-widest whitespace-nowrap">Total</td>
-                                                <td class="px-4 py-4 text-right text-lg font-bold text-primary whitespace-nowrap">Tk. {{ number_format($order->total_amount, 2) }}</td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
+                                                                <img src="{{ $item->product->firstImage->getImageUrl() }}" alt="{{ $item->product->name }}" class="w-12 h-12 object-cover border border-gray-100 flex-shrink-0">
+                                                             @else
+                                                                 <div class="w-12 h-12 bg-gray-100 border border-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
+                                                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                                 </div>
+                                                             @endif
+                                                             <div class="min-w-0">
+                                                                 <p class="font-bold text-gray-900 leading-tight">{{ $item->product_name ?? $item->product->name ?? 'Product' }}</p>
+                                                                 @if($item->variant_name)
+                                                                     <p class="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">{{ $item->variant_name }}</p>
+                                                                 @endif
+                                                             </div>
+                                                         </div>
+                                                     </td>
+                                                     <td class="px-4 py-4 text-center whitespace-nowrap">Tk. {{ number_format($item->unit_price, 2) }}</td>
+                                                     <td class="px-4 py-4 text-center whitespace-nowrap">{{ $item->quantity }}</td>
+                                                     <td class="px-4 py-4 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($item->total_price, 2) }}</td>
+                                                 </tr>
+                                             @endforeach
+                                         </tbody>
+                                         <tfoot class="border-t border-gray-100 bg-gray-50/30">
+                                             <tr>
+                                                 <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Subtotal</td>
+                                                 <td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($order->subtotal, 2) }}</td>
+                                             </tr>
+                                             @if($order->discount_amount > 0)
+                                             <tr>
+                                                 <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Discount</td>
+                                                 <td class="px-4 py-3 text-right font-bold text-primary whitespace-nowrap">- Tk. {{ number_format($order->discount_amount, 2) }}</td>
+                                             </tr>
+                                             @endif
+                                             <tr>
+                                                 <td colspan="3" class="px-4 py-3 text-right text-gray-500 font-medium whitespace-nowrap">Shipping</td>
+                                                 <td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap">Tk. {{ number_format($order->shipping_amount, 2) }}</td>
+                                             </tr>
+                                             <tr class="bg-gray-100/50">
+                                                 <td colspan="3" class="px-4 py-4 text-right text-xs font-bold text-gray-900 uppercase tracking-widest whitespace-nowrap">Total</td>
+                                                 <td class="px-4 py-4 text-right text-base font-bold text-primary whitespace-nowrap">Tk. {{ number_format($order->total_amount, 2) }}</td>
+                                             </tr>
+                                         </tfoot>
+                                     </table>
+                                 </div>
+                             </div>
 
-                            <!-- Addresses & Summary -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-                                <!-- Shipping Address -->
-                                <div class="bg-gray-50 rounded-lg p-5 border border-gray-100">
-                                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                        Shipping Address
-                                    </h3>
-                                    <div class="text-sm text-gray-700 leading-relaxed">
-                                        <p class="font-bold text-gray-900 mb-1">{{ $order->orderAddress->name ?? $user->name }}</p>
-                                        <p>{{ $order->orderAddress->address ?? 'N/A' }}</p>
-                                        <p>{{ $order->orderAddress->district->name ?? '' }}</p>
-                                        <p class="mt-2 text-xs text-gray-500 font-medium tracking-wide">Phone: {{ $order->orderAddress->phone ?? 'N/A' }}</p>
-                                    </div>
-                                </div>
+                             <!-- Addresses & Summary -->
+                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                                 <!-- Shipping Address -->
+                                 <div class="bg-gray-50 p-5 border border-gray-100">
+                                     <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                         Shipping Address
+                                     </h3>
+                                     <div class="text-xs text-gray-700 leading-relaxed">
+                                         <p class="font-bold text-gray-900 mb-1">{{ $order->orderAddress->name ?? $user->name }}</p>
+                                         <p>{{ $order->orderAddress->address ?? 'N/A' }}</p>
+                                         <p>{{ $order->orderAddress->district->name ?? '' }}</p>
+                                         <p class="mt-2 text-xs text-gray-500 font-medium tracking-wide">Phone: {{ $order->orderAddress->phone ?? 'N/A' }}</p>
+                                     </div>
+                                 </div>
 
-                                <!-- Payment Info -->
-                                <div class="bg-gray-50 rounded-lg p-5 border border-gray-100">
+                                 <!-- Payment Info -->
+                                 <div class="bg-gray-50 p-5 border border-gray-100">
                                     <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                                         Payment Information

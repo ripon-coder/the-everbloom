@@ -1,14 +1,14 @@
 <!-- Sidebar / Navigation Menu -->
 <div class="w-full md:w-64 flex-shrink-0">
     <!-- Desktop Sidebar Header -->
-    <div class="hidden md:block bg-white border border-gray-200 rounded-t-lg overflow-hidden shadow-sm">
-        <div class="p-6 bg-slate-900 text-white">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-xl uppercase shadow-lg">
+    <div class="hidden md:block bg-white border border-gray-200 overflow-hidden">
+        <div class="p-5 bg-slate-900 text-white">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 bg-primary flex items-center justify-center flex-shrink-0 text-white font-bold text-base uppercase">
                     {{ substr($user->name, 0, 1) }}{{ str_contains($user->name, ' ') ? substr(strrchr($user->name, " "), 1, 1) : '' }}
                 </div>
                 <div class="min-w-0">
-                    <h3 class="font-bold tracking-wide truncate">{{ $user->name }}</h3>
+                    <h3 class="font-bold tracking-wide truncate text-xs sm:text-sm">{{ $user->name }}</h3>
                     <p class="text-[10px] text-gray-400 truncate uppercase tracking-widest font-medium">{{ $user->masked_phone }}</p>
                 </div>
             </div>
@@ -16,10 +16,10 @@
     </div>
 
     <!-- Navigation Links -->
-    <div class="bg-white border border-gray-200 md:border-t-0 rounded-lg md:rounded-t-none md:rounded-b-lg shadow-sm overflow-hidden">
+    <div class="bg-white border border-gray-200 md:border-t-0 overflow-hidden">
         <!-- Mobile Header (Simplified) -->
-        <div class="md:hidden p-4 border-b border-gray-100 flex items-center gap-3 bg-slate-900 text-white">
-            <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-lg uppercase">
+        <div class="md:hidden p-3.5 border-b border-gray-100 flex items-center gap-3 bg-slate-900 text-white">
+            <div class="w-9 h-9 bg-primary flex items-center justify-center flex-shrink-0 text-white font-bold text-sm uppercase">
                 {{ substr($user->name, 0, 1) }}
             </div>
             <div class="min-w-0">

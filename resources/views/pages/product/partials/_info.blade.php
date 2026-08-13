@@ -14,22 +14,20 @@
     }
 @endphp
 
-<div class="flex flex-col">
+<div class="flex flex-col px-4 md:px-0">
     @if($flashSale)
-        <div
-            class="mb-4 bg-accent-50 border border-accent-200 rounded-md p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="mb-3 bg-red-50 border-l-4 border-accent p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-accent-dark animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
-                    </path>
+                <svg class="w-4 h-4 text-accent animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
-                <span class="text-sm font-black text-accent-dark uppercase tracking-wide">{{ $flashSale->name }}</span>
+                <span class="text-xs font-black text-accent uppercase tracking-wide">{{ $flashSale->name }}</span>
             </div>
 
             @php
                 $endDate = $flashSale->end_date->format('Y-m-d H:i:s');
             @endphp
-            <div class="flex items-center gap-1.5" x-data="{ 
+            <div class="flex items-center gap-1" x-data="{ 
                             endDate: new Date('{{ $endDate }}').getTime(),
                             days: 0, hours: 0, minutes: 0, seconds: 0,
                             init() {
@@ -49,141 +47,106 @@
                                 }
                             }
                         }">
-                <span class="text-xs font-bold text-accent-dark mr-1 uppercase tracking-wider">Ends in:</span>
+                <span class="text-[10px] font-bold text-gray-500 mr-1 uppercase">Ends:</span>
                 <template x-if="days > 0">
-                    <span
-                        class="w-6 h-6 flex items-center justify-center bg-accent text-white rounded text-xs font-bold shadow-sm"
-                        x-text="days"></span>
+                    <span class="w-6 h-6 flex items-center justify-center bg-accent text-white text-[10px] font-bold" x-text="days"></span>
                 </template>
-                <template x-if="days > 0"><span class="text-accent-dark font-bold">:</span></template>
-                <span
-                    class="w-6 h-6 flex items-center justify-center bg-accent text-white rounded text-xs font-bold shadow-sm"
-                    x-text="hours.toString().padStart(2, '0')"></span>
-                <span class="text-accent-dark font-bold">:</span>
-                <span
-                    class="w-6 h-6 flex items-center justify-center bg-accent text-white rounded text-xs font-bold shadow-sm"
-                    x-text="minutes.toString().padStart(2, '0')"></span>
-                <span class="text-accent-dark font-bold">:</span>
-                <span
-                    class="w-6 h-6 flex items-center justify-center bg-accent text-white rounded text-xs font-bold shadow-sm"
-                    x-text="seconds.toString().padStart(2, '0')"></span>
+                <template x-if="days > 0"><span class="text-accent font-bold text-xs">:</span></template>
+                <span class="w-6 h-6 flex items-center justify-center bg-accent text-white text-[10px] font-bold" x-text="hours.toString().padStart(2, '0')"></span>
+                <span class="text-accent font-bold text-xs">:</span>
+                <span class="w-6 h-6 flex items-center justify-center bg-accent text-white text-[10px] font-bold" x-text="minutes.toString().padStart(2, '0')"></span>
+                <span class="text-accent font-bold text-xs">:</span>
+                <span class="w-6 h-6 flex items-center justify-center bg-accent text-white text-[10px] font-bold" x-text="seconds.toString().padStart(2, '0')"></span>
             </div>
         </div>
     @endif
 
-    <div class="mb-2 md:mb-4">
-        <h1 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-1.5 md:mb-2 leading-tight">{{ $product->name }}
-        </h1>
-        <div class="flex items-center gap-3 text-xs md:text-sm">
+    <!-- Product Title -->
+    <div class="mb-3">
+        <h1 class="text-lg md:text-2xl font-bold text-gray-900 leading-snug">{{ $product->name }}</h1>
+        <div class="flex items-center gap-3 mt-1.5 text-xs">
             <div class="flex text-amber-400">
                 @php $avgRating = $product->reviews->avg('rating') ?: 0; @endphp
                 @for($i = 1; $i <= 5; $i++)
-                    <svg class="w-3.5 h-3.5 md:w-4 md:h-4 {{ $i <= round($avgRating) ? 'fill-current' : 'text-gray-200 fill-current' }}" viewBox="0 0 20 20">
-                        <path
-                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
-                        </path>
+                    <svg class="w-3.5 h-3.5 {{ $i <= round($avgRating) ? 'fill-current' : 'text-gray-200 fill-current' }}" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                     </svg>
                 @endfor
             </div>
-            <span class="text-gray-400 font-medium">({{ $product->reviews->count() }} reviews)</span>
+            <span class="text-gray-400">({{ $product->reviews->count() }} reviews)</span>
             <template x-if="currentStock > 0">
-                <span class="inline-flex items-center gap-1 text-primary font-semibold">
-                    <span class="w-1.5 h-1.5 bg-primary rounded-full inline-block"></span>
+                <span class="text-primary font-semibold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 bg-primary inline-block"></span>
                     <span x-show="currentStock >= 10">In Stock</span>
                     <span x-show="currentStock < 10">Only <span x-text="currentStock"></span> left!</span>
                 </span>
             </template>
             <template x-if="currentStock <= 0">
-                <span class="inline-flex items-center gap-1 text-danger font-semibold">
-                    <span class="w-1.5 h-1.5 bg-danger rounded-full inline-block"></span>
+                <span class="text-danger font-semibold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 bg-danger inline-block"></span>
                     Out of Stock
                 </span>
             </template>
-            @if($product->is_free_delivery)
-                <span class="text-gray-300">|</span>
-                <span
-                    class="inline-flex items-center gap-1.5 text-primary font-bold uppercase tracking-wider text-[10px] md:text-xs">
-                    <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                    </svg>
-                    Free Delivery
-                </span>
-            @endif
         </div>
-        <div class="mt-2 flex flex-wrap gap-3 text-[10px] md:text-xs">
-            <div class="flex items-center gap-1.5">
-                <span class="font-bold text-gray-400 uppercase tracking-tighter">SKU:</span>
-                <span
-                    class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md font-medium"
-                    x-text="currentSku">{{ $product->sku ?? 'N/A' }}</span>
+        <div class="mt-2 flex flex-wrap gap-2 text-[10px] md:text-xs">
+            <div class="flex items-center gap-1">
+                <span class="font-bold text-gray-400 uppercase">SKU:</span>
+                <span class="bg-gray-100 text-gray-600 px-2 py-0.5 font-medium" x-text="currentSku">{{ $product->sku ?? 'N/A' }}</span>
             </div>
-            <div class="flex items-center gap-1.5">
-                <span class="font-bold text-gray-400 uppercase tracking-tighter">Category:</span>
-                <span
-                    class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md font-medium">{{ $product->category->name ?? 'Uncategorized' }}</span>
+            <div class="flex items-center gap-1">
+                <span class="font-bold text-gray-400 uppercase">Category:</span>
+                <span class="bg-gray-100 text-gray-600 px-2 py-0.5 font-medium">{{ $product->category->name ?? 'Uncategorized' }}</span>
             </div>
+            @if($product->is_free_delivery)
+                <div class="flex items-center gap-1 text-primary font-bold uppercase">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                    Free Delivery
+                </div>
+            @endif
         </div>
     </div>
 
-    <div class="flex flex-col gap-1 py-3 md:py-4 border-y border-gray-100 mb-3 md:mb-4">
-        <div class="flex items-center justify-between gap-4">
-            <div class="flex flex-col gap-1">
-                <div class="flex items-baseline gap-3 md:gap-4">
-                    <span class="text-2xl md:text-3xl font-bold text-primary">Tk. <span
-                            x-text="formatPrice(currentPrice)">{{ number_format($initialPrice, 2) }}</span></span>
-                    <template x-if="currentOldPrice">
-                        <span class="text-base md:text-lg text-gray-400 line-through font-medium">Tk. <span
-                                x-text="formatPrice(currentOldPrice)">{{ number_format($initialOldPrice, 2) }}</span></span>
-                    </template>
-                </div>
-                <!-- Savings Info -->
-                <div class="h-4 md:h-5">
-                    <div x-show="currentOldPrice > 0" x-cloak class="text-[10px] md:text-xs font-bold text-primary">
-                        You Save: Tk. <span
-                            x-text="formatPrice(currentOldPrice - currentPrice)">{{ $initialOldPrice > 0 ? number_format($initialOldPrice - $initialPrice, 2) : '0.00' }}</span>
-                        (<span
-                            x-text="currentOldPrice > 0 ? Math.round(((currentOldPrice - currentPrice) / currentOldPrice) * 100) : 0">{{ $initialOldPrice > 0 ? round((($initialOldPrice - $initialPrice) / $initialOldPrice) * 100) : 0 }}</span>%
-                        Off)
-                    </div>
+    <!-- Price Section -->
+    <div class="py-3 border-y border-gray-100 mb-3 flex items-center justify-between">
+        <div>
+            <div class="flex items-baseline gap-3">
+                <span class="text-2xl md:text-3xl font-black text-primary">Tk. <span x-text="formatPrice(currentPrice)">{{ number_format($initialPrice, 2) }}</span></span>
+                <template x-if="currentOldPrice">
+                    <span class="text-sm md:text-base text-gray-400 line-through">Tk. <span x-text="formatPrice(currentOldPrice)">{{ number_format($initialOldPrice, 2) }}</span></span>
+                </template>
+            </div>
+            <div class="h-4">
+                <div x-show="currentOldPrice > 0" x-cloak class="text-[10px] md:text-xs font-bold text-accent">
+                    Save: Tk. <span x-text="formatPrice(currentOldPrice - currentPrice)">{{ $initialOldPrice > 0 ? number_format($initialOldPrice - $initialPrice, 2) : '0.00' }}</span>
+                    (<span x-text="currentOldPrice > 0 ? Math.round(((currentOldPrice - currentPrice) / currentOldPrice) * 100) : 0">{{ $initialOldPrice > 0 ? round((($initialOldPrice - $initialPrice) / $initialOldPrice) * 100) : 0 }}</span>% Off)
                 </div>
             </div>
-
-            <!-- Wishlist Button -->
-            <button @click="toggleWishlist()"
-                class="group relative flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300"
-                :class="isInWishlist ? 'bg-primary-50 text-primary' : 'bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600'"
-                :title="isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'">
-                <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" 
-                    :class="isInWishlist ? 'fill-current' : 'fill-none'"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-                
-                <!-- Tooltip -->
-                <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                    <span x-text="isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'"></span>
-                </span>
-            </button>
         </div>
+
+        <!-- Wishlist -->
+        <button @click="toggleWishlist()"
+            class="w-10 h-10 flex items-center justify-center border transition-all"
+            :class="isInWishlist ? 'border-primary bg-primary-50 text-primary' : 'border-gray-200 text-gray-400 hover:text-gray-600'"
+            :title="isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'">
+            <svg class="w-5 h-5" :class="isInWishlist ? 'fill-current' : 'fill-none'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+        </button>
     </div>
 
     @if($product->is_free_delivery)
-        <div class="mb-4 bg-primary-50 border border-primary-100 rounded-md p-3 flex items-center gap-3">
-            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary flex-shrink-0">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-            </div>
+        <div class="mb-3 bg-primary-50 border-l-4 border-primary p-3 flex items-center gap-3">
+            <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
             <div>
-                <p class="text-[13px] font-extrabold text-primary-900 leading-none mb-1">Free Express Shipping</p>
-                <p class="text-[11px] text-primary-700 font-medium">Eligible for free delivery to your doorstep.</p>
+                <p class="text-[12px] font-bold text-primary-900 leading-none mb-0.5">Free Express Shipping</p>
+                <p class="text-[11px] text-primary-700">Eligible for free delivery to your doorstep.</p>
             </div>
         </div>
     @endif
 
-    <div class="text-sm text-gray-600 mb-4 leading-relaxed line-clamp-2 md:line-clamp-3">
+    <div class="text-sm text-gray-500 mb-4 leading-relaxed line-clamp-2 md:line-clamp-3">
         {!! $product->description ?? 'No description available.' !!}
     </div>
 
@@ -216,9 +179,9 @@
                     @foreach($values as $id => $val)
                         <button @click="selectAttribute('{{ $name }}', {{ $id }})"
                             :disabled="!isOptionAvailable('{{ $name }}', {{ $id }})"
-                            class="px-3 py-1.5 rounded-md border text-xs md:text-sm font-medium transition-all disabled:opacity-10 disabled:cursor-not-allowed"
+                            class="px-3 py-1.5 border text-xs md:text-sm font-medium transition-all disabled:opacity-10 disabled:cursor-not-allowed"
                             :class="{
-                                'border-primary bg-primary-50 text-primary font-bold shadow-xs': selectedAttributes['{{ $name }}'] === {{ $id }},
+                                'border-primary bg-primary-50 text-primary font-bold': selectedAttributes['{{ $name }}'] === {{ $id }},
                                 'border-gray-200 text-gray-600 hover:border-gray-400': selectedAttributes['{{ $name }}'] !== {{ $id }},
                                 'opacity-30 grayscale': !isOptionCompatible('{{ $name }}', {{ $id }}) && selectedAttributes['{{ $name }}'] !== {{ $id }}
                             }">
@@ -230,21 +193,19 @@
         @endforeach
 
         <!-- Quantity -->
-        <div class="flex items-center gap-4 pt-1">
+        <div class="flex items-center gap-4">
             <span class="text-[10px] md:text-xs font-bold text-gray-900 uppercase">Qty</span>
-            <div class="flex items-center border border-gray-300 rounded-md overflow-hidden h-9 md:h-10">
-                <button @click="if(quantity > 1) quantity--"
-                    class="px-3 py-1 hover:bg-gray-100 border-r border-gray-300">-</button>
-                <input type="number" x-model="quantity"
-                    class="w-10 text-center border-none focus:ring-0 font-medium text-sm p-0" readonly>
-                <button @click="quantity++" class="px-3 py-1 hover:bg-gray-100 border-l border-gray-300">+</button>
+            <div class="flex items-center border border-gray-200 overflow-hidden h-9 md:h-10">
+                <button @click="if(quantity > 1) quantity--" class="px-3 py-1 hover:bg-gray-50 border-r border-gray-200 text-gray-500">-</button>
+                <input type="number" x-model="quantity" class="w-10 text-center border-none focus:ring-0 font-medium text-sm p-0" readonly>
+                <button @click="quantity++" class="px-3 py-1 hover:bg-gray-50 border-l border-gray-200 text-gray-500">+</button>
             </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row gap-2 pt-2">
+        <!-- Action Buttons (hidden on mobile, shown on desktop) -->
+        <div class="hidden md:flex gap-2 pt-1">
             <button @click="addToCart($event)" :disabled="currentStock <= 0"
-                class="flex-1 bg-primary hover:bg-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-md text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
+                class="flex-1 bg-primary hover:bg-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
@@ -252,13 +213,13 @@
                 <span x-text="currentStock > 0 ? 'Add to Cart' : 'Out of Stock'">Add to Cart</span>
             </button>
             <button @click="buyNow($event)" :disabled="currentStock <= 0"
-                class="flex-1 bg-gray-900 hover:bg-black disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-md text-xs uppercase tracking-wide transition-colors">
+                class="flex-1 bg-gray-900 hover:bg-black disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 text-xs uppercase tracking-wide transition-colors">
                 Buy It Now
             </button>
         </div>
 
         <!-- Trust Badges -->
-        <div class="hidden md:flex items-center gap-6 pt-4 mt-2 border-t border-gray-100">
+        <div class="hidden md:flex items-center gap-6 pt-3 mt-1 border-t border-gray-100">
             <div class="flex items-center gap-1.5 text-gray-400">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"

@@ -6,20 +6,32 @@
             isInWishlist: false,
             mainImage: '{{ $product->firstImage ? $product->firstImage->getImageUrl() : asset("images/image1.jpg") }}',
             get allImages() {
-                const productImages = [
+                const imagesList = [
                     '{{ $product->firstImage ? $product->firstImage->getImageUrl() : asset("images/image1.jpg") }}',
                     @foreach($product->images as $image)
                         '{{ $image->getImageUrl() }}',
                     @endforeach
+                    @if($product->variants)
+                        @foreach($product->variants as $v)
+                            @foreach($v->images as $vImg)
+                                '{{ $vImg->getImageUrl() }}',
+                            @endforeach
+                        @endforeach
+                    @endif
                 ];
 
-                const variant = this.getActiveVariant();
-                if (variant && variant.images && variant.images.length > 0) {
-                    const variantImages = variant.images.map(img => img.image_url).filter(Boolean);
-                    return [...variantImages, ...productImages].filter((v, i, a) => a.indexOf(v) === i);
+                if (this.product && this.product.variants) {
+                    this.product.variants.forEach(v => {
+                        if (v.images && Array.isArray(v.images)) {
+                            v.images.forEach(img => {
+                                let url = img.image_url || img.url || (img.media && img.media.length > 0 ? img.media[0].original_url : null);
+                                if (url) imagesList.push(url);
+                            });
+                        }
+                    });
                 }
 
-                return productImages.filter((v, i, a) => a.indexOf(v) === i);
+                return imagesList.filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
             },
             selectedAttributes: {},
             zoomStyle: 'transform: scale(1)',
@@ -61,6 +73,11 @@
             },
 
             toggleWishlist() {
+                @guest
+                    window.location.href = '{{ route('login') }}';
+                    return;
+                @endguest
+
                 fetch('{{ route('wishlist.toggle') }}', {
                     method: 'POST',
                     headers: {

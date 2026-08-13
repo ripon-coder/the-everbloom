@@ -32,17 +32,14 @@
         $manifestPath = public_path('build/manifest.json');
         if (file_exists($manifestPath)) {
             $manifest = json_decode(file_get_contents($manifestPath), true);
-            echo '<link rel="stylesheet" href="/build/' . $manifest['resources/css/app.css']['file'] . '?v=' . time() . '">';
-            echo '<script type="module" src="/build/' . $manifest['resources/js/app.js']['file'] . '?v=' . time() . '"></script>';
+            echo '<link rel="stylesheet" href="/build/' . $manifest['resources/css/app.css']['file'] . '">';
+            echo '<script type="module" src="/build/' . $manifest['resources/js/app.js']['file'] . '"></script>';
         } else {
             echo '@vite(["resources/css/app.css", "resources/js/app.js"])';
         }
     @endphp
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', Arial, sans-serif; }
         [x-cloak] { display: none !important; }
     </style>
     @stack('styles')
