@@ -50,7 +50,7 @@
                                 <span class="text-amber-400">#{{ $order->order_number }}</span>
                             </span>
                         </div>
-                    </div>
+                    </div> 
 
                     <!-- 2. Order & Customer Info Grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50/80 rounded-none border border-gray-100 text-xs">
