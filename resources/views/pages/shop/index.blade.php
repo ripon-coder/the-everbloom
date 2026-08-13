@@ -24,38 +24,41 @@
                         /** @var \Illuminate\Support\Collection $categories */
                     @endphp
                     <!-- Top Bar -->
-                    <div class="bg-white border border-gray-200 rounded-none p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div class="flex items-center justify-between w-full sm:w-auto">
-                            <div>
-                                <h1 class="text-xl font-bold text-gray-900">
-                                    @if(request('search'))
-                                        Search Results for "{{ request('search') }}"
-                                    @elseif(isset($activeCategory))
-                                        {{ $activeCategory->name }}
-                                    @else
-                                        All Products
-                                    @endif
-                                </h1>
-                                <p class="text-xs text-gray-500 mt-1">Showing {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} of {{ $products->total() }} results</p>
-                            </div>
+                    <div class="bg-white border border-gray-200 rounded-none p-3.5 sm:p-4 mb-4 sm:mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+                        <!-- Title & Count -->
+                        <div>
+                            <h1 class="text-base sm:text-xl font-bold text-slate-900 leading-tight">
+                                @if(request('search'))
+                                    Search Results for "{{ request('search') }}"
+                                @elseif(isset($activeCategory))
+                                    {{ $activeCategory->name }}
+                                @else
+                                    All Products
+                                @endif
+                            </h1>
+                            <p class="text-[11px] sm:text-xs text-gray-500 mt-0.5">Showing {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} of {{ $products->total() }} results</p>
+                        </div>
 
-                            <!-- Mobile Filter Icon Button -->
-                            <button type="button" @click="isFilterDrawerOpen = true" class="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 text-xs font-bold uppercase tracking-wider text-gray-800 hover:text-primary hover:border-primary transition-colors bg-white shadow-xs">
+                        <!-- Controls (Mobile: side-by-side flex row, Desktop: right aligned flex row) -->
+                        <div class="flex items-center gap-2.5 w-full md:w-auto">
+                            <!-- Mobile Filters Button (visible on mobile < lg) -->
+                            <button type="button" @click="isFilterDrawerOpen = true" class="lg:hidden flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 border border-gray-200 text-xs font-bold uppercase tracking-wider text-slate-800 hover:text-primary hover:border-primary transition-colors bg-gray-50 hover:bg-white shadow-2xs">
                                 <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                                 </svg>
                                 <span>Filters</span>
                             </button>
-                        </div>
 
-                        <div class="flex items-center gap-4">
-                            <label class="text-xs font-bold text-gray-500 uppercase">Sort By:</label>
-                            <select onchange="window.location.href=this.value" class="border-gray-200 rounded-none text-sm text-gray-700 focus:border-primary focus:ring-0 py-1.5 pl-3 pr-8 cursor-pointer">
-                                <option value="{{ route('shop', array_merge(request()->query(), ['sort' => 'latest'])) }}" {{ request('sort') === 'latest' || !request('sort') ? 'selected' : '' }}>Latest Arrivals</option>
-                                <option value="{{ route('shop', array_merge(request()->query(), ['sort' => 'popular'])) }}" {{ request('sort') === 'popular' ? 'selected' : '' }}>Popularity</option>
-                                <option value="{{ route('shop', array_merge(request()->query(), ['sort' => 'price_asc'])) }}" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-                                <option value="{{ route('shop', array_merge(request()->query(), ['sort' => 'price_desc'])) }}" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
-                            </select>
+                            <!-- Sort By Dropdown -->
+                            <div class="flex-1 md:flex-none flex items-center gap-2">
+                                <label class="hidden sm:inline text-xs font-bold text-gray-500 uppercase whitespace-nowrap">Sort By:</label>
+                                <select onchange="window.location.href=this.value" class="w-full md:w-auto border-gray-200 rounded-none text-xs text-slate-800 focus:border-primary focus:ring-0 py-2 pl-3 pr-8 bg-gray-50 hover:bg-white cursor-pointer font-semibold">
+                                    <option value="{{ route('shop', array_merge(request()->query(), ['sort' => 'latest'])) }}" {{ request('sort') === 'latest' || !request('sort') ? 'selected' : '' }}>Latest Arrivals</option>
+                                    <option value="{{ route('shop', array_merge(request()->query(), ['sort' => 'popular'])) }}" {{ request('sort') === 'popular' ? 'selected' : '' }}>Popularity</option>
+                                    <option value="{{ route('shop', array_merge(request()->query(), ['sort' => 'price_asc'])) }}" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                                    <option value="{{ route('shop', array_merge(request()->query(), ['sort' => 'price_desc'])) }}" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
