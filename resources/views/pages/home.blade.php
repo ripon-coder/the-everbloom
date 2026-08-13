@@ -1,5 +1,5 @@
 <x-layouts.app title="Feriwalarhat | Home">
-    <div class="bg-white">
+    <div class="home-page-container bg-white">
         <x-home.hero :sliders="$sliders" />
         
         <div class="py-4 space-y-6">

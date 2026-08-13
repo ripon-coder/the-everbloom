@@ -14,7 +14,7 @@
     }
 @endphp
 
-<div class="flex flex-col px-4 md:px-0">
+<div class="flex flex-col px-1.5 md:px-0">
     @if($flashSale)
         <div class="mb-3 bg-red-50 border-l-4 border-accent p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div class="flex items-center gap-2">

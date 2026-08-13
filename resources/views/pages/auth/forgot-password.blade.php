@@ -1,6 +1,6 @@
 <x-layouts.app title="Forgot Password | Feriwalarhat">
-    <div class="bg-gray-50 py-12 md:py-24">
-        <div class="max-w-[500px] mx-auto px-4 sm:px-6">
+    <div class="auth-page-container bg-gray-50 py-12 md:py-24">
+        <div class="max-w-[500px] mx-auto px-1.5 sm:px-6">
             
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-8 md:p-10">
                 <div class="text-center mb-8">

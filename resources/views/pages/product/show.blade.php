@@ -1,5 +1,5 @@
 <x-layouts.app :title="($product->meta_title ? $product->meta_title : $product->name) . ' | Feriwalarhat'" :description="$product->meta_description">
-    <div class="bg-white pb-6" x-data="productDetails({{ $product->toJson() }})" x-init="init()">
+    <div class="product-page-container bg-white pb-6" x-data="productDetails({{ $product->toJson() }})" x-init="init()">
         <!-- Breadcrumbs (desktop only) -->
         <div class="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <nav class="flex items-center text-[11px] font-medium text-gray-400 uppercase tracking-wider">
@@ -18,7 +18,7 @@
             </div>
 
             <!-- Main Content Grid (Description/Reviews vs Sidebar) -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 mt-4 md:mt-8 border-t border-gray-100 pt-4 md:pt-6 px-4 md:px-0">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 mt-4 md:mt-8 border-t border-gray-100 pt-4 md:pt-6 px-1.5 md:px-0">
                 <!-- Left Side: Description, Specs, and Reviews -->
                 <div class="lg:col-span-2 space-y-10">
                     @include('pages.product.partials._tabs')
@@ -32,7 +32,7 @@
             </div>
 
             <!-- Full Width Bottom Section -->
-            <div class="px-4 md:px-0">
+            <div class="px-1.5 md:px-0">
                 @include('pages.product.partials._also-like')
             </div>
         </div>

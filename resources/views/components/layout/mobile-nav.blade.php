@@ -22,12 +22,12 @@
     "
     class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex items-center justify-around py-2.5 px-3 z-[999] md:hidden shadow-[0_-2px_15px_rgba(0,0,0,0.1)]">
     
-    <a href="tel:{{ $site_setting->site_phone ?? '+8801700000000' }}" class="flex flex-col items-center gap-1 text-slate-700 hover:text-primary transition-colors">
+    <button @click="window.dispatchEvent(new CustomEvent('toggle-mobile-menu', { detail: { tab: 'menu' } }))" class="flex flex-col items-center gap-1 text-slate-700 hover:text-primary transition-colors cursor-pointer" aria-label="Toggle Navigation Menu">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
-        <span class="text-[10px] font-semibold uppercase tracking-wide">Call</span>
-    </a>
+        <span class="text-[10px] font-semibold uppercase tracking-wide">Menu</span>
+    </button>
     
     @php
         $whatsappNumber = preg_replace('/[^0-9]/', '', $site_setting->site_whatsapp ?? $site_setting->site_phone ?? '8801700000000');

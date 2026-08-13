@@ -1,6 +1,6 @@
 <x-layouts.app title="Order #{{ $order->order_number }} | Feriwalarhat">
-    <div class="bg-gray-50 py-6 md:py-10">
-        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="account-page-container bg-gray-50 py-6 md:py-10">
+        <div class="max-w-[1200px] mx-auto px-1.5 sm:px-6 lg:px-8">
             
             <!-- Breadcrumbs -->
             <nav class="flex text-xs font-medium text-gray-500 uppercase tracking-wider mb-6 md:mb-8">

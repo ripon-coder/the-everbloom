@@ -23,3 +23,24 @@
     letter-spacing: -0.015em;
   }
 }
+
+/* All store pages unrounded (square) elements override */
+.home-page-container,
+.home-page-container *,
+.product-page-container,
+.product-page-container *,
+.account-page-container,
+.account-page-container *,
+.auth-page-container,
+.auth-page-container *,
+.shop-page-container,
+.shop-page-container *,
+.cart-page-container,
+.cart-page-container *,
+.checkout-page-container,
+.checkout-page-container *,
+.order-received-page-container,
+.order-received-page-container * {
+  border-radius: 0 !important;
+}
+

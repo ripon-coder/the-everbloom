@@ -1,6 +1,6 @@
 @props(['endTime' => '2025-09-17T22:00:00'])
 
-<section class="flash-sale relative py-6 px-4 bg-gray-50">
+<section class="flash-sale relative py-4 sm:py-6 px-1.5 sm:px-4 bg-gray-50">
     <div class="flex flex-col md:flex-row justify-between items-center mb-6">
         <h2 class="text-3xl font-bold text-amber-500">Flash Sale</h2>
         
@@ -11,9 +11,9 @@
             </template>
             <template x-if="!isExpired">
                 <div class="flex gap-2 text-sm font-medium mt-2 md:mt-0">
-                    <span class="bg-amber-500 text-white rounded text-center w-10 py-1 inline-block" x-text="hours"></span>
-                    <span class="bg-amber-500 text-white rounded text-center w-10 py-1 inline-block" x-text="minutes"></span>
-                    <span class="bg-amber-500 text-white rounded text-center w-10 py-1 inline-block" x-text="seconds"></span>
+                    <span class="bg-amber-500 text-white rounded-none text-center w-10 py-1 inline-block" x-text="hours"></span>
+                    <span class="bg-amber-500 text-white rounded-none text-center w-10 py-1 inline-block" x-text="minutes"></span>
+                    <span class="bg-amber-500 text-white rounded-none text-center w-10 py-1 inline-block" x-text="seconds"></span>
                 </div>
             </template>
         </div>

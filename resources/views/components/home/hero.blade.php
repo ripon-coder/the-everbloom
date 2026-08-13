@@ -1,9 +1,9 @@
 @props(['sliders' => collect()])
 
-<section class="max-w-[1400px] mx-auto px-4 py-4">
+<section class="max-w-[1400px] mx-auto px-1.5 sm:px-4 py-3 sm:py-4">
     @if($sliders->isNotEmpty())
         <!-- Swiper Container -->
-        <div class="swiper heroSwiper rounded-md overflow-hidden border border-gray-200 shadow-sm relative group">
+        <div class="swiper heroSwiper rounded-none overflow-hidden border border-gray-200 shadow-sm relative group">
             <div class="swiper-wrapper">
                 @foreach($sliders as $slider)
                     <div class="swiper-slide relative">
@@ -27,7 +27,7 @@
                                     @if($slider->btn_text && $slider->btn_link)
                                         <div class="pt-2 animate-fade-in-up delay-200">
                                             <a href="{{ $slider->btn_link }}"
-                                                class="inline-flex items-center px-4 py-2 sm:px-6 sm:py-3 bg-primary hover:bg-primary-dark text-white text-xs sm:text-sm font-bold rounded-full transition-all transform hover:scale-105 shadow-glow-emerald">
+                                                class="inline-flex items-center px-4 py-2 sm:px-6 sm:py-3 bg-primary hover:bg-primary-dark text-white text-xs sm:text-sm font-bold rounded-none transition-all transform hover:scale-105 shadow-glow-emerald">
                                                 {{ $slider->btn_text }}
                                                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -48,7 +48,7 @@
     @else
         <!-- Fallback Hero -->
         <div
-            class="relative w-full h-[150px] sm:h-[250px] md:h-[350px] lg:h-[400px] bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl overflow-hidden flex items-center justify-center border border-gray-200 shadow-inner">
+            class="relative w-full h-[150px] sm:h-[250px] md:h-[350px] lg:h-[400px] bg-gradient-to-r from-gray-100 to-gray-200 rounded-none overflow-hidden flex items-center justify-center border border-gray-200 shadow-inner">
             <div class="text-center flex flex-col items-center justify-center z-20 px-4">
                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 mb-2 drop-shadow-sm">
                     প্রোডাক্ট বুঝুন, অর্ডার করুন
@@ -69,7 +69,7 @@
         .swiper-pagination-bullet-active {
             background: #059669 !important;
             width: 24px !important;
-            border-radius: 4px !important;
+            border-radius: 0 !important;
         }
 
         @keyframes fadeInUp {

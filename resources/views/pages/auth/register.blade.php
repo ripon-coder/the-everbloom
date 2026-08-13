@@ -1,6 +1,6 @@
 <x-layouts.app title="Register | Feriwalarhat">
-    <div class="bg-gray-50 py-10 md:py-20">
-        <div class="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="auth-page-container bg-gray-50 py-10 md:py-20">
+        <div class="max-w-[1000px] mx-auto px-1.5 sm:px-6 lg:px-8">
             
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row-reverse">
                 

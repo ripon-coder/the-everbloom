@@ -1,6 +1,6 @@
 <x-layouts.app title="Login | Feriwalarhat">
-    <div class="bg-gray-50 py-6 md:py-16">
-        <div class="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="auth-page-container bg-gray-50 py-6 md:py-16">
+        <div class="max-w-[900px] mx-auto px-1.5 sm:px-6 lg:px-8">
             
             <div class="bg-white border border-gray-200 overflow-hidden flex flex-col md:flex-row items-stretch">
                 

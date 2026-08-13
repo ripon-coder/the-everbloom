@@ -1,6 +1,6 @@
 <x-layouts.app title="Shopping Cart | Feriwalarhat">
-    <div class="bg-gray-50 py-4 md:py-8" x-data="cartViewPage()">
-        <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="cart-page-container bg-gray-50 py-4 md:py-8" x-data="cartViewPage()">
+        <div class="max-w-[1200px] mx-auto px-1.5 sm:px-6 lg:px-8">
 
             <!-- Breadcrumbs -->
             <nav class="hidden md:flex text-xs font-normal text-gray-500 mb-4">

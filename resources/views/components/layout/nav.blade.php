@@ -2,12 +2,18 @@
     window.initialCartSession = {!! \Illuminate\Support\Js::from(session('cart', [])) !!};
 </script>
 <header class="w-full bg-white font-sans border-b border-gray-200 relative z-[9999]" x-data="{ 
-        isMobileMenuOpen: false, 
+        isMobileMenuOpen: false,
         toggleMobileMenu() {
             this.isMobileMenuOpen = !this.isMobileMenuOpen;
+            if (window.Alpine && window.Alpine.store('mobileMenu')) {
+                window.Alpine.store('mobileMenu').isOpen = this.isMobileMenuOpen;
+            }
         },
         closeMobileMenu() {
             this.isMobileMenuOpen = false;
+            if (window.Alpine && window.Alpine.store('mobileMenu')) {
+                window.Alpine.store('mobileMenu').isOpen = false;
+            }
         },
         activeTab: 'categories', 
         isCartOpen: false,
@@ -30,6 +36,19 @@
             window.addEventListener('open-cart-drawer', () => {
                 this.loadCart();
                 this.isCartOpen = true;
+            });
+
+            window.addEventListener('toggle-mobile-menu', () => {
+                this.toggleMobileMenu();
+            });
+            window.addEventListener('close-mobile-menu', () => {
+                this.closeMobileMenu();
+            });
+            window.addEventListener('open-mobile-menu', () => {
+                this.isMobileMenuOpen = true;
+                if (window.Alpine && window.Alpine.store('mobileMenu')) {
+                    window.Alpine.store('mobileMenu').isOpen = true;
+                }
             });
 
             window.addEventListener('wishlist-updated', () => {
@@ -141,8 +160,8 @@
     @open-cart-drawer.window="loadCart(); if ($store.cartDrawer) $store.cartDrawer.open(); isCartOpen = true"
     @cart-updated.window="loadCart(); syncWithServer(); if ($store.cartDrawer) $store.cartDrawer.open(); isCartOpen = true">
     <!-- Mobile Header -->
-    <div class="md:hidden bg-black text-white px-4 py-3 flex items-center justify-between">
-        <button type="button" @click="toggleMobileMenu()" class="text-gray-300 hover:text-white p-1 focus:outline-none cursor-pointer" aria-label="Toggle Navigation Menu">
+    <div class="md:hidden bg-black text-white px-2 sm:px-4 py-3 flex items-center justify-between">
+        <button type="button" @click="window.dispatchEvent(new CustomEvent('toggle-mobile-menu', { detail: { tab: 'menu' } }))" class="text-gray-300 hover:text-white p-1 focus:outline-none cursor-pointer" aria-label="Toggle Navigation Menu">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
                 </path>
@@ -179,7 +198,7 @@
     </div>
 
     <!-- Mobile Search Bar -->
-    <div class="md:hidden px-4 py-3 bg-white border-b border-gray-100 relative">
+    <div class="md:hidden px-2 sm:px-4 py-3 bg-white border-b border-gray-100 relative">
         <form action="{{ route('shop') }}" method="GET" class="flex items-center h-11 border border-gray-400 rounded-md overflow-hidden">
             <input type="text" name="search" x-model="searchQuery" @input.debounce.300ms="fetchSearchResults()" 
                 @focus="showSearchResults = searchResults.length > 0"
@@ -474,276 +493,55 @@
                     x-transition:enter-start="opacity-0 translate-y-1"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-100"
-                    class="absolute left-0 top-full w-64 bg-white border border-gray-200 shadow-md z-50">
-                    <ul class="flex flex-col">
+                    class="absolute left-0 top-full w-64 bg-white border border-gray-200 shadow-md                    <ul class="flex flex-col">
+                        @if(isset($header_categories) && $header_categories->count() > 0)
+                            @foreach($header_categories as $category)
+                                @if($category->children && $category->children->count() > 0)
+                                    <li class="relative border-b border-gray-100 last:border-0" x-data="{ hover: false }"
+                                        @mouseenter="hover = true" @mouseleave="hover = false">
+                                        <a href="{{ route('shop', ['category' => $category->slug]) }}"
+                                            class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 transition-colors uppercase tracking-wide font-medium"
+                                            :class="hover ? 'text-primary bg-slate-50' : 'hover:text-primary hover:bg-slate-50'">
+                                            <div class="flex items-center gap-3">
+                                                {{ $category->name }}
+                                            </div>
+                                            <svg class="w-3.5 h-3.5 text-gray-400" :class="hover ? 'text-primary' : ''" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </a>
 
-                        <!-- Item 1 -->
-                        <li class="relative border-b border-gray-100 last:border-0" x-data="{ hover: false }"
-                            @mouseenter="hover = true" @mouseleave="hover = false">
-                            <a href="#"
-                                class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 transition-colors uppercase tracking-wide font-medium"
-                                :class="hover ? 'text-blue-600 bg-slate-50' : 'hover:text-blue-600 hover:bg-slate-50'">
-                                <div class="flex items-center gap-3">
-                                    <svg class="w-4 h-4 text-gray-500" :class="hover ? 'text-blue-500' : ''" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                    </svg>
-                                    Adapters & Cables
-                                </div>
-                                <svg class="w-3.5 h-3.5 text-gray-400" :class="hover ? 'text-blue-500' : ''" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-
-                            <!-- Submenu -->
-                            <div x-show="hover" style="display: none;"
-                                class="absolute left-full top-0 w-80 bg-white border border-gray-200 shadow-md z-50 ml-1">
-                                <ul class="py-2 px-1 flex flex-col gap-0.5">
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-xs text-slate-800 hover:text-primary hover:bg-slate-50 uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 1</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-xs text-slate-800 hover:text-primary hover:bg-slate-50 uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 2</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-xs text-slate-800 hover:text-primary hover:bg-slate-50 uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 3</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-xs text-slate-800 hover:text-primary hover:bg-slate-50 uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 4</a></li>
-                                </ul>
-                            </div>
-                        </li>
-
-                        <!-- Item 2 -->
-                        <li class="relative border-b border-gray-100 last:border-0">
-                            <a href="#"
-                                class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 transition-colors uppercase tracking-wide font-medium">
-                                <div class="flex items-center gap-3 ml-7">
-                                    Car Accessories
-                                </div>
-                            </a>
-                        </li>
-
-                        <!-- Item 3 -->
-                        <li class="relative border-b border-gray-100 last:border-0">
-                            <a href="#"
-                                class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 transition-colors uppercase tracking-wide font-medium">
-                                <div class="flex items-center gap-3">
-                                    <svg class="w-4 h-4 text-gray-500 group-hover:text-blue-500" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3">
-                                        </path>
-                                    </svg>
-                                    Headsets
-                                </div>
-                            </a>
-                        </li>
-
-                        <!-- Item 4 (With Submenu) -->
-                        <li class="relative border-b border-gray-100 last:border-0" x-data="{ hover: false }"
-                            @mouseenter="hover = true" @mouseleave="hover = false">
-                            <a href="#"
-                                class="flex items-center justify-between px-4 py-3 text-[13px] transition-colors uppercase tracking-wide font-medium"
-                                :class="hover ? 'text-blue-600 bg-slate-50' : 'text-slate-800 hover:text-blue-600 hover:bg-slate-50'">
-                                <div class="flex items-center gap-3">
-                                    <svg class="w-4 h-4 text-gray-500" :class="hover ? 'text-blue-500' : ''" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-                                        </path>
-                                    </svg>
-                                    Home Appliances
-                                </div>
-                                <svg class="w-3.5 h-3.5 text-gray-400" :class="hover ? 'text-blue-500' : ''" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-
-                            <!-- Submenu -->
-                            <div x-show="hover" style="display: none;"
-                                class="absolute left-full top-0 w-80 bg-white rounded-lg shadow-xl border border-gray-100 z-50 ml-1">
-                                <ul class="py-3 px-2 flex flex-col gap-1">
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Accessories</a>
+                                        <!-- Submenu -->
+                                        <div x-show="hover" style="display: none;"
+                                            class="absolute left-full top-0 w-64 bg-white border border-gray-200 shadow-md z-50 ml-1">
+                                            <ul class="py-2 px-1 flex flex-col gap-0.5">
+                                                @foreach($category->children as $child)
+                                                    <li>
+                                                        <a href="{{ route('shop', ['category' => $child->slug]) }}"
+                                                            class="block px-4 py-2 text-xs text-slate-800 hover:text-primary hover:bg-slate-50 uppercase tracking-wide font-medium transition-colors">
+                                                            {{ $child->name }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
                                     </li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Cleaning
-                                            Appliances</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Clocks</a>
+                                @else
+                                    <li class="relative border-b border-gray-100 last:border-0">
+                                        <a href="{{ route('shop', ['category' => $category->slug]) }}"
+                                            class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 hover:text-primary hover:bg-slate-50 transition-colors uppercase tracking-wide font-medium">
+                                            <div class="flex items-center gap-3">
+                                                {{ $category->name }}
+                                            </div>
+                                        </a>
                                     </li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Electric
-                                            Heaters</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Humidifier</a>
-                                    </li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Kitchen
-                                            Appliances</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Mosquito
-                                            Bats</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Security
-                                            & Surveillance Devices</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Security
-                                            Camera</a></li>
-                                </ul>
-                            </div>
-                        </li>
-
-                        <!-- Item 5 -->
-                        <li class="relative border-b border-gray-100 last:border-0" x-data="{ hover: false }"
-                            @mouseenter="hover = true" @mouseleave="hover = false">
-                            <a href="#"
-                                class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 transition-colors uppercase tracking-wide font-medium"
-                                :class="hover ? 'text-blue-600 bg-slate-50' : 'hover:text-blue-600 hover:bg-slate-50'">
-                                <div class="flex items-center gap-3">
-                                    <svg class="w-4 h-4 text-gray-500" :class="hover ? 'text-blue-500' : ''" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                        </path>
-                                    </svg>
-                                    Lifestyle
-                                </div>
-                                <svg class="w-3.5 h-3.5 text-gray-400" :class="hover ? 'text-blue-500' : ''" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-
-                            <!-- Submenu -->
-                            <div x-show="hover" style="display: none;"
-                                class="absolute left-full top-0 w-80 bg-white rounded-lg shadow-xl border border-gray-100 z-50 ml-1">
-                                <ul class="py-3 px-2 flex flex-col gap-1">
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 1</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 2</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 3</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 4</a></li>
-                                </ul>
-                            </div>
-                        </li>
-
-                        <!-- Item 6 -->
-                        <li class="relative border-b border-gray-100 last:border-0">
-                            <a href="#"
-                                class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 transition-colors uppercase tracking-wide font-medium">
-                                <div class="flex items-center gap-3">
-                                    <svg class="w-4 h-4 text-gray-500 group-hover:text-blue-500" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z">
-                                        </path>
-                                    </svg>
-                                    Neckbands
-                                </div>
-                            </a>
-                        </li>
-
-                        <!-- Item 7 -->
-                        <li class="relative border-b border-gray-100 last:border-0">
-                            <a href="#"
-                                class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 transition-colors uppercase tracking-wide font-medium">
-                                <div class="flex items-center gap-3 ml-7">
-                                    Pen Drive
-                                </div>
-                            </a>
-                        </li>
-
-                        <!-- Item 8 -->
-                        <li class="relative border-b border-gray-100 last:border-0" x-data="{ hover: false }"
-                            @mouseenter="hover = true" @mouseleave="hover = false">
-                            <a href="#"
-                                class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 transition-colors uppercase tracking-wide font-medium"
-                                :class="hover ? 'text-blue-600 bg-slate-50' : 'hover:text-blue-600 hover:bg-slate-50'">
-                                <div class="flex items-center gap-3">
-                                    <svg class="w-4 h-4 text-gray-500" :class="hover ? 'text-blue-500' : ''" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                    Phone Accessories
-                                </div>
-                                <svg class="w-3.5 h-3.5 text-gray-400" :class="hover ? 'text-blue-500' : ''" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-
-                            <!-- Submenu -->
-                            <div x-show="hover" style="display: none;"
-                                class="absolute left-full top-0 w-80 bg-white rounded-lg shadow-xl border border-gray-100 z-50 ml-1">
-                                <ul class="py-3 px-2 flex flex-col gap-1">
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 1</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 2</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 3</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 4</a></li>
-                                </ul>
-                            </div>
-                        </li>
-
-                        <!-- Item 9 -->
-                        <li class="relative border-b border-gray-100 last:border-0">
-                            <a href="#"
-                                class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 transition-colors uppercase tracking-wide font-medium">
-                                <div class="flex items-center gap-3">
-                                    <svg class="w-4 h-4 text-gray-500 group-hover:text-blue-500" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2zm5 4h4v2h-4V7zm0 4h4v2h-4v-2zm0 4h4v2h-4v-2z">
-                                        </path>
-                                    </svg>
-                                    Powerbanks
-                                </div>
-                            </a>
-                        </li>
-
-                        <!-- Item 10 -->
-                        <li class="relative border-b border-gray-100 last:border-0">
-                            <a href="#"
-                                class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 transition-colors uppercase tracking-wide font-medium">
-                                <div class="flex items-center gap-3">
-                                    <svg class="w-4 h-4 text-gray-500 group-hover:text-blue-500" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
-                                        </path>
-                                    </svg>
-                                    Rechargeable Fans
-                                </div>
-                            </a>
-                        </li>
-
-                        <!-- Item 11 -->
+                                @endif
+                            @endforeach
+                        @else
+                            <li class="px-4 py-3 text-xs text-gray-500">No categories found</li>
+                        @endif
+                    </ul>            <!-- Item 11 -->
                         <li class="relative border-b border-gray-100 last:border-0" x-data="{ hover: false }"
                             @mouseenter="hover = true" @mouseleave="hover = false">
                             <a href="#"
@@ -798,245 +596,4 @@
         </div>
 
 
-    </div>
-
-    <!-- Mobile Drawer Overlay -->
-    <div x-show="isMobileMenuOpen" x-cloak style="display: none;" class="fixed inset-0 bg-black/60 z-[999999] md:hidden"
-        @click="closeMobileMenu()" x-transition.opacity></div>
-
-    <!-- Mobile Drawer Menu -->
-    <div x-show="isMobileMenuOpen" x-cloak style="display: none;" x-transition:enter="transform transition ease-in-out duration-300"
-        x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
-        x-transition:leave="transform transition ease-in-out duration-300" x-transition:leave-start="translate-x-0"
-        x-transition:leave-end="-translate-x-full"
-        class="fixed inset-y-0 left-0 w-[85%] max-w-sm bg-white z-[1000000] md:hidden flex flex-col shadow-2xl">
-
-        <!-- Mobile Drawer Header -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-slate-900 text-white shrink-0">
-            <span class="text-xs font-bold uppercase tracking-wider">Menu</span>
-            <button @click="closeMobileMenu()" type="button" class="p-1 text-gray-300 hover:text-white transition-colors" title="Close Menu">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-
-        <!-- Tabs -->
-        <div class="flex border-b border-gray-200 shrink-0">
-            <button @click="activeTab = 'menu'" class="flex-1 py-4 text-[13px] font-bold text-center tracking-wide"
-                :class="activeTab === 'menu' ? 'text-slate-800 border-b-[3px] border-black bg-white' : 'text-gray-500 bg-gray-100'">MENU</button>
-            <button @click="activeTab = 'categories'"
-                class="flex-1 py-4 text-[13px] font-bold text-center tracking-wide"
-                :class="activeTab === 'categories' ? 'text-slate-800 border-b-[3px] border-black bg-white' : 'text-gray-500 bg-gray-100'">CATEGORIES</button>
-        </div>
-
-        <!-- Menu Tab Content -->
-        <div x-show="activeTab === 'menu'" style="display: none;" class="flex-1 overflow-y-auto pb-20">
-            <ul class="flex flex-col">
-                <li class="border-b border-gray-100"><a href="{{ route('home') }}"
-                        class="block px-6 py-4 text-[14px] font-bold tracking-wide transition-colors {{ request()->routeIs('home') ? 'text-primary' : 'text-slate-800 hover:text-primary' }}">Home</a>
-                </li>
-                @foreach($header_menus as $menu)
-                    <li class="border-b border-gray-100"><a href="{{ $menu->url }}"
-                            class="block px-6 py-4 text-[14px] font-bold tracking-wide transition-colors {{ request()->url() == url($menu->url) ? 'text-primary' : 'text-slate-800 hover:text-primary' }}">{{ $menu->name }}</a>
-                    </li>
-                @endforeach
-            </ul>
-            <div class="px-6 py-6 mt-4 border-t border-gray-200">
-                <div class="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-4">Contact & Support</div>
-                <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}"
-                    class="flex items-center gap-3 text-slate-700 hover:text-primary font-medium mb-4">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-                        </path>
-                    </svg>
-                    {{ $site_setting->site_phone ?? '+88 01720 000000' }}
-                </a>
-                <a href="mailto:{{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}"
-                    class="flex items-center gap-3 text-slate-700 hover:text-primary font-medium">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                        </path>
-                    </svg>
-                    {{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}
-                </a>
-            </div>
-        </div>
-
-        <!-- Categories Tab Content -->
-        <div x-show="activeTab === 'categories'" class="flex-1 overflow-y-auto pb-20">
-            <ul class="flex flex-col">
-                <!-- Item 1 with Accordion -->
-                <li class="border-b border-gray-200" x-data="{ open: true }">
-                    <div class="flex items-stretch justify-between text-[14px] text-slate-800 font-medium transition-colors duration-200"
-                        :class="open ? 'bg-slate-50' : ''">
-                        <a href="#" class="flex items-center gap-3 px-5 py-3.5 flex-1">
-                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                            Adapters & Cables
-                        </a>
-                        <button @click="open = !open"
-                            class="w-[54px] flex-shrink-0 flex items-center justify-center border-l border-gray-200 transition-colors duration-200"
-                            :class="open ? 'bg-black text-white border-black' : 'text-gray-400 bg-white hover:bg-gray-50'">
-                            <svg class="w-4 h-4 transition-transform duration-200" :class="open ? '' : '-rotate-90'"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <ul x-show="open" class="bg-white border-t border-gray-200">
-                        <li class="border-b border-gray-100 last:border-0"><a href="#"
-                                class="block pl-12 pr-5 py-3 text-[13px] text-slate-500 hover:text-black">Adapters</a>
-                        </li>
-                        <li class="border-b border-gray-100 last:border-0"><a href="#"
-                                class="block pl-12 pr-5 py-3 text-[13px] text-slate-500 hover:text-black">Bluetooth &
-                                WIFI Receivers</a></li>
-                        <li class="border-b border-gray-100 last:border-0"><a href="#"
-                                class="block pl-12 pr-5 py-3 text-[13px] text-slate-500 hover:text-black">Cables</a>
-                        </li>
-                        <li class="border-b border-gray-100 last:border-0"><a href="#"
-                                class="block pl-12 pr-5 py-3 text-[13px] text-slate-500 hover:text-black">Dongles &
-                                Converters</a></li>
-                        <li class="border-b border-gray-100 last:border-0"><a href="#"
-                                class="block pl-12 pr-5 py-3 text-[13px] text-slate-500 hover:text-black">Multiplugs</a>
-                        </li>
-                        <li class="border-b border-gray-100 last:border-0"><a href="#"
-                                class="block pl-12 pr-5 py-3 text-[13px] text-slate-500 hover:text-black">Universal
-                                Adapters</a></li>
-                    </ul>
-                </li>
-
-                <!-- Item 2 -->
-                <li class="border-b border-gray-200"><a href="#"
-                        class="flex items-center justify-between px-5 py-3.5 text-[14px] text-slate-800 font-medium">
-                        <div class="flex items-center gap-3 pl-8">Car Accessories</div>
-                    </a></li>
-
-                <!-- Item 3 -->
-                <li class="border-b border-gray-200"><a href="#"
-                        class="flex items-center justify-between px-5 py-3.5 text-[14px] text-slate-800 font-medium">
-                        <div class="flex items-center gap-3"><svg class="w-5 h-5 text-gray-500" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3">
-                                </path>
-                            </svg>Headsets</div>
-                    </a></li>
-
-                <!-- Item 4 with Accordion -->
-                <li class="border-b border-gray-200" x-data="{ open: false }">
-                    <div class="flex items-stretch justify-between text-[14px] text-slate-800 font-medium transition-colors duration-200"
-                        :class="open ? 'bg-slate-50' : ''">
-                        <a href="#" class="flex items-center gap-3 px-5 py-3.5 flex-1">
-                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-                                </path>
-                            </svg>
-                            Home Appliances
-                        </a>
-                        <button @click="open = !open"
-                            class="w-[54px] flex-shrink-0 flex items-center justify-center border-l border-gray-200 transition-colors duration-200"
-                            :class="open ? 'bg-black text-white border-black' : 'text-gray-400 bg-white hover:bg-gray-50'">
-                            <svg class="w-4 h-4 transition-transform duration-200" :class="open ? '' : '-rotate-90'"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <ul x-show="open" style="display: none;" class="bg-white border-t border-gray-200">
-                        <li class="border-b border-gray-100 last:border-0"><a href="#"
-                                class="block pl-12 pr-5 py-3 text-[13px] text-slate-500 hover:text-black">Sample
-                                Subcategory 1</a></li>
-                        <li class="border-b border-gray-100 last:border-0"><a href="#"
-                                class="block pl-12 pr-5 py-3 text-[13px] text-slate-500 hover:text-black">Sample
-                                Subcategory 2</a></li>
-                    </ul>
-                </li>
-
-                <!-- Item 5 -->
-                <li class="border-b border-gray-200"><a href="#"
-                        class="flex items-center justify-between px-5 py-3.5 text-[14px] text-slate-800 font-medium">
-                        <div class="flex items-center gap-3"><svg class="w-5 h-5 text-gray-500" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                </path>
-                            </svg>Lifestyle</div>
-                    </a></li>
-
-                <!-- Item 6 -->
-                <li class="border-b border-gray-200"><a href="#"
-                        class="flex items-center justify-between px-5 py-3.5 text-[14px] text-slate-800 font-medium">
-                        <div class="flex items-center gap-3"><svg class="w-5 h-5 text-gray-500" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z">
-                                </path>
-                            </svg>Neckbands</div>
-                    </a></li>
-
-                <!-- Item 7 -->
-                <li class="border-b border-gray-200"><a href="#"
-                        class="flex items-center justify-between px-5 py-3.5 text-[14px] text-slate-800 font-medium">
-                        <div class="flex items-center gap-3 pl-8">Pen Drive</div>
-                    </a></li>
-
-                <!-- Item 8 with Accordion -->
-                <li class="border-b border-gray-200" x-data="{ open: false }">
-                    <div class="flex items-stretch justify-between text-[14px] text-slate-800 font-medium transition-colors duration-200"
-                        :class="open ? 'bg-slate-50' : ''">
-                        <a href="#" class="flex items-center gap-3 px-5 py-3.5 flex-1">
-                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z">
-                                </path>
-                            </svg>
-                            Phone Accessories
-                        </a>
-                        <button @click="open = !open"
-                            class="w-[54px] flex-shrink-0 flex items-center justify-center border-l border-gray-200 transition-colors duration-200"
-                            :class="open ? 'bg-black text-white border-black' : 'text-gray-400 bg-white hover:bg-gray-50'">
-                            <svg class="w-4 h-4 transition-transform duration-200" :class="open ? '' : '-rotate-90'"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <ul x-show="open" style="display: none;" class="bg-white border-t border-gray-200">
-                        <li class="border-b border-gray-100 last:border-0"><a href="#"
-                                class="block pl-12 pr-5 py-3 text-[13px] text-slate-500 hover:text-black">Sample
-                                Subcategory 1</a></li>
-                    </ul>
-                </li>
-
-                <!-- Item 9 -->
-                <li class="border-b border-gray-200"><a href="#"
-                        class="flex items-center justify-between px-5 py-3.5 text-[14px] text-slate-800 font-medium">
-                        <div class="flex items-center gap-3"><svg class="w-5 h-5 text-gray-500" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2zm5 4h4v2h-4V7zm0 4h4v2h-4v-2zm0 4h4v2h-4v-2z">
-                                </path>
-                            </svg>Powerbanks</div>
-                    </a></li>
-
-                <!-- Item 10 -->
-                <li class="border-b border-gray-200"><a href="#"
-                        class="flex items-center justify-between px-5 py-3.5 text-[14px] text-slate-800 font-medium">
-                        <div class="flex items-center gap-3"><svg class="w-5 h-5 text-gray-500" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
-                                </path>
-                            </svg>Rechargeable Fans</div>
-                    </a></li>
-            </ul>
-        </div>
-    </div>
-</header>
+   </header>

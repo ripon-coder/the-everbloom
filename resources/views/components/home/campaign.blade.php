@@ -4,8 +4,8 @@
     $endDate = $flashSale ? $flashSale->end_date->format('Y-m-d H:i:s') : now()->addDays(1)->format('Y-m-d H:i:s');
 @endphp
 
-<section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-    <div class="bg-white rounded-md border border-gray-200">
+<section class="max-w-[1400px] mx-auto px-1.5 sm:px-6 lg:px-8 mb-6 sm:mb-10">
+    <div class="bg-white rounded-none border border-gray-200">
         <!-- Header area -->
         <div class="flex flex-col sm:flex-row items-center justify-between p-4 sm:p-5 border-b border-gray-100 gap-4">
             <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
@@ -43,15 +43,15 @@
                     <div class="flex items-center gap-1">
                         <template x-if="days > 0">
                             <div class="flex items-center gap-1">
-                                <span class="w-8 h-8 flex items-center justify-center bg-accent-100 text-accent-800 rounded-md text-sm font-bold" x-text="days.toString().padStart(2, '0')"></span>
+                                <span class="w-8 h-8 flex items-center justify-center bg-accent-100 text-accent-800 rounded-none text-sm font-bold" x-text="days.toString().padStart(2, '0')"></span>
                                 <span class="text-accent font-bold">:</span>
                             </div>
                         </template>
-                        <span class="w-8 h-8 flex items-center justify-center bg-accent-100 text-accent-800 rounded-md text-sm font-bold" x-text="hours.toString().padStart(2, '0')"></span>
+                        <span class="w-8 h-8 flex items-center justify-center bg-accent-100 text-accent-800 rounded-none text-sm font-bold" x-text="hours.toString().padStart(2, '0')"></span>
                         <span class="text-accent font-bold">:</span>
-                        <span class="w-8 h-8 flex items-center justify-center bg-accent-100 text-accent-800 rounded-md text-sm font-bold" x-text="minutes.toString().padStart(2, '0')"></span>
+                        <span class="w-8 h-8 flex items-center justify-center bg-accent-100 text-accent-800 rounded-none text-sm font-bold" x-text="minutes.toString().padStart(2, '0')"></span>
                         <span class="text-accent font-bold">:</span>
-                        <span class="w-8 h-8 flex items-center justify-center bg-accent-100 text-accent-800 rounded-md text-sm font-bold" x-text="seconds.toString().padStart(2, '0')"></span>
+                        <span class="w-8 h-8 flex items-center justify-center bg-accent-100 text-accent-800 rounded-none text-sm font-bold" x-text="seconds.toString().padStart(2, '0')"></span>
                     </div>
                 </div>
             </div>
@@ -79,7 +79,7 @@
             
             @if(count($products) > 6)
                 <div class="mt-6 text-center sm:hidden">
-                    <a href="{{ route('shop') }}" class="inline-block px-6 py-2 bg-gray-50 border border-gray-200 text-slate-700 text-sm font-bold rounded-md hover:bg-gray-100 transition-colors">
+                    <a href="{{ route('shop') }}" class="inline-block px-6 py-2 bg-gray-50 border border-gray-200 text-slate-700 text-sm font-bold rounded-none hover:bg-gray-100 transition-colors">
                         View All Products
                     </a>
                 </div>

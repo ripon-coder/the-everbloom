@@ -1,6 +1,6 @@
 @props(['products' => []])
 
-<section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+<section class="max-w-[1400px] mx-auto px-1.5 sm:px-6 lg:px-8">
 
 
     <!-- Subcategories Tabs removed -->

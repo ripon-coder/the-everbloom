@@ -28,16 +28,15 @@
     @if($site_setting && $site_setting->site_favicon)
         <link rel="icon" href="{{ Storage::url($site_setting->site_favicon) }}" type="image/x-icon">
     @endif
-    @php
-        $manifestPath = public_path('build/manifest.json');
-        if (file_exists($manifestPath)) {
-            $manifest = json_decode(file_get_contents($manifestPath), true);
-            echo '<link rel="stylesheet" href="/build/' . $manifest['resources/css/app.css']['file'] . '">';
-            echo '<script type="module" src="/build/' . $manifest['resources/js/app.js']['file'] . '"></script>';
-        } else {
-            echo '@vite(["resources/css/app.css", "resources/js/app.js"])';
-        }
-    @endphp
+    @if(file_exists(public_path('build/manifest.json')))
+        @php
+            $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
+        @endphp
+        <link rel="stylesheet" href="/build/{{ $manifest['resources/css/app.css']['file'] }}">
+        <script type="module" src="/build/{{ $manifest['resources/js/app.js']['file'] }}"></script>
+    @else
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', Arial, sans-serif; }
         [x-cloak] { display: none !important; }
@@ -48,7 +47,7 @@
     <x-layout.nav />
     
     <main class="min-h-screen bg-white">
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="max-w-8xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
                     {{ $slot }}
         </div>
     </main>
@@ -151,6 +150,9 @@
 
     <!-- Global Right Side Cart Drawer -->
     <x-layout.cart-drawer />
+
+    <!-- Global Standalone Mobile Drawer -->
+    <x-layout.mobile-drawer />
 
     <!-- Mobile Bottom Navigation Bar -->
     <x-layout.mobile-nav />
