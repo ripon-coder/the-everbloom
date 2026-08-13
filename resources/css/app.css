@@ -5,20 +5,8 @@
 
 @layer base {
   html {
-    font-size: 12px; /* Mobile base: xs (12px) */
+    font-size: 16px; /* Standard browser default */
     -webkit-tap-highlight-color: transparent;
-  }
-  
-  @media (min-width: 640px) {
-    html {
-      font-size: 13.5px; /* PC / Tablet base: sm */
-    }
-  }
-
-  @media (min-width: 1024px) {
-    html {
-      font-size: 14px; /* PC base: sm */
-    }
   }
 
   body {

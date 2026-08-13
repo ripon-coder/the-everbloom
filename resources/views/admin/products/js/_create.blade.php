@@ -606,7 +606,7 @@
                         <svg class="w-5 h-5 text-purple-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                         </svg>
-                        <h4 class="text-md font-semibold text-gray-900 dark:text-white">Variant Attributes</h4>
+                        <h4 class="text-base font-semibold text-gray-900 dark:text-white">Variant Attributes</h4>
                     </div>
                     <button type="button" class="bg-purple-100 hover:bg-purple-200 text-purple-700 font-medium py-2 px-4 rounded-lg text-sm transition duration-200 flex items-center add-attribute" data-variant="${variantCount}">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -662,7 +662,7 @@
                     <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                     </svg>
-                    <h4 class="text-md font-semibold text-gray-900 dark:text-white">Variant Details</h4>
+                    <h4 class="text-base font-semibold text-gray-900 dark:text-white">Variant Details</h4>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
@@ -700,7 +700,7 @@
                         <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <h4 class="text-md font-semibold text-gray-900 dark:text-white">Variant Pricing</h4>
+                        <h4 class="text-base font-semibold text-gray-900 dark:text-white">Variant Pricing</h4>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-4">
                         <div>
@@ -765,7 +765,7 @@
                     <svg class="w-5 h-5 text-pink-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
-                    <h4 class="text-md font-semibold text-gray-900 dark:text-white">Variant Image (Attribute-Level Selector)</h4>
+                    <h4 class="text-base font-semibold text-gray-900 dark:text-white">Variant Image (Attribute-Level Selector)</h4>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
                     <div>

@@ -20,17 +20,7 @@ export default {
       fontFamily: {
         sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'system-ui', 'Roboto', 'Helvetica Neue', 'Arial', ...defaultTheme.fontFamily.sans],
       },
-      fontSize: {
-        '2xs': ['0.6875rem', { lineHeight: '0.95rem' }], // 11px
-        'xs': ['0.75rem', { lineHeight: '1rem' }],      // 12px
-        'sm': ['0.8125rem', { lineHeight: '1.15rem' }], // 13px (smooth body)
-        'base': ['0.875rem', { lineHeight: '1.25rem' }],// 14px (standard text)
-        'md': ['0.9375rem', { lineHeight: '1.35rem' }], // 15px
-        'lg': ['1rem', { lineHeight: '1.4rem' }],       // 16px (subheadings)
-        'xl': ['1.125rem', { lineHeight: '1.5rem' }],    // 18px (card titles)
-        '2xl': ['1.25rem', { lineHeight: '1.65rem' }],  // 20px (page titles)
-        '3xl': ['1.5rem', { lineHeight: '1.85rem' }],   // 24px (hero titles)
-      },
+
       colors: {
         // Primary - Deep Emerald Botanical Green
         primary: {

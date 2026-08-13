@@ -209,7 +209,7 @@
                     
                     <!-- Summary Section -->
                     <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                        <h3 class="text-md font-medium text-gray-900 mb-3">Flash Sale Summary</h3>
+                        <h3 class="text-base font-medium text-gray-900 mb-3">Flash Sale Summary</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div>
                                 <span class="text-gray-600">Total Products:</span>
