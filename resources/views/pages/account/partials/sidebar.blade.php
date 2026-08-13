@@ -58,11 +58,11 @@
                     <span>Details</span>
                 </a>
             </li>
-            <li class="hidden md:block border-t border-gray-100 mt-2 pt-2">
-                <form method="POST" action="{{ route('logout') }}">
+            <li class="flex-shrink-0 md:flex-shrink border-t md:border-t border-gray-100 mt-0 md:mt-2 pt-0 md:pt-2">
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
-                    <button type="submit" class="flex items-center gap-3 w-full text-left px-6 py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-gray-400 hover:text-danger transition-all group">
-                        <svg class="w-5 h-5 flex-shrink-0 text-gray-300 group-hover:text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    <button type="submit" class="flex items-center gap-3 w-full text-left px-6 py-3.5 text-xs md:text-sm font-bold uppercase tracking-wider text-red-600 hover:text-red-700 hover:bg-red-50 transition-all border-b-2 md:border-b-0 md:border-l-4 border-transparent">
+                        <svg class="w-5 h-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                         <span>Logout</span>
                     </button>
                 </form>

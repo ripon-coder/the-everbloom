@@ -4,6 +4,7 @@
             product: productData,
             quantity: 1,
             isInWishlist: false,
+            isWishlistLoading: false,
             mainImage: '{{ $product->firstImage ? $product->firstImage->getImageUrl() : asset("images/image1.jpg") }}',
             get allImages() {
                 const imagesList = [
@@ -78,6 +79,9 @@
                     return;
                 @endguest
 
+                if (this.isWishlistLoading) return;
+                this.isWishlistLoading = true;
+
                 fetch('{{ route('wishlist.toggle') }}', {
                     method: 'POST',
                     headers: {
@@ -91,28 +95,21 @@
                 })
                 .then(res => {
                     if (res.status === 401) {
-                        window.dispatchEvent(new CustomEvent('notify', {
-                            detail: {
-                                message: 'Please login first to manage your wishlist.',
-                                type: 'error'
-                            }
-                        }));
+                        window.location.href = '{{ route('login') }}';
                         return;
                     }
                     return res.json();
                 })
                 .then(data => {
                     if (data && data.success) {
+                        this.isInWishlist = data.in_wishlist;
                         window.dispatchEvent(new CustomEvent('wishlist-updated'));
-                        window.dispatchEvent(new CustomEvent('notify', {
-                            detail: {
-                                message: data.message,
-                                type: data.in_wishlist ? 'success' : 'info'
-                            }
-                        }));
                     }
                 })
-                .catch(err => console.error('Wishlist toggle error:', err));
+                .catch(err => console.error('Wishlist toggle error:', err))
+                .finally(() => {
+                    this.isWishlistLoading = false;
+                });
             },
 
             get currentPrice() {

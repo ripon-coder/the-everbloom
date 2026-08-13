@@ -79,7 +79,7 @@
             <div class="px-6 py-6 mt-4 border-t border-gray-200">
                 <div class="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-4">Contact & Support</div>
                 <a href="tel:{{ $site_setting->site_phone ?? '+8801720000000' }}"
-                    class="flex items-center gap-3 text-slate-700 hover:text-primary font-medium mb-4">
+                    class="flex items-center gap-3 text-slate-700 hover:text-primary font-medium mb-4 text-xs">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
@@ -88,7 +88,7 @@
                     {{ $site_setting->site_phone ?? '+88 01720 000000' }}
                 </a>
                 <a href="mailto:{{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}"
-                    class="flex items-center gap-3 text-slate-700 hover:text-primary font-medium">
+                    class="flex items-center gap-3 text-slate-700 hover:text-primary font-medium text-xs">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
@@ -97,6 +97,36 @@
                     {{ $site_setting->site_email ?? 'support@feriwalarhat.com' }}
                 </a>
             </div>
+
+            <!-- Customer Account & Logout Section -->
+            @auth
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 rounded-none bg-primary text-white flex items-center justify-center font-bold text-xs">
+                            {{ substr(Auth::user()->name, 0, 1) }}
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold text-slate-900 truncate">{{ Auth::user()->name }}</p>
+                            <p class="text-[10px] text-gray-500 truncate">{{ Auth::user()->email ?? Auth::user()->phone }}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <a href="{{ route('account') }}" class="block text-xs font-bold text-slate-800 hover:text-primary py-1.5 uppercase tracking-wider">My Account</a>
+                        <a href="{{ route('account', 'orders') }}" class="block text-xs font-bold text-slate-800 hover:text-primary py-1.5 uppercase tracking-wider">My Orders</a>
+                        <form method="POST" action="{{ route('logout') }}" class="mt-2 pt-2 border-t border-gray-200">
+                            @csrf
+                            <button type="submit" class="flex items-center gap-2 text-xs font-bold text-red-600 hover:text-red-700 uppercase tracking-wider">
+                                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                                <span>Logout</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @else
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <a href="{{ route('login') }}" class="block w-full text-center bg-slate-900 hover:bg-black text-white text-xs font-bold py-3 uppercase tracking-wider">Sign In / Register</a>
+                </div>
+            @endauth
         </div>
 
         <!-- Categories Tab Content -->
