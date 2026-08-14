@@ -186,8 +186,8 @@ class OrderEloquent implements OrderRepository
 
             // Update order products if provided
             if (!empty($data['products'])) {
-                // Remove existing products
-                $order->orderProducts()->delete();
+                // Remove existing products permanently to prevent duplicate rows
+                OrderProduct::withTrashed()->where('order_id', $order->id)->forceDelete();
 
                 // Add new products
                 foreach ($data['products'] as $productData) {

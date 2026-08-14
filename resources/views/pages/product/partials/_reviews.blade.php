@@ -1,47 +1,5 @@
 <div class="border-t border-gray-100 pt-6 md:pt-8" 
-     x-data="{ 
-        rating: 0, 
-        hoverRating: 0,
-        reviewText: '',
-        isSubmitting: false,
-        localMessage: '',
-        localType: '',
-        async submitReview() {
-            this.localMessage = '';
-            if (this.rating === 0) {
-                this.localMessage = 'Please select a rating';
-                this.localType = 'error';
-                return;
-            }
-            if (!this.reviewText.trim()) {
-                this.localMessage = 'Please write a review';
-                this.localType = 'error';
-                return;
-            }
-
-            this.isSubmitting = true;
-
-            try {
-                const response = await axios.post('{{ route('product.review.store') }}', {
-                    product_id: {{ $product->id }},
-                    rating: this.rating,
-                    review: this.reviewText
-                });
-
-                if (response.data.success) {
-                    this.localMessage = response.data.message;
-                    this.localType = 'success';
-                    this.rating = 0;
-                    this.reviewText = '';
-                }
-            } catch (error) {
-                this.localMessage = error.response?.data?.message || 'Something went wrong. Please try again.';
-                this.localType = 'error';
-            } finally {
-                this.isSubmitting = false;
-            }
-        }
-     }">
+     x-data="productReviewComponent({{ $product->id }}, '{{ route('product.review.store') }}')">
 
     @php
         $reviewCount = $product->reviews->count();
@@ -151,7 +109,7 @@
                     <!-- Submit Button -->
                     <button type="submit" 
                         :disabled="rating === 0 || isSubmitting" 
-                        class="w-full bg-gray-900 hover:bg-black disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 text-[11px] uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
+                        class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 text-[11px] uppercase tracking-wide transition-colors flex items-center justify-center gap-2 shadow-xs">
                         <template x-if="isSubmitting">
                             <svg class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -187,18 +145,18 @@
                     <div class="flex items-start gap-3">
                         <!-- Avatar -->
                         <div class="w-10 h-10 bg-primary/10 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0 uppercase">
-                            {{ substr($review->user->name, 0, 2) }}
+                            {{ substr($review->user->name ?? 'User', 0, 2) }}
                         </div>
                         <div class="flex-1 min-w-0">
                             <!-- Name + Date Row -->
                             <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[12px] font-bold text-gray-900">{{ $review->user->name }}</span>
+                                    <span class="text-[12px] font-bold text-gray-900">{{ $review->user->name ?? 'Customer' }}</span>
                                     @if($review->rating >= 4)
-                                        <span class="bg-primary/10 text-primary text-[9px] font-bold px-1.5 py-0.5 uppercase">Verified</span>
+                                        <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-bold px-1.5 py-0.5 uppercase">Verified</span>
                                     @endif
                                 </div>
-                                <span class="text-[10px] text-gray-400 font-medium flex-shrink-0">{{ $review->created_at->format('M d, Y') }}</span>
+                                <span class="text-[10px] text-gray-400 font-medium flex-shrink-0">{{ $review->created_at ? $review->created_at->format('M d, Y') : '' }}</span>
                             </div>
                             <!-- Stars -->
                             <div class="flex items-center gap-1 mb-2">
@@ -225,3 +183,66 @@
     </div>
 
 </div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('productReviewComponent', (productId, storeUrl) => ({
+            rating: 0,
+            hoverRating: 0,
+            reviewText: '',
+            isSubmitting: false,
+            localMessage: '',
+            localType: '',
+            async submitReview() {
+                this.localMessage = '';
+                if (this.rating === 0) {
+                    this.localMessage = 'Please select a star rating';
+                    this.localType = 'error';
+                    return;
+                }
+                if (!this.reviewText.trim()) {
+                    this.localMessage = 'Please write a review comment';
+                    this.localType = 'error';
+                    return;
+                }
+
+                this.isSubmitting = true;
+
+                try {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    const response = await fetch(storeUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            product_id: productId,
+                            rating: this.rating,
+                            review: this.reviewText
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        this.localMessage = data.message;
+                        this.localType = 'success';
+                        this.rating = 0;
+                        this.reviewText = '';
+                    } else {
+                        this.localMessage = data.message || 'Validation error while submitting review.';
+                        this.localType = 'error';
+                    }
+                } catch (error) {
+                    this.localMessage = 'Something went wrong. Please try again.';
+                    this.localType = 'error';
+                } finally {
+                    this.isSubmitting = false;
+                }
+            }
+        }));
+    });
+</script>

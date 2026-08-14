@@ -45,6 +45,143 @@ class CheckoutController extends Controller
     }
 
     /**
+     * Save/update incomplete (draft) order as user fills out checkout form.
+     */
+    public function saveIncompleteOrder(Request $request)
+    {
+        // Step 1: Request data validation
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'full_name'      => 'nullable|string|max:255',
+            'phone'          => 'nullable|string|max:20',
+            'address'        => 'nullable|string|max:500',
+            'district_id'    => 'nullable|integer|exists:districts,id',
+            'cart'           => 'required|array|min:1',
+            'cart.*.product_id' => 'required|integer',
+            'cart.*.quantity'   => 'required|integer|min:1|max:30',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed. Draft order not saved.',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $cart = $request->input('cart', []);
+        $fullName = trim($request->input('full_name', ''));
+        $phone = trim($request->input('phone', ''));
+        $address = trim($request->input('address', ''));
+        $districtId = $request->input('district_id');
+        $draftOrderId = $request->input('draft_order_id') ?: session('draft_order_id');
+
+        // Require at least a non-empty name or phone number
+        if (empty($phone) && empty($fullName)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Customer name or phone number is required to save draft order.'
+            ], 422);
+        }
+
+        // Validate cart items against DB
+        $validation = $this->validateCartItems($cart);
+        if (!empty($validation['errors']) || empty($validation['items'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cart validation failed. Draft order not saved.',
+                'validation_errors' => $validation['errors'] ?? ['No valid items in cart.']
+            ], 422);
+        }
+
+        $validatedItems = $validation['items'];
+        $subtotal = collect($validatedItems)->sum('line_total');
+
+        $shippingCost = 0;
+        if ($districtId) {
+            $district = \App\Models\District::find($districtId);
+            if ($district) {
+                $shippingCost = (float) $district->delivery_charge;
+            }
+        }
+
+        $totalAmount = max(0, $subtotal + $shippingCost);
+        $user = auth()->user();
+        $userId = $user ? $user->id : null;
+        $sessionId = session()->getId();
+
+        try {
+            return DB::transaction(function () use ($draftOrderId, $userId, $sessionId, $fullName, $phone, $address, $districtId, $subtotal, $shippingCost, $totalAmount, $validatedItems) {
+                $order = null;
+
+                if ($draftOrderId || $sessionId) {
+                    $order = Order::where('status', 'incomplete')
+                        ->where(function ($q) use ($draftOrderId, $sessionId) {
+                            if ($draftOrderId) {
+                                $q->where('id', $draftOrderId);
+                            }
+                            if ($sessionId) {
+                                $q->orWhere('session_id', $sessionId);
+                            }
+                        })->first();
+                }
+
+                if (!$order) {
+                    $order = new Order();
+                    $order->order_number = Order::generateOrderNumber();
+                    $order->status = 'incomplete';
+                }
+
+                $order->user_id = $userId;
+                $order->session_id = $sessionId;
+                $order->subtotal = $subtotal;
+                $order->shipping_amount = $shippingCost;
+                $order->total_amount = $totalAmount;
+                $order->payment_status = 'pending';
+                $order->payment_method = 'cod';
+                $order->save();
+
+                // Save or update shipping address
+                $orderAddress = $order->orderAddress ?: new \App\Models\OrderAddress();
+                $orderAddress->order_id = $order->id;
+                $orderAddress->user_id = $userId;
+                $orderAddress->name = $fullName ?: 'Guest Customer';
+                $orderAddress->phone_number = $phone ?: 'N/A';
+                $orderAddress->address = $address ?: 'N/A';
+                $orderAddress->district_id = $districtId ?: null;
+                $orderAddress->save();
+
+                // Save order products (permanently purge previous draft products to prevent duplicate rows)
+                \App\Models\OrderProduct::withTrashed()->where('order_id', $order->id)->forceDelete();
+                foreach ($validatedItems as $item) {
+                    $order->orderProducts()->create([
+                        'product_id'         => $item['product_id'],
+                        'product_variant_id' => $item['variant_id'] ?? null,
+                        'quantity'           => $item['quantity'],
+                        'weight'             => $item['weight'] ?? 0,
+                        'buying_price'       => $item['buying_price'] ?? 0,
+                        'unit_price'         => $item['unit_final_price'],
+                        'total_price'        => $item['line_total'],
+                    ]);
+                }
+
+                session()->put('draft_order_id', $order->id);
+
+                return response()->json([
+                    'success'        => true,
+                    'draft_order_id' => $order->id,
+                    'order_number'   => $order->order_number,
+                ]);
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save draft order.',
+                'error'   => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+
+    /**
      * Place a COD order with cache lock to prevent double submissions.
      */
     public function placeOrder(Request $request)
@@ -79,6 +216,7 @@ class CheckoutController extends Controller
             $cart = $request->input('cart');
             $districtId = $request->input('district_id');
             $couponCode = $request->input('coupon_code', '');
+            $draftOrderId = $request->input('draft_order_id') ?: session('draft_order_id');
 
             // ========================================
             // STEP 1: Validate every cart item against DB
@@ -146,10 +284,34 @@ class CheckoutController extends Controller
                 return $item['weight'] * $item['quantity'];
             });
 
+            // Check if existing draft order should be converted
+            $orderNumber = null;
+            $sessionId = session()->getId();
+            if ($draftOrderId || $sessionId) {
+                $existingDraft = Order::where('status', 'incomplete')
+                    ->where(function ($q) use ($draftOrderId, $sessionId) {
+                        if ($draftOrderId) {
+                            $q->where('id', $draftOrderId);
+                        }
+                        if ($sessionId) {
+                            $q->orWhere('session_id', $sessionId);
+                        }
+                    })->first();
+
+                if ($existingDraft) {
+                    $orderNumber = $existingDraft->order_number;
+                    \App\Models\OrderProduct::withTrashed()->where('order_id', $existingDraft->id)->forceDelete();
+                    $existingDraft->orderAddress()->delete();
+                    $existingDraft->flashSale()->delete();
+                    $existingDraft->forceDelete();
+                }
+            }
+
             // Build order data
             $orderInfo = [
                 'user_id'                => $userId,
-                'order_number'           => Order::generateOrderNumber(),
+                'session_id'             => $sessionId,
+                'order_number'           => $orderNumber ?: Order::generateOrderNumber(),
                 'subtotal'               => $subtotal,
                 'total_amount'           => $totalAmount,
                 'shipping_amount'        => $shippingCost,
@@ -197,7 +359,8 @@ class CheckoutController extends Controller
             // ========================================
             $order = $this->orderRepository->createOrder($orderInfo, $variantInfo, $shippingAddress, $flashSaleDiscount);
 
-            // Clear session cart
+            // Clear session cart & draft order
+            session()->forget('draft_order_id');
             if ($request->boolean('is_buy_now') || $request->input('type') === 'buy_now') {
                 session()->forget('buy_now_cart');
             } else {
@@ -230,6 +393,21 @@ class CheckoutController extends Controller
     {
         $validatedItems = [];
         $errors = [];
+
+        // Consolidate/merge duplicate items in incoming cart payload by product_id and variant_id
+        $consolidatedCart = [];
+        foreach ($cartItems as $item) {
+            $pId = $item['product_id'] ?? null;
+            $vId = $item['variant_id'] ?? null;
+            if (!$pId) continue;
+            $key = $pId . '_' . ($vId ?: '0');
+            if (!isset($consolidatedCart[$key])) {
+                $consolidatedCart[$key] = $item;
+            } else {
+                $consolidatedCart[$key]['quantity'] = (int) ($consolidatedCart[$key]['quantity'] ?? 1) + (int) ($item['quantity'] ?? 1);
+            }
+        }
+        $cartItems = array_values($consolidatedCart);
 
         foreach ($cartItems as $index => $item) {
             $productId = $item['product_id'] ?? null;

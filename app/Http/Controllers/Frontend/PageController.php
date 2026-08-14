@@ -39,10 +39,39 @@ class PageController extends Controller
     {
         $user = auth()->user();
         $order = $user->orders()->where('order_number', $orderNumber)
-            ->with(['orderProducts.product', 'orderAddress.district'])
+            ->with([
+                'orderProducts.product.firstImage',
+                'orderProducts.product.anyImage',
+                'orderProducts.productVariant.variantAttributes.attribute',
+                'orderProducts.productVariant.variantAttributes.attributeValue',
+                'orderAddress.district'
+            ])
             ->firstOrFail();
 
         return view('pages.account.order-show', compact('user', 'order'));
+    }
+
+    public function orderInvoice(string $orderNumber): View
+    {
+        $query = \App\Models\Order::where('order_number', $orderNumber)
+            ->with([
+                'orderProducts.product.firstImage',
+                'orderProducts.product.anyImage',
+                'orderProducts.productVariant.variantAttributes.attribute',
+                'orderProducts.productVariant.variantAttributes.attributeValue',
+                'orderAddress.district'
+            ]);
+
+        if (auth()->check() && !auth()->user()->is_admin) {
+            $order = $query->where(function($q) {
+                $q->where('user_id', auth()->id())->orWhereNull('user_id');
+            })->firstOrFail();
+        } else {
+            $order = $query->firstOrFail();
+        }
+
+        $user = auth()->user();
+        return view('pages.account.invoice', compact('user', 'order'));
     }
 
     public function orderReceived(string $orderNumber): View

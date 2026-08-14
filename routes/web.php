@@ -36,11 +36,13 @@ Route::get('/wishlist/ids', [\App\Http\Controllers\Frontend\WishlistController::
 // Page Routes
 Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
 Route::post('/checkout/calculate', [\App\Http\Controllers\Frontend\CheckoutController::class, 'calculate'])->name('checkout.calculate');
+Route::post('/checkout/save-incomplete', [\App\Http\Controllers\Frontend\CheckoutController::class, 'saveIncompleteOrder'])->name('checkout.save-incomplete');
 Route::post('/checkout/place-order', [\App\Http\Controllers\Frontend\CheckoutController::class, 'placeOrder'])->name('checkout.place-order');
 Route::get('/order-received/{order_number}', [PageController::class, 'orderReceived'])->name('order.received');
 Route::get('/account/{section?}', [PageController::class, 'account'])->name('account')->middleware('auth');
 Route::post('/account/details', [\App\Http\Controllers\Frontend\AuthController::class, 'updateDetails'])->name('account.details.update')->middleware('auth');
 Route::get('/account/order/{order_number}', [PageController::class, 'orderShow'])->name('account.order.show')->middleware('auth');
+Route::get('/account/order/{order_number}/invoice', [PageController::class, 'orderInvoice'])->name('account.order.invoice');
 Route::post('/account/addresses', [\App\Http\Controllers\Frontend\UserAddressController::class, 'store'])->name('account.addresses.store')->middleware('auth');
 Route::put('/account/addresses/{id}', [\App\Http\Controllers\Frontend\UserAddressController::class, 'update'])->name('account.addresses.update')->middleware('auth');
 Route::delete('/account/addresses/{id}', [\App\Http\Controllers\Frontend\UserAddressController::class, 'destroy'])->name('account.addresses.destroy')->middleware('auth');

@@ -62,6 +62,32 @@
                         </div>
                     </div>
 
+                    <!-- Active Filter Badges -->
+                    @if(request('min_price') || request('max_price') || request('category') || request('search'))
+                        <div class="flex flex-wrap items-center gap-2 mb-4 p-3 bg-white border border-gray-200">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Filters:</span>
+                            @if(request('category') && isset($activeCategory))
+                                <a href="{{ route('shop', request()->except('category')) }}" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 hover:bg-emerald-100 transition-colors">
+                                    <span>Category: {{ $activeCategory->name }}</span>
+                                    <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </a>
+                            @endif
+                            @if(request('min_price'))
+                                <a href="{{ route('shop', request()->except('min_price')) }}" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 hover:bg-emerald-100 transition-colors">
+                                    <span>Min: Tk. {{ number_format(request('min_price')) }}</span>
+                                    <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </a>
+                            @endif
+                            @if(request('max_price'))
+                                <a href="{{ route('shop', request()->except('max_price')) }}" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 hover:bg-emerald-100 transition-colors">
+                                    <span>Max: Tk. {{ number_format(request('max_price')) }}</span>
+                                    <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </a>
+                            @endif
+                            <a href="{{ route('shop') }}" class="text-xs font-bold text-red-600 hover:underline uppercase tracking-wider ml-1">Clear All</a>
+                        </div>
+                    @endif
+
                     <!-- Products Grid -->
                     @if($products->count() > 0)
                         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6">

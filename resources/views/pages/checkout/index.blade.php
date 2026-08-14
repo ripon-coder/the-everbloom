@@ -25,6 +25,8 @@
                 couponApplied: false,
                 couponError: null,
                 isBuyNow: false,
+                draftOrderId: {!! json_encode(session('draft_order_id')) !!},
+                autoSaveTimer: null,
 
                 get hasUnavailableItems() {
                     return this.calculatedItems.some(item => !item.available);
@@ -50,6 +52,53 @@
                         this.shippingCost = 0;
                     }
                     this.total = Math.max(0, this.subtotal + this.shippingCost - this.discount);
+                },
+
+                autoSaveIncompleteOrder() {
+                    if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
+                    this.autoSaveTimer = setTimeout(() => {
+                        if (!this.fullName && !this.phone && !this.address) return;
+                        let storageKey = this.isBuyNow ? 'buy_now_cart' : 'cart';
+                        let cart = [];
+                        try {
+                            let localCart = localStorage.getItem(storageKey);
+                            if (localCart) {
+                                let parsed = JSON.parse(localCart);
+                                if (Array.isArray(parsed) && parsed.length > 0) cart = parsed;
+                            }
+                        } catch (e) {
+                            cart = [];
+                        }
+                        if (cart.length === 0 && this.calculatedItems.length > 0) {
+                            cart = this.calculatedItems;
+                        }
+                        if (cart.length === 0) return;
+
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+                        fetch('{{ route("checkout.save-incomplete") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: JSON.stringify({
+                                full_name: this.fullName,
+                                phone: this.phone,
+                                address: this.address,
+                                district_id: this.districtId,
+                                cart: cart,
+                                draft_order_id: this.draftOrderId
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data && data.success && data.draft_order_id) {
+                                this.draftOrderId = data.draft_order_id;
+                            }
+                        })
+                        .catch(err => console.error('Incomplete order save error:', err));
+                    }, 800);
                 },
 
                 loadInitialCart() {
@@ -110,8 +159,12 @@
                         }
                     }
 
+                    this.$watch('fullName', () => this.autoSaveIncompleteOrder());
+                    this.$watch('phone', () => this.autoSaveIncompleteOrder());
+                    this.$watch('address', () => this.autoSaveIncompleteOrder());
                     this.$watch('districtId', () => {
                         this.updateShippingCost();
+                        this.autoSaveIncompleteOrder();
                     });
                 },
 
@@ -295,6 +348,7 @@
                             payment_method: this.paymentMethod,
                             cart: cart,
                             is_buy_now: this.isBuyNow,
+                            draft_order_id: this.draftOrderId,
                             coupon_code: this.couponApplied ? this.couponCode : ''
                         })
                     })
