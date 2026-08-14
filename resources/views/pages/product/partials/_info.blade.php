@@ -88,14 +88,14 @@
                 </span>
             </template>
         </div>
-        <div class="mt-2 flex flex-wrap gap-2 text-[10px] md:text-xs">
+        <div class="mt-2 flex flex-wrap gap-2 text-xs sm:text-sm">
             <div class="flex items-center gap-1">
                 <span class="font-bold text-gray-400 uppercase">SKU:</span>
-                <span class="bg-gray-100 text-gray-600 px-2 py-0.5 font-medium" x-text="currentSku">{{ $product->sku ?? 'N/A' }}</span>
+                <span class="bg-gray-100 text-gray-700 px-2 py-0.5 font-semibold" x-text="currentSku">{{ $product->sku ?? 'N/A' }}</span>
             </div>
             <div class="flex items-center gap-1">
                 <span class="font-bold text-gray-400 uppercase">Category:</span>
-                <span class="bg-gray-100 text-gray-600 px-2 py-0.5 font-medium">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                <span class="bg-gray-100 text-gray-700 px-2 py-0.5 font-semibold">{{ $product->category->name ?? 'Uncategorized' }}</span>
             </div>
             @if($product->is_free_delivery)
                 <div class="flex items-center gap-1 text-primary font-bold uppercase">
@@ -110,13 +110,13 @@
     <div class="py-3 border-y border-gray-100 mb-3 flex items-center justify-between">
         <div>
             <div class="flex items-baseline gap-3">
-                <span class="text-2xl md:text-3xl font-black text-primary">Tk. <span x-text="formatPrice(currentPrice)">{{ number_format($initialPrice, 2) }}</span></span>
+                <span class="text-2xl md:text-3xl font-bold text-primary">Tk. <span x-text="formatPrice(currentPrice)">{{ number_format($initialPrice, 2) }}</span></span>
                 <template x-if="currentOldPrice">
                     <span class="text-sm md:text-base text-gray-400 line-through">Tk. <span x-text="formatPrice(currentOldPrice)">{{ number_format($initialOldPrice, 2) }}</span></span>
                 </template>
             </div>
             <div class="h-4">
-                <div x-show="currentOldPrice > 0" x-cloak class="text-[10px] md:text-xs font-bold text-accent">
+                <div x-show="currentOldPrice > 0" x-cloak class="text-xs sm:text-sm font-bold text-accent">
                     Save: Tk. <span x-text="formatPrice(currentOldPrice - currentPrice)">{{ $initialOldPrice > 0 ? number_format($initialOldPrice - $initialPrice, 2) : '0.00' }}</span>
                     (<span x-text="currentOldPrice > 0 ? Math.round(((currentOldPrice - currentPrice) / currentOldPrice) * 100) : 0">{{ $initialOldPrice > 0 ? round((($initialOldPrice - $initialPrice) / $initialOldPrice) * 100) : 0 }}</span>% Off)
                 </div>
@@ -149,15 +149,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
             <div>
-                <p class="text-[12px] font-bold text-primary-900 leading-none mb-0.5">Free Express Shipping</p>
-                <p class="text-[11px] text-primary-700">Eligible for free delivery to your doorstep.</p>
+                <p class="text-xs font-bold text-primary-900 leading-none mb-0.5">Free Express Shipping</p>
+                <p class="text-xs text-primary-700">Eligible for free delivery to your doorstep.</p>
             </div>
         </div>
     @endif
 
-    <div class="text-[11px] sm:text-xs text-gray-600 mb-4 leading-relaxed">
-        {{ \App\Helpers\TextHelper::cleanText($product->short_description ?: $product->description, 10) }}
-    </div>
+
 
     <div class="space-y-4">
         <!-- Attributes Selection -->
@@ -183,16 +181,16 @@
 
         @foreach($groupedAttributes as $name => $values)
             <div>
-                <h3 class="text-[10px] md:text-xs font-bold text-gray-900 uppercase mb-2">Select {{ $name }}</h3>
+                <h3 class="text-xs sm:text-sm font-bold text-gray-900 uppercase mb-2">Select {{ $name }}</h3>
                 <div class="flex flex-wrap gap-2">
                     @foreach($values as $id => $val)
                         <button @click="selectAttribute('{{ $name }}', {{ $id }})"
                             :disabled="!isOptionAvailable('{{ $name }}', {{ $id }})"
-                            class="px-3 py-1.5 border text-xs md:text-sm font-medium transition-all disabled:opacity-10 disabled:cursor-not-allowed"
+                            class="px-3.5 py-2 border text-xs sm:text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             :class="{
                                 'border-primary bg-primary-50 text-primary font-bold': selectedAttributes['{{ $name }}'] === {{ $id }},
-                                'border-gray-200 text-gray-600 hover:border-gray-400': selectedAttributes['{{ $name }}'] !== {{ $id }},
-                                'opacity-30 grayscale': !isOptionCompatible('{{ $name }}', {{ $id }}) && selectedAttributes['{{ $name }}'] !== {{ $id }}
+                                'border-gray-200 text-slate-800 hover:border-gray-400': selectedAttributes['{{ $name }}'] !== {{ $id }},
+                                'opacity-60': !isOptionCompatible('{{ $name }}', {{ $id }}) && selectedAttributes['{{ $name }}'] !== {{ $id }}
                             }">
                             {{ $val }}
                         </button>
@@ -203,18 +201,18 @@
 
         <!-- Quantity -->
         <div class="flex items-center gap-4">
-            <span class="text-[10px] md:text-xs font-bold text-gray-900 uppercase">Qty</span>
+            <span class="text-xs sm:text-sm font-bold text-gray-900 uppercase">Qty</span>
             <div class="flex items-center border border-gray-200 overflow-hidden h-9 md:h-10">
-                <button @click="if(quantity > 1) quantity--" class="px-3 py-1 hover:bg-gray-50 border-r border-gray-200 text-gray-500">-</button>
-                <input type="number" x-model="quantity" class="w-10 text-center border-none focus:ring-0 font-medium text-sm p-0" readonly>
-                <button @click="quantity++" class="px-3 py-1 hover:bg-gray-50 border-l border-gray-200 text-gray-500">+</button>
+                <button @click="if(quantity > 1) quantity--" class="px-3 py-1 hover:bg-gray-50 border-r border-gray-200 text-gray-600 font-bold">-</button>
+                <input type="number" x-model="quantity" class="w-10 text-center border-none focus:ring-0 font-bold text-sm sm:text-base p-0" readonly>
+                <button @click="quantity++" class="px-3 py-1 hover:bg-gray-50 border-l border-gray-200 text-gray-600 font-bold">+</button>
             </div>
         </div>
 
         <!-- Action Buttons (hidden on mobile, shown on desktop) -->
-        <div class="hidden md:flex gap-2 pt-1">
+        <div class="hidden md:flex gap-2.5 pt-1">
             <button @click="addToCart($event)" :disabled="currentStock <= 0"
-                class="flex-1 bg-primary hover:bg-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
+                class="flex-1 bg-primary hover:bg-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 text-xs sm:text-sm uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
@@ -222,7 +220,7 @@
                 <span x-text="currentStock > 0 ? 'Add to Cart' : 'Out of Stock'">Add to Cart</span>
             </button>
             <button @click="buyNow($event)" :disabled="currentStock <= 0"
-                class="flex-1 bg-gray-900 hover:bg-black disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 text-xs uppercase tracking-wide transition-colors">
+                class="flex-1 bg-gray-900 hover:bg-black disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 text-xs sm:text-sm uppercase tracking-wide transition-colors">
                 Buy It Now
             </button>
         </div>
