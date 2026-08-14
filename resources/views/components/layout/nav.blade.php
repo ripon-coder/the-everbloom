@@ -524,13 +524,13 @@
             <!-- Categories Dropdown -->
             <div class="relative h-full flex items-center mr-6 z-50" x-data="{ catOpen: false }" @click.away="catOpen = false">
                 <button @click="catOpen = !catOpen" type="button"
-                    class="flex items-center justify-between w-64 bg-slate-50 px-4 py-3 text-slate-900 hover:text-emerald-600 font-medium border-x border-gray-200 transition-colors cursor-pointer">
+                    class="flex items-center justify-between w-64 bg-slate-50 px-4 py-3 text-slate-800 hover:text-emerald-600 font-medium border-x border-gray-200 transition-colors cursor-pointer">
                     <div class="flex items-center mr-2">
                         <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
-                        <span class="text-sm sm:text-base uppercase tracking-wide font-extrabold text-slate-900">Categories</span>
+                        <span class="text-xs sm:text-sm uppercase tracking-wide font-bold">Categories</span>
                     </div>
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -551,7 +551,7 @@
                                     <li class="relative border-b border-gray-100 last:border-0" x-data="{ hover: false }"
                                         @mouseenter="hover = true" @mouseleave="hover = false">
                                         <a href="{{ route('shop', ['category' => $category->slug]) }}"
-                                            class="flex items-center justify-between px-4 py-3 text-sm text-slate-900 transition-colors uppercase tracking-wide font-semibold"
+                                            class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 transition-colors uppercase tracking-wide font-medium"
                                             :class="hover ? 'text-emerald-600 bg-slate-50' : 'hover:text-emerald-600 hover:bg-slate-50'">
                                             <div class="flex items-center gap-2">
                                                 {{ $category->name }}
@@ -570,7 +570,7 @@
                                                 @foreach($category->children as $child)
                                                     <li>
                                                         <a href="{{ route('shop', ['category' => $child->slug]) }}"
-                                                            class="block px-4 py-2.5 text-xs sm:text-sm text-slate-800 hover:text-emerald-600 hover:bg-slate-50 uppercase tracking-wide font-semibold transition-colors">
+                                                            class="block px-4 py-2 text-xs text-slate-800 hover:text-emerald-600 hover:bg-slate-50 uppercase tracking-wide font-medium transition-colors">
                                                             {{ $child->name }}
                                                         </a>
                                                     </li>
@@ -581,7 +581,7 @@
                                 @else
                                     <li class="relative border-b border-gray-100 last:border-0">
                                         <a href="{{ route('shop', ['category' => $category->slug]) }}"
-                                            class="flex items-center justify-between px-4 py-3 text-sm text-slate-900 hover:text-emerald-600 hover:bg-slate-50 transition-colors uppercase tracking-wide font-semibold">
+                                            class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 hover:text-emerald-600 hover:bg-slate-50 transition-colors uppercase tracking-wide font-medium">
                                             <div class="flex items-center gap-2">
                                                 {{ $category->name }}
                                             </div>
@@ -590,7 +590,7 @@
                                 @endif
                             @endforeach
                         @else
-                            <li class="px-4 py-3 text-xs sm:text-sm text-gray-500">No categories found</li>
+                            <li class="px-4 py-3 text-xs text-gray-500">No categories found</li>
                         @endif
                     </ul>
                 </div>
@@ -599,10 +599,10 @@
             <!-- Links -->
             <nav class="hidden md:flex items-center flex-wrap">
                 <a href="{{ route('home') }}"
-                    class="mx-3 text-sm sm:text-base uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->routeIs('home') ? 'text-emerald-600 border-emerald-600 font-black' : 'text-slate-900 hover:text-emerald-600 border-transparent font-extrabold' }}">Home</a>
+                    class="mx-3 text-xs sm:text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->routeIs('home') ? 'text-emerald-600 border-emerald-600 font-black' : 'text-slate-700 hover:text-emerald-600 border-transparent font-bold' }}">Home</a>
                 @foreach($header_menus as $menu)
                     <a href="{{ $menu->url }}"
-                        class="mx-3 text-sm sm:text-base uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->url() == url($menu->url) ? 'text-emerald-600 border-emerald-600 font-black' : 'text-slate-900 hover:text-emerald-600 border-transparent font-extrabold' }}">{{ $menu->name }}</a>
+                        class="mx-3 text-xs sm:text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->url() == url($menu->url) ? 'text-emerald-600 border-emerald-600 font-black' : 'text-slate-700 hover:text-emerald-600 border-transparent font-bold' }}">{{ $menu->name }}</a>
                 @endforeach
             </nav>
         </div>
