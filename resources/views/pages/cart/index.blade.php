@@ -334,7 +334,7 @@
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
-                        body: JSON.stringify({ cart: this.cart })
+                        body: JSON.stringify({ cart: this.cart, type: 'cart' })
                     })
                     .then(res => res.json())
                     .then(data => {
@@ -370,7 +370,7 @@
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                             },
-                            body: JSON.stringify({ cart: this.cart })
+                            body: JSON.stringify({ cart: this.cart, type: 'cart' })
                         });
                         const data = await response.json();
 

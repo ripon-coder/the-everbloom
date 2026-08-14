@@ -13,11 +13,12 @@ class PageController extends Controller
     public function checkout(CheckoutCalculationRepository $checkoutCalculationRepository)
     {
         $sessionCart = session('cart', []);
+        $sessionBuyNowCart = session('buy_now_cart', []);
         $districts = \App\Models\District::orderBy('name')->get();
         $userAddresses = auth()->check() ? auth()->user()->addresses()->get() : collect();
 
         return response()
-            ->view('pages.checkout.index', compact('districts', 'userAddresses', 'sessionCart'))
+            ->view('pages.checkout.index', compact('districts', 'userAddresses', 'sessionCart', 'sessionBuyNowCart'))
             ->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');

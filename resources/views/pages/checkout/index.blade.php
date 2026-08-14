@@ -4,6 +4,7 @@
             return {
                 userAddresses: {!! \Illuminate\Support\Js::from($userAddresses ?? []) !!},
                 sessionCart: {!! \Illuminate\Support\Js::from($sessionCart ?? []) !!},
+                sessionBuyNowCart: {!! \Illuminate\Support\Js::from($sessionBuyNowCart ?? []) !!},
                 districts: {!! \Illuminate\Support\Js::from($districts ?? []) !!},
                 selectedAddressId: '',
                 fullName: '',
@@ -66,7 +67,10 @@
                             parsed = null;
                         }
                     }
-                    if (!parsed && !this.isBuyNow && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
+
+                    if (!parsed && this.isBuyNow && Array.isArray(this.sessionBuyNowCart) && this.sessionBuyNowCart.length > 0) {
+                        parsed = this.sessionBuyNowCart;
+                    } else if (!parsed && !this.isBuyNow && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
                         parsed = this.sessionCart;
                     }
 
@@ -268,7 +272,9 @@
                         cart = [];
                     }
 
-                    if (cart.length === 0 && !this.isBuyNow && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
+                    if (cart.length === 0 && this.isBuyNow && Array.isArray(this.sessionBuyNowCart) && this.sessionBuyNowCart.length > 0) {
+                        cart = this.sessionBuyNowCart;
+                    } else if (cart.length === 0 && !this.isBuyNow && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
                         cart = this.sessionCart;
                     }
                     if (cart.length === 0 && this.calculatedItems.length > 0) {
@@ -288,6 +294,7 @@
                             district_id: this.districtId,
                             payment_method: this.paymentMethod,
                             cart: cart,
+                            is_buy_now: this.isBuyNow,
                             coupon_code: this.couponApplied ? this.couponCode : ''
                         })
                     })
@@ -296,6 +303,17 @@
                         if (data.success) {
                             if (this.isBuyNow) {
                                 localStorage.removeItem('buy_now_cart');
+                                window.initialBuyNowSession = [];
+                                this.sessionBuyNowCart = [];
+
+                                fetch('{{ route("cart.sync") }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                    },
+                                    body: JSON.stringify({ cart: [], type: 'buy_now' })
+                                });
                             } else {
                                 // Set localStorage cart to empty array []
                                 localStorage.setItem('cart', '[]');
@@ -309,7 +327,7 @@
                                         'Content-Type': 'application/json',
                                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                                     },
-                                    body: JSON.stringify({ cart: [] })
+                                    body: JSON.stringify({ cart: [], type: 'cart' })
                                 });
 
                                 // Update cart count in header without opening drawer

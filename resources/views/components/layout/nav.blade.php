@@ -1,5 +1,6 @@
 <script>
     window.initialCartSession = {!! \Illuminate\Support\Js::from(session('cart', [])) !!};
+    window.initialBuyNowSession = {!! \Illuminate\Support\Js::from(session('buy_now_cart', [])) !!};
 </script>
 <header class="w-full bg-white font-sans border-b border-gray-200 relative z-[9999]" x-data="{ 
         isMobileMenuOpen: false,
@@ -72,21 +73,33 @@
         },
         loadCart() {
             let localCart = localStorage.getItem('cart');
+            let parsed = null;
             
-            if (localCart !== null) {
+            if (localCart !== null && localCart !== 'undefined') {
                 try {
-                    this.cart = JSON.parse(localCart);
+                    parsed = JSON.parse(localCart);
                 } catch(e) {
-                    this.cart = [];
+                    parsed = null;
                 }
-            } else {
-                this.cart = [];
             }
-            if (Array.isArray(this.cart)) {
-                this.cart = this.cart.filter(item => item && parseInt(item.quantity || 0) > 0);
-            } else {
-                this.cart = [];
+
+            // Seed localStorage from server session if localStorage cart is empty or missing
+            if ((!parsed || !Array.isArray(parsed) || parsed.length === 0) && Array.isArray(window.initialCartSession) && window.initialCartSession.length > 0) {
+                parsed = window.initialCartSession;
+                try {
+                    localStorage.setItem('cart', JSON.stringify(parsed));
+                } catch(e) {}
             }
+
+            // Seed buy_now_cart from server session if missing in localStorage
+            let localBuyNow = localStorage.getItem('buy_now_cart');
+            if (!localBuyNow && Array.isArray(window.initialBuyNowSession) && window.initialBuyNowSession.length > 0) {
+                try {
+                    localStorage.setItem('buy_now_cart', JSON.stringify(window.initialBuyNowSession));
+                } catch(e) {}
+            }
+
+            this.cart = Array.isArray(parsed) ? parsed.filter(item => item && parseInt(item.quantity || 0) > 0) : [];
         },
         get cartCount() {
             return this.cart.reduce((total, item) => total + parseInt(item.quantity || 0), 0);
@@ -128,8 +141,16 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ cart: this.cart })
-            }).catch(error => console.error('Error syncing cart:', error));
+                body: JSON.stringify({ cart: this.cart, type: 'cart' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.cart && Array.isArray(data.cart)) {
+                    this.cart = data.cart.filter(item => item && parseInt(item.quantity || 0) > 0);
+                    localStorage.setItem('cart', JSON.stringify(this.cart));
+                }
+            })
+            .catch(error => console.error('Error syncing cart:', error));
         },
         formatPrice(price) {
             return parseFloat(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });

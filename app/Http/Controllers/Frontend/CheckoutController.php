@@ -198,7 +198,11 @@ class CheckoutController extends Controller
             $order = $this->orderRepository->createOrder($orderInfo, $variantInfo, $shippingAddress, $flashSaleDiscount);
 
             // Clear session cart
-            session()->forget('cart');
+            if ($request->boolean('is_buy_now') || $request->input('type') === 'buy_now') {
+                session()->forget('buy_now_cart');
+            } else {
+                session()->forget('cart');
+            }
 
             return response()->json([
                 'success'      => true,

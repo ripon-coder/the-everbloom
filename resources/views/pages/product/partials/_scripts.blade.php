@@ -376,7 +376,7 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ cart: cart })
+                    body: JSON.stringify({ cart: cart, type: 'cart' })
                 }).catch(err => console.error('Cart sync error:', err));
 
                 window.dispatchEvent(new CustomEvent('cart-updated', { detail: { cart: cart } }));
@@ -476,7 +476,7 @@
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
-                        body: JSON.stringify({ cart: [buyNowItem] })
+                        body: JSON.stringify({ cart: [buyNowItem], type: 'buy_now' })
                     });
                     const data = await response.json();
                     if (data && data.cart && data.cart.length > 0) {

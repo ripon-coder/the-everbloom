@@ -19,6 +19,7 @@ class CartController extends Controller
     }
     public function sync(Request $request)
     {
+        $type = $request->input('type', 'cart');
         $cart = $request->input('cart', []);
         $updatedCart = [];
         $totalQuantity = 0;
@@ -84,10 +85,15 @@ class CartController extends Controller
             ], 422);
         }
 
-        session()->put('cart', $updatedCart);
+        if ($type === 'buy_now') {
+            session()->put('buy_now_cart', $updatedCart);
+        } else {
+            session()->put('cart', $updatedCart);
+        }
         
         return response()->json([
             'success' => true,
+            'type' => $type,
             'cart' => $updatedCart,
             'has_inactive' => $hasInactive
         ]);
