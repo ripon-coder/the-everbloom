@@ -12,12 +12,20 @@ class PageController extends Controller
 {
     public function checkout(CheckoutCalculationRepository $checkoutCalculationRepository)
     {
-        $sessionCart = session('cart', []);
+        $isBuyNow = request('type') === 'buy_now' || session('is_buy_now', false);
+        $cartKey = $isBuyNow ? 'buy_now_cart' : 'cart';
+        $sessionCart = session($cartKey, session('cart', []));
+
+        $calculation = $checkoutCalculationRepository->calculate($sessionCart);
+        $verifiedCart = $calculation['items'];
+
+        session()->put($cartKey, $verifiedCart);
+
         $districts = \App\Models\District::orderBy('name')->get();
         $userAddresses = auth()->check() ? auth()->user()->addresses()->get() : collect();
 
         return response()
-            ->view('pages.checkout.index', compact('districts', 'userAddresses', 'sessionCart'))
+            ->view('pages.checkout.index', compact('districts', 'userAddresses', 'sessionCart', 'verifiedCart', 'calculation', 'isBuyNow'))
             ->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');

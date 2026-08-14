@@ -106,7 +106,7 @@ class Product extends Model
             ? $this->firstActiveVariant
             : ($this->relationLoaded('variants')
                 ? $this->variants->where('status', ProductVariantStatus::ACTIVE)->first()
-                : $this->firstActiveVariant);
+                : null);
 
         if ($variant) {
             return ($variant->discount_price > 0 && $variant->discount_price < $variant->sell_price)
@@ -126,7 +126,7 @@ class Product extends Model
             ? $this->firstActiveVariant
             : ($this->relationLoaded('variants')
                 ? $this->variants->where('status', ProductVariantStatus::ACTIVE)->first()
-                : $this->firstActiveVariant);
+                : null);
 
         if ($variant) {
             return ($variant->discount_price > 0 && $variant->discount_price < $variant->sell_price)
@@ -146,7 +146,7 @@ class Product extends Model
             ? $this->firstActiveVariant
             : ($this->relationLoaded('variants')
                 ? $this->variants->where('status', ProductVariantStatus::ACTIVE)->first()
-                : $this->firstActiveVariant);
+                : null);
 
         if ($variant && !empty($variant->sku)) {
             return $variant->sku;
@@ -245,11 +245,12 @@ class Product extends Model
     public function toSearchableArray()
     {
         return [
-            'id' => $this->id,
+            'id' => (int) $this->id,
             'name' => $this->name,
-            'short_description' => $this->short_description,
-            'description' => $this->description,
-            'price' => $this->price,
+            'short_description' => $this->short_description ?? '',
+            'description' => strip_tags($this->description ?? ''),
+            'price' => (float) $this->price,
+            'category_name' => ($this->relationLoaded('category') && $this->category) ? $this->category->name : '',
         ];
     }
 }

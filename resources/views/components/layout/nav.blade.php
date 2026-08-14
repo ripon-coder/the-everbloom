@@ -199,17 +199,16 @@
 
     <!-- Mobile Search Bar -->
     <div class="md:hidden px-2 sm:px-4 py-3 bg-white border-b border-gray-100 relative">
-        <form action="{{ route('shop') }}" method="GET" class="flex items-center h-11 border border-gray-400 rounded-none overflow-hidden">
+        <form action="{{ route('shop') }}" method="GET" class="flex items-center h-11 border border-gray-300 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/20 bg-white transition-all">
             <input type="text" name="search" x-model="searchQuery" @input.debounce.300ms="fetchSearchResults()" 
                 @focus="showSearchResults = searchResults.length > 0"
-                class="flex-1 h-full px-3 text-[15px] bg-transparent border-none focus:ring-0 outline-none w-full"
-                placeholder="Search for products" autocomplete="off">
-            <button type="submit" class="h-full px-4 bg-black text-white flex items-center justify-center">
-                <svg x-show="!isSearching" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                class="flex-1 h-full px-4 text-xs bg-transparent border-none focus:ring-0 outline-none w-full text-gray-800 placeholder-gray-400"
+                placeholder="Search for products..." autocomplete="off">
+            <button type="submit" class="h-full px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase transition-colors flex items-center justify-center">
+                <svg x-show="!isSearching" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
-                <svg x-show="isSearching" x-cloak class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg x-show="isSearching" x-cloak class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -218,25 +217,35 @@
 
         <!-- Mobile Search Results Dropdown -->
         <div x-show="showSearchResults" @click.away="showSearchResults = false" x-cloak
-            class="absolute left-0 right-0 top-full mt-1 bg-white shadow-xl rounded-none z-[100] max-h-[400px] overflow-y-auto border-t border-gray-100">
-            <template x-for="product in searchResults" :key="product.id">
-                <a :href="'/product/' + product.slug" class="flex items-center gap-4 p-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors">
-                    <img :src="product.img" :alt="product.name" class="w-12 h-12 object-cover rounded-none">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-sm font-bold text-gray-900 truncate" x-text="product.name"></h4>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="text-sm font-semibold text-primary" x-text="'৳' + formatPrice(product.price)"></span>
-                            <span x-show="product.old_price" class="text-xs text-gray-400 line-through" x-text="'৳' + formatPrice(product.old_price)"></span>
+            class="absolute left-2 right-2 top-full mt-1.5 bg-white shadow-2xl rounded-none z-[100] max-h-[420px] overflow-hidden border border-gray-200">
+            <div class="px-3.5 py-2 bg-gray-50 border-b border-gray-100 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                <span>Matching Products (<span x-text="searchResults.length" class="text-emerald-600 font-extrabold"></span>)</span>
+            </div>
+            <div class="overflow-y-auto max-h-[320px] divide-y divide-gray-100">
+                <template x-for="product in searchResults" :key="product.id">
+                    <a :href="'/product/' + product.slug" class="flex items-center gap-3 p-3 hover:bg-emerald-50/70 transition-colors group">
+                        <div class="w-12 h-12 shrink-0 border border-gray-200 bg-white p-0.5 overflow-hidden flex items-center justify-center">
+                            <img :src="product.img" :alt="product.name" class="w-full h-full object-cover">
                         </div>
-                    </div>
-                </a>
-            </template>
-            <div x-show="searchResults.length === 0 && searchQuery.length >= 2 && !isSearching" class="p-4 text-center text-gray-500 text-sm">
-                No products found for "<span x-text="searchQuery"></span>"
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-bold text-gray-900 group-hover:text-emerald-700 truncate" x-text="product.name"></h4>
+                            <template x-if="product.category_name">
+                                <span class="inline-block text-[9px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.2" x-text="product.category_name"></span>
+                            </template>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-xs font-black text-emerald-600" x-text="'৳' + formatPrice(product.price)"></span>
+                                <span x-show="product.old_price" class="text-[10px] text-gray-400 line-through" x-text="'৳' + formatPrice(product.old_price)"></span>
+                            </div>
+                        </div>
+                    </a>
+                </template>
+            </div>
+            <div x-show="searchResults.length === 0 && searchQuery.length >= 2 && !isSearching" class="p-6 text-center text-gray-500 text-xs bg-gray-50/50">
+                No products found for "<span x-text="searchQuery" class="font-bold text-gray-900"></span>"
             </div>
             <a x-show="searchResults.length > 0" :href="'{{ route('shop') }}?search=' + searchQuery" 
-                class="block p-3 text-center text-sm font-bold text-primary bg-gray-50 hover:bg-gray-100 transition-colors">
-                View all results
+                class="block py-2.5 px-3 text-center text-[10px] font-bold text-gray-600 hover:text-emerald-600 bg-gray-50 border-t border-gray-100 transition-colors uppercase tracking-wider">
+                View All Results
             </a>
         </div>
     </div>
@@ -316,59 +325,79 @@
             <!-- Search Bar -->
             <div class="flex-1 max-w-3xl relative">
                 <form action="{{ route('shop') }}" method="GET"
-                    class="flex items-center h-10 border border-gray-200 bg-gray-50 focus-within:border-primary focus-within:bg-white transition-colors">
+                    class="flex items-center h-11 border border-gray-300 hover:border-gray-400 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/20 bg-white transition-all">
                     <input type="text" name="search" x-model="searchQuery" @input.debounce.300ms="fetchSearchResults()"
                         @focus="showSearchResults = searchResults.length > 0"
-                        class="flex-1 h-full px-5 text-sm bg-transparent border-none focus:ring-0 outline-none w-full"
+                        class="flex-1 h-full px-4 text-xs sm:text-sm bg-transparent border-none focus:ring-0 outline-none w-full text-gray-800 placeholder-gray-400"
                         placeholder="Search for products..." autocomplete="off">
-                    <button type="submit" class="h-full px-6 bg-slate-900 text-white hover:bg-primary transition-colors flex items-center justify-center">
-                        <svg x-show="!isSearching" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    <button type="submit" class="h-full px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2">
+                        <svg x-show="!isSearching" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <svg x-show="isSearching" x-cloak class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg x-show="isSearching" x-cloak class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
+                        <span>Search</span>
                     </button>
                 </form>
 
                 <!-- Desktop Search Results Dropdown -->
                 <div x-show="showSearchResults" @click.away="showSearchResults = false" x-cloak
                     x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 transform scale-95"
-                    x-transition:enter-end="opacity-100 transform scale-100"
-                    class="absolute left-0 right-0 top-full mt-2 bg-white shadow-2xl rounded-none z-[100] max-h-[480px] overflow-hidden border border-gray-100">
-                    <div class="overflow-y-auto max-h-[420px]">
+                    x-transition:enter-start="opacity-0 transform -translate-y-2"
+                    x-transition:enter-end="opacity-100 transform translate-y-0"
+                    class="absolute left-0 right-0 top-full mt-1.5 bg-white shadow-2xl rounded-none z-[100] max-h-[500px] overflow-hidden border border-gray-200">
+                    
+                    <!-- Search Header Bar -->
+                    <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-100 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                        <span>Matching Products (<span x-text="searchResults.length" class="text-emerald-600 font-extrabold"></span>)</span>
+                        <span class="text-gray-400 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Live Results
+                        </span>
+                    </div>
+
+                    <!-- Search Items -->
+                    <div class="overflow-y-auto max-h-[380px] divide-y divide-gray-100">
                         <template x-for="product in searchResults" :key="product.id">
-                            <a :href="'/product/' + product.slug" class="flex items-center gap-4 p-4 hover:bg-primary-50 border-b border-gray-50 last:border-0 transition-all group">
-                                <div class="w-16 h-16 shrink-0 overflow-hidden rounded-none bg-gray-100">
-                                    <img :src="product.img" :alt="product.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                            <a :href="'/product/' + product.slug" class="flex items-center gap-4 p-3.5 hover:bg-emerald-50/70 transition-colors group">
+                                <div class="w-14 h-14 shrink-0 border border-gray-200 bg-white p-0.5 overflow-hidden flex items-center justify-center">
+                                    <img :src="product.img" :alt="product.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <h4 class="text-[14px] font-bold text-gray-900 group-hover:text-primary transition-colors truncate" x-text="product.name"></h4>
-                                    <p class="text-xs text-gray-500 mt-0.5 truncate" x-text="product.category_name"></p>
-                                    <div class="flex items-center gap-3 mt-1.5">
-                                        <span class="text-[15px] font-black text-primary" x-text="'৳' + formatPrice(product.price)"></span>
-                                        <span x-show="product.old_price" class="text-xs text-gray-400 line-through font-medium" x-text="'৳' + formatPrice(product.old_price)"></span>
+                                    <h4 class="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-emerald-700 transition-colors truncate" x-text="product.name"></h4>
+                                    <template x-if="product.category_name">
+                                        <span class="inline-block text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 mt-0.5" x-text="product.category_name"></span>
+                                    </template>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-xs sm:text-sm font-black text-emerald-600" x-text="'৳' + formatPrice(product.price)"></span>
+                                        <span x-show="product.old_price" class="text-[11px] text-gray-400 line-through font-normal" x-text="'৳' + formatPrice(product.old_price)"></span>
                                     </div>
+                                </div>
+                                <div class="text-gray-300 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
                                 </div>
                             </a>
                         </template>
                     </div>
-                    
-                    <div x-show="searchResults.length === 0 && searchQuery.length >= 2 && !isSearching" class="p-8 text-center">
-                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-none bg-gray-50 text-gray-400 mb-3">
+
+                    <!-- No Results -->
+                    <div x-show="searchResults.length === 0 && searchQuery.length >= 2 && !isSearching" class="p-8 text-center bg-gray-50/50">
+                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 text-gray-400 mb-3">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
-                        <p class="text-gray-500 text-sm">No products found for "<span class="font-bold text-gray-900" x-text="searchQuery"></span>"</p>
+                        <p class="text-gray-600 text-xs sm:text-sm">No products found matching "<span class="font-bold text-gray-900" x-text="searchQuery"></span>"</p>
                     </div>
 
+                    <!-- Footer Action Bar -->
                     <a x-show="searchResults.length > 0" :href="'{{ route('shop') }}?search=' + searchQuery" 
-                        class="block p-4 text-center text-sm font-black text-white bg-slate-900 hover:bg-primary transition-colors">
-                        View All Results for "<span x-text="searchQuery"></span>"
+                        class="block py-2.5 px-4 text-center text-[11px] sm:text-xs font-bold text-gray-600 hover:text-emerald-600 bg-gray-50 border-t border-gray-100 transition-colors uppercase tracking-wider">
+                        View All Results for "<span x-text="searchQuery" class="font-extrabold text-gray-900"></span>"
                     </a>
                 </div>
             </div>

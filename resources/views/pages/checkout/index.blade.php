@@ -2,7 +2,7 @@
     <script>
         function checkoutPage() {
             return {
-                userAddresses: {!! \Illuminate\Support\Js::from($userAddresses ?? []) !!},
+                verifiedCart: {!! \Illuminate\Support\Js::from($verifiedCart ?? $sessionCart ?? []) !!},
                 sessionCart: {!! \Illuminate\Support\Js::from($sessionCart ?? []) !!},
                 districts: {!! \Illuminate\Support\Js::from($districts ?? []) !!},
                 selectedAddressId: '',
@@ -54,10 +54,10 @@
                 loadInitialCart() {
                     const urlParams = new URLSearchParams(window.location.search);
                     this.isBuyNow = urlParams.get('type') === 'buy_now';
-
                     let storageKey = this.isBuyNow ? 'buy_now_cart' : 'cart';
-                    let localCart = localStorage.getItem(storageKey);
+
                     let parsed = null;
+                    let localCart = localStorage.getItem(storageKey);
                     if (localCart) {
                         try {
                             let p = JSON.parse(localCart);
@@ -66,25 +66,31 @@
                             parsed = null;
                         }
                     }
-                    if (!parsed && !this.isBuyNow && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
+
+                    if (!parsed && Array.isArray(this.verifiedCart) && this.verifiedCart.length > 0) {
+                        parsed = this.verifiedCart;
+                    }
+                    if (!parsed && Array.isArray(this.sessionCart) && this.sessionCart.length > 0) {
                         parsed = this.sessionCart;
                     }
 
-                    if (!Array.isArray(parsed) || parsed.length === 0 || parsed.some(i => i.available === false || i.is_active === false)) {
+                    if (!Array.isArray(parsed) || parsed.length === 0) {
                         window.location.href = '{{ route("cart") }}';
                         return;
                     }
 
                     this.calculatedItems = parsed.map(item => ({
                         ...item,
-                        name: item.name || 'Product',
+                        name: item.name || item.product_name || 'Product',
                         available: item.available !== false && item.is_active !== false,
-                        unit_final_price: parseFloat(item.unit_final_price || 0),
+                        unit_final_price: parseFloat(item.unit_final_price || item.price || 0),
                         available_stock: parseInt(item.available_stock ?? 999),
                         quantity: parseInt(item.quantity || 1)
                     }));
                     this.subtotal = this.calculatedItems.reduce((acc, i) => acc + (parseFloat(i.unit_final_price || 0) * parseInt(i.quantity || 1)), 0);
                     this.updateShippingCost();
+
+                    this.calculateCart();
                 },
 
                 init() {
@@ -92,10 +98,12 @@
                     this.isCalculating = false;
                     this.loadInitialCart();
 
-                    window.addEventListener('pageshow', () => {
-                        this.isPlacingOrder = false;
-                        this.isCalculating = false;
-                        this.loadInitialCart();
+                    window.addEventListener('pageshow', (event) => {
+                        if (event.persisted) {
+                            this.isPlacingOrder = false;
+                            this.isCalculating = false;
+                            this.loadInitialCart();
+                        }
                     });
 
                     if (this.userAddresses && this.userAddresses.length > 0) {
@@ -169,16 +177,14 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data && data.data) {
-                                if (data.data.errors && data.data.errors.length > 0) {
-                                    window.location.href = '{{ route("cart") }}';
-                                    return;
-                                }
+                                this.calculationErrors = data.data.errors || [];
                                 if (Array.isArray(data.data.items) && data.data.items.length > 0) {
                                     this.calculatedItems = data.data.items.map(item => ({
                                         ...item,
                                         unit_final_price: parseFloat(item.unit_final_price || 0),
                                         available_stock: parseInt(item.available_stock || 0)
                                     }));
+                                    localStorage.setItem(storageKey, JSON.stringify(this.calculatedItems));
                                 }
                                 this.subtotal = parseFloat(data.data.subtotal || 0);
                                 this.shippingCost = parseFloat(data.data.shipping_cost || 0);

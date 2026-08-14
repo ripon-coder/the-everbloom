@@ -244,16 +244,9 @@
                 },
 
                 loadCart() {
-                    const localCart = localStorage.getItem('cart');
-                    if (localCart) {
-                        try {
-                            this.cart = JSON.parse(localCart);
-                        } catch (e) {
-                            this.cart = [];
-                        }
-                    } else {
-                        this.cart = {!! \Illuminate\Support\Js::from(session('cart', [])) !!};
-                    }
+                    const serverVerifiedCart = {!! \Illuminate\Support\Js::from($verifiedCart ?? session('cart', [])) !!};
+                    this.cart = Array.isArray(serverVerifiedCart) ? serverVerifiedCart : [];
+                    localStorage.setItem('cart', JSON.stringify(this.cart));
                 },
 
                 get cartCount() {
