@@ -181,9 +181,9 @@
     @open-cart-drawer.window="loadCart(); if ($store.cartDrawer) $store.cartDrawer.open(); isCartOpen = true"
     @cart-updated.window="loadCart(); syncWithServer(); if ($store.cartDrawer) $store.cartDrawer.open(); isCartOpen = true">
     <!-- Mobile Header -->
-    <div class="md:hidden bg-black text-white px-2 sm:px-4 py-3 flex items-center justify-between">
+    <div class="md:hidden bg-black text-white px-2 sm:px-4 py-2 flex items-center justify-between">
         <button type="button" @click="window.dispatchEvent(new CustomEvent('toggle-mobile-menu', { detail: { tab: 'menu' } }))" class="text-gray-300 hover:text-white p-1 focus:outline-none cursor-pointer" aria-label="Toggle Navigation Menu">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
                 </path>
             </svg>
@@ -191,9 +191,9 @@
         <a href="/" class="flex-shrink-0 flex items-center gap-1">
             @if($site_setting && $site_setting->site_logo)
                 <img src="{{ Storage::url($site_setting->site_logo) }}" alt="{{ $site_setting->site_name }}"
-                    class="h-9 object-contain filter invert brightness-0">
+                    class="h-8 object-contain filter invert brightness-0">
             @else
-                <span class="text-base font-bold text-white uppercase tracking-wider">{{ $site_setting->site_name ?? 'Feriwalarhat' }}</span>
+                <span class="text-sm font-bold text-white uppercase tracking-wider">{{ $site_setting->site_name ?? 'Feriwalarhat' }}</span>
             @endif
         </a>
         <div class="flex items-center gap-3">
@@ -201,15 +201,15 @@
                 class="text-gray-300 hover:text-white relative">
                 @auth
                     @if(Auth::user()->profile_image)
-                        <img src="{{ Auth::user()->profile_image }}" class="w-7 h-7 rounded-full object-cover border border-white">
+                        <img src="{{ Auth::user()->profile_image }}" class="w-6 h-6 rounded-full object-cover border border-white">
                     @else
                         <div
-                            class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-[11px] font-bold text-white border border-white">
+                            class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-white border border-white">
                             {{ substr(Auth::user()->name, 0, 1) }}
                         </div>
                     @endif
                 @else
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
@@ -219,17 +219,17 @@
     </div>
 
     <!-- Mobile Search Bar -->
-    <div class="md:hidden px-2 sm:px-4 py-3 bg-white border-b border-gray-100 relative">
-        <form action="{{ route('shop') }}" method="GET" class="flex items-center h-11 border border-gray-300 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/20 bg-white transition-all">
+    <div class="md:hidden px-2 sm:px-4 py-2 bg-white border-b border-gray-100 relative">
+        <form action="{{ route('shop') }}" method="GET" class="flex items-center h-9 border border-gray-300 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/20 bg-white transition-all">
             <input type="text" name="search" x-model="searchQuery" @input.debounce.300ms="fetchSearchResults()" 
                 @focus="showSearchResults = searchResults.length > 0"
-                class="flex-1 h-full px-4 text-xs bg-transparent border-none focus:ring-0 outline-none w-full text-gray-800 placeholder-gray-400"
+                class="flex-1 h-full px-3 text-xs bg-transparent border-none focus:ring-0 outline-none w-full text-gray-800 placeholder-gray-400"
                 placeholder="Search for products..." autocomplete="off">
-            <button type="submit" class="h-full px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase transition-colors flex items-center justify-center">
-                <svg x-show="!isSearching" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="submit" class="h-full px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase transition-colors flex items-center justify-center">
+                <svg x-show="!isSearching" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
-                <svg x-show="isSearching" x-cloak class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg x-show="isSearching" x-cloak class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -272,7 +272,7 @@
     </div>
 
     <!-- Top Bar (Desktop) -->
-    <div class="hidden md:block bg-slate-900 text-white text-[11px] py-1">
+    <div class="hidden md:block bg-slate-900 text-white text-xs py-1.5">
         <div class="max-w-[1400px] mx-auto px-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-2 text-gray-300">
@@ -337,7 +337,7 @@
             <a href="/" class="flex-shrink-0 flex items-center gap-1">
                 @if($site_setting && $site_setting->site_logo)
                     <img src="{{ Storage::url($site_setting->site_logo) }}" alt="{{ $site_setting->site_name }}"
-                        class="h-12 object-contain">
+                        class="h-11 object-contain">
                 @else
                     <span class="text-xl font-extrabold text-slate-900 uppercase tracking-tight">{{ $site_setting->site_name ?? 'FERIWALARHAT' }}</span>
                 @endif
@@ -349,9 +349,9 @@
                     class="flex items-center h-11 border border-gray-300 hover:border-gray-400 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/20 bg-white transition-all">
                     <input type="text" name="search" x-model="searchQuery" @input.debounce.300ms="fetchSearchResults()"
                         @focus="showSearchResults = searchResults.length > 0"
-                        class="flex-1 h-full px-4 text-xs sm:text-sm bg-transparent border-none focus:ring-0 outline-none w-full text-gray-800 placeholder-gray-400"
+                        class="flex-1 h-full px-4 text-sm sm:text-base bg-transparent border-none focus:ring-0 outline-none w-full text-gray-800 placeholder-gray-400"
                         placeholder="Search for products..." autocomplete="off">
-                    <button type="submit" class="h-full px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2">
+                    <button type="submit" class="h-full px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-colors flex items-center justify-center gap-2">
                         <svg x-show="!isSearching" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
@@ -371,7 +371,7 @@
                     class="absolute left-0 right-0 top-full mt-1.5 bg-white shadow-2xl rounded-none z-[100] max-h-[500px] overflow-hidden border border-gray-200">
                     
                     <!-- Search Header Bar -->
-                    <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-100 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                    <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-100 flex items-center justify-between text-xs font-bold uppercase tracking-wider text-gray-500">
                         <span>Matching Products (<span x-text="searchResults.length" class="text-emerald-600 font-extrabold"></span>)</span>
                         <span class="text-gray-400 flex items-center gap-1.5">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -417,7 +417,7 @@
 
                     <!-- Footer Action Bar -->
                     <a x-show="searchResults.length > 0" :href="'{{ route('shop') }}?search=' + searchQuery" 
-                        class="block py-2.5 px-4 text-center text-[11px] sm:text-xs font-bold text-gray-600 hover:text-emerald-600 bg-gray-50 border-t border-gray-100 transition-colors uppercase tracking-wider">
+                        class="block py-2.5 px-4 text-center text-xs font-bold text-gray-600 hover:text-emerald-600 bg-gray-50 border-t border-gray-100 transition-colors uppercase tracking-wider">
                         View All Results for "<span x-text="searchQuery" class="font-extrabold text-gray-900"></span>"
                     </a>
                 </div>
@@ -427,7 +427,7 @@
             <div class="flex items-center gap-3 sm:gap-5 flex-shrink-0">
                 <!-- Wishlist -->
                 <a href="{{ route('account', 'wishlist') }}"
-                    class="hidden lg:flex items-center gap-2 bg-primary text-white px-4 py-2 text-xs font-bold hover:bg-primary-dark transition-colors">
+                    class="hidden lg:flex items-center gap-2 h-11 bg-emerald-600 text-white px-4 text-xs sm:text-sm font-bold hover:bg-emerald-700 transition-colors">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path
                             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z">
@@ -443,16 +443,16 @@
                     <div class="relative" x-data="{ accountOpen: false }" @mouseenter="accountOpen = true"
                         @mouseleave="accountOpen = false" @click.away="accountOpen = false">
                         <button @click="accountOpen = !accountOpen" class="flex items-center gap-2.5 group text-left">
-                            <div class="w-9 h-9 bg-gray-50 border border-gray-200 flex items-center justify-center transition-all overflow-hidden group-hover:border-primary">
+                            <div class="w-10 h-10 bg-gray-50 border border-gray-200 flex items-center justify-center transition-all overflow-hidden group-hover:border-emerald-600">
                                 @if(Auth::user()->profile_image)
                                     <img src="{{ Auth::user()->profile_image }}" class="w-full h-full object-cover">
                                 @else
-                                    <span class="text-primary font-bold text-xs">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                    <span class="text-emerald-600 font-bold text-xs">{{ substr(Auth::user()->name, 0, 1) }}</span>
                                 @endif
                             </div>
                             <div class="hidden sm:flex flex-col">
-                                <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider leading-none mb-1">Welcome back,</span>
-                                <span class="text-xs font-bold text-slate-900 leading-none group-hover:text-primary transition-colors truncate max-w-[110px]">{{ explode(' ', Auth::user()->name)[0] }}</span>
+                                <span class="text-[11px] text-gray-400 font-semibold uppercase tracking-wider leading-none mb-1">Welcome back,</span>
+                                <span class="text-xs sm:text-sm font-bold text-slate-900 leading-none group-hover:text-emerald-600 transition-colors truncate max-w-[120px]">{{ explode(' ', Auth::user()->name)[0] }}</span>
                             </div>
                         </button>
 
@@ -466,9 +466,9 @@
                             class="absolute right-0 top-full pt-2 w-44 z-50">
                             <div class="bg-white border border-gray-200 shadow-md">
                                 <a href="{{ route('account') }}"
-                                    class="block px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">My Account</a>
+                                    class="block px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors">My Account</a>
                                 <a href="{{ route('account', 'orders') }}"
-                                    class="block px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">My Orders</a>
+                                    class="block px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors">My Orders</a>
                                 <form method="POST" action="{{ route('logout') }}" class="w-full m-0">
                                     @csrf
                                     <button type="submit"
@@ -479,16 +479,16 @@
                     </div>
                 @else
                     <a href="{{ route('login') }}" class="flex items-center gap-2.5 group">
-                        <div class="w-9 h-9 bg-gray-50 border border-gray-200 flex items-center justify-center group-hover:border-primary group-hover:bg-primary-50 transition-all">
-                            <svg class="w-4 h-4 text-slate-600 group-hover:text-primary transition-colors"
+                        <div class="w-10 h-10 bg-gray-50 border border-gray-200 flex items-center justify-center group-hover:border-emerald-600 group-hover:bg-emerald-50/50 transition-all">
+                            <svg class="w-4.5 h-4.5 text-slate-600 group-hover:text-emerald-600 transition-colors"
                                 fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </div>
                         <div class="hidden sm:flex flex-col">
-                            <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider leading-none mb-1">Sign In</span>
-                            <span class="text-xs font-bold text-slate-900 leading-none group-hover:text-primary transition-colors">My Account</span>
+                            <span class="text-[11px] text-gray-400 font-semibold uppercase tracking-wider leading-none mb-1">Sign In</span>
+                            <span class="text-xs sm:text-sm font-bold text-slate-900 leading-none group-hover:text-emerald-600 transition-colors">My Account</span>
                         </div>
                     </a>
                 @endauth
@@ -496,21 +496,21 @@
                 <div class="hidden sm:block w-px h-6 bg-gray-200"></div>
 
                 <!-- Cart -->
-                <button @click="$store.cartDrawer ? $store.cartDrawer.open() : (isCartOpen = true)" class="flex items-center gap-2.5 group text-left">
-                    <div class="relative w-9 h-9 bg-gray-50 border border-gray-200 flex items-center justify-center group-hover:border-primary group-hover:bg-primary-50 transition-all">
-                        <svg class="w-4 h-4 text-slate-700 group-hover:text-primary transition-colors"
+                <button @click="$store.cartDrawer ? $store.cartDrawer.open() : (isCartOpen = true)" class="flex items-center gap-2.5 group text-left cursor-pointer">
+                    <div class="relative w-10 h-10 bg-gray-50 border border-gray-200 flex items-center justify-center group-hover:border-emerald-600 group-hover:bg-emerald-50/50 transition-all">
+                        <svg class="w-4.5 h-4.5 text-slate-700 group-hover:text-emerald-600 transition-colors"
                             fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z">
                             </path>
                         </svg>
                         <span x-show="cartCount > 0" x-text="cartCount"
-                            class="absolute -top-1 -right-1 bg-accent text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center border border-white"
+                            class="absolute -top-1 -right-1 bg-amber-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center border border-white"
                             x-cloak></span>
                     </div>
                     <div class="hidden sm:flex flex-col">
-                        <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider leading-none mb-1">My Cart</span>
-                        <span class="text-xs font-bold text-slate-900 leading-none group-hover:text-primary transition-colors"><span x-text="cartCount"></span> Items</span>
+                        <span class="text-[11px] text-gray-400 font-semibold uppercase tracking-wider leading-none mb-1">My Cart</span>
+                        <span class="text-xs sm:text-sm font-bold text-slate-900 leading-none group-hover:text-emerald-600 transition-colors"><span x-text="cartCount"></span> Items</span>
                     </div>
                 </button>
             </div>
@@ -518,19 +518,19 @@
     </div>
 
     <!-- Bottom Navigation (Desktop) -->
-    <div class="hidden md:flex max-w-[1400px] mx-auto px-4 items-center justify-between">
+    <div class="hidden md:flex max-w-[1400px] mx-auto px-4 items-center justify-between border-b border-gray-100">
 
         <div class="flex items-center flex-1">
             <!-- Categories Dropdown -->
             <div class="relative h-full flex items-center mr-6 z-50" x-data="{ catOpen: false }" @click.away="catOpen = false">
                 <button @click="catOpen = !catOpen" type="button"
-                    class="flex items-center justify-between w-64 bg-slate-50 px-4 py-3 text-slate-800 hover:text-primary font-medium border-x border-gray-200 transition-colors">
-                    <div class="flex items-center mr-3">
+                    class="flex items-center justify-between w-64 bg-slate-50 px-4 py-3 text-slate-900 hover:text-emerald-600 font-medium border-x border-gray-200 transition-colors cursor-pointer">
+                    <div class="flex items-center mr-2">
                         <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
-                        <span class="text-xs uppercase tracking-wide font-semibold">Categories</span>
+                        <span class="text-sm sm:text-base uppercase tracking-wide font-extrabold text-slate-900">Categories</span>
                     </div>
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -543,19 +543,20 @@
                     x-transition:enter-start="opacity-0 translate-y-1"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-100"
-                    class="absolute left-0 top-full w-64 bg-white border border-gray-200 shadow-md                    <ul class="flex flex-col">
+                    class="absolute left-0 top-full w-64 bg-white border border-gray-200 shadow-md z-50">
+                    <ul class="flex flex-col">
                         @if(isset($header_categories) && $header_categories->count() > 0)
                             @foreach($header_categories as $category)
                                 @if($category->children && $category->children->count() > 0)
                                     <li class="relative border-b border-gray-100 last:border-0" x-data="{ hover: false }"
                                         @mouseenter="hover = true" @mouseleave="hover = false">
                                         <a href="{{ route('shop', ['category' => $category->slug]) }}"
-                                            class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 transition-colors uppercase tracking-wide font-medium"
-                                            :class="hover ? 'text-primary bg-slate-50' : 'hover:text-primary hover:bg-slate-50'">
-                                            <div class="flex items-center gap-3">
+                                            class="flex items-center justify-between px-4 py-3 text-sm text-slate-900 transition-colors uppercase tracking-wide font-semibold"
+                                            :class="hover ? 'text-emerald-600 bg-slate-50' : 'hover:text-emerald-600 hover:bg-slate-50'">
+                                            <div class="flex items-center gap-2">
                                                 {{ $category->name }}
                                             </div>
-                                            <svg class="w-3.5 h-3.5 text-gray-400" :class="hover ? 'text-primary' : ''" fill="none"
+                                            <svg class="w-3.5 h-3.5 text-gray-400" :class="hover ? 'text-emerald-600' : ''" fill="none"
                                                 stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M9 5l7 7-7 7"></path>
@@ -569,7 +570,7 @@
                                                 @foreach($category->children as $child)
                                                     <li>
                                                         <a href="{{ route('shop', ['category' => $child->slug]) }}"
-                                                            class="block px-4 py-2 text-xs text-slate-800 hover:text-primary hover:bg-slate-50 uppercase tracking-wide font-medium transition-colors">
+                                                            class="block px-4 py-2.5 text-xs sm:text-sm text-slate-800 hover:text-emerald-600 hover:bg-slate-50 uppercase tracking-wide font-semibold transition-colors">
                                                             {{ $child->name }}
                                                         </a>
                                                     </li>
@@ -580,8 +581,8 @@
                                 @else
                                     <li class="relative border-b border-gray-100 last:border-0">
                                         <a href="{{ route('shop', ['category' => $category->slug]) }}"
-                                            class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 hover:text-primary hover:bg-slate-50 transition-colors uppercase tracking-wide font-medium">
-                                            <div class="flex items-center gap-3">
+                                            class="flex items-center justify-between px-4 py-3 text-sm text-slate-900 hover:text-emerald-600 hover:bg-slate-50 transition-colors uppercase tracking-wide font-semibold">
+                                            <div class="flex items-center gap-2">
                                                 {{ $category->name }}
                                             </div>
                                         </a>
@@ -589,61 +590,21 @@
                                 @endif
                             @endforeach
                         @else
-                            <li class="px-4 py-3 text-xs text-gray-500">No categories found</li>
+                            <li class="px-4 py-3 text-xs sm:text-sm text-gray-500">No categories found</li>
                         @endif
-                    </ul>            <!-- Item 11 -->
-                        <li class="relative border-b border-gray-100 last:border-0" x-data="{ hover: false }"
-                            @mouseenter="hover = true" @mouseleave="hover = false">
-                            <a href="#"
-                                class="flex items-center justify-between px-4 py-3 text-[13px] text-slate-800 transition-colors uppercase tracking-wide font-medium"
-                                :class="hover ? 'text-blue-600 bg-slate-50' : 'hover:text-blue-600 hover:bg-slate-50'">
-                                <div class="flex items-center gap-3">
-                                    <svg class="w-4 h-4 text-gray-500" :class="hover ? 'text-blue-500' : ''" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    Smart Watches
-                                </div>
-                                <svg class="w-3.5 h-3.5 text-gray-400" :class="hover ? 'text-blue-500' : ''" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-
-                            <!-- Submenu -->
-                            <div x-show="hover" style="display: none;"
-                                class="absolute left-full bottom-0 w-80 bg-white rounded-lg shadow-xl border border-gray-100 z-50 ml-1">
-                                <ul class="py-3 px-2 flex flex-col gap-1">
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 1</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 2</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 3</a></li>
-                                    <li><a href="#"
-                                            class="block px-4 py-2 text-[13px] text-slate-800 hover:text-blue-600 hover:bg-slate-50 rounded uppercase tracking-wide font-medium transition-colors">Sample
-                                            Category 4</a></li>
-                                </ul>
-                            </div>
-                        </li>
-
                     </ul>
                 </div>
-                        <!-- Links -->
+            </div>
+
+            <!-- Links -->
             <nav class="hidden md:flex items-center flex-wrap">
                 <a href="{{ route('home') }}"
-                    class="mx-3 text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->routeIs('home') ? 'text-primary border-primary font-black' : 'text-slate-700 hover:text-primary border-transparent font-bold' }}">Home</a>
+                    class="mx-3 text-sm sm:text-base uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->routeIs('home') ? 'text-emerald-600 border-emerald-600 font-black' : 'text-slate-900 hover:text-emerald-600 border-transparent font-extrabold' }}">Home</a>
                 @foreach($header_menus as $menu)
                     <a href="{{ $menu->url }}"
-                        class="mx-3 text-sm uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->url() == url($menu->url) ? 'text-primary border-primary font-black' : 'text-slate-700 hover:text-primary border-transparent font-bold' }}">{{ $menu->name }}</a>
+                        class="mx-3 text-sm sm:text-base uppercase tracking-wide py-3 border-b-2 transition-colors {{ request()->url() == url($menu->url) ? 'text-emerald-600 border-emerald-600 font-black' : 'text-slate-900 hover:text-emerald-600 border-transparent font-extrabold' }}">{{ $menu->name }}</a>
                 @endforeach
             </nav>
         </div>
-
-
-   </header>
+    </div>
+</header>
