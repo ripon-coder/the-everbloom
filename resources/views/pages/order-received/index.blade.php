@@ -156,12 +156,17 @@
 
                     <!-- 6. Bottom Actions (Hidden on Print) -->
                     <div class="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
-                        <a href="{{ auth()->check() ? route('account.order.show', $order->order_number) : route('track-order') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-none text-xs uppercase tracking-wider transition-colors shadow-xs">
+                        <a href="{{ auth()->check() ? route('account.order.show', $order->order_number) : route('track-order') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-5 rounded-none text-xs uppercase tracking-wider transition-colors shadow-xs">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             <span>Track Order</span>
                         </a>
 
-                        <a href="{{ route('shop') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white font-bold py-3 px-6 rounded-none text-xs uppercase tracking-wider transition-colors">
+                        <a href="{{ route('account.order.invoice', $order->order_number) }}" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-5 rounded-none text-xs uppercase tracking-wider transition-colors shadow-xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>Download Invoice</span>
+                        </a>
+
+                        <a href="{{ route('shop') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white font-bold py-3 px-5 rounded-none text-xs uppercase tracking-wider transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                             <span>Continue Shopping</span>
                         </a>

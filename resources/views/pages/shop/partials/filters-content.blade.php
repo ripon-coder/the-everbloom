@@ -52,16 +52,44 @@
     </ul>
 </div>
 
-<!-- Price Filter (Static visual for now) -->
+<!-- Price Filter -->
 <div>
     <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">Price Range</h3>
-    <div class="space-y-4">
-        <input type="range" min="0" max="10000" class="w-full h-1 bg-gray-200 rounded-none appearance-none cursor-pointer accent-primary">
+    <form action="{{ route('shop') }}" method="GET" class="space-y-4">
+        @if(request('category'))
+            <input type="hidden" name="category" value="{{ request('category') }}">
+        @endif
+        @if(request('search'))
+            <input type="hidden" name="search" value="{{ request('search') }}">
+        @endif
+        @if(request('sort'))
+            <input type="hidden" name="sort" value="{{ request('sort') }}">
+        @endif
+
         <div class="flex items-center gap-2">
-            <input type="number" placeholder="Min" class="w-full border-gray-200 rounded-none text-sm px-2 py-1 focus:border-primary focus:ring-0">
-            <span class="text-gray-400">-</span>
-            <input type="number" placeholder="Max" class="w-full border-gray-200 rounded-none text-sm px-2 py-1 focus:border-primary focus:ring-0">
+            <div class="flex-1">
+                <label class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Min (Tk)</label>
+                <input type="number" name="min_price" value="{{ request('min_price') }}" placeholder="0" min="0" 
+                    class="w-full border border-gray-200 rounded-none text-xs px-2.5 py-1.5 focus:border-primary focus:ring-0">
+            </div>
+            <span class="text-gray-400 font-bold self-end pb-1.5">-</span>
+            <div class="flex-1">
+                <label class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Max (Tk)</label>
+                <input type="number" name="max_price" value="{{ request('max_price') }}" placeholder="Max" min="0" 
+                    class="w-full border border-gray-200 rounded-none text-xs px-2.5 py-1.5 focus:border-primary focus:ring-0">
+            </div>
         </div>
-        <button class="w-full bg-gray-900 text-white text-xs font-bold uppercase tracking-wider py-2 rounded-none hover:bg-black transition-colors">Apply</button>
-    </div>
+
+        <div class="flex gap-2">
+            <button type="submit" class="flex-1 bg-primary hover:bg-primary-dark text-white text-xs font-bold uppercase tracking-wider py-2.5 rounded-none transition-colors shadow-xs">
+                Apply Price Filter
+            </button>
+            @if(request('min_price') || request('max_price'))
+                <a href="{{ route('shop', request()->except(['min_price', 'max_price'])) }}" 
+                    class="px-3 bg-gray-200 text-gray-700 hover:bg-gray-300 text-xs font-bold uppercase tracking-wider py-2.5 rounded-none transition-colors flex items-center justify-center">
+                    Reset
+                </a>
+            @endif
+        </div>
+    </form>
 </div>

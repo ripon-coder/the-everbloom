@@ -260,6 +260,7 @@ class OrderService
     private function validateOrderStatusTransition(string $oldStatus, string $newStatus): void
     {
         $validTransitions = [
+            'incomplete' => ['pending', 'processing', 'cancelled'],
             'pending' => ['processing', 'cancelled'],
             'processing' => ['shipped', 'cancelled'],
             'shipped' => ['delivered', 'cancelled'],

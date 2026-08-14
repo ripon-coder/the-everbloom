@@ -39,6 +39,7 @@ class CartController extends Controller
      */
     public function sync(Request $request)
     {
+        $type = $request->input('type', 'cart');
         $inputCart = $request->input('cart', []);
         $calculation = $this->checkoutCalculationRepository->calculate($inputCart);
 
@@ -52,10 +53,15 @@ class CartController extends Controller
             ], 422);
         }
 
-        session()->put('cart', $verifiedCart);
+        if ($type === 'buy_now') {
+            session()->put('buy_now_cart', $verifiedCart);
+        } else {
+            session()->put('cart', $verifiedCart);
+        }
 
         return response()->json([
             'success' => true,
+            'type' => $type,
             'cart' => $verifiedCart,
             'calculation' => $calculation,
             'has_inactive' => !empty($calculation['errors'])

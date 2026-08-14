@@ -138,7 +138,7 @@ Alpine.data('cartDrawerData', () => ({
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken
                 },
-                body: JSON.stringify({ cart: this.cart })
+                body: JSON.stringify({ cart: this.cart, type: 'cart' })
             }).catch(error => console.error('Error syncing cart:', error));
             window.dispatchEvent(new CustomEvent('cart-updated-internal'));
         } catch(e) {
@@ -212,7 +212,7 @@ window.addQuickToCart = function(product) {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
         },
-        body: JSON.stringify({ cart: cart })
+        body: JSON.stringify({ cart: cart, type: 'cart' })
     }).catch(err => console.error('Cart sync error:', err));
     
     window.dispatchEvent(new CustomEvent('cart-updated', { detail: { cart: cart } }));

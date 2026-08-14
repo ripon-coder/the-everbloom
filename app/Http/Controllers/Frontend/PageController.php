@@ -14,9 +14,11 @@ class PageController extends Controller
     {
         $isBuyNow = request('type') === 'buy_now' || session('is_buy_now', false);
         $cartKey = $isBuyNow ? 'buy_now_cart' : 'cart';
-        $sessionCart = session($cartKey, session('cart', []));
+        $sessionCart = session('cart', []);
+        $sessionBuyNowCart = session('buy_now_cart', []);
+        $currentCart = session($cartKey, session('cart', []));
 
-        $calculation = $checkoutCalculationRepository->calculate($sessionCart);
+        $calculation = $checkoutCalculationRepository->calculate($currentCart);
         $verifiedCart = $calculation['items'];
 
         session()->put($cartKey, $verifiedCart);
@@ -25,7 +27,7 @@ class PageController extends Controller
         $userAddresses = auth()->check() ? auth()->user()->addresses()->get() : collect();
 
         return response()
-            ->view('pages.checkout.index', compact('districts', 'userAddresses', 'sessionCart', 'verifiedCart', 'calculation', 'isBuyNow'))
+            ->view('pages.checkout.index', compact('districts', 'userAddresses', 'sessionCart', 'sessionBuyNowCart', 'verifiedCart', 'calculation', 'isBuyNow'))
             ->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');
@@ -46,10 +48,39 @@ class PageController extends Controller
     {
         $user = auth()->user();
         $order = $user->orders()->where('order_number', $orderNumber)
-            ->with(['orderProducts.product', 'orderAddress.district'])
+            ->with([
+                'orderProducts.product.firstImage',
+                'orderProducts.product.anyImage',
+                'orderProducts.productVariant.variantAttributes.attribute',
+                'orderProducts.productVariant.variantAttributes.attributeValue',
+                'orderAddress.district'
+            ])
             ->firstOrFail();
 
         return view('pages.account.order-show', compact('user', 'order'));
+    }
+
+    public function orderInvoice(string $orderNumber): View
+    {
+        $query = \App\Models\Order::where('order_number', $orderNumber)
+            ->with([
+                'orderProducts.product.firstImage',
+                'orderProducts.product.anyImage',
+                'orderProducts.productVariant.variantAttributes.attribute',
+                'orderProducts.productVariant.variantAttributes.attributeValue',
+                'orderAddress.district'
+            ]);
+
+        if (auth()->check() && !auth()->user()->is_admin) {
+            $order = $query->where(function($q) {
+                $q->where('user_id', auth()->id())->orWhereNull('user_id');
+            })->firstOrFail();
+        } else {
+            $order = $query->firstOrFail();
+        }
+
+        $user = auth()->user();
+        return view('pages.account.invoice', compact('user', 'order'));
     }
 
     public function orderReceived(string $orderNumber): View

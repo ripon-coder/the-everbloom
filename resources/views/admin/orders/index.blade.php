@@ -92,7 +92,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $order->user->name ?? 'N/A' }}
+                                    {{ $order->user->name ?? ($order->orderAddress->name ?? 'Guest / Incomplete') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {{ $currency_sign }}{{ number_format($order->total_amount, 2) }}

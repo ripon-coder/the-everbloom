@@ -18,6 +18,7 @@ class Order extends Model
      */
     protected $fillable = [
         'user_id',
+        'session_id',
         'order_number',
         'before_discount',
         'total_amount',
@@ -286,6 +287,7 @@ class Order extends Model
     public static function getStatusOptions(): array
     {
         return [
+            'incomplete' => 'Incomplete',
             'pending' => 'Pending',
             'processing' => 'Processing',
             'shipped' => 'Shipped',
@@ -330,6 +332,7 @@ class Order extends Model
     public function getStatusColor()
     {
         return match($this->status) {
+            'incomplete' => 'bg-gray-100 text-gray-700',
             'pending' => 'bg-yellow-100 text-yellow-800',
             'processing' => 'bg-blue-100 text-blue-800',
             'shipped' => 'bg-purple-100 text-purple-800',

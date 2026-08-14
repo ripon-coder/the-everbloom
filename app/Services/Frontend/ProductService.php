@@ -17,51 +17,26 @@ class ProductService
      */
     public function getShopProducts(array $filters): LengthAwarePaginator
     {
-        $hasSearch = !empty($filters['search']);
+        $query = Product::query()->with([
+            'firstImage.media', 
+            'category', 
+            'firstActiveVariant',
+            'flashSales' => function ($query) { $query->active(); }
+        ]);
 
-        $queryCallback = function ($query) use ($filters) {
-            $query->active()->with([
-                'firstImage.media', 
-                'category', 
-                'firstActiveVariant',
-                'flashSales' => function ($query) { $query->active(); }
-            ]);
-
-            if (!empty($filters['category'])) {
-                $category = Category::where('slug', $filters['category'])->select('id')->first();
-                if ($category) {
-                    $categoryIds = Category::where('parent_id', $category->id)
-                        ->pluck('id')
-                        ->push($category->id);
-                    $query->whereIn('category_id', $categoryIds);
-                }
-            }
-
-            $sort = $filters['sort'] ?? 'latest';
-            switch ($sort) {
-                case 'price_asc':
-                    $query->orderBy('price', 'asc');
-                    break;
-                case 'price_desc':
-                    $query->orderBy('price', 'desc');
-                    break;
-                case 'popular':
-                    $query->popular();
-                    break;
-                default:
-                    $query->latest();
-                    break;
-            }
-        };
-
-        if ($hasSearch) {
-            $scout = Product::search($filters['search'])->query($queryCallback);
-            $paginator = $scout->paginate(24)->withQueryString();
-        } else {
-            $query = Product::query();
-            $queryCallback($query);
-            $paginator = $query->paginate(24)->withQueryString();
-        }
+        $paginator = app(\Illuminate\Pipeline\Pipeline::class)
+            ->send($query)
+            ->through([
+                \App\QueryFilters\Products\ActivePipe::class,
+                \App\QueryFilters\Products\CategoryPipe::class,
+                \App\QueryFilters\Products\SearchPipe::class,
+                \App\QueryFilters\Products\PriceMinPipe::class,
+                \App\QueryFilters\Products\PriceMaxPipe::class,
+                \App\QueryFilters\Products\SortPipe::class,
+            ])
+            ->thenReturn()
+            ->paginate(24)
+            ->withQueryString();
 
         $paginator->setCollection($this->transformProducts($paginator->getCollection()));
         return $paginator;
