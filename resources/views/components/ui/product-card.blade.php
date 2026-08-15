@@ -72,8 +72,8 @@
             </span>
         </div>
 
-        <h3 class="text-xs sm:text-sm font-semibold mb-1.5 leading-snug">
-            <a href="{{ $slug ? route('product.show', $slug) : '#' }}" class="block line-clamp-2 text-gray-900 hover:text-primary transition-colors">
+        <h3 class="text-xs sm:text-sm font-semibold mb-1.5 leading-snug h-[2.5rem] flex items-start overflow-hidden">
+            <a href="{{ $slug ? route('product.show', $slug) : '#' }}" class="block line-clamp-2 text-gray-900 hover:text-primary transition-colors overflow-hidden" title="{{ $name }}" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">
                 {{ $name }}
             </a>
         </h3>

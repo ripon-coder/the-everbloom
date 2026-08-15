@@ -8,7 +8,7 @@
                         <img src="{{ $relProduct->img }}" alt="{{ $relProduct->name }}" class="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300">
                     </div>
                     <div class="flex flex-col gap-1 flex-1 min-w-0">
-                        <h4 class="text-xs sm:text-sm font-semibold text-gray-900 group-hover:text-primary transition-colors leading-snug line-clamp-2 block">{{ $relProduct->name }}</h4>
+                        <h4 class="text-xs sm:text-sm font-semibold text-gray-900 group-hover:text-primary transition-colors leading-snug line-clamp-2 block overflow-hidden" title="{{ $relProduct->name }}" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">{{ $relProduct->name }}</h4>
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="text-xs sm:text-sm font-bold text-primary">Tk. {{ number_format($relProduct->price, 2) }}</span>
                             @if($relProduct->old_price)
