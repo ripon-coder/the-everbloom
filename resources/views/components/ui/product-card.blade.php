@@ -72,13 +72,13 @@
             </span>
         </div>
 
-        <h3 class="text-xs sm:text-sm font-semibold mb-1.5 leading-snug h-[2.5rem] flex items-start overflow-hidden">
+        <h3 class="text-xs sm:text-sm font-semibold mb-1 leading-snug">
             <a href="{{ $slug ? route('product.show', $slug) : '#' }}" class="block line-clamp-2 text-gray-900 hover:text-primary transition-colors overflow-hidden" title="{{ $name }}" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">
                 {{ $name }}
             </a>
         </h3>
         
-        <div class="mt-auto pt-2.5 flex items-center justify-between gap-2">
+        <div class="mt-auto pt-1 flex items-center justify-between gap-2">
             <div class="flex flex-col">
                 @if(!empty($oldPrice) && (float)$oldPrice > (float)$price)
                     <span class="text-xs sm:text-sm font-normal text-slate-400 line-through mb-0.5">Tk. {{ is_numeric($oldPrice) ? number_format((float)$oldPrice, 2) : $oldPrice }}</span>

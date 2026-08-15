@@ -121,6 +121,7 @@
                             Coupons
                         </a>
                     </li>
+                    {{-- 
                     <li>
                         <a href="{{ route('admin.flash-sales.index') }}"
                             class="flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 {{ request()->is('admin/flash-sales*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
@@ -130,6 +131,7 @@
                             Flash Sales
                         </a>
                     </li>
+                    --}}
                 </ul>
             </div>
 
