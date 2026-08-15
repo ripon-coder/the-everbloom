@@ -209,8 +209,8 @@
             </div>
         </div>
 
-        <!-- Action Buttons (hidden on mobile, shown on desktop) -->
-        <div class="hidden md:flex gap-2.5 pt-1">
+        <!-- Action Buttons -->
+        <div class="flex gap-2.5 pt-1">
             <button @click="addToCart($event)" :disabled="currentStock <= 0"
                 class="flex-1 bg-primary hover:bg-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,5 +1,5 @@
 <x-layouts.app :title="($product->meta_title ? $product->meta_title : $product->name) . ' | Feriwalarhat'" :description="$product->meta_description">
-    <div class="product-page-container bg-white pb-32 md:pb-12" x-data="productDetails({{ $product->toJson() }})" x-init="init()">
+    <div class="product-page-container bg-white pb-16 md:pb-12" x-data="productDetails({{ $product->toJson() }})" x-init="init()">
         <!-- Breadcrumbs (desktop only) -->
         <div class="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <nav class="flex items-center text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider">
@@ -35,19 +35,6 @@
             <div class="px-1.5 md:px-0">
                 @include('pages.product.partials._also-like')
             </div>
-        </div>
-
-        <!-- Fixed Bottom Mobile Bar -->
-        <div class="fixed bottom-[57px] left-0 right-0 bg-white border-t border-gray-200 flex z-50 md:hidden">
-            <button @click="addToCart($event)" :disabled="currentStock <= 0"
-                class="flex-1 bg-primary disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2.5 text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
-                <span x-text="currentStock > 0 ? 'Add to Cart' : 'Out of Stock'">Add to Cart</span>
-            </button>
-            <button @click="buyNow($event)" :disabled="currentStock <= 0"
-                class="flex-1 bg-gray-900 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-2.5 text-xs uppercase tracking-wide transition-colors border-l border-gray-700">
-                Buy Now
-            </button>
         </div>
     </div>
 
