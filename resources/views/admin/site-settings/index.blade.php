@@ -265,7 +265,7 @@
                                 </div>
 
                                 <!-- YouTube -->
-                                <div class="md:col-span-2">
+                                <div>
                                     <label for="youtube_url" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                                         YouTube Channel URL
                                     </label>
@@ -276,6 +276,54 @@
                                         <input type="url" name="youtube_url" id="youtube_url" 
                                                value="{{ old('youtube_url', $setting->youtube_url ?? '') }}"
                                                placeholder="https://youtube.com/@yourchannel"
+                                               class="w-full pl-9 pr-3 py-2 text-xs font-mono border border-gray-300 bg-white focus:ring-1 focus:ring-blue-600 focus:border-blue-600">
+                                    </div>
+                                </div>
+
+                                <!-- TikTok -->
+                                <div>
+                                    <label for="tiktok_url" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                        TikTok Profile URL
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-900">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.82.56-1.34 1.52-1.4 2.52-.07.96.32 1.94 1.05 2.56.76.64 1.82.91 2.8.76 1.2-.18 2.24-.99 2.67-2.11.23-.62.33-1.28.33-1.94.01-4.48 0-8.96.01-13.44z"/></svg>
+                                        </div>
+                                        <input type="url" name="tiktok_url" id="tiktok_url" 
+                                               value="{{ old('tiktok_url', $setting->tiktok_url ?? '') }}"
+                                               placeholder="https://tiktok.com/@yourhandle"
+                                               class="w-full pl-9 pr-3 py-2 text-xs font-mono border border-gray-300 bg-white focus:ring-1 focus:ring-blue-600 focus:border-blue-600">
+                                    </div>
+                                </div>
+
+                                <!-- WhatsApp -->
+                                <div>
+                                    <label for="whatsapp_url" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                        WhatsApp Link or Phone Number
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-emerald-600">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l.399.638-1.06 3.874 3.968-1.041.636.395z"/></svg>
+                                        </div>
+                                        <input type="text" name="whatsapp_url" id="whatsapp_url" 
+                                               value="{{ old('whatsapp_url', $setting->whatsapp_url ?? '') }}"
+                                               placeholder="+8801700000000 or https://wa.me/8801700000000"
+                                               class="w-full pl-9 pr-3 py-2 text-xs font-mono border border-gray-300 bg-white focus:ring-1 focus:ring-blue-600 focus:border-blue-600">
+                                    </div>
+                                </div>
+
+                                <!-- Pinterest -->
+                                <div>
+                                    <label for="pinterest_url" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                        Pinterest Profile URL
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-red-700">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C24.007 5.367 18.624 0 12.017 0z"/></svg>
+                                        </div>
+                                        <input type="url" name="pinterest_url" id="pinterest_url" 
+                                               value="{{ old('pinterest_url', $setting->pinterest_url ?? '') }}"
+                                               placeholder="https://pinterest.com/yourhandle"
                                                class="w-full pl-9 pr-3 py-2 text-xs font-mono border border-gray-300 bg-white focus:ring-1 focus:ring-blue-600 focus:border-blue-600">
                                     </div>
                                 </div>
