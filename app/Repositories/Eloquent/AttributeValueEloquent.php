@@ -17,14 +17,30 @@ class AttributeValueEloquent implements AttributeValueRepository
         $this->model = $model;
     }
 
-    /**
-     * Get all attribute values with pagination.
-     */
-    public function getAllWithPagination(int $perPage): LengthAwarePaginator
+    public function getAllWithPagination(int $perPage = 20, array $filters = []): LengthAwarePaginator
     {
-        return $this->model->with(['attribute'])
-            ->orderBy("attribute_id")
-            ->paginate($perPage);
+        $query = $this->model->with(['attribute']);
+
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function($q) use ($search) {
+                $q->where('value', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search)
+                  ->orWhereHas('attribute', function($attr) use ($search) {
+                      $attr->where('name', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
+
+        if (!empty($filters['attribute_id'])) {
+            $query->where('attribute_id', $filters['attribute_id']);
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        return $query->orderBy("attribute_id")->paginate($perPage)->withQueryString();
     }
 
     /**

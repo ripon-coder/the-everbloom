@@ -120,7 +120,7 @@ Alpine.data('cartDrawerData', () => ({
     },
     removeItem(index) {
         try {
-            if (!this.cart) return;
+            if (!this.cart || index < 0 || index >= this.cart.length) return;
             this.cart.splice(index, 1);
             this.saveCart();
         } catch(e) {
@@ -129,7 +129,7 @@ Alpine.data('cartDrawerData', () => ({
     },
     saveCart() {
         try {
-            this.cart = (this.cart || []).filter(item => item && typeof item === 'object');
+            this.cart = (this.cart || []).filter(item => item && typeof item === 'object' && parseInt(item.quantity || 0) > 0);
             localStorage.setItem('cart', JSON.stringify(this.cart));
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
             fetch('/cart/sync', {
@@ -140,7 +140,7 @@ Alpine.data('cartDrawerData', () => ({
                 },
                 body: JSON.stringify({ cart: this.cart, type: 'cart' })
             }).catch(error => console.error('Error syncing cart:', error));
-            window.dispatchEvent(new CustomEvent('cart-updated-internal'));
+            window.dispatchEvent(new CustomEvent('cart-updated-internal', { detail: { skipReload: true } }));
         } catch(e) {
             console.error('Error saving cart:', e);
         }
@@ -154,14 +154,17 @@ Alpine.data('cartDrawerData', () => ({
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
                     parsed = Object.values(parsed);
                 }
-                if (Array.isArray(parsed) && parsed.length > 0) {
+                if (Array.isArray(parsed)) {
                     this.cart = parsed.filter(item => item && typeof item === 'object');
                     return;
                 }
             }
             this.loadCart();
         });
-        window.addEventListener('cart-updated-internal', () => this.loadCart());
+        window.addEventListener('cart-updated-internal', (e) => {
+            if (e && e.detail && e.detail.skipReload) return;
+            this.loadCart();
+        });
         window.addEventListener('open-cart-drawer', () => this.loadCart());
         window.addEventListener('storage', () => this.loadCart());
     }

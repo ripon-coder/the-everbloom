@@ -13,9 +13,35 @@ class ProductReviewController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
-        $reviews = ProductReview::with(['user', 'product'])->latest()->paginate(20);
+        $query = ProductReview::with(['user', 'product']);
+
+        if ($request->filled('search')) {
+            $search = trim($request->get('search'));
+            $query->where(function($q) use ($search) {
+                $q->where('review', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search)
+                  ->orWhereHas('user', function($u) use ($search) {
+                      $u->where('name', 'LIKE', "%{$search}%")
+                        ->orWhere('email', 'LIKE', "%{$search}%");
+                  })
+                  ->orWhereHas('product', function($p) use ($search) {
+                      $p->where('name', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('rating')) {
+            $query->where('rating', $request->rating);
+        }
+
+        if ($request->filled('status')) {
+            $isApproved = $request->status === 'approved' ? 1 : 0;
+            $query->where('is_approved', $isApproved);
+        }
+
+        $reviews = $query->latest()->paginate(20)->withQueryString();
         return view('admin.reviews.index', compact('reviews'));
     }
 

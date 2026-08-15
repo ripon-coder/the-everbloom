@@ -3,95 +3,154 @@
 @section('title', 'Create Hero Slider')
 
 @section('content')
-    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg max-w-4xl mx-auto">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Add New Hero Slider</h2>
-            <a href="{{ route('admin.sliders.index') }}"
-                class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5">
-                Back to Sliders
-            </a>
-        </div>
-        <form action="{{ route('admin.sliders.store') }}" method="POST" enctype="multipart/form-data" class="p-6">
-            @csrf
+    <div class="space-y-6">
+        <!-- Single Unified Card (Sharp / Non-rounded) -->
+        <div class="bg-white border border-gray-200 shadow-sm">
             
-            <div class="mb-6">
-                <label for="image" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Slider Image (Recommended: 1920x800)</label>
-                <input type="file" name="image" id="image"
-                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none @error('image') border-red-500 @enderror"
-                    accept="image/*" onchange="previewImage(this)" required>
-                <div class="mt-4">
-                    <img id="image-preview" src="{{ asset('images/default-logo.png') }}" alt="Slider Preview"
-                        class="w-full max-h-64 object-cover rounded-lg border-2 border-dashed border-gray-300">
-                </div>
-                @error('image')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="grid gap-6 mb-6 md:grid-cols-2">
-                <div>
-                    <label for="title" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Main Title</label>
-                    <input type="text" name="title" id="title"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        value="{{ old('title') }}" placeholder="Enter main title">
-                    @error('title')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div>
-                    <label for="sort_order" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Sort Order</label>
-                    <input type="number" name="sort_order" id="sort_order"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        value="{{ old('sort_order', 0) }}">
-                </div>
-                <div>
-                    <label for="btn_text" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Button Text</label>
-                    <input type="text" name="btn_text" id="btn_text"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        value="{{ old('btn_text') }}" placeholder="e.g. Shop Now">
-                </div>
-                <div>
-                    <label for="btn_link" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Button Link</label>
-                    <input type="text" name="btn_link" id="btn_link"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        value="{{ old('btn_link') }}" placeholder="e.g. /shop">
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <label for="subtitle" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subtitle / Description</label>
-                <textarea name="subtitle" id="subtitle" rows="3"
-                    class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter slider subtitle or description...">{{ old('subtitle') }}</textarea>
-            </div>
-
-            <div class="mb-6">
-                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status</label>
-                <div class="flex items-center space-x-6">
-                    <div class="flex items-center">
-                        <input id="status-active" type="radio" name="status" value="1" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" checked>
-                        <label for="status-active" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Active</label>
+            <!-- Card Header -->
+            <div class="p-5 sm:p-6 bg-gradient-to-r from-gray-50/80 via-white to-gray-50/50 border-b border-gray-200">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <!-- Breadcrumb -->
+                        <nav class="flex items-center space-x-2 text-xs text-gray-500 mb-1.5">
+                            <a href="{{ route('admin.sliders.index') }}" class="hover:text-gray-900 transition">Hero Sliders</a>
+                            <span class="text-gray-300">/</span>
+                            <span class="text-gray-700 font-semibold">New Slider</span>
+                        </nav>
+                        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Create Hero Slider</h1>
                     </div>
-                    <div class="flex items-center">
-                        <input id="status-inactive" type="radio" name="status" value="0" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                        <label for="status-inactive" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Inactive</label>
-                    </div>
+
+                    <!-- Header Action -->
+                    <a href="{{ route('admin.sliders.index') }}"
+                       class="inline-flex items-center px-3.5 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 shadow-sm transition">
+                        <svg class="w-3.5 h-3.5 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Sliders
+                    </a>
                 </div>
             </div>
 
-            <div class="flex justify-end space-x-3">
-                <a href="{{ route('admin.sliders.index') }}"
-                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5">
-                    Cancel
-                </a>
-                <button type="submit"
-                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
-                    Create Slider
-                </button>
-            </div>
-        </form>
+            <!-- Form Body -->
+            <form action="{{ route('admin.sliders.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+
+                <div class="p-5 sm:p-6 space-y-6">
+                    
+                    <!-- Section 1: Banner Image Upload -->
+                    <div>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-700 pb-2 mb-4 border-b border-gray-200">
+                            Slider Image & Banner Asset
+                        </h2>
+
+                        <div class="p-4 border border-dashed border-gray-300 bg-gray-50/50 flex flex-col md:flex-row items-start gap-5">
+                            <div class="w-full md:w-64 h-28 bg-white border border-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                <img id="image-preview" src="{{ asset('images/default-logo.png') }}" alt="Slider Banner Preview"
+                                     class="w-full h-full object-cover">
+                            </div>
+
+                            <div class="space-y-2 text-xs flex-1">
+                                <label for="image" class="block font-semibold text-gray-800">
+                                    Upload Banner Image (Recommended: 1920x800 px) <span class="text-rose-500">*</span>
+                                </label>
+                                <input type="file" name="image" id="image" accept="image/*" onchange="previewImage(this)" required
+                                       class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:border-0 file:text-xs file:font-semibold file:bg-gray-800 file:text-white hover:file:bg-black cursor-pointer">
+                                <p class="text-[11px] text-gray-500">Allowed formats: JPG, PNG, WEBP. Maximum file size: 2MB.</p>
+                                @error('image')
+                                    <p class="mt-1 text-[11px] text-rose-600 font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Headline & Content -->
+                    <div class="pt-4 border-t border-gray-200">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-700 pb-2 mb-4 border-b border-gray-200">
+                            Headlines & Call to Action
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <!-- Main Title -->
+                            <div>
+                                <label for="title" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Main Headline Title
+                                </label>
+                                <input type="text" name="title" id="title"
+                                       value="{{ old('title') }}" placeholder="e.g., Summer Collection 2026"
+                                       class="w-full px-3 py-2 text-xs border border-gray-300 bg-white focus:ring-1 focus:ring-blue-600 focus:border-blue-600">
+                            </div>
+
+                            <!-- Sort Order -->
+                            <div>
+                                <label for="sort_order" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Display Order Sequence
+                                </label>
+                                <input type="number" name="sort_order" id="sort_order"
+                                       value="{{ old('sort_order', 0) }}" min="0"
+                                       class="w-full px-3 py-2 text-xs border border-gray-300 bg-white focus:ring-1 focus:ring-blue-600 focus:border-blue-600">
+                            </div>
+
+                            <!-- Button Text -->
+                            <div>
+                                <label for="btn_text" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Call-To-Action (CTA) Button Text
+                                </label>
+                                <input type="text" name="btn_text" id="btn_text"
+                                       value="{{ old('btn_text') }}" placeholder="e.g., Shop Now, Discover More"
+                                       class="w-full px-3 py-2 text-xs border border-gray-300 bg-white focus:ring-1 focus:ring-blue-600 focus:border-blue-600">
+                            </div>
+
+                            <!-- Button Link -->
+                            <div>
+                                <label for="btn_link" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    CTA Button Target URL
+                                </label>
+                                <input type="text" name="btn_link" id="btn_link"
+                                       value="{{ old('btn_link') }}" placeholder="e.g., /shop, /categories/summer"
+                                       class="w-full px-3 py-2 text-xs font-mono border border-gray-300 bg-white focus:ring-1 focus:ring-blue-600 focus:border-blue-600">
+                            </div>
+                        </div>
+
+                        <!-- Subtitle / Description -->
+                        <div class="mt-5">
+                            <label for="subtitle" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Subtitle / Secondary Description
+                            </label>
+                            <textarea name="subtitle" id="subtitle" rows="3"
+                                      placeholder="Catchy secondary line or promotion description..."
+                                      class="w-full px-3 py-2 text-xs border border-gray-300 bg-white focus:ring-1 focus:ring-blue-600 focus:border-blue-600">{{ old('subtitle') }}</textarea>
+                        </div>
+
+                        <!-- Status Checkbox -->
+                        <div class="mt-5 pt-4 border-t border-gray-100">
+                            <label class="inline-flex items-center space-x-2.5 cursor-pointer">
+                                <input type="checkbox" name="status" id="status" value="1"
+                                       class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-0 cursor-pointer"
+                                       {{ old('status', true) ? 'checked' : '' }}>
+                                <span class="text-xs font-bold text-gray-900">Active (Visible on homepage carousel)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Form Footer Actions -->
+                <div class="px-5 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
+                    <a href="{{ route('admin.sliders.index') }}"
+                       class="px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 transition">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                            class="px-5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition">
+                        Create Slider
+                    </button>
+                </div>
+            </form>
+
+        </div>
     </div>
 
+    @push('scripts')
     <script>
         function previewImage(input) {
             if (input.files && input.files[0]) {
@@ -103,4 +162,5 @@
             }
         }
     </script>
+    @endpush
 @endsection

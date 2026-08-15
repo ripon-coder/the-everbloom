@@ -16,12 +16,23 @@ class AttributeEloquent implements AttributeRepositoryInterface
         $this->model = $attribute;
     }
 
-    /**
-     * Get all attributes with pagination.
-     */
-    public function getAllWithPagination(): LengthAwarePaginator
+    public function getAllWithPagination(array $filters = []): LengthAwarePaginator
     {
-        return $this->model->orderBy('name')->paginate(15);
+        $query = $this->model->withCount('attributeValues');
+
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search);
+            });
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        return $query->orderBy('name')->paginate(15)->withQueryString();
     }
     public function getAll()
     {

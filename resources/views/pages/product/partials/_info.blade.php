@@ -204,7 +204,7 @@
             <span class="text-xs sm:text-sm font-bold text-gray-900 uppercase">Qty</span>
             <div class="flex items-center border border-gray-200 overflow-hidden h-9 md:h-10">
                 <button @click="if(quantity > 1) quantity--" class="px-3 py-1 hover:bg-gray-50 border-r border-gray-200 text-gray-600 font-bold">-</button>
-                <input type="number" x-model="quantity" class="w-10 text-center border-none focus:ring-0 font-bold text-sm sm:text-base p-0" readonly>
+                <input type="number" x-model="quantity" class="w-10 text-center border-none focus:ring-0 font-bold text-sm sm:text-base p-0 text-gray-900 bg-transparent opacity-100 read-only:opacity-100 read-only:text-gray-900 [-webkit-text-fill-color:#111827] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" readonly>
                 <button @click="quantity++" class="px-3 py-1 hover:bg-gray-50 border-l border-gray-200 text-gray-600 font-bold">+</button>
             </div>
         </div>
@@ -212,7 +212,7 @@
         <!-- Action Buttons (hidden on mobile, shown on desktop) -->
         <div class="hidden md:flex gap-2.5 pt-1">
             <button @click="addToCart($event)" :disabled="currentStock <= 0"
-                class="flex-1 bg-primary hover:bg-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 text-xs sm:text-sm uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
+                class="flex-1 bg-primary hover:bg-primary-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
@@ -220,7 +220,7 @@
                 <span x-text="currentStock > 0 ? 'Add to Cart' : 'Out of Stock'">Add to Cart</span>
             </button>
             <button @click="buyNow($event)" :disabled="currentStock <= 0"
-                class="flex-1 bg-gray-900 hover:bg-black disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 text-xs sm:text-sm uppercase tracking-wide transition-colors">
+                class="flex-1 bg-gray-900 hover:bg-black disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 text-xs uppercase tracking-wide transition-colors">
                 Buy It Now
             </button>
         </div>

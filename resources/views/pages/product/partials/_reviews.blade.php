@@ -15,7 +15,7 @@
 
         <!-- Left: Rating Summary Overview -->
         <div class="bg-gray-50 border border-gray-100 p-5 md:p-6">
-            <h3 class="text-sm sm:text-base font-bold text-gray-900 uppercase tracking-widest mb-4">Customer Ratings</h3>
+            <h3 class="text-sm sm:text-base font-bold !text-gray-900 uppercase tracking-widest mb-4">Customer Ratings</h3>
 
             @if($reviewCount > 0)
                 <div class="flex items-start gap-5">
@@ -77,7 +77,7 @@
                 </button>
             </div>
 
-            <h3 class="text-sm sm:text-base font-bold text-gray-900 uppercase tracking-widest mb-4">Write a Review</h3>
+            <h3 class="text-sm sm:text-base font-bold !text-gray-900 uppercase tracking-widest mb-4">Write a Review</h3>
 
             @auth
                 <form @submit.prevent="submitReview()" class="space-y-3">
@@ -134,7 +134,7 @@
     <!-- Review List -->
     <div>
         <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-0">
-            <h2 class="text-sm sm:text-base font-bold text-gray-900 uppercase tracking-widest">
+            <h2 class="text-sm sm:text-base font-bold !text-gray-900 uppercase tracking-widest">
                 All Reviews ({{ $reviewCount }})
             </h2>
         </div>

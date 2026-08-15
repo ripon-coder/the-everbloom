@@ -21,9 +21,10 @@ class AttributeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $attributes = $this->attributeService->getAllWithPagination();
+        $filters = $request->only(['search', 'status']);
+        $attributes = $this->attributeService->getAllWithPagination($filters);
         return view('admin.attributes.index', compact('attributes'));
     }
 

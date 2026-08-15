@@ -46,12 +46,18 @@ class OrderEloquent implements OrderRepository
         }
 
         if (!empty($filters['search'])) {
-            $search = $filters['search'];
+            $search = trim($filters['search']);
             $query->where(function($q) use ($search) {
                 $q->where('order_number', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search)
+                  ->orWhereHas('orderAddress', function($addressQuery) use ($search) {
+                      $addressQuery->where('phone_number', 'LIKE', "%{$search}%")
+                                  ->orWhere('name', 'LIKE', "%{$search}%");
+                  })
                   ->orWhereHas('user', function($userQuery) use ($search) {
                       $userQuery->where('name', 'LIKE', "%{$search}%")
-                               ->orWhere('email', 'LIKE', "%{$search}%");
+                               ->orWhere('email', 'LIKE', "%{$search}%")
+                               ->orWhere('phone', 'LIKE', "%{$search}%");
                   });
             });
         }

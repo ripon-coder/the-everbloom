@@ -4,19 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
 use App\Models\SiteSetting;
-use Illuminate\Support\Facades\Storage;
 
 class SiteSettingController extends Controller
 {
-    protected $imageService;
-
-    public function __construct(\App\Services\ImageUploadService $imageService)
-    {
-        $this->imageService = $imageService;
-    }
-
     public function index()
     {
         $setting = SiteSetting::first();
@@ -27,8 +18,8 @@ class SiteSettingController extends Controller
     {
         $request->validate([
             'site_name' => 'nullable|string|max:255',
-            'site_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'site_favicon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,ico|max:1024',
+            'site_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'site_favicon' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,ico,webp|max:1024',
             'site_email' => 'nullable|email|max:255',
             'site_phone' => 'nullable|string|max:20',
             'site_address' => 'nullable|string',
@@ -47,17 +38,23 @@ class SiteSettingController extends Controller
         $data = $request->except(['site_logo', 'site_favicon']);
 
         if ($request->hasFile('site_logo')) {
-            if ($setting->site_logo) {
-                $this->imageService->delete($setting->site_logo);
-            }
-            $data['site_logo'] = $this->imageService->upload($request->file('site_logo'), 'site');
+            $setting->uploadImage($request->file('site_logo'), 'site', 'site_logo', 'public', false);
+            $data['site_logo'] = $setting->site_logo;
         }
 
         if ($request->hasFile('site_favicon')) {
-            if ($setting->site_favicon) {
-                $this->imageService->delete($setting->site_favicon);
+            $file = $request->file('site_favicon');
+            // If it's standard raster/vector image, process via uploadImage, otherwise store directly if ico
+            if (in_array(strtolower($file->getClientOriginalExtension()), ['ico', 'svg'])) {
+                if ($setting->site_favicon) {
+                    $setting->deleteImage($setting->site_favicon, 'public');
+                }
+                $faviconPath = $file->store('site', 'public');
+                $data['site_favicon'] = $faviconPath;
+            } else {
+                $setting->uploadImage($file, 'site', 'site_favicon', 'public', false);
+                $data['site_favicon'] = $setting->site_favicon;
             }
-            $data['site_favicon'] = $this->imageService->upload($request->file('site_favicon'), 'site');
         }
 
         $setting->update($data);

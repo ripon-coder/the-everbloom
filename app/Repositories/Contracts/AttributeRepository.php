@@ -8,10 +8,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface AttributeRepository
 {
-    /**
-     * Get all attributes with pagination.
-     */
-    public function getAllWithPagination(): LengthAwarePaginator;
+    public function getAllWithPagination(array $filters = []): LengthAwarePaginator;
 
     public function getAll();
 

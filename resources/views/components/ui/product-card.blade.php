@@ -60,8 +60,10 @@
             <span class="text-xs text-gray-400 ml-1 font-medium">(4.9)</span>
         </div>
 
-        <h3 class="text-base font-semibold text-slate-800 mb-1.5 line-clamp-2 leading-snug group-hover:text-primary transition-colors cursor-pointer">
-            <a href="{{ $slug ? route('product.show', $slug) : '#' }}">{{ $name }}</a>
+        <h3 class="text-xs sm:text-sm font-semibold mb-1.5 leading-snug">
+            <a href="{{ $slug ? route('product.show', $slug) : '#' }}" class="block line-clamp-2 text-gray-900 hover:text-primary transition-colors">
+                {{ $name }}
+            </a>
         </h3>
         
         <div class="mt-auto pt-2.5 flex items-center justify-between gap-2">

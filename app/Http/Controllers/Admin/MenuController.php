@@ -12,9 +12,25 @@ class MenuController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $menus = Menu::orderBy('order')->paginate(15);
+        $query = Menu::query();
+
+        if ($request->filled('search')) {
+            $search = trim($request->get('search'));
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('slug', 'LIKE', "%{$search}%")
+                  ->orWhere('url', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search);
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status === 'active' ? 1 : 0);
+        }
+
+        $menus = $query->orderBy('order')->paginate(15)->withQueryString();
         return view('admin.menus.index', compact('menus'));
     }
 

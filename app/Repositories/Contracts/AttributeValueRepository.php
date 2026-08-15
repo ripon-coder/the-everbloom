@@ -7,10 +7,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface AttributeValueRepository
 {
-    /**
-     * Get all attribute values with pagination.
-     */
-    public function getAllWithPagination(int $perPage): LengthAwarePaginator;
+    public function getAllWithPagination(int $perPage = 20, array $filters = []): LengthAwarePaginator;
 
     /**
      * Get attribute values by product ID.

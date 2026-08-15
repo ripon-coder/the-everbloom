@@ -6,11 +6,27 @@ use App\Repositories\Contracts\CouponRepository;
 
 class CouponEloquent implements CouponRepository
 {
-    public function index()
+    public function index(array $filters = [])
     {
-        return Coupon::select('id', 'code', 'type', 'value', 'min_order_amount', 'usage_limit', 'used_count', 'start_date', 'end_date', 'status', 'created_at')
-            ->latest()
-            ->paginate(15);
+        $query = Coupon::select('id', 'code', 'type', 'value', 'min_order_amount', 'usage_limit', 'used_count', 'start_date', 'end_date', 'status', 'created_at');
+
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function($q) use ($search) {
+                $q->where('code', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search);
+            });
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['type'])) {
+            $query->where('type', $filters['type']);
+        }
+
+        return $query->latest()->paginate(15)->withQueryString();
     }
 
     public function create()

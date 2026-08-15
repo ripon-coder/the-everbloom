@@ -105,7 +105,10 @@
             return this.cart.reduce((total, item) => total + parseInt(item.quantity || 0), 0);
         },
         get cartTotal() {
-            return this.cart.reduce((total, item) => total + (parseFloat(item.unit_final_price || 0) * parseInt(item.quantity || 0)), 0);
+            return this.cart.reduce((total, item) => {
+                let price = parseFloat(item.unit_final_price !== undefined && item.unit_final_price !== null ? item.unit_final_price : (item.unit_base_price !== undefined && item.unit_base_price !== null ? item.unit_base_price : (item.price || 0)));
+                return total + (price * parseInt(item.quantity || 0));
+            }, 0);
         },
         updateQuantity(index, delta) {
             let currentTotalQty = this.cart.reduce((total, item) => total + parseInt(item.quantity || 0), 0);
@@ -190,10 +193,10 @@
         </button>
         <a href="/" class="flex-shrink-0 flex items-center gap-1">
             @if($site_setting && $site_setting->site_logo)
-                <img src="{{ Storage::url($site_setting->site_logo) }}" alt="{{ $site_setting->site_name }}"
-                    class="h-8 object-contain filter invert brightness-0">
+                <img src="{{ $site_setting->getLogoUrl() }}" alt="{{ $site_setting->site_name }}"
+                    class="h-8 object-contain">
             @else
-                <span class="text-sm font-bold text-white uppercase tracking-wider">{{ $site_setting->site_name ?? 'Feriwalarhat' }}</span>
+                <span class="text-sm font-bold text-white uppercase tracking-wider">{{ $site_setting->site_name ?? 'The Everbloom' }}</span>
             @endif
         </a>
         <div class="flex items-center gap-3">
@@ -336,26 +339,26 @@
             <!-- Logo -->
             <a href="/" class="flex-shrink-0 flex items-center gap-1">
                 @if($site_setting && $site_setting->site_logo)
-                    <img src="{{ Storage::url($site_setting->site_logo) }}" alt="{{ $site_setting->site_name }}"
+                    <img src="{{ $site_setting->getLogoUrl() }}" alt="{{ $site_setting->site_name }}"
                         class="h-11 object-contain">
                 @else
-                    <span class="text-xl font-extrabold text-slate-900 uppercase tracking-tight">{{ $site_setting->site_name ?? 'FERIWALARHAT' }}</span>
+                    <span class="text-xl font-extrabold text-slate-900 uppercase tracking-tight">{{ $site_setting->site_name ?? 'THE EVERBLOOM' }}</span>
                 @endif
             </a>
 
             <!-- Search Bar -->
             <div class="flex-1 max-w-3xl relative">
                 <form action="{{ route('shop') }}" method="GET"
-                    class="flex items-center h-11 border border-gray-300 hover:border-gray-400 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/20 bg-white transition-all">
+                    class="flex items-center h-10 border border-gray-300 hover:border-gray-400 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/20 bg-white transition-all">
                     <input type="text" name="search" x-model="searchQuery" @input.debounce.300ms="fetchSearchResults()"
                         @focus="showSearchResults = searchResults.length > 0"
-                        class="flex-1 h-full px-4 text-sm sm:text-base bg-transparent border-none focus:ring-0 outline-none w-full text-gray-800 placeholder-gray-400"
+                        class="flex-1 h-full px-3.5 text-xs sm:text-sm bg-transparent border-none focus:ring-0 outline-none w-full text-gray-800 placeholder-gray-400"
                         placeholder="Search for products..." autocomplete="off">
-                    <button type="submit" class="h-full px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-colors flex items-center justify-center gap-2">
-                        <svg x-show="!isSearching" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="submit" class="h-full px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-1.5">
+                        <svg x-show="!isSearching" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <svg x-show="isSearching" x-cloak class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg x-show="isSearching" x-cloak class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -427,13 +430,13 @@
             <div class="flex items-center gap-3 sm:gap-5 flex-shrink-0">
                 <!-- Wishlist -->
                 <a href="{{ route('account', 'wishlist') }}"
-                    class="hidden lg:flex items-center gap-2 h-11 bg-emerald-600 text-white px-4 text-xs sm:text-sm font-bold hover:bg-emerald-700 transition-colors">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    class="hidden lg:flex items-center gap-1.5 h-10 bg-emerald-600 text-white px-3.5 text-xs font-bold hover:bg-emerald-700 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                         <path
                             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z">
                         </path>
                     </svg>
-                    Wishlist (<span x-text="wishlistCount"></span>)
+                    <span>Wishlist (<span x-text="wishlistCount"></span>)</span>
                 </a>
 
                 <div class="hidden lg:block w-px h-6 bg-gray-200"></div>

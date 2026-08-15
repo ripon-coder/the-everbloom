@@ -2,15 +2,18 @@
     <div class="px-4 flex items-center justify-between h-16">
         <!-- Brand -->
         <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3">
-            <div class="w-9 h-9 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-lg flex items-center justify-center shadow-sm">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-            </div>
-            <div class="hidden sm:block">
-                <h1 class="text-lg font-bold text-gray-900 tracking-tight leading-none">Feriwalarhat</h1>
-                <span class="text-[10px] font-bold text-indigo-600 uppercase tracking-[0.2em]">Management</span>
-            </div>
+            @if($site_setting && $site_setting->site_logo)
+                <img src="{{ $site_setting->getLogoUrl() }}" alt="{{ $site_setting->site_name ?? 'Logo' }}"
+                     class="h-8 max-w-[160px] object-contain">
+            @else
+                <div class="w-8 h-8 bg-gray-900 text-white flex items-center justify-center font-bold text-xs">
+                    {{ strtoupper(substr($site_setting->site_name ?? 'E', 0, 1)) }}
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-sm font-bold text-gray-900 tracking-tight leading-none">{{ $site_setting->site_name ?? 'The Everbloom' }}</h1>
+                    <span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Admin</span>
+                </div>
+            @endif
         </a>
 
         <!-- Right Side -->

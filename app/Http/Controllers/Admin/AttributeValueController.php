@@ -24,8 +24,9 @@ class AttributeValueController extends Controller
      */
     public function index(Request $request)
     {
+        $filters = $request->only(['search', 'attribute_id', 'status']);
         $attributes = app(AttributeRepository::class)->getAll();
-        $attributeValues = $this->attributeValueRepository->getAllWithPagination(20);
+        $attributeValues = $this->attributeValueRepository->getAllWithPagination(20, $filters);
         return view('admin.attribute-values.index', compact('attributeValues', 'attributes'));
     }
 

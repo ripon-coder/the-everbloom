@@ -13,9 +13,21 @@ class DistrictEloquent implements DistrictRepository
         return District::find($id);
     }
 
-    public function index()
+    public function index(array $filters = [])
     {
-        return District::orderBy("name")->paginate(20);
+        $query = District::query();
+
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('information', 'LIKE', "%{$search}%")
+                  ->orWhere('delivery_charge', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search);
+            });
+        }
+
+        return $query->orderBy("name")->paginate(20)->withQueryString();
     }
 
     public function create() {}

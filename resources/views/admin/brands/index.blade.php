@@ -1,98 +1,237 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Manage Brands')
+@section('title', 'Brands Management')
 
 @section('content')
-    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Brand List</h2>
-            <a href="{{ route('admin.brands.create') }}"
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                Add New Brand
-            </a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">ID</th>
-                        <th scope="col" class="px-6 py-3">Logo</th>
-                        <th scope="col" class="px-6 py-3">Name</th>
-                        <th scope="col" class="px-6 py-3">Slug</th>
-                        <th scope="col" class="px-6 py-3">Status</th>
-                        <th scope="col" class="px-6 py-3">Created At</th>
-                        <th scope="col" class="px-6 py-3 text-right">Actions</th>
-                    </tr>
-                </thead>
+    @php
+        $currentSearch = request('search', '');
+        $currentStatus = request('status', '');
+        $hasFilters = filled($currentSearch) || filled($currentStatus);
+    @endphp
 
-                <tbody>
-                    @forelse($brands as $brand)
-                        <tr
-                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                            <th scope="row"
-                                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{ $brand->id }}
-                            </th>
-                            <td class="px-6 py-4">
-                                <img src="{{ $brand->getImageUrl('brand_logo') }}" alt="{{ $brand->name }}"
-                                    class="w-10 h-10 rounded-full object-cover">
-                            </td>
-                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                                {{ $brand->name }}
-                            </td>
-                            <td class="px-6 py-4">
-                                <span
-                                    class="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $brand->slug }}</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                @if ($brand->status == \App\Constants\BrandStatus::ACTIVE)
-                                    <span
-                                        class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Active</span>
-                                @else
-                                    <span
-                                        class="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">Inactive</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $brand->created_at->format('Y-m-d H:i') }}
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex justify-end space-x-2">
-                                    <a href="{{ route('admin.brands.edit', $brand->id) }}"
-                                        class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                                    <button
-                                        onclick="showDeleteModal('brand', '{{ route('admin.brands.destroy', $brand->id) }}', '{{ $brand->name }}')"
-                                        class="font-medium text-red-600 dark:text-red-500 hover:underline">Delete</button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                                <div class="flex flex-col items-center justify-center space-y-3">
-                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                                        </path>
-                                    </svg>
-                                    <p class="text-lg font-medium">No brands found</p>
-                                    <p class="text-sm">Get started by creating your first brand.</p>
-                                    <a href="{{ route('admin.brands.create') }}"
-                                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                                        Create Brand
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        @if ($brands->count() > 0)
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-center items-center">
-                {{ $brands->links() }}
+    <div class="space-y-6" x-data="{
+        copiedText: null,
+        copyToClipboard(text, label) {
+            navigator.clipboard.writeText(text);
+            this.copiedText = label;
+            setTimeout(() => this.copiedText = null, 2000);
+        }
+    }">
+        <!-- Single Unified Brands Card (Sharp / Non-rounded) -->
+        <div class="bg-white border border-gray-200 shadow-sm">
+            
+            <!-- Card Top Header -->
+            <div class="p-5 sm:p-6 bg-gradient-to-r from-gray-50/80 via-white to-gray-50/50 border-b border-gray-200">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div>
+                        <!-- Breadcrumb -->
+                        <nav class="flex items-center space-x-2 text-xs text-gray-500 mb-1.5">
+                            <span class="text-gray-700 font-semibold">Catalog</span>
+                            <span class="text-gray-300">/</span>
+                            <span>Brands</span>
+                        </nav>
+
+                        <div class="flex flex-wrap items-center gap-3">
+                            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Brands Management</h1>
+                            <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                {{ $brands->total() }} Total {{ Str::plural('Brand', $brands->total()) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Header Action Buttons -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        @if ($hasFilters)
+                            <a href="{{ route('admin.brands.index') }}"
+                               class="inline-flex items-center px-3.5 py-2 text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition">
+                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Clear Filters
+                            </a>
+                        @endif
+
+                        <a href="{{ route('admin.brands.create') }}"
+                           class="inline-flex items-center px-3.5 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition">
+                            <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Add New Brand
+                        </a>
+                    </div>
+                </div>
             </div>
-        @endif
+
+            <!-- Search & Filters Bar -->
+            <div class="p-5 sm:p-6 bg-gray-50/50 border-b border-gray-200">
+                <form action="{{ route('admin.brands.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
+                    
+                    <!-- Search Input -->
+                    <div class="lg:col-span-6">
+                        <label for="search" class="block text-[11px] font-semibold text-gray-600 uppercase tracking-wider mb-1">Search Brands</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <input type="text" name="search" id="search" value="{{ $currentSearch }}"
+                                   placeholder="Search Name, Slug, ID..."
+                                   class="w-full pl-9 pr-3 py-2 text-xs border border-gray-300 bg-white focus:ring-1 focus:ring-blue-600 focus:border-blue-600">
+                        </div>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="lg:col-span-4">
+                        <label for="status" class="block text-[11px] font-semibold text-gray-600 uppercase tracking-wider mb-1">Status</label>
+                        <select name="status" id="status"
+                                class="w-full py-2 px-3 text-xs border border-gray-300 bg-white focus:ring-1 focus:ring-blue-600 focus:border-blue-600">
+                            <option value="">All Statuses</option>
+                            <option value="{{ \App\Constants\BrandStatus::ACTIVE }}" {{ $currentStatus == \App\Constants\BrandStatus::ACTIVE ? 'selected' : '' }}>Active</option>
+                            <option value="{{ \App\Constants\BrandStatus::INACTIVE }}" {{ $currentStatus == \App\Constants\BrandStatus::INACTIVE ? 'selected' : '' }}>Inactive</option>
+                        </select>
+                    </div>
+
+                    <!-- Submit & Reset Buttons -->
+                    <div class="lg:col-span-2 flex items-end gap-2">
+                        <button type="submit"
+                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 text-xs transition duration-150 flex items-center justify-center">
+                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                            </svg>
+                            Filter
+                        </button>
+
+                        @if ($hasFilters)
+                            <a href="{{ route('admin.brands.index') }}"
+                               class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-2.5 text-xs transition flex items-center justify-center"
+                               title="Reset Search">
+                                Reset
+                            </a>
+                        @endif
+                    </div>
+                </form>
+            </div>
+
+            <!-- Brands Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-left text-xs">
+                    <thead class="bg-gray-50 text-gray-500 uppercase font-semibold">
+                        <tr>
+                            <th class="px-5 py-3.5">Brand</th>
+                            <th class="px-5 py-3.5">Status</th>
+                            <th class="px-5 py-3.5">Created Date</th>
+                            <th class="px-5 py-3.5 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white">
+                        @forelse($brands as $brand)
+                            @php
+                                $logoUrl = $brand->getImageUrl('brand_logo');
+                            @endphp
+                            <tr class="hover:bg-gray-50/80 transition duration-150">
+                                
+                                <!-- Brand Logo & Name -->
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center space-x-3 min-w-[220px]">
+                                        @if ($logoUrl)
+                                            <img src="{{ $logoUrl }}" alt="{{ $brand->name }}" class="w-10 h-10 object-contain p-1 border border-gray-200 bg-white flex-shrink-0">
+                                        @else
+                                            <div class="w-10 h-10 bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 flex-shrink-0">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                                </svg>
+                                            </div>
+                                        @endif
+
+                                        <div class="space-y-0.5 min-w-0">
+                                            <span class="font-semibold text-gray-900 block truncate" title="{{ $brand->name }}">
+                                                {{ $brand->name }}
+                                            </span>
+                                            <div class="flex items-center space-x-1.5 text-[11px] text-gray-500">
+                                                <span class="font-mono bg-gray-100 px-1 py-0.2 border border-gray-200 truncate max-w-[130px]">
+                                                    {{ $brand->slug }}
+                                                </span>
+                                                <button type="button" @click="copyToClipboard('{{ $brand->slug }}', '{{ $brand->id }}')" 
+                                                        class="text-gray-400 hover:text-gray-600 transition" title="Copy Slug">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                                    </svg>
+                                                </button>
+                                                <span>&bull; #{{ $brand->id }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Status Badge -->
+                                <td class="px-5 py-4 whitespace-nowrap">
+                                    @if ($brand->status == \App\Constants\BrandStatus::ACTIVE)
+                                        <span class="inline-flex px-2.5 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            Active
+                                        </span>
+                                    @else
+                                        <span class="inline-flex px-2.5 py-0.5 text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                            Inactive
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <!-- Created Date -->
+                                <td class="px-5 py-4 whitespace-nowrap text-gray-500 text-[11px]">
+                                    {{ $brand->created_at ? $brand->created_at->format('M d, Y · H:i') : 'N/A' }}
+                                </td>
+
+                                <!-- Action Buttons -->
+                                <td class="px-5 py-4 whitespace-nowrap text-right font-medium">
+                                    <a href="{{ route('admin.brands.edit', $brand->id) }}"
+                                       class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition"
+                                       title="Edit Brand">
+                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                        Edit
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                    <div class="flex flex-col items-center justify-center space-y-3">
+                                        <div class="w-12 h-12 bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                            </svg>
+                                        </div>
+                                        <p class="text-base font-semibold text-gray-900">No brands found</p>
+                                        <p class="text-xs text-gray-500">
+                                            @if ($hasFilters)
+                                                No brands match your search criteria.
+                                            @else
+                                                Get started by adding your first brand.
+                                            @endif
+                                        </p>
+                                        @if ($hasFilters)
+                                            <a href="{{ route('admin.brands.index') }}"
+                                               class="text-xs font-semibold text-blue-600 hover:text-blue-700 underline">
+                                                Clear all search filters
+                                            </a>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Card Pagination -->
+            @if ($brands->hasPages())
+                <div class="px-5 sm:px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                    {{ $brands->links() }}
+                </div>
+            @endif
+
+        </div>
     </div>
 @endsection

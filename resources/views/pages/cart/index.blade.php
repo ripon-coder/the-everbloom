@@ -14,10 +14,10 @@
             <!-- Page Header -->
             <div class="flex items-center justify-between mb-5">
                 <div class="flex items-center gap-2.5">
-                    <h1 class="text-lg md:text-xl font-bold text-gray-900">Shopping Cart</h1>
-                    <span x-show="cart.length > 0" class="bg-primary/10 text-primary text-xs font-semibold px-2 py-0.5" x-text="cartCount + ' items'"></span>
+                    <h1 class="text-xl md:text-2xl font-bold text-gray-900">Shopping Cart</h1>
+                    <span x-show="cart.length > 0" class="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5" x-text="cartCount + ' items'"></span>
                 </div>
-                <a href="{{ route('shop') }}" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-primary transition-colors">
+                <a href="{{ route('shop') }}" class="hidden sm:inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-gray-500 hover:text-primary transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     <span>Continue Shopping</span>
                 </a>
@@ -26,7 +26,7 @@
             <!-- Inactive/Unavailable Items Warning Banner -->
             <div x-show="hasInactiveItems" x-cloak class="mb-5 bg-red-50 border-l-4 border-red-500 p-3.5 flex items-center gap-3">
                 <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v3a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                <span class="text-xs font-medium text-red-700">Attention: One or more items in your cart are no longer available. Please remove them to proceed.</span>
+                <span class="text-xs sm:text-sm font-medium text-red-700">Attention: One or more items in your cart are no longer available. Please remove them to proceed.</span>
             </div>
 
             <!-- Cart Body -->
@@ -37,7 +37,7 @@
                     <div class="bg-white border border-gray-200 overflow-hidden">
                         
                         <!-- Table Header (Desktop) -->
-                        <div class="hidden sm:grid sm:grid-cols-12 gap-4 px-5 py-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500">
+                        <div class="hidden sm:grid sm:grid-cols-12 gap-4 px-5 py-3.5 bg-gray-50 border-b border-gray-200 text-xs sm:text-sm font-bold text-gray-700">
                             <div class="col-span-5">Product Details</div>
                             <div class="col-span-2 text-center">Price</div>
                             <div class="col-span-2 text-center">Quantity</div>
@@ -52,18 +52,18 @@
                                         
                                         <!-- Product Info -->
                                         <div class="sm:col-span-5 flex items-start sm:items-center gap-3 w-full relative">
-                                            <a :href="item.slug ? ('/product/' + item.slug) : '#'" class="relative w-16 h-16 sm:w-18 sm:h-18 bg-gray-50 border border-gray-200 p-1 flex-shrink-0 flex items-center justify-center group overflow-hidden">
+                                            <a :href="item.slug ? ('/product/' + item.slug) : '#'" class="relative w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 border border-gray-200 p-1 flex-shrink-0 flex items-center justify-center group overflow-hidden">
                                                 <img :src="item.image || 'https://placehold.co/100x100?text=Product'" :alt="item.name" class="max-w-full max-h-full object-contain">
                                             </a>
                                             <div class="flex-1 min-w-0 pr-6 sm:pr-0">
-                                                <h3 class="text-xs sm:text-sm font-semibold text-gray-800 hover:text-primary transition-colors leading-tight line-clamp-2">
+                                                <h3 class="text-xs sm:text-sm font-semibold text-gray-900 hover:text-primary transition-colors leading-snug line-clamp-2">
                                                     <a :href="item.slug ? ('/product/' + item.slug) : '#'" x-text="item.name"></a>
                                                 </h3>
                                                 
                                                 <!-- Attributes -->
                                                 <div class="flex flex-wrap gap-1 mt-1">
                                                     <template x-for="(val, key) in item.attributes" :key="key">
-                                                        <span class="inline-flex items-center text-[10px] font-medium text-gray-600 bg-gray-100 px-1.5 py-0.5">
+                                                        <span class="inline-flex items-center text-xs font-medium text-gray-600 bg-gray-100 px-1.5 py-0.5">
                                                             <span class="text-gray-400 mr-0.5" x-text="key + ':'"></span>
                                                             <span x-text="val"></span>
                                                         </span>
@@ -71,14 +71,14 @@
                                                 </div>
 
                                                 <template x-if="item.is_active === false || item.available === false">
-                                                    <p class="text-[10px] font-medium text-red-600 bg-red-50 px-2 py-0.5 mt-1 inline-flex items-center gap-1">
+                                                    <p class="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 mt-1 inline-flex items-center gap-1">
                                                         <svg class="w-3 h-3 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
                                                         <span x-text="item.status_message || 'No Longer Available'"></span>
                                                     </p>
                                                 </template>
 
                                                 <template x-if="item.is_active !== false && item.available !== false && item.available_stock !== undefined && item.available_stock > 0 && item.available_stock < 10">
-                                                    <p class="text-[10px] font-medium text-amber-600 mt-1 flex items-center gap-1">
+                                                    <p class="text-xs font-medium text-amber-600 mt-1 flex items-center gap-1">
                                                         <svg class="w-3 h-3 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
                                                         <span x-text="'Only ' + item.available_stock + ' left in stock'"></span>
                                                     </p>
@@ -93,9 +93,9 @@
 
                                         <!-- Unit Price (Desktop) -->
                                         <div class="hidden sm:block sm:col-span-2 text-center whitespace-nowrap">
-                                            <span class="text-xs font-semibold text-gray-800 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price)"></span>
+                                            <span class="text-xs sm:text-sm font-bold !text-gray-900 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price)"></span>
                                             <template x-if="item.unit_base_price && item.unit_base_price > item.unit_final_price">
-                                                <span class="text-[11px] text-gray-400 line-through block mt-0.5 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_base_price)"></span>
+                                                <span class="text-xs text-gray-400 line-through block mt-0.5 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_base_price)"></span>
                                             </template>
                                         </div>
 
@@ -103,23 +103,23 @@
                                         <div class="w-full sm:w-auto sm:col-span-2 flex items-center justify-between sm:justify-center pt-2 sm:pt-0 border-t border-gray-100 sm:border-0 mt-1 sm:mt-0">
                                             <!-- Mobile Price Display -->
                                             <div class="sm:hidden flex flex-col">
-                                                <span class="text-[10px] text-gray-400 font-medium">Subtotal</span>
-                                                <span class="text-sm font-semibold text-primary whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price * item.quantity)"></span>
+                                                <span class="text-xs text-gray-400 font-medium">Subtotal</span>
+                                                <span class="text-sm sm:text-base font-bold !text-emerald-700 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price * item.quantity)"></span>
                                             </div>
 
                                             <!-- Stepper Controls -->
                                             <div class="flex items-center border border-gray-200 overflow-hidden bg-white">
-                                                <button type="button" @click="updateQuantity(index, -1)" class="w-7 h-7 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors text-xs font-medium" :disabled="item.quantity <= 1 || item.is_active === false || item.available === false">-</button>
-                                                <input type="number" :value="item.quantity" @change="setQuantity(index, $event.target.value)" class="w-8 h-7 text-center text-xs font-medium text-gray-800 border-none p-0 focus:ring-0 bg-transparent" min="1" max="30" readonly>
-                                                <button type="button" @click="updateQuantity(index, 1)" class="w-7 h-7 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors text-xs font-medium" :disabled="item.is_active === false || item.available === false">+</button>
+                                                <button type="button" @click="updateQuantity(index, -1)" class="w-7 h-7 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors text-xs font-bold" :disabled="item.quantity <= 1 || item.is_active === false || item.available === false">-</button>
+                                                <input type="number" :value="item.quantity" @change="setQuantity(index, $event.target.value)" class="w-8 h-7 text-center text-xs sm:text-sm font-bold !text-gray-900 bg-transparent opacity-100 read-only:opacity-100 read-only:text-gray-900 [-webkit-text-fill-color:#111827] border-none p-0 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" min="1" max="30" readonly>
+                                                <button type="button" @click="updateQuantity(index, 1)" class="w-7 h-7 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors text-xs font-bold" :disabled="item.is_active === false || item.available === false">+</button>
                                             </div>
                                         </div>
 
                                         <!-- Subtotal & Remove (Desktop) -->
                                         <div class="hidden sm:flex sm:col-span-3 flex-col items-end justify-center whitespace-nowrap">
-                                            <span class="text-sm font-semibold text-primary whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price * item.quantity)"></span>
-                                            <button type="button" @click="removeItem(index)" class="text-[11px] font-normal text-gray-400 hover:text-red-500 mt-0.5 flex items-center gap-1 transition-colors" title="Remove Item">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            <span class="text-sm sm:text-base font-bold !text-emerald-700 whitespace-nowrap" x-text="'Tk. ' + formatPrice(item.unit_final_price * item.quantity)"></span>
+                                            <button type="button" @click="removeItem(index)" class="text-xs font-medium text-gray-400 hover:text-red-500 mt-1 flex items-center gap-1 transition-colors" title="Remove Item">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                 <span>Remove</span>
                                             </button>
                                         </div>
@@ -130,12 +130,12 @@
                         </div>
 
                         <!-- Footer Action Buttons (Desktop Only) -->
-                        <div class="hidden sm:flex p-4 bg-gray-50/60 border-t border-gray-200 flex-row items-center justify-between gap-3">
-                            <a href="{{ route('shop') }}" class="w-auto inline-flex items-center justify-center gap-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 px-4 py-2 transition-colors">
+                        <div class="hidden sm:flex p-3 bg-gray-50/60 border-t border-gray-200 flex-row items-center justify-between gap-3">
+                            <a href="{{ route('shop') }}" class="w-auto inline-flex items-center justify-center gap-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 transition-colors shadow-xs">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                                 <span>Continue Shopping</span>
                             </a>
-                            <button type="button" @click="clearCart()" class="w-auto inline-flex items-center justify-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-3.5 py-2 transition-colors">
+                            <button type="button" @click="clearCart()" class="w-auto inline-flex items-center justify-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 transition-colors shadow-xs">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 <span>Clear Cart</span>
                             </button>
@@ -146,24 +146,24 @@
                 <!-- Right Column: Order Summary Card -->
                 <div class="w-full lg:w-[340px] xl:w-[360px] flex-shrink-0">
                     <div class="bg-white border border-gray-200 p-5 sticky top-24 space-y-5">
-                        <h2 class="text-xs font-bold text-gray-900 uppercase tracking-widest border-b border-gray-100 pb-3">Order Summary</h2>
+                        <h2 class="text-base font-bold text-gray-900 uppercase tracking-wide border-b border-gray-100 pb-3">Order Summary</h2>
 
                         <!-- Totals Breakdown -->
-                        <div class="space-y-2.5 text-xs">
+                        <div class="space-y-3 text-xs sm:text-sm">
                             <div class="flex justify-between text-gray-600">
-                                <span>Subtotal</span>
-                                <span class="font-semibold text-gray-900 whitespace-nowrap" x-text="'Tk. ' + formatPrice(cartTotal)"></span>
+                                <span class="font-semibold text-gray-700">Subtotal</span>
+                                <span class="font-bold !text-gray-900 whitespace-nowrap" x-text="'Tk. ' + formatPrice(cartTotal)"></span>
                             </div>
                             <div class="flex justify-between text-gray-600">
-                                <span>Shipping</span>
-                                <span class="text-[11px] font-normal text-gray-400">Calculated at checkout</span>
+                                <span class="font-semibold text-gray-700">Shipping</span>
+                                <span class="text-xs font-medium text-gray-400">Calculated at checkout</span>
                             </div>
                             <div class="pt-3 border-t border-gray-200 flex justify-between items-baseline">
                                 <div>
-                                    <span class="text-xs font-bold text-gray-900">Total</span>
-                                    <span class="text-[10px] text-gray-400 block">Taxes & shipping added at checkout</span>
+                                    <span class="text-sm font-bold text-gray-900">Total</span>
+                                    <span class="text-xs text-gray-400 block">Taxes & shipping added at checkout</span>
                                 </div>
-                                <span class="text-lg font-bold text-primary whitespace-nowrap" x-text="'Tk. ' + formatPrice(cartTotal)"></span>
+                                <span class="text-xl font-bold !text-emerald-700 whitespace-nowrap" x-text="'Tk. ' + formatPrice(cartTotal)"></span>
                             </div>
                         </div>
 
@@ -171,7 +171,7 @@
                         <template x-if="!hasInactiveItems">
                             <button type="button" @click="proceedToCheckout()"
                                :disabled="checkingOut"
-                               class="w-full bg-primary hover:bg-primary-dark disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-bold py-3 text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
+                               class="w-full bg-primary hover:bg-primary-dark disabled:bg-primary/50 disabled:cursor-not-allowed text-white font-bold py-2 px-4 text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
                                 <template x-if="!checkingOut">
                                     <span class="flex items-center gap-1.5">
                                         <span>Proceed to Checkout</span>
@@ -254,7 +254,10 @@
                 },
 
                 get cartTotal() {
-                    return this.cart.reduce((total, item) => total + (parseFloat(item.unit_final_price || 0) * parseInt(item.quantity || 0)), 0);
+                    return this.cart.reduce((total, item) => {
+                        let price = parseFloat(item.unit_final_price !== undefined && item.unit_final_price !== null ? item.unit_final_price : (item.unit_base_price !== undefined && item.unit_base_price !== null ? item.unit_base_price : (item.price || 0)));
+                        return total + (price * parseInt(item.quantity || 0));
+                    }, 0);
                 },
 
                 get hasInactiveItems() {

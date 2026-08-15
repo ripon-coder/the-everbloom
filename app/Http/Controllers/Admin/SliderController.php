@@ -19,9 +19,10 @@ class SliderController extends Controller
         $this->sliderService = $sliderService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $sliders = $this->sliderRepository->all();
+        $filters = $request->only(['search', 'status']);
+        $sliders = $this->sliderRepository->all($filters);
         return view('admin.sliders.index', compact('sliders'));
     }
 

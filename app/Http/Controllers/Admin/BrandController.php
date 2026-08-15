@@ -21,9 +21,10 @@ class BrandController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $data['brands'] = $this->brandRepository->all();
+        $filters = $request->only(['search', 'status']);
+        $data['brands'] = $this->brandRepository->all($filters);
         return view("admin.brands.index", $data);
     }
 

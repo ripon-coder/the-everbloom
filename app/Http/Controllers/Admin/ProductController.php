@@ -70,6 +70,15 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
+        $product->load([
+            'brand',
+            'category',
+            'images',
+            'variants.variantAttributes.attribute',
+            'variants.variantAttributes.attributeValue',
+            'variants.images',
+        ]);
+
         return view('admin.products.show', compact('product'));
     }
 

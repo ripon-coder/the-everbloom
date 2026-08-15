@@ -6,15 +6,29 @@ use App\Repositories\Contracts\BrandRepository;
 
 class BrandEloquent implements BrandRepository
 {
-
-
     public function FindById($id)
     {
         return Brand::findOrFail($id);
     }
-    public function All()
+
+    public function All(array $filters = [])
     {
-        return Brand::with("media")->orderByDesc("id")->paginate(20);
+        $query = Brand::with("media");
+
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('slug', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search);
+            });
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        return $query->orderByDesc("id")->paginate(20)->withQueryString();
     }
 
     public function DeleteFindBuyId($id)

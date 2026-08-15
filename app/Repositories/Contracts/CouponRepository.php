@@ -4,7 +4,7 @@ namespace App\Repositories\Contracts;
 
 interface CouponRepository
 {
-    public function index();
+    public function index(array $filters = []);
 
     public function create();
 

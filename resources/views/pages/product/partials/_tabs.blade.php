@@ -11,8 +11,9 @@
             Specifications
         </button>
     </div>
-    <div class="prose prose-sm max-w-none text-xs sm:text-sm text-gray-700 overflow-x-auto break-words [&_img]:max-w-full [&_img]:h-auto [&_iframe]:max-w-full [&_h1]:text-base [&_h1]:sm:text-lg [&_h1]:font-bold [&_h1]:text-gray-900 [&_h2]:text-sm [&_h2]:sm:text-base [&_h2]:font-bold [&_h2]:text-gray-900 [&_h3]:text-xs [&_h3]:sm:text-sm [&_h3]:font-bold [&_h3]:text-gray-900 [&_p]:text-xs [&_p]:sm:text-sm [&_p]:leading-relaxed [&_table]:w-full [&_table]:max-w-full [&_span]:!text-xs [&_td]:text-xs [&_td]:sm:text-sm [&_li]:text-xs [&_li]:sm:text-sm">
-        <div x-show="activeTab === 'description'" class="leading-relaxed space-y-3 text-xs sm:text-sm">
+
+    <div class="prose max-w-none text-xs sm:text-sm text-gray-800 break-words leading-relaxed space-y-4">
+        <div x-show="activeTab === 'description'">
             {!! $product->description !!}
         </div>
         <div x-show="activeTab === 'specifications'" x-cloak>

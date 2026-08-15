@@ -6,6 +6,7 @@
                 sessionCart: {!! \Illuminate\Support\Js::from($sessionCart ?? []) !!},
                 sessionBuyNowCart: {!! \Illuminate\Support\Js::from($sessionBuyNowCart ?? []) !!},
                 districts: {!! \Illuminate\Support\Js::from($districts ?? []) !!},
+                userAddresses: {!! \Illuminate\Support\Js::from($userAddresses ?? []) !!},
                 selectedAddressId: '',
                 fullName: '',
                 phone: '',
@@ -449,55 +450,46 @@
 
                     <!-- Shipping Address -->
                     <div class="bg-white border border-gray-200 rounded-lg p-5 md:p-6 shadow-sm">
-                        <h2 class="text-base md:text-lg font-bold text-gray-900 uppercase tracking-widest mb-4">Shipping
-                            Address</h2>
+                        <h2 class="text-base md:text-lg font-bold text-gray-900 uppercase tracking-wide mb-5">Shipping Address</h2>
 
                         @if(auth()->check() && $userAddresses->count() > 0)
                             <div class="mb-4">
-                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Saved Addresses</label>
-                                <select x-model="selectedAddressId" @change="applySavedAddress()" class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5 cursor-pointer bg-gray-50">
+                                <label class="text-xs sm:text-sm font-semibold !text-gray-700 block mb-1.5">Saved Addresses</label>
+                                <select x-model="selectedAddressId" @change="applySavedAddress()" class="w-full border-gray-300 rounded-none text-sm !text-gray-900 focus:ring-0 focus:border-emerald-600 py-3 px-3.5 cursor-pointer bg-gray-50">
                                     <option value="">-- Or enter new address below --</option>
-                                    <template x-for="addr in userAddresses" :key="addr.id">
-                                        <option :value="addr.id" x-text="addr.name + ' (' + addr.type + ') - ' + addr.phone"></option>
-                                    </template>
+                                    @foreach($userAddresses as $addr)
+                                        <option value="{{ $addr->id }}">{{ $addr->name }} ({{ $addr->type ?? 'Address' }}) - {{ $addr->phone }} - {{ $addr->address }} {{ $addr->district ? '('.$addr->district->name.')' : '' }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         @endif
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="md:col-span-2">
-                                <label
-                                    class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Full
-                                    Name *</label>
+                                <label class="text-xs sm:text-sm font-semibold text-gray-700 block mb-1.5">Full Name *</label>
                                 <input type="text" x-model="fullName"
-                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5"
+                                    class="w-full border-gray-300 text-sm text-gray-900 focus:ring-primary focus:border-primary py-3 px-3.5"
                                     placeholder="Enter your full name" required>
                             </div>
 
                             <div class="md:col-span-2">
-                                <label
-                                    class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Phone
-                                    Number *</label>
+                                <label class="text-xs sm:text-sm font-semibold text-gray-700 block mb-1.5">Phone Number *</label>
                                 <input type="tel" x-model="phone"
-                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5"
+                                    class="w-full border-gray-300 text-sm text-gray-900 focus:ring-primary focus:border-primary py-3 px-3.5"
                                     placeholder="e.g. 017xxxxxxxx" required>
                             </div>
 
                             <div class="md:col-span-2">
-                                <label
-                                    class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Full
-                                    Address *</label>
+                                <label class="text-xs sm:text-sm font-semibold text-gray-700 block mb-1.5">Full Address *</label>
                                 <textarea rows="2" x-model="address"
-                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5"
+                                    class="w-full border-gray-300 text-sm text-gray-900 focus:ring-primary focus:border-primary py-3 px-3.5"
                                     placeholder="House/Road/Area" required></textarea>
                             </div>
 
                             <div class="md:col-span-2">
-                                <label
-                                    class="text-[11px] font-bold text-gray-500 uppercase tracking-wide block mb-1">City
-                                    / District *</label>
+                                <label class="text-xs sm:text-sm font-semibold text-gray-700 block mb-1.5">City / District *</label>
                                 <select x-model="districtId"
-                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-primary focus:border-primary py-2.5 cursor-pointer">
+                                    class="w-full border-gray-300 text-sm text-gray-900 focus:ring-primary focus:border-primary py-3 px-3.5 cursor-pointer">
                                     <option value="">Select City</option>
                                     @foreach($districts as $district)
                                         <option value="{{ $district->id }}">{{ $district->name }}</option>
@@ -672,7 +664,7 @@
                         <!-- Submit Button -->
                         <button type="button" @click="placeOrder()"
                             :disabled="isCalculating || isPlacingOrder || calculatedItems.length === 0 || allItemsUnavailable || isBillingIncomplete"
-                            class="w-full bg-primary hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-md text-sm uppercase tracking-widest transition-colors shadow-md flex items-center justify-center gap-2">
+                            class="w-full bg-primary hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-md text-xs uppercase tracking-wide transition-colors shadow-md flex items-center justify-center gap-2">
                             <svg x-show="isPlacingOrder" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

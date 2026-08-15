@@ -23,7 +23,7 @@ class CustomerController extends Controller
      */
     public function index(Request $request): View
     {
-        $filters = $request->only(['search']);
+        $filters = $request->only(['search', 'status']);
         $customers = $this->userRepository->getAllCustomers($filters);
         
         return view('admin.customers.index', compact('customers'));

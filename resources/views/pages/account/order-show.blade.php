@@ -22,15 +22,15 @@
                     <!-- Section Header -->
                     <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-200">
                         <div>
-                            <h2 class="text-sm font-bold text-gray-900 uppercase tracking-widest">Order Details #{{ $order->order_number }}</h2>
-                            <p class="text-xs text-gray-500 mt-0.5">Placed on {{ $order->created_at->format('F d, Y \a\t h:i A') }}</p>
+                            <h2 class="text-base md:text-lg font-semibold text-gray-900 uppercase tracking-wide">Order Details #{{ $order->order_number }}</h2>
+                            <p class="text-xs sm:text-sm text-gray-500 mt-0.5">Placed on {{ $order->created_at->format('F d, Y \a\t h:i A') }}</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('account.order.invoice', $order->order_number) }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 border border-emerald-600 px-3.5 py-1.5 transition-colors shadow-xs">
+                            <a href="{{ route('account.order.invoice', $order->order_number) }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 border border-emerald-600 px-3.5 py-1.5 transition-colors shadow-xs">
                                 <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 <span>Download Invoice</span>
                             </a>
-                            <a href="{{ route('account', 'orders') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 hover:text-primary uppercase tracking-wider border border-gray-300 hover:border-gray-400 px-3 py-1.5 bg-white transition-colors">
+                            <a href="{{ route('account', 'orders') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-700 hover:text-primary uppercase tracking-wider border border-gray-300 hover:border-gray-400 px-3 py-1.5 bg-white transition-colors">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                                 <span>Back to Orders</span>
                             </a>
@@ -41,15 +41,15 @@
                     <div class="bg-white border border-gray-200 p-5 sm:p-6 space-y-6">
                         <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-gray-100">
                             <div>
-                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Order Status</span>
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold {{ $order->getStatusColor() }} border border-gray-200">
+                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-1">Order Status</span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold {{ $order->getStatusColor() }} border border-gray-200">
                                     <span class="w-2 h-2 rounded-full bg-current opacity-75"></span>
                                     {{ $order->getStatusText() }}
                                 </span>
                             </div>
                             <div>
-                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Payment Status</span>
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold {{ $order->getPaymentStatusColor() }} border border-gray-200">
+                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-1">Payment Status</span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold {{ $order->getPaymentStatusColor() }} border border-gray-200">
                                     <span class="w-2 h-2 rounded-full bg-current opacity-75"></span>
                                     @if($order->payment_method === 'cod' && $order->payment_status === 'pending')
                                         COD Pending

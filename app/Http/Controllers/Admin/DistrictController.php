@@ -20,10 +20,11 @@ class DistrictController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $districts = $this->district->index();
-        return view("admin.districts.index",compact('districts'));
+        $filters = $request->only(['search']);
+        $districts = $this->district->index($filters);
+        return view("admin.districts.index", compact('districts'));
     }
 
     /**

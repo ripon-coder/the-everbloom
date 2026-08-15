@@ -24,7 +24,7 @@ class PageController extends Controller
         session()->put($cartKey, $verifiedCart);
 
         $districts = \App\Models\District::orderBy('name')->get();
-        $userAddresses = auth()->check() ? auth()->user()->addresses()->get() : collect();
+        $userAddresses = auth()->check() ? auth()->user()->addresses()->with('district')->get() : collect();
 
         return response()
             ->view('pages.checkout.index', compact('districts', 'userAddresses', 'sessionCart', 'sessionBuyNowCart', 'verifiedCart', 'calculation', 'isBuyNow'))

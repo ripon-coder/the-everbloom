@@ -24,9 +24,10 @@ class CouponController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data["coupons"] = $this->couponRepository->index();
+        $filters = $request->only(['search', 'status', 'type']);
+        $data["coupons"] = $this->couponRepository->index($filters);
         return view("admin.coupons.index", $data);
     }
 

@@ -6,7 +6,7 @@ interface DistrictRepository
 {
     public function byId(int $id);
 
-    public function index();
+    public function index(array $filters = []);
 
     public function create();
 

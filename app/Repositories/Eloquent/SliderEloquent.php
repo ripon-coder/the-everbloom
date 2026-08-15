@@ -6,9 +6,25 @@ use App\Repositories\Contracts\SliderRepository;
 
 class SliderEloquent implements SliderRepository
 {
-    public function all()
+    public function all(array $filters = [])
     {
-        return Slider::orderBy('sort_order', 'asc')->get();
+        $query = Slider::query();
+
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")
+                  ->orWhere('subtitle', 'LIKE', "%{$search}%")
+                  ->orWhere('btn_text', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search);
+            });
+        }
+
+        if (isset($filters['status']) && $filters['status'] !== '') {
+            $query->where('status', $filters['status']);
+        }
+
+        return $query->orderBy('sort_order', 'asc')->paginate(15)->withQueryString();
     }
 
     public function findById($id)

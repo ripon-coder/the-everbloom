@@ -23,9 +23,10 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $data['categories'] = $this->categoryRepository->AllWithPaginate();
+        $filters = $request->only(['search', 'status', 'is_featured']);
+        $data['categories'] = $this->categoryRepository->AllWithPaginate($filters);
         return view("admin.categories.index", $data);
     }
 

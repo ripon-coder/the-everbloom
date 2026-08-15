@@ -16,14 +16,32 @@ class CategoryEloquent implements CategoryRepository
     {
         return Category::where("slug", $slug)->first();
     }
-    public function AllWithPaginate()
+    public function AllWithPaginate(array $filters = [])
     {
-
-        return Category::with([
+        $query = Category::with([
             'parent:id,parent_id,name,slug,status,created_at',
             'children:id,parent_id,name,slug,status,created_at',
             'media'
-        ])->orderByDesc("id")->paginate(20, ['id','parent_id', 'name', 'slug', 'status', 'is_featured', 'created_at', 'image']);
+        ]);
+
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('slug', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search);
+            });
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (isset($filters['is_featured']) && $filters['is_featured'] !== '') {
+            $query->where('is_featured', $filters['is_featured']);
+        }
+
+        return $query->orderByDesc("id")->paginate(20, ['id','parent_id', 'name', 'slug', 'status', 'is_featured', 'created_at', 'image'])->withQueryString();
     }
 
     public function DeleteFindBuyId($id)

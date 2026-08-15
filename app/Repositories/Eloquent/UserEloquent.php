@@ -82,17 +82,22 @@ class UserEloquent implements UserRepository
 
     public function getAllCustomers(array $filters = [], int $perPage = 15)
     {
-        $query = User::query();
+        $query = User::withCount('orders');
 
         if (!empty($filters['search'])) {
-            $search = $filters['search'];
+            $search = trim($filters['search']);
             $query->where(function($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
                   ->orWhere('email', 'LIKE', "%{$search}%")
-                  ->orWhere('phone', 'LIKE', "%{$search}%");
+                  ->orWhere('phone', 'LIKE', "%{$search}%")
+                  ->orWhere('id', $search);
             });
         }
 
-        return $query->latest()->paginate($perPage);
+        if (isset($filters['status']) && $filters['status'] !== '') {
+            $query->where('is_active', $filters['status']);
+        }
+
+        return $query->latest()->paginate($perPage)->withQueryString();
     }
 }

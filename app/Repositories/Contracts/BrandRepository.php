@@ -1,8 +1,9 @@
 <?php 
 namespace App\Repositories\Contracts;
-interface BrandRepository{
+
+interface BrandRepository {
     public function FindById($id);
-    public function All();
+    public function All(array $filters = []);
     public function FindBySlug($slug);
     public function ActiveAllBrand();
     public function DeleteFindBuyId($id);
