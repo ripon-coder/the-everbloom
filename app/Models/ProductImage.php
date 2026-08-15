@@ -26,7 +26,7 @@ class ProductImage extends Model implements HasMedia
 
     protected $imageColumns = ['image'];
 
-    protected $imageDisk = 'public';
+    protected $imageDisk = 'backblaze';
 
     protected $appends = ['image_url'];
 
@@ -74,11 +74,8 @@ class ProductImage extends Model implements HasMedia
     */
     public function getImageUrl(): string
     {
-        // Use HasImage trait with explicit public disk
         if ($this->image) {
-            return \Illuminate\Support\Facades\Storage::disk('public')->exists($this->image)
-                ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->image)
-                : asset('images/default-logo.png');
+            return $this->traitGetImageUrl('image');
         }
 
         // Fallback to Spatie MediaLibrary

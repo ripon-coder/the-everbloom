@@ -38,7 +38,7 @@ class SiteSettingController extends Controller
         $data = $request->except(['site_logo', 'site_favicon']);
 
         if ($request->hasFile('site_logo')) {
-            $setting->uploadImage($request->file('site_logo'), 'site', 'site_logo', 'public', false);
+            $setting->uploadImage($request->file('site_logo'), 'site', 'site_logo', 'backblaze', false);
             $data['site_logo'] = $setting->site_logo;
         }
 
@@ -47,12 +47,12 @@ class SiteSettingController extends Controller
             // If it's standard raster/vector image, process via uploadImage, otherwise store directly if ico
             if (in_array(strtolower($file->getClientOriginalExtension()), ['ico', 'svg'])) {
                 if ($setting->site_favicon) {
-                    $setting->deleteImage($setting->site_favicon, 'public');
+                    $setting->deleteImage($setting->site_favicon, 'backblaze');
                 }
-                $faviconPath = $file->store('site', 'public');
+                $faviconPath = $file->store('site', 'backblaze');
                 $data['site_favicon'] = $faviconPath;
             } else {
-                $setting->uploadImage($file, 'site', 'site_favicon', 'public', false);
+                $setting->uploadImage($file, 'site', 'site_favicon', 'backblaze', false);
                 $data['site_favicon'] = $setting->site_favicon;
             }
         }

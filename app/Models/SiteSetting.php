@@ -11,7 +11,7 @@ class SiteSetting extends Model
 
     protected $imageColumns = ['site_logo', 'site_favicon'];
 
-    protected $imageDisk = 'public';
+    protected $imageDisk = 'backblaze';
 
     protected $fillable = [
         'site_name',
@@ -33,11 +33,11 @@ class SiteSetting extends Model
 
     public function getLogoUrl(): string
     {
-        return $this->traitGetImageUrl('site_logo', 'public');
+        return $this->traitGetImageUrl('site_logo');
     }
 
     public function getFaviconUrl(): string
     {
-        return $this->traitGetImageUrl('site_favicon', 'public');
+        return $this->traitGetImageUrl('site_favicon');
     }
 }

@@ -63,11 +63,11 @@ trait HasImage
      */
     protected function getImageDisk(): string
     {
-        if (property_exists($this, 'imageDisk')) {
+        if (property_exists($this, 'imageDisk') && $this->imageDisk !== null) {
             return $this->imageDisk;
         }
 
-        return 'public';
+        return env('FILESYSTEM_DISK', 'backblaze');
     }
 
     /**
@@ -108,7 +108,10 @@ trait HasImage
         $encoded = $img->toWebp(80);
 
         // Store to disk
-        Storage::disk($disk)->put($path, (string) $encoded);
+        Storage::disk($disk)->put($path, (string) $encoded, [
+            'visibility' => 'public',
+            'ContentType' => 'image/webp'
+        ]);
 
         // Update model attribute
         $this->{$column} = $path;

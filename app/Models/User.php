@@ -18,6 +18,8 @@ class User extends Authenticatable implements HasMedia
     
     protected $imageColumns = ['profile_image'];
 
+    protected $imageDisk = 'backblaze';
+
 
     /**
      * The attributes that are mass assignable.

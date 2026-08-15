@@ -28,7 +28,7 @@ class Category extends Model implements HasMedia
 
     protected $imageColumns = ['image'];
 
-    protected $imageDisk = 'public';
+    protected $imageDisk = 'backblaze';
 
     protected $casts = [
         'options' => 'json'

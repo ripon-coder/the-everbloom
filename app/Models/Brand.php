@@ -20,7 +20,7 @@ class Brand extends Model implements HasMedia
         'options' => 'json',
     ];
 
-    protected $imageDisk = 'public';
+    protected $imageDisk = 'backblaze';
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('brand_logo')->singleFile();
