@@ -96,8 +96,12 @@ class CheckoutController extends Controller
         $validatedItems = $validation['items'];
         $subtotal = collect($validatedItems)->sum('line_total');
 
+        $isAllFreeDelivery = !empty($validatedItems) && collect($validatedItems)->every(function ($item) {
+            return !empty($item['is_free_delivery']);
+        });
+
         $shippingCost = 0;
-        if ($districtId) {
+        if ($districtId && !$isAllFreeDelivery) {
             $district = \App\Models\District::find($districtId);
             if ($district) {
                 $shippingCost = (float) $district->delivery_charge;
@@ -266,7 +270,12 @@ class CheckoutController extends Controller
                     'message' => 'Invalid district selected.',
                 ], 422);
             }
-            $shippingCost = (float) $district->delivery_charge;
+
+            $isAllFreeDelivery = !empty($validatedItems) && collect($validatedItems)->every(function ($item) {
+                return !empty($item['is_free_delivery']);
+            });
+
+            $shippingCost = $isAllFreeDelivery ? 0.0 : (float) $district->delivery_charge;
 
             // ========================================
             // STEP 4: Calculate final totals (server-side only)
@@ -530,6 +539,7 @@ class CheckoutController extends Controller
                 'unit_final_price' => $unitFinalPrice,
                 'line_total'       => $lineTotal,
                 'weight'           => $itemWeight,
+                'is_free_delivery' => (bool) $product->is_free_delivery,
                 'flash_sale_data'  => null,
             ];
 

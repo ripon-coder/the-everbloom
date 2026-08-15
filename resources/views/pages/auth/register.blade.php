@@ -41,17 +41,27 @@
                             </div>
                         </div>
 
-                        <div>
-                            <label class="text-xs sm:text-sm font-semibold text-gray-700 block mb-1.5">Mobile Number *</label>
-                            <input type="text" 
-                                   name="phone" 
-                                   id="phone"
-                                   value="{{ old('phone') }}" 
-                                   class="w-full border-gray-300 text-sm text-gray-900 focus:ring-primary focus:border-primary py-3 px-3.5" 
-                                   placeholder="01XXXXXXXXX" 
-                                   required
-                                   maxlength="11"
-                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label class="text-xs sm:text-sm font-semibold text-gray-700 block mb-1.5">Email Address</label>
+                                <input type="email" 
+                                       name="email" 
+                                       id="email"
+                                       value="{{ old('email') }}" 
+                                       class="w-full border-gray-300 text-sm text-gray-900 focus:ring-primary focus:border-primary py-3 px-3.5" 
+                                       placeholder="email@example.com">
+                            </div>
+                            <div>
+                                <label class="text-xs sm:text-sm font-semibold text-gray-700 block mb-1.5">Mobile Number</label>
+                                <input type="text" 
+                                       name="phone" 
+                                       id="phone"
+                                       value="{{ old('phone') }}" 
+                                       class="w-full border-gray-300 text-sm text-gray-900 focus:ring-primary focus:border-primary py-3 px-3.5" 
+                                       placeholder="01XXXXXXXXX" 
+                                       maxlength="11"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)">
+                            </div>
                         </div>
                         
                         <div>

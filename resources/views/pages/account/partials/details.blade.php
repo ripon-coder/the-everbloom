@@ -30,15 +30,25 @@
                 </div>
             </div>
             
-            <div>
-                <label class="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide block mb-1">Mobile Number *</label>
-                <input type="text" 
-                       name="phone" 
-                       value="{{ old('phone', $user->phone) }}" 
-                       class="w-full border-gray-300 rounded-none text-sm focus:ring-0 focus:border-emerald-600 py-3 px-3.5 @error('phone') border-red-500 @enderror"
-                       maxlength="11"
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)">
-                @error('phone') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide block mb-1">Email Address</label>
+                    <input type="email" 
+                           name="email" 
+                           value="{{ old('email', $user->email) }}" 
+                           class="w-full border-gray-300 rounded-none text-sm focus:ring-0 focus:border-emerald-600 py-3 px-3.5 @error('email') border-red-500 @enderror">
+                    @error('email') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide block mb-1">Mobile Number</label>
+                    <input type="text" 
+                           name="phone" 
+                           value="{{ old('phone', $user->phone) }}" 
+                           class="w-full border-gray-300 rounded-none text-sm focus:ring-0 focus:border-emerald-600 py-3 px-3.5 @error('phone') border-red-500 @enderror"
+                           maxlength="11"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)">
+                    @error('phone') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
             </div>
 
             <div class="pt-4 mt-4 border-t border-gray-100">

@@ -137,13 +137,16 @@
                 </div>
 
                 <!-- Single Product Price/Stock Section (Hidden when product_type === 'variant') -->
+                @php
+                    $singleVar = $product->singleProduct;
+                @endphp
                 <div id="simplePricingStockBlock" class="space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
                         <div>
                             <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Selling Price ({{ $currency_sign }}) <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" id="price" name="price" value="{{ old('price', $product->singleProduct->selling_price ?? $product->price) }}" step="0.01" min="0" placeholder="0.00"
+                            <input type="number" id="price" name="price" value="{{ old('price', $singleVar->sell_price ?? $product->price) }}" step="0.01" min="0" placeholder="0.00"
                                 class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white @error('price') border-red-500 @enderror">
                             <p class="text-xs text-red-600 mt-1 hidden" id="priceError"></p>
                             @error('price')
@@ -152,10 +155,18 @@
                         </div>
 
                         <div>
+                            <label for="simple_discount_price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Discount Price ({{ $currency_sign }})
+                            </label>
+                            <input type="number" id="simple_discount_price" name="simple_discount_price" value="{{ old('simple_discount_price', $singleVar->discount_price ?? '') }}" step="0.01" min="0" placeholder="0.00"
+                                class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+
+                        <div>
                             <label for="simple_stock" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Stock Quantity <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" id="simple_stock" name="simple_stock" value="{{ old('simple_stock', $product->singleProduct->stock_quantity ?? $product->stock ?? 10) }}" min="0" step="1" placeholder="10"
+                            <input type="number" id="simple_stock" name="simple_stock" value="{{ old('simple_stock', $singleVar->stock ?? $product->stock ?? 10) }}" min="0" step="1" placeholder="10"
                                 class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                             <p class="text-xs text-red-600 mt-1 hidden" id="stockError"></p>
                         </div>
@@ -164,7 +175,7 @@
                             <label for="simple_buying_price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Buying Price ({{ $currency_sign }})
                             </label>
-                            <input type="number" id="simple_buying_price" name="simple_buying_price" value="{{ old('simple_buying_price', $product->singleProduct->buying_price ?? 0) }}" step="0.01" min="0" placeholder="0.00"
+                            <input type="number" id="simple_buying_price" name="simple_buying_price" value="{{ old('simple_buying_price', $singleVar->buying_price ?? 0) }}" step="0.01" min="0" placeholder="0.00"
                                 class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         </div>
 
@@ -172,7 +183,7 @@
                             <label for="simple_weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Weight (kg)
                             </label>
-                            <input type="number" id="simple_weight" name="simple_weight" value="{{ old('simple_weight', $product->singleProduct->weight ?? 0) }}" step="0.01" min="0" placeholder="0.00"
+                            <input type="number" id="simple_weight" name="simple_weight" value="{{ old('simple_weight', $singleVar->weight ?? 0) }}" step="0.01" min="0" placeholder="0.00"
                                 class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         </div>
 
@@ -180,7 +191,7 @@
                             <label for="simple_sku" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 SKU <span class="text-xs text-gray-400">(Auto if empty)</span>
                             </label>
-                            <input type="text" id="simple_sku" name="simple_sku" value="{{ old('simple_sku', $product->singleProduct->sku ?? '') }}" placeholder="Auto-generated"
+                            <input type="text" id="simple_sku" name="simple_sku" value="{{ old('simple_sku', $singleVar->sku ?? '') }}" placeholder="Auto-generated"
                                 class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         </div>
                     </div>

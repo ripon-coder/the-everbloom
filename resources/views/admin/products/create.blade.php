@@ -138,7 +138,7 @@
 
                 <!-- Single Product Price/Stock Section (Hidden when product_type === 'variant') -->
                 <div id="simplePricingStockBlock" class="space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
                         <div>
                             <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Selling Price ({{ $currency_sign }}) <span class="text-red-500">*</span>
@@ -149,6 +149,14 @@
                             @error('price')
                                 <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                             @enderror
+                        </div>
+
+                        <div>
+                            <label for="simple_discount_price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Discount Price ({{ $currency_sign }})
+                            </label>
+                            <input type="number" id="simple_discount_price" name="simple_discount_price" value="{{ old('simple_discount_price') }}" step="0.01" min="0" placeholder="0.00"
+                                class="w-full px-3.5 py-2.5 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 transition duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         </div>
 
                         <div>

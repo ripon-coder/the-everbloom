@@ -8,12 +8,14 @@ window.Alpine = Alpine;
 Alpine.store('cartDrawer', {
     isOpen: false,
     open() {
+        if (window.location.pathname.includes('/checkout')) return;
         this.isOpen = true;
     },
     close() {
         this.isOpen = false;
     },
     toggle() {
+        if (window.location.pathname.includes('/checkout')) return;
         this.isOpen = !this.isOpen;
     }
 });

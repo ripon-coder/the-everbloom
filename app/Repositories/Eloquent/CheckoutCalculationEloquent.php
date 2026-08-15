@@ -130,13 +130,18 @@ class CheckoutCalculationEloquent implements CheckoutCalculationRepository
                 'available_stock' => $availableStock,
                 'available' => $isItemAvailable,
                 'line_total' => $lineTotal,
+                'is_free_delivery' => (bool) $product->is_free_delivery,
             ];
 
             $validatedItems[] = $itemData;
         }
 
+        $isAllFreeDelivery = !empty($validatedItems) && collect($validatedItems)->every(function ($item) {
+            return !empty($item['is_free_delivery']);
+        });
+
         $shippingCost = 0;
-        if ($districtId) {
+        if ($districtId && !$isAllFreeDelivery) {
             $district = District::find($districtId);
             if ($district) {
                 $shippingCost = (float) $district->delivery_charge;

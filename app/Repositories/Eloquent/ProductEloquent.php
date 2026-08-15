@@ -114,6 +114,7 @@ class ProductEloquent implements ProductRepository
     public function edit(int $id)
     {
         $data['product'] = Product::with([
+            'singleProduct',
             'brand:id,name',
             'category:id,name',
             'variants:id,product_id,sku,buying_price,sell_price,discount_price,discount_amount,stock,weight,status',

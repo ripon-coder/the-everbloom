@@ -7,18 +7,23 @@
         $currency = $currency_sign ?? 'Tk.';
         $isVariantProduct = $product->product_type === 'variant';
         $variantsCount = $product->variants->count();
-        $totalStock = $product->variants->sum('stock');
-        $activeVariantsCount = $product->variants->where('status', 'active')->count();
+        $singleVar = $product->singleProduct;
 
-        // Calculate price display
+        // Calculate price and stock display
         if ($isVariantProduct && $variantsCount > 0) {
+            $totalStock = $product->variants->sum('stock');
+            $activeVariantsCount = $product->variants->where('status', 'active')->count();
             $minPrice = $product->variants->min('sell_price') ?? $product->price;
             $maxPrice = $product->variants->max('sell_price') ?? $product->price;
             $priceDisplay = $minPrice == $maxPrice 
                 ? $currency . number_format($minPrice, 2)
                 : $currency . number_format($minPrice, 2) . ' - ' . $currency . number_format($maxPrice, 2);
         } else {
-            $priceDisplay = $currency . number_format($product->price, 2);
+            $totalStock = $singleVar?->stock ?? $product->stock ?? 0;
+            $activeVariantsCount = 1;
+            $sellPrice = $singleVar?->sell_price ?? $product->price ?? 0;
+            $discountPrice = $singleVar?->discount_price;
+            $priceDisplay = $currency . number_format($sellPrice, 2);
         }
 
         // Collect all unique images
@@ -184,8 +189,8 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gray-50/80 p-3.5 border border-gray-200">
                             <div>
                                 <p class="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Total Stock</p>
-                                <p class="text-base sm:text-lg font-bold {{ $totalStock > 10 ? 'text-emerald-600' : ($totalStock > 0 ? 'text-amber-600' : 'text-rose-600') }} mt-0.5">
-                                    {{ number_format($totalStock) }} <span class="text-xs font-normal text-gray-500">units</span>
+                                <p class="text-base sm:text-lg font-bold text-gray-900 mt-0.5">
+                                    {{ number_format($totalStock) }} <span class="text-xs font-medium text-gray-900">units</span>
                                 </p>
                             </div>
 
@@ -275,6 +280,15 @@
                             </svg>
                             Variants & Inventory ({{ $variantsCount }})
                         </button>
+                    @else
+                        <button type="button" @click="activeTab = 'overview'"
+                                :class="activeTab === 'overview' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="py-3.5 px-1 border-b-2 font-semibold transition flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Pricing & Inventory Overview
+                        </button>
                     @endif
 
                     <button type="button" @click="activeTab = 'description'"
@@ -300,7 +314,80 @@
             <!-- Tab Content Panels (Inside the same card) -->
             <div class="p-5 sm:p-6">
                 
-                <!-- TAB 1: Variants & Inventory Table -->
+                <!-- TAB 1 (Single Product): Overview & Specifications -->
+                @if (!$isVariantProduct)
+                    <div x-show="activeTab === 'overview'" x-cloak class="space-y-6">
+                        <div class="bg-gray-50/80 p-5 border border-gray-200">
+                            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Single Product Pricing & Specifications
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-xs">
+                                <div class="space-y-1 bg-white p-3.5 border border-gray-200">
+                                    <span class="text-gray-500 font-medium block">SKU Code</span>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-mono font-bold text-gray-900 text-sm">{{ $singleVar?->sku ?? 'N/A' }}</span>
+                                        @if($singleVar?->sku)
+                                            <button type="button" @click="copyToClipboard('{{ $singleVar->sku }}', 'singleSku')" class="text-blue-600 text-[11px] hover:underline">
+                                                <span x-show="copiedText === 'singleSku'" class="text-emerald-600 font-bold">Copied!</span>
+                                                <span x-show="copiedText !== 'singleSku'">Copy</span>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1 bg-white p-3.5 border border-gray-200">
+                                    <span class="text-gray-500 font-medium block">Regular Selling Price</span>
+                                    <span class="font-bold text-gray-900 text-sm">{{ $currency }}{{ number_format($singleVar?->sell_price ?? $product->price ?? 0, 2) }}</span>
+                                </div>
+
+                                <div class="space-y-1 bg-white p-3.5 border border-gray-200">
+                                    <span class="text-gray-500 font-medium block">Discount Price</span>
+                                    @if($singleVar?->discount_price && $singleVar->discount_price < ($singleVar->sell_price ?? $product->price))
+                                        @php
+                                            $sSell = $singleVar->sell_price ?? $product->price;
+                                            $sDisc = $singleVar->discount_price;
+                                            $sOff = round((($sSell - $sDisc) / $sSell) * 100, 1);
+                                        @endphp
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-bold text-emerald-600 text-sm">{{ $currency }}{{ number_format($sDisc, 2) }}</span>
+                                            <span class="px-1.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                -{{ $sOff }}% OFF
+                                            </span>
+                                        </div>
+                                    @else
+                                        <span class="text-gray-400 font-normal italic">No discount active</span>
+                                    @endif
+                                </div>
+
+                                <div class="space-y-1 bg-white p-3.5 border border-gray-200">
+                                    <span class="text-gray-500 font-medium block">Buying Price</span>
+                                    <span class="font-bold text-gray-800 text-sm">{{ $currency }}{{ number_format($singleVar?->buying_price ?? 0, 2) }}</span>
+                                </div>
+
+                                <div class="space-y-1 bg-white p-3.5 border border-gray-200">
+                                    <span class="text-gray-500 font-medium block">Available Stock</span>
+                                    @php $sStock = $singleVar?->stock ?? $product->stock ?? 0; @endphp
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-gray-900 text-sm">{{ number_format($sStock) }} units</span>
+                                        <span class="px-2 py-0.5 text-[10px] font-bold {{ $sStock > 10 ? 'bg-emerald-100 text-emerald-800' : ($sStock > 0 ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800') }}">
+                                            {{ $sStock > 10 ? 'In Stock' : ($sStock > 0 ? 'Low Stock' : 'Out of Stock') }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1 bg-white p-3.5 border border-gray-200">
+                                    <span class="text-gray-500 font-medium block">Weight</span>
+                                    <span class="font-bold text-gray-900 text-sm">{{ number_format($singleVar?->weight ?? 0, 2) }} kg</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- TAB 1 (Variant Product): Variants & Inventory Table -->
                 @if ($isVariantProduct)
                     <div x-show="activeTab === 'variants'" x-cloak>
                         @if ($product->variants->count() > 0)

@@ -21,6 +21,7 @@ class ProductService
             'firstImage.media', 
             'category', 
             'firstActiveVariant',
+            'reviews',
             'flashSales' => function ($query) { $query->active(); }
         ]);
 
@@ -85,14 +86,14 @@ class ProductService
         $related = Product::active()
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
-            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'reviews', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
 
         if ($related->isEmpty()) {
             $related = Product::active()
                 ->where('id', '!=', $product->id)
-                ->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($query) { $query->active(); }])
+                ->with(['firstImage.media', 'category', 'firstActiveVariant', 'reviews', 'flashSales' => function ($query) { $query->active(); }])
                 ->inRandomOrder()
                 ->take($limit)
                 ->get();
@@ -122,7 +123,7 @@ class ProductService
     {
         $products = Product::search($query)
             ->query(function ($query) {
-                $query->active()->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($q) { $q->active(); }]);
+                $query->active()->with(['firstImage.media', 'category', 'firstActiveVariant', 'reviews', 'flashSales' => function ($q) { $q->active(); }]);
             })
             ->take($limit)
             ->get();
@@ -165,6 +166,8 @@ class ProductService
                 'slug' => $product->slug,
                 'category_name' => $product->category ? $product->category->name : null,
                 'short_description' => $product->short_description,
+                'reviews_count' => $product->reviews_count,
+                'avg_rating' => $product->average_rating,
             ];
         });
     }

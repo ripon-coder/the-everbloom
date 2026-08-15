@@ -37,7 +37,7 @@ class HomeService
     {
         return Product::active()
             ->where('is_featured', true)
-            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'reviews', 'flashSales' => function ($query) { $query->active(); }])
             ->latest()
             ->take($limit)
             ->get();
@@ -53,7 +53,7 @@ class HomeService
     {
         return Product::active()
             ->popular()
-            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'reviews', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
     }
@@ -68,7 +68,7 @@ class HomeService
     {
         return Product::active()
             ->latest()
-            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'flashSales' => function ($query) { $query->active(); }])
+            ->with(['firstImage.media', 'category', 'firstActiveVariant', 'reviews', 'flashSales' => function ($query) { $query->active(); }])
             ->take($limit)
             ->get();
     }
@@ -82,7 +82,7 @@ class HomeService
     {
         return \App\Models\FlashSale::active()
             ->with(['products' => function ($query) {
-                $query->active()->with(['firstImage.media', 'category', 'firstActiveVariant']);
+                $query->active()->with(['firstImage.media', 'category', 'firstActiveVariant', 'reviews']);
             }])
             ->latest()
             ->first();
@@ -123,6 +123,8 @@ class HomeService
                 'slug' => $product->slug,
                 'category_name' => $product->category ? $product->category->name : null,
                 'short_description' => $product->short_description,
+                'reviews_count' => $product->reviews_count,
+                'avg_rating' => $product->average_rating,
             ];
         });
     }
@@ -156,6 +158,8 @@ class HomeService
                 'slug' => $product->slug,
                 'category_name' => $product->category ? $product->category->name : null,
                 'short_description' => $product->short_description,
+                'reviews_count' => $product->reviews_count,
+                'avg_rating' => $product->average_rating,
             ];
         });
     }

@@ -1,6 +1,6 @@
-<div x-data="cartDrawerData">
+<div x-data="cartDrawerData" x-init="if (window.location.pathname.includes('/checkout') && $store.cartDrawer) $store.cartDrawer.close()">
     <!-- Backdrop Overlay -->
-    <div x-show="$store.cartDrawer ? $store.cartDrawer.isOpen : false" 
+    <div x-show="!window.location.pathname.includes('/checkout') && ($store.cartDrawer ? $store.cartDrawer.isOpen : false)" 
         x-cloak style="display: none;"
         class="fixed inset-0 bg-black/60 z-[999999]"
         @click="$store.cartDrawer.close()"
@@ -12,7 +12,7 @@
         x-transition:leave-end="opacity-0"></div>
 
     <!-- Right-Side Drawer Panel -->
-    <div x-show="$store.cartDrawer ? $store.cartDrawer.isOpen : false" 
+    <div x-show="!window.location.pathname.includes('/checkout') && ($store.cartDrawer ? $store.cartDrawer.isOpen : false)" 
         x-cloak style="display: none;"
         x-transition:enter="transform transition ease-in-out duration-300"
         x-transition:enter-start="translate-x-full" 
@@ -76,6 +76,12 @@
                                             <span class="bg-gray-100 px-1.5 py-0.5 text-gray-600 font-medium"><span x-text="key + ':'"></span> <span x-text="val"></span></span>
                                         </template>
                                     </div>
+                                </template>
+                                <template x-if="item && (item.is_free_delivery || (item.meta && item.meta.free_delivery))">
+                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-primary bg-primary-50 px-1.5 py-0.5 mb-1">
+                                        <svg class="w-2.5 h-2.5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                        <span>Free Delivery</span>
+                                    </span>
                                 </template>
                             </div>
 

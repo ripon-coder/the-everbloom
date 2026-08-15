@@ -70,6 +70,13 @@
                                                     </template>
                                                 </div>
 
+                                                <template x-if="item.is_free_delivery || (item.meta && item.meta.free_delivery)">
+                                                    <p class="text-xs font-semibold text-primary mt-1 flex items-center gap-1">
+                                                        <svg class="w-3.5 h-3.5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                                        <span>Free Delivery Eligible</span>
+                                                    </p>
+                                                </template>
+
                                                 <template x-if="item.is_active === false || item.available === false">
                                                     <p class="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 mt-1 inline-flex items-center gap-1">
                                                         <svg class="w-3 h-3 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
@@ -156,7 +163,15 @@
                             </div>
                             <div class="flex justify-between text-gray-600">
                                 <span class="font-semibold text-gray-700">Shipping</span>
-                                <span class="text-xs font-medium text-gray-400">Calculated at checkout</span>
+                                <template x-if="isAllFreeDelivery">
+                                    <span class="text-xs font-bold text-primary flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        <span>Free Delivery</span>
+                                    </span>
+                                </template>
+                                <template x-if="!isAllFreeDelivery">
+                                    <span class="text-xs font-medium text-gray-400">Calculated at checkout</span>
+                                </template>
                             </div>
                             <div class="pt-3 border-t border-gray-200 flex justify-between items-baseline">
                                 <div>
@@ -238,15 +253,27 @@
 
                 init() {
                     this.loadCart();
-                    this.saveCart();
                     window.addEventListener('cart-updated', () => this.loadCart());
-                    window.addEventListener('cart-updated-internal', () => this.loadCart());
                 },
 
                 loadCart() {
+                    let localCart = localStorage.getItem('cart');
+                    if (localCart) {
+                        try {
+                            let parsed = JSON.parse(localCart);
+                            if (Array.isArray(parsed) && parsed.length > 0) {
+                                this.cart = parsed;
+                                return;
+                            }
+                        } catch (e) {
+                            console.error('Error loading cart from localStorage:', e);
+                        }
+                    }
                     const serverVerifiedCart = {!! \Illuminate\Support\Js::from($verifiedCart ?? session('cart', [])) !!};
                     this.cart = Array.isArray(serverVerifiedCart) ? serverVerifiedCart : [];
-                    localStorage.setItem('cart', JSON.stringify(this.cart));
+                    if (this.cart.length > 0) {
+                        localStorage.setItem('cart', JSON.stringify(this.cart));
+                    }
                 },
 
                 get cartCount() {
@@ -262,6 +289,10 @@
 
                 get hasInactiveItems() {
                     return this.cart.some(item => item.is_active === false || item.available === false);
+                },
+
+                get isAllFreeDelivery() {
+                    return this.cart.length > 0 && this.cart.every(item => Boolean(item.is_free_delivery || (item.meta && item.meta.free_delivery)));
                 },
 
                 updateQuantity(index, delta) {
@@ -323,7 +354,7 @@
 
                 saveCart() {
                     localStorage.setItem('cart', JSON.stringify(this.cart));
-                    window.dispatchEvent(new CustomEvent('cart-updated-internal'));
+                    window.dispatchEvent(new CustomEvent('cart-updated', { detail: { cart: this.cart } }));
                     fetch('/cart/sync', {
                         method: 'POST',
                         headers: {
@@ -336,14 +367,13 @@
                     .then(data => {
                         if (data && data.cart) {
                             data.cart.forEach(syncedItem => {
-                                const idx = this.cart.findIndex(i => i.product_id === syncedItem.product_id && i.variant_id === syncedItem.variant_id);
+                                const idx = this.cart.findIndex(i => i.product_id === syncedItem.product_id && (i.variant_id === syncedItem.variant_id || (!i.variant_id && !syncedItem.variant_id)));
                                 if (idx > -1) {
                                     this.cart[idx].available_stock = syncedItem.available_stock;
                                     this.cart[idx].is_active = syncedItem.is_active;
                                     this.cart[idx].available = syncedItem.available;
                                     this.cart[idx].status_message = syncedItem.status_message;
-                                    this.cart[idx].quantity = syncedItem.quantity;
-                                    this.cart[idx].line_total = syncedItem.line_total;
+                                    this.cart[idx].line_total = (parseInt(this.cart[idx].quantity || 1)) * (parseFloat(syncedItem.unit_final_price || this.cart[idx].unit_final_price) || 0);
                                 }
                             });
                             localStorage.setItem('cart', JSON.stringify(this.cart));

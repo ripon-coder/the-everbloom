@@ -48,6 +48,13 @@ class Product extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = ['stock'];
+
+    /**
      * Get the brand that owns the product.
      */
     public function brand()
@@ -156,6 +163,25 @@ class Product extends Model
     }
 
     /**
+     * Get the total stock attribute for the product (from active variants).
+     */
+    public function getStockAttribute(): int
+    {
+        if ($this->relationLoaded('firstActiveVariant') && $this->firstActiveVariant) {
+            if ($this->relationLoaded('variants') && $this->variants->count() > 1) {
+                return (int) $this->variants->where('status', ProductVariantStatus::ACTIVE)->sum('stock');
+            }
+            return (int) $this->firstActiveVariant->stock;
+        }
+
+        if ($this->relationLoaded('variants') && $this->variants->isNotEmpty()) {
+            return (int) $this->variants->where('status', ProductVariantStatus::ACTIVE)->sum('stock');
+        }
+
+        return (int) $this->variants()->where('status', ProductVariantStatus::ACTIVE)->sum('stock');
+    }
+
+    /**
      * Get the images for the product.
      */
     public function images()
@@ -220,11 +246,54 @@ class Product extends Model
     }
 
     /**
+     * Get the single product variant (variant without attributes).
+     */
+    public function singleProduct()
+    {
+        return $this->hasOne(ProductVariant::class)->doesntHave('variantAttributes');
+    }
+
+    /**
+     * Get single product attribute fallback.
+     */
+    public function getSingleProductAttribute()
+    {
+        if ($this->relationLoaded('singleProduct')) {
+            return $this->getRelation('singleProduct') ?? $this->firstActiveVariant;
+        }
+        return $this->singleProduct()->first() ?? $this->firstActiveVariant;
+    }
+
+    /**
      * Get the reviews for the product.
      */
     public function reviews()
     {
         return $this->hasMany(ProductReview::class)->where('is_approved', true)->latest();
+    }
+
+    /**
+     * Get the average rating attribute for the product.
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        if ($this->relationLoaded('reviews')) {
+            $avg = $this->reviews->avg('rating');
+            return $avg ? round((float) $avg, 1) : 0.0;
+        }
+        $avg = $this->reviews()->avg('rating');
+        return $avg ? round((float) $avg, 1) : 0.0;
+    }
+
+    /**
+     * Get the reviews count attribute for the product.
+     */
+    public function getReviewsCountAttribute(): int
+    {
+        if ($this->relationLoaded('reviews')) {
+            return $this->reviews->count();
+        }
+        return $this->reviews()->count();
     }
 
     /**

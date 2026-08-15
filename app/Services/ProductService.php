@@ -76,12 +76,13 @@ class ProductService
             // If Single Product mode is chosen (without variants), save basic data as a single variant row (no attributes)
             if (($data['product_type'] ?? 'single') === 'single') {
                 $product->variants()->create([
-                    'sell_price'   => $data['price'] ?? 0,
-                    'buying_price' => $data['simple_buying_price'] ?? 0,
-                    'stock'        => $data['simple_stock'] ?? 10,
-                    'sku'          => !empty($data['simple_sku']) ? $data['simple_sku'] : 'EVB-' . strtoupper(Str::slug(substr($data['name'], 0, 10))) . '-' . rand(100, 999),
-                    'weight'       => $data['simple_weight'] ?? 0,
-                    'status'       => 'active',
+                    'sell_price'     => $data['price'] ?? 0,
+                    'discount_price' => isset($data['simple_discount_price']) && $data['simple_discount_price'] !== '' ? $data['simple_discount_price'] : null,
+                    'buying_price'   => $data['simple_buying_price'] ?? 0,
+                    'stock'          => $data['simple_stock'] ?? 10,
+                    'sku'            => !empty($data['simple_sku']) ? $data['simple_sku'] : 'EVB-' . strtoupper(Str::slug(substr($data['name'], 0, 10))) . '-' . rand(100, 999),
+                    'weight'         => $data['simple_weight'] ?? 0,
+                    'status'         => 'active',
                 ]);
             }
             DB::commit();
@@ -160,16 +161,17 @@ class ProductService
 
             // If Single Product mode is chosen (without variants), update or create basic data as a single variant row (no attributes)
             if (($data['product_type'] ?? 'single') === 'single') {
-                // Retrieve the existing single variant (the one with no variantAttributes)
-                $existingVariant = $product->variants()->doesntHave('variantAttributes')->first();
+                // Retrieve the existing single variant (the one with no variantAttributes) or first variant
+                $existingVariant = $product->variants()->doesntHave('variantAttributes')->first() ?? $product->firstActiveVariant;
 
                 $singleData = [
-                    'sell_price'   => $data['price'] ?? 0,
-                    'buying_price' => $data['simple_buying_price'] ?? 0,
-                    'stock'        => $data['simple_stock'] ?? 10,
-                    'sku'          => !empty($data['simple_sku']) ? $data['simple_sku'] : ($existingVariant?->sku ?? ('EVB-' . strtoupper(Str::slug(substr($data['name'], 0, 10))) . '-' . rand(100, 999))),
-                    'weight'       => $data['simple_weight'] ?? 0,
-                    'status'       => 'active',
+                    'sell_price'     => $data['price'] ?? 0,
+                    'discount_price' => isset($data['simple_discount_price']) && $data['simple_discount_price'] !== '' ? $data['simple_discount_price'] : null,
+                    'buying_price'   => $data['simple_buying_price'] ?? 0,
+                    'stock'          => $data['simple_stock'] ?? 10,
+                    'sku'            => !empty($data['simple_sku']) ? $data['simple_sku'] : ($existingVariant?->sku ?? ('EVB-' . strtoupper(Str::slug(substr($data['name'], 0, 10))) . '-' . rand(100, 999))),
+                    'weight'         => $data['simple_weight'] ?? 0,
+                    'status'         => 'active',
                 ];
 
                 if ($existingVariant) {

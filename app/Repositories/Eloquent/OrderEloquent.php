@@ -453,14 +453,34 @@ class OrderEloquent implements OrderRepository
             ->take(4)
             ->get();
 
-        // Top products by quantity sold
+        // Top products by quantity sold or fallback to active products
         $topProducts = DB::table('order_products')
             ->join('products', 'order_products.product_id', '=', 'products.id')
-            ->select('products.name', DB::raw('SUM(order_products.quantity) as total_sold'), DB::raw('SUM(order_products.total_price) as total_revenue'))
-            ->groupBy('products.id', 'products.name')
+            ->select('products.id', 'products.name', 'products.slug', DB::raw('SUM(order_products.quantity) as total_sold'), DB::raw('SUM(order_products.total_price) as total_revenue'))
+            ->groupBy('products.id', 'products.name', 'products.slug')
             ->orderBy('total_sold', 'desc')
             ->take(5)
             ->get();
+
+        if ($topProducts->isEmpty()) {
+            $topProducts = Product::active()
+                ->take(5)
+                ->get()
+                ->map(function ($p) {
+                    return (object)[
+                        'id' => $p->id,
+                        'name' => $p->name,
+                        'slug' => $p->slug,
+                        'total_sold' => 0,
+                        'total_revenue' => $p->display_price
+                    ];
+                });
+        }
+
+        // Revenue calculations
+        $totalSalesVolume = $this->model->whereNotIn('status', ['canceled', 'failed', 'incomplete'])->sum('total_amount');
+        $paidRevenue = $this->model->where('payment_status', 'paid')->sum('total_amount');
+        $avgOrderValue = $this->model->whereNotIn('status', ['canceled', 'failed', 'incomplete'])->avg('total_amount') ?? 0;
 
         // Profit calculations
         $thisMonthProfit = $this->model->where('payment_status', 'paid')
@@ -473,19 +493,50 @@ class OrderEloquent implements OrderRepository
             ->whereYear('created_at', now()->subMonth()->year)
             ->sum('profit');
 
+        $allTimeProfit = $this->model->where('payment_status', 'paid')->sum('profit');
+
+        // Product stats
+        $totalProducts = Product::count();
+        $activeProducts = Product::active()->count();
+        $lowStockProducts = \App\Models\ProductVariant::where('stock', '<=', 10)->count();
+
+        // Customer & Review stats
+        $totalCustomers = User::count();
+        $totalReviews = \App\Models\ProductReview::where('is_approved', true)->count();
+        $avgRating = \App\Models\ProductReview::where('is_approved', true)->avg('rating') ?: 5.0;
+
+        // Order Status Counts
+        $statusCounts = [
+            'pending' => $this->model->where('status', 'pending')->count(),
+            'processing' => $this->model->where('status', 'processing')->count(),
+            'delivered' => $this->model->where('status', 'delivered')->count(),
+            'incomplete' => $this->model->where('status', 'incomplete')->count(),
+            'canceled' => $this->model->where('status', 'canceled')->count(),
+        ];
+
         return [
             'total_orders' => $this->model->count(),
-            'pending_orders' => $this->model->where('status', 'pending')->count(),
-            'processing_orders' => $this->model->where('status', 'processing')->count(),
-            'completed_orders' => $this->model->where('status', 'delivered')->count(),
-            'total_revenue' => $this->model->where('payment_status', 'paid')->sum('total_amount'),
+            'total_sales_volume' => $totalSalesVolume,
+            'paid_revenue' => $paidRevenue,
+            'avg_order_value' => round((float) $avgOrderValue, 2),
+            'pending_orders' => $statusCounts['pending'],
+            'processing_orders' => $statusCounts['processing'],
+            'completed_orders' => $statusCounts['delivered'],
+            'incomplete_orders' => $statusCounts['incomplete'],
+            'canceled_orders' => $statusCounts['canceled'],
             'this_month_profit' => $thisMonthProfit,
             'last_month_profit' => $lastMonthProfit,
+            'all_time_profit' => $allTimeProfit,
             'pending_payments' => $this->model->where('payment_status', 'pending')->count(),
-            'total_products' => Product::count(),
-            'total_customers' => User::count(),
+            'total_products' => $totalProducts,
+            'active_products' => $activeProducts,
+            'low_stock_products' => $lowStockProducts,
+            'total_customers' => $totalCustomers,
             'total_categories' => Category::count(),
             'total_brands' => Brand::count(),
+            'total_reviews' => $totalReviews,
+            'avg_rating' => round((float) $avgRating, 1),
+            'status_counts' => $statusCounts,
             'chart_labels' => $displayLabels,
             'revenue_chart_data' => $revenueData,
             'order_chart_data' => $orderData,

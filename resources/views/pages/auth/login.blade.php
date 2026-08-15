@@ -8,7 +8,7 @@
                 <div class="flex-1 p-6 sm:p-8 md:p-10 border-b md:border-b-0 md:border-r border-gray-100 flex flex-col justify-between">
                     <div>
                         <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-1.5">Welcome Back</h2>
-                        <p class="text-xs sm:text-sm text-gray-500 mb-6">Sign in with your mobile number to access your account.</p>
+                        <p class="text-xs sm:text-sm text-gray-500 mb-6">Sign in with your email or mobile number to access your account.</p>
                     </div>
                     
                     <form class="space-y-5" method="POST" action="{{ route('login.post') }}">
@@ -27,16 +27,14 @@
                         @endif
 
                         <div>
-                            <label class="text-xs sm:text-sm font-semibold text-gray-700 block mb-1.5">Mobile Number</label>
+                            <label class="text-xs sm:text-sm font-semibold text-gray-700 block mb-1.5">Email or Mobile Number</label>
                             <input type="text" 
-                                   name="phone" 
-                                   id="phone"
-                                   value="{{ old('phone') }}" 
+                                   name="login" 
+                                   id="login"
+                                   value="{{ old('login', old('phone')) }}" 
                                    class="w-full border-gray-300 text-sm text-gray-900 focus:ring-primary focus:border-primary py-3 px-3.5" 
-                                   placeholder="01XXXXXXXXX" 
-                                   required
-                                   maxlength="11"
-                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)">
+                                   placeholder="email@example.com or 01XXXXXXXXX" 
+                                   required>
                         </div>
                         
                         <div>

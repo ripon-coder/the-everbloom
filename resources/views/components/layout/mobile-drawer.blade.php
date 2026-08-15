@@ -47,9 +47,9 @@
         class="fixed top-0 bottom-0 left-0 h-full w-[85%] max-w-sm bg-white z-[1000000] md:hidden flex flex-col shadow-2xl">
 
         <!-- Mobile Drawer Header -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-slate-900 text-white shrink-0">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-white text-gray-900 shrink-0">
             <span class="text-xs font-bold uppercase tracking-wider">Menu</span>
-            <button @click="close()" type="button" class="p-1 text-gray-300 hover:text-white transition-colors" title="Close Menu">
+            <button @click="close()" type="button" class="p-1 text-gray-500 hover:text-gray-900 transition-colors" title="Close Menu">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
@@ -57,9 +57,9 @@
         <!-- Tabs -->
         <div class="flex border-b border-gray-200 shrink-0">
             <button @click="activeTab = 'menu'" type="button" class="flex-1 py-4 text-[13px] font-bold text-center tracking-wide cursor-pointer"
-                :class="activeTab === 'menu' ? 'text-slate-800 border-b-[3px] border-black bg-white' : 'text-gray-500 bg-gray-100'">MENU</button>
+                :class="activeTab === 'menu' ? 'text-slate-800 border-b-[3px] border-primary bg-white' : 'text-gray-500 bg-gray-100'">MENU</button>
             <button @click="activeTab = 'categories'" type="button" class="flex-1 py-4 text-[13px] font-bold text-center tracking-wide cursor-pointer"
-                :class="activeTab === 'categories' ? 'text-slate-800 border-b-[3px] border-black bg-white' : 'text-gray-500 bg-gray-100'">CATEGORIES</button>
+                :class="activeTab === 'categories' ? 'text-slate-800 border-b-[3px] border-primary bg-white' : 'text-gray-500 bg-gray-100'">CATEGORIES</button>
         </div>
 
         <!-- Menu Tab Content -->
@@ -124,7 +124,7 @@
                 </div>
             @else
                 <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                    <a href="{{ route('login') }}" class="block w-full text-center bg-slate-900 hover:bg-black text-white text-xs font-bold py-3 uppercase tracking-wider">Sign In / Register</a>
+                    <a href="{{ route('login') }}" class="block w-full text-center bg-primary hover:bg-primary-dark text-white text-xs font-bold py-3 uppercase tracking-wider">Sign In / Register</a>
                 </div>
             @endauth
         </div>
@@ -143,7 +143,7 @@
                                     </a>
                                     <button @click="open = !open" type="button"
                                         class="w-[54px] flex-shrink-0 flex items-center justify-center border-l border-gray-200 transition-colors duration-200 cursor-pointer"
-                                        :class="open ? 'bg-black text-white border-black' : 'text-gray-400 bg-white hover:bg-gray-50'">
+                                        :class="open ? 'bg-primary text-white border-primary' : 'text-gray-400 bg-white hover:bg-gray-50'">
                                         <svg class="w-4 h-4 transition-transform duration-200" :class="open ? '' : '-rotate-90'"
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

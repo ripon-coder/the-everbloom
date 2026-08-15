@@ -181,11 +181,11 @@
             }
         }
     }"
-    @open-cart-drawer.window="loadCart(); if ($store.cartDrawer) $store.cartDrawer.open(); isCartOpen = true"
-    @cart-updated.window="loadCart(); syncWithServer(); if ($store.cartDrawer) $store.cartDrawer.open(); isCartOpen = true">
+    @open-cart-drawer.window="loadCart(); if (!window.location.pathname.includes('/checkout')) { if ($store.cartDrawer) $store.cartDrawer.open(); isCartOpen = true; }"
+    @cart-updated.window="loadCart(); syncWithServer();">
     <!-- Mobile Header -->
-    <div class="md:hidden bg-black text-white px-2 sm:px-4 py-2 flex items-center justify-between">
-        <button type="button" @click="window.dispatchEvent(new CustomEvent('toggle-mobile-menu', { detail: { tab: 'menu' } }))" class="text-gray-300 hover:text-white p-1 focus:outline-none cursor-pointer" aria-label="Toggle Navigation Menu">
+    <div class="md:hidden bg-white text-gray-900 border-b border-gray-200 px-2 sm:px-4 py-2 flex items-center justify-between">
+        <button type="button" @click="window.dispatchEvent(new CustomEvent('toggle-mobile-menu', { detail: { tab: 'menu' } }))" class="text-gray-700 hover:text-gray-900 p-1 focus:outline-none cursor-pointer" aria-label="Toggle Navigation Menu">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
                 </path>
@@ -196,18 +196,18 @@
                 <img src="{{ $site_setting->getLogoUrl() }}" alt="{{ $site_setting->site_name }}"
                     class="h-8 object-contain">
             @else
-                <span class="text-sm font-bold text-white uppercase tracking-wider">{{ $site_setting->site_name ?? 'The Everbloom' }}</span>
+                <span class="text-sm font-bold text-gray-900 uppercase tracking-wider">{{ $site_setting->site_name ?? 'The Everbloom' }}</span>
             @endif
         </a>
         <div class="flex items-center gap-3">
             <a href="{{ Auth::check() ? route('account') : route('login') }}"
-                class="text-gray-300 hover:text-white relative">
+                class="text-gray-700 hover:text-gray-900 relative">
                 @auth
                     @if(Auth::user()->profile_image)
-                        <img src="{{ Auth::user()->profile_image }}" class="w-6 h-6 rounded-full object-cover border border-white">
+                        <img src="{{ Auth::user()->profile_image }}" class="w-6 h-6 rounded-full object-cover border border-gray-200">
                     @else
                         <div
-                            class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-white border border-white">
+                            class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-white shadow-xs">
                             {{ substr(Auth::user()->name, 0, 1) }}
                         </div>
                     @endif
@@ -499,7 +499,7 @@
                 <div class="hidden sm:block w-px h-6 bg-gray-200"></div>
 
                 <!-- Cart -->
-                <button @click="$store.cartDrawer ? $store.cartDrawer.open() : (isCartOpen = true)" class="flex items-center gap-2.5 group text-left cursor-pointer">
+                <button @click="if (!window.location.pathname.includes('/checkout')) { $store.cartDrawer ? $store.cartDrawer.open() : (isCartOpen = true) }" class="flex items-center gap-2.5 group text-left cursor-pointer">
                     <div class="relative w-10 h-10 bg-gray-50 border border-gray-200 flex items-center justify-center group-hover:border-emerald-600 group-hover:bg-emerald-50/50 transition-all">
                         <svg class="w-4.5 h-4.5 text-slate-700 group-hover:text-emerald-600 transition-colors"
                             fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">

@@ -156,9 +156,21 @@
             },
 
             getActiveVariant() {
-                if (!this.product.variants || Object.keys(this.selectedAttributes).length === 0) return null;
+                if (!this.product.variants || this.product.variants.length === 0) return null;
 
                 const activeVariants = this.product.variants.filter(v => !v.status || v.status === 'active');
+                if (activeVariants.length === 0) return null;
+
+                const hasAttributeOptions = activeVariants.some(v => {
+                    const attrs = v.variant_attributes || v.variantAttributes;
+                    return attrs && attrs.length > 0;
+                });
+
+                if (!hasAttributeOptions) {
+                    return activeVariants[0];
+                }
+
+                if (Object.keys(this.selectedAttributes).length === 0) return null;
 
                 return activeVariants.find(variant => {
                     const attrs = variant.variant_attributes || variant.variantAttributes;
@@ -179,6 +191,9 @@
                 const variant = this.getActiveVariant();
                 if (variant) {
                     return parseInt(variant.stock || 0);
+                }
+                if (this.product.first_active_variant) {
+                    return parseInt(this.product.first_active_variant.stock || 0);
                 }
                 return parseInt(this.product.stock || 0);
             },
@@ -353,6 +368,7 @@
                     quantity: this.quantity,
                     available_stock: maxStock,
                     line_total: unitFinalPrice * this.quantity,
+                    is_free_delivery: Boolean(this.product.is_free_delivery),
                     meta: {
                         is_flash_sale: isFlashSale,
                         discount_applied: unitFinalPrice < unitBasePrice,
@@ -458,6 +474,7 @@
                     quantity: this.quantity,
                     available_stock: maxStock,
                     line_total: unitFinalPrice * this.quantity,
+                    is_free_delivery: Boolean(this.product.is_free_delivery),
                     meta: {
                         is_flash_sale: isFlashSale,
                         discount_applied: unitFinalPrice < unitBasePrice,

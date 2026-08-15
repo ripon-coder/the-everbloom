@@ -46,7 +46,13 @@
                 },
 
                 updateShippingCost() {
-                    if (this.districtId && Array.isArray(this.districts)) {
+                    const isAllFreeDelivery = Array.isArray(this.calculatedItems) &&
+                        this.calculatedItems.length > 0 &&
+                        this.calculatedItems.every(i => Boolean(i.is_free_delivery || (i.meta && i.meta.free_delivery)));
+
+                    if (isAllFreeDelivery) {
+                        this.shippingCost = 0;
+                    } else if (this.districtId && Array.isArray(this.districts)) {
                         const dist = this.districts.find(d => d.id == this.districtId);
                         this.shippingCost = dist ? parseFloat(dist.delivery_charge || 0) : 0;
                     } else {
@@ -137,7 +143,8 @@
                         available: item.available !== false && item.is_active !== false,
                         unit_final_price: parseFloat(item.unit_final_price || item.price || 0),
                         available_stock: parseInt(item.available_stock ?? 999),
-                        quantity: parseInt(item.quantity || 1)
+                        quantity: parseInt(item.quantity || 1),
+                        is_free_delivery: Boolean(item.is_free_delivery || (item.meta && item.meta.free_delivery))
                     }));
                     this.subtotal = this.calculatedItems.reduce((acc, i) => acc + (parseFloat(i.unit_final_price || 0) * parseInt(i.quantity || 1)), 0);
                     this.updateShippingCost();

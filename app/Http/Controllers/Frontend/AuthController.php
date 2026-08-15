@@ -14,12 +14,17 @@ class AuthController extends Controller
 {
     public function postLogin(Request $request)
     {
+        $loginInput = $request->input('login', $request->input('phone', $request->input('email')));
+        $request->merge(['login' => $loginInput]);
+
         $request->validate([
-            'phone' => ['required', 'string', 'digits:11'],
+            'login' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        if (Auth::attempt(['phone' => $request->phone, 'password' => $request->password], $request->boolean('remember'))) {
+        $fieldType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+
+        if (Auth::attempt([$fieldType => $loginInput, 'password' => $request->password], $request->boolean('remember'))) {
             $request->session()->regenerate();
 
             if (!Auth::user()->is_active) {
@@ -27,16 +32,16 @@ class AuthController extends Controller
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
                 return back()->withErrors([
-                    'phone' => 'Your account is currently inactive. Please contact support.',
-                ])->onlyInput('phone');
+                    'login' => 'Your account is currently inactive. Please contact support.',
+                ])->onlyInput('login');
             }
 
             return redirect()->intended(route('home'))->with('success', 'You are logged in.');
         }
 
         return back()->withErrors([
-            'phone' => 'The provided credentials do not match our records.',
-        ])->onlyInput('phone');
+            'login' => 'The provided credentials do not match our records.',
+        ])->onlyInput('login');
     }
 
     public function postRegister(Request $request)
@@ -44,14 +49,19 @@ class AuthController extends Controller
         $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'digits:11', 'unique:users'],
+            'email' => ['required_without:phone', 'nullable', 'string', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['required_without:email', 'nullable', 'string', 'digits:11', 'unique:users,phone'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'terms' => ['required', 'accepted']
+        ], [
+            'email.required_without' => 'Please provide an email address or mobile number.',
+            'phone.required_without' => 'Please provide a mobile number or email address.',
         ]);
 
         $user = User::create([
-            'name' => $request->first_name . ' ' . $request->last_name,
-            'phone' => $request->phone,
+            'name' => trim($request->first_name . ' ' . $request->last_name),
+            'email' => $request->email ?: null,
+            'phone' => $request->phone ?: null,
             'password' => Hash::make($request->password),
             'is_active' => true,
         ]);
@@ -78,13 +88,15 @@ class AuthController extends Controller
         $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'digits:11', 'unique:users,phone,' . $user->id],
+            'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'phone' => ['nullable', 'string', 'digits:11', 'unique:users,phone,' . $user->id],
             'current_password' => ['nullable', 'required_with:new_password', 'current_password'],
             'new_password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $user->name = $request->first_name . ' ' . $request->last_name;
-        $user->phone = $request->phone;
+        $user->name = trim($request->first_name . ' ' . $request->last_name);
+        $user->email = $request->email ?: null;
+        $user->phone = $request->phone ?: null;
 
         if ($request->filled('new_password')) {
             $user->password = Hash::make($request->new_password);

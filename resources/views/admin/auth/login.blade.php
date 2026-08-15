@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | Dashboard</title>
+  <title>Admin Login - {{ config('app.name') }}</title>
   @vite('resources/css/app.css') <!-- Tailwind + Flowbite included via Vite -->
 </head>
 <body class="bg-gray-50 flex items-center justify-center min-h-screen">
