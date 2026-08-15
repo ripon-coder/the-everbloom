@@ -7,6 +7,7 @@ use Faker\Provider\Base;
 use Illuminate\Http\Request;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\Controller;
 use App\Services\Api\OrderServiceApi;
 use App\Http\Requests\Api\CreateOrderRequest;
@@ -23,15 +24,30 @@ class OrderApiController extends BaseApiController
     public function CreateOrder(CreateOrderRequest $request)
     {
         $user_id = auth()->guard('sanctum')->id();
-        $data = array_merge($request->all(), ['user_id' => $user_id]);
+        $phone = $request->input('shipping_address.phone_number') ?? $request->input('shipping_address.phone') ?? $request->input('phone');
+
+        // Cache lock: prevent duplicate order placement (10 second lock per user or IP/phone)
+        $lockKey = $user_id
+            ? 'order_lock_user_' . $user_id
+            : 'order_lock_ip_' . md5($request->ip() . '_' . $phone);
+
+        $lock = Cache::lock($lockKey, 10);
+
+        if (!$lock->get()) {
+            return $this->errorResponse('Your order is already being processed. Please wait.', 429);
+        }
+
         DB::beginTransaction();
         try {
+            $data = array_merge($request->all(), ['user_id' => $user_id]);
             $order = $this->orderService->createOrder($data);
             DB::commit();
             return $this->successResponse($order, 'Order created successfully');
         } catch (\Throwable $e) {
             DB::rollBack();
             return $this->errorResponse('Failed to create order', 500, $e->getMessage());
+        } finally {
+            $lock->release();
         }
     }
     public function GetOrder(Request $request)

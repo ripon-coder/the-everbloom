@@ -306,14 +306,22 @@ class OrderService
         $this->sendOrderStatusNotification($order, $oldStatus, $newStatus);
 
         // Update related records
-        if ($newStatus === 'cancelled') {
+        if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
             // Restore product variant stock
             foreach ($order->orderProducts as $orderProduct) {
-                if ($orderProduct->product_variant_id) {
-                    $variant = ProductVariant::find($orderProduct->product_variant_id);
-                    if ($variant && $variant->track_stock) {
-                        $variant->increment('stock', $orderProduct->quantity);
-                    }
+                if (!empty($orderProduct->product_variant_id)) {
+                    DB::table('product_variants')
+                        ->where('id', $orderProduct->product_variant_id)
+                        ->increment('stock', $orderProduct->quantity);
+                }
+            }
+        } elseif ($oldStatus === 'cancelled' && $newStatus !== 'cancelled') {
+            // Re-decrement stock if order is un-cancelled
+            foreach ($order->orderProducts as $orderProduct) {
+                if (!empty($orderProduct->product_variant_id)) {
+                    DB::table('product_variants')
+                        ->where('id', $orderProduct->product_variant_id)
+                        ->decrement('stock', $orderProduct->quantity);
                 }
             }
         }

@@ -245,9 +245,40 @@ class OrderEloquent implements OrderRepository
      */
     public function updateStatus(int $id, string $status): bool
     {
-        $order = $this->model->findOrFail($id);
+        $order = $this->model->with('orderProducts')->findOrFail($id);
+        $oldStatus = $order->status;
+
+        if ($oldStatus === $status) {
+            return true;
+        }
+
         $order->status = $status;
-        return $order->save();
+        $saved = $order->save();
+
+        if ($saved) {
+            // Restore stock when order is cancelled
+            if ($status === 'cancelled' && $oldStatus !== 'cancelled') {
+                foreach ($order->orderProducts as $orderProduct) {
+                    if (!empty($orderProduct->product_variant_id)) {
+                        DB::table('product_variants')
+                            ->where('id', $orderProduct->product_variant_id)
+                            ->increment('stock', $orderProduct->quantity);
+                    }
+                }
+            }
+            // Re-decrement stock if order is restored/un-cancelled
+            elseif ($oldStatus === 'cancelled' && $status !== 'cancelled') {
+                foreach ($order->orderProducts as $orderProduct) {
+                    if (!empty($orderProduct->product_variant_id)) {
+                        DB::table('product_variants')
+                            ->where('id', $orderProduct->product_variant_id)
+                            ->decrement('stock', $orderProduct->quantity);
+                    }
+                }
+            }
+        }
+
+        return $saved;
     }
 
     /**
