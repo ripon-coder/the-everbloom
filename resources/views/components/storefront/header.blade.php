@@ -103,12 +103,12 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
-                        <!-- Bag item-count badge bound to Alpine.store('cart').count (hidden when 0) -->
+                        <!-- Bag item-count badge bound to Alpine.store('cart').count (mobile only, hidden on desktop to avoid collision with Bag (X) label) -->
                         <span 
                             x-show="$store.cart.count > 0" 
                             x-text="$store.cart.count" 
                             x-cloak
-                            class="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 bg-forest text-ivory text-xs font-sans font-medium flex items-center justify-center rounded-full leading-none pointer-events-none"
+                            class="lg:hidden absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 bg-forest text-ivory text-xs font-sans font-medium flex items-center justify-center rounded-full leading-none pointer-events-none"
                         ></span>
                     </div>
                     <span class="hidden lg:inline text-xs uppercase tracking-wider font-medium text-ink/90">
