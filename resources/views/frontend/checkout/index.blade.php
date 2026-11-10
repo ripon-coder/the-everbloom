@@ -574,8 +574,8 @@
 
             </div>
 
-            <!-- 2, 3 & 7. RIGHT COLUMN: STICKY ORDER SUMMARY ON DESKTOP (lg:col-span-5 lg:sticky lg:top-24) -->
-            <aside class="hidden lg:block lg:col-span-5 lg:sticky lg:top-24" aria-label="Order Summary">
+            <!-- 2, 3 & 7. RIGHT COLUMN: STICKY ORDER SUMMARY ON DESKTOP (lg:col-span-5 lg:sticky lg:top-36 h-fit) -->
+            <aside class="hidden lg:block lg:col-span-5 lg:sticky lg:top-36 h-fit" aria-label="Order Summary">
                 <div class="bg-white p-6 lg:p-7 border border-[#A8B7A0] space-y-6 shadow-xs">
                     
                     <!-- Heading with spacing under Order Summary so it does not touch the divider -->

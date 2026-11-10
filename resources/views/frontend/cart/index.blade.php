@@ -158,7 +158,7 @@
                 </div>
 
                 <!-- 4. ORDER SUMMARY (Sticky on lg, Subtotal, Discount, Shipping, Total, Free Shipping Progress, Demo Codes) -->
-                <div class="lg:col-span-4 bg-white p-6 border border-beige space-y-6 lg:sticky lg:top-24 h-fit">
+                <div class="lg:col-span-4 bg-white p-6 border border-beige space-y-6 lg:sticky lg:top-36 h-fit">
                     <h2 class="font-serif text-lg text-ink font-medium border-b border-beige pb-3">Order Summary</h2>
 
                     <!-- Free-shipping progress message based on config threshold -->
