@@ -3,6 +3,14 @@
     $currencySymbol = config('demo.site.currency.symbol', '$');
 @endphp
 
+<!-- Catalog and Discount Data Payload for Store Synchronization -->
+<script id="everbloom-products-data" type="application/json">
+{!! json_encode(config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+<script id="everbloom-discounts-data" type="application/json">
+{!! json_encode(config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+
 <div 
     x-data
     x-show="$store.cart.drawerOpen" 
@@ -57,7 +65,7 @@
         <div class="bg-sage-light/60 px-5 py-3 border-b border-beige/60 text-xs">
             <template x-if="$store.cart.subtotal >= {{ $freeShippingThreshold }}">
                 <p class="text-forest font-medium text-center flex items-center justify-center gap-1.5">
-                    <svg class="w-4 h-4 text-forest" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-forest shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                     <span>Complimentary botanical shipping unlocked!</span>
@@ -99,17 +107,10 @@
             <!-- Items Loop -->
             <template x-for="item in $store.cart.items" :key="item.key">
                 <div class="py-4 first:pt-0 last:pb-0 flex gap-4">
-                    <!-- Thumbnail -->
-                    <div class="w-20 h-24 bg-sage-light/40 shrink-0 border border-beige/60 overflow-hidden relative">
-                        <template x-if="item.image">
-                            <img :src="'/images/' + item.image" :alt="item.name" class="w-full h-full object-cover">
-                        </template>
-                        <template x-if="!item.image">
-                            <div class="w-full h-full flex items-center justify-center text-[10px] text-muted font-mono">
-                                No image
-                            </div>
-                        </template>
-                    </div>
+                    <!-- Thumbnail with x-storefront.image, aspect-square, 96px fixed, wrapped in link -->
+                    <a :href="'/shop/product/' + item.slug" class="w-24 h-24 shrink-0 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest">
+                        <x-storefront.image ::src="'/images/' + item.image" ::alt="item.name" aspect-ratio="aspect-square" class="w-24 h-24 shrink-0 object-cover border border-beige/60" />
+                    </a>
 
                     <!-- Meta Details -->
                     <div class="flex-1 flex flex-col justify-between">
@@ -119,8 +120,8 @@
                                 <button 
                                     type="button" 
                                     @click="$store.cart.remove(item.key)"
-                                    class="text-muted hover:text-ink text-xs p-1 -mr-1"
-                                    aria-label="Remove item"
+                                    class="text-muted hover:text-ink text-xs p-1 -mr-1 transition-colors cursor-pointer"
+                                    :aria-label="'Remove ' + item.name + (item.size ? ' (' + item.size + ')' : '') + ' from bag'"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -131,7 +132,7 @@
                             <p class="text-[11px] text-muted uppercase tracking-wider mt-0.5" x-show="item.size" x-text="item.size"></p>
 
                             <div class="mt-1">
-                                <span class="font-sans text-xs font-semibold text-ink" x-text="'{{ $currencySymbol }}' + parseFloat(item.price).toFixed(2)"></span>
+                                <span class="text-xs text-muted" x-text="'{{ $currencySymbol }}' + parseFloat(item.price).toFixed(2) + ' each'"></span>
                             </div>
                         </div>
 
@@ -140,20 +141,29 @@
                             <div class="inline-flex items-center border border-beige bg-ivory">
                                 <button 
                                     type="button" 
-                                    @click="$store.cart.updateQty(item.key, item.quantity - 1)" 
-                                    class="w-7 h-7 flex items-center justify-center text-ink/70 hover:text-forest transition-colors"
-                                    aria-label="Decrease quantity"
-                                >-</button>
-                                <span class="w-8 text-center text-xs font-medium text-ink" x-text="item.quantity"></span>
+                                    @click="$store.cart.updateQty(item.key, item.qty - 1)" 
+                                    class="w-8 h-8 flex items-center justify-center text-ink/70 hover:text-forest transition-colors cursor-pointer"
+                                    :aria-label="'Decrease quantity of ' + item.name + (item.size ? ' (' + item.size + ')' : '')"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                    </svg>
+                                </button>
+                                <span class="w-8 text-center text-xs font-medium text-ink select-none" x-text="item.qty"></span>
                                 <button 
                                     type="button" 
-                                    @click="$store.cart.updateQty(item.key, item.quantity + 1)" 
-                                    class="w-7 h-7 flex items-center justify-center text-ink/70 hover:text-forest transition-colors"
-                                    aria-label="Increase quantity"
-                                >+</button>
+                                    @click="$store.cart.updateQty(item.key, item.qty + 1)" 
+                                    class="w-8 h-8 flex items-center justify-center text-ink/70 hover:text-forest transition-colors cursor-pointer"
+                                    :disabled="item.qty >= 10"
+                                    :aria-label="'Increase quantity of ' + item.name + (item.size ? ' (' + item.size + ')' : '')"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
                             </div>
 
-                            <span class="text-xs font-medium text-forest" x-text="'{{ $currencySymbol }}' + (item.price * item.quantity).toFixed(2)"></span>
+                            <span class="text-xs font-semibold text-forest" x-text="'{{ $currencySymbol }}' + (item.price * item.qty).toFixed(2)"></span>
                         </div>
                     </div>
                 </div>

@@ -25,12 +25,19 @@ return [
         'hours' => 'Mon – Fri: 9:00 AM – 6:00 PM EST', // DEMO PLACEHOLDER: replace before launch
         'address' => '740 Botanical Way, Suite 400, Portland, OR 97201', // DEMO PLACEHOLDER: replace before launch
     ],
+    // DEMO PLACEHOLDER: replace before launch
+    'trust_badges' => [
+        'secure_checkout' => '256-Bit Encrypted Botanical Checkout', // DEMO PLACEHOLDER: replace before launch
+        'returns_policy' => '30-Day Complimentary Botanical Returns', // DEMO PLACEHOLDER: replace before launch
+        'support_contact' => 'Concierge: concierge@the-everbloom.com', // DEMO PLACEHOLDER: replace before launch
+    ],
     'socials' => [
         ['platform' => 'Instagram', 'url' => 'https://instagram.com/theeverbloom', 'handle' => '@theeverbloom'],
         ['platform' => 'Pinterest', 'url' => 'https://pinterest.com/theeverbloom', 'handle' => '@theeverbloom'],
         ['platform' => 'Facebook', 'url' => 'https://facebook.com/theeverbloom', 'handle' => 'theeverbloom'],
     ],
     'demo_discounts' => [
+        'WELCOME10' => ['type' => 'percentage', 'value' => 10, 'label' => '10% Welcome Discount'],
         'BLOOM10' => ['type' => 'percentage', 'value' => 10, 'label' => '10% Welcome Discount'],
         'FREESHIP' => ['type' => 'shipping', 'value' => 100, 'label' => 'Complimentary Standard Shipping'],
         'BOTANICAL20' => ['type' => 'percentage', 'value' => 20, 'label' => '20% Seasonal Harvest Discount'],
