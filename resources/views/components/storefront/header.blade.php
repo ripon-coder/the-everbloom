@@ -3,7 +3,7 @@
         <!-- Top Tier: Brand Logo & Actions -->
         <div class="flex items-center justify-between h-16 md:h-20">
             
-            <!-- Left: Mobile Menu Trigger (Mobile) & Search Bar Trigger (Desktop) -->
+            <!-- Left: Mobile Hamburger Trigger (Mobile) & Search Bar Trigger (Desktop) -->
             <div class="flex items-center gap-4 flex-1">
                 <!-- Mobile Menu Button (lg:hidden) -->
                 <button 
@@ -46,9 +46,9 @@
                 </a>
             </div>
 
-            <!-- Right: Actions (Mobile Search, Wishlist, Account, Bag) -->
+            <!-- Right: Actions (Mobile: Search & Bag only; Desktop: Search, Wishlist, Account, Bag) -->
             <div class="flex items-center justify-end space-x-1 sm:space-x-3 flex-1">
-                <!-- Mobile Search Icon Button -->
+                <!-- Mobile Search Icon Button (Mobile Only) -->
                 <button 
                     type="button" 
                     x-data
@@ -61,11 +61,11 @@
                     </svg>
                 </button>
 
-                <!-- Wishlist Link with Live Counter -->
+                <!-- Wishlist Link with Live Counter (Desktop Only - moved to mobile drawer on mobile) -->
                 <a 
                     href="/wishlist" 
                     x-data
-                    class="p-2 text-ink hover:text-forest rounded-sm transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                    class="hidden lg:inline-flex p-2 text-ink hover:text-forest rounded-sm transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
                     aria-label="View Saved Wishlist"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -80,10 +80,10 @@
                     ></span>
                 </a>
 
-                <!-- Account Icon (Between Wishlist and Bag) -->
+                <!-- Account Icon (Desktop Only - moved to mobile drawer on mobile) -->
                 <a 
                     href="/account" 
-                    class="p-2 text-ink hover:text-forest rounded-sm transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                    class="hidden lg:inline-flex p-2 text-ink hover:text-forest rounded-sm transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
                     aria-label="My Account"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -91,7 +91,7 @@
                     </svg>
                 </a>
 
-                <!-- Cart Drawer Trigger Button with Live Counter -->
+                <!-- Cart Drawer Trigger Button with Item-Count Badge bound to Alpine.store('cart').count (hidden when 0) -->
                 <button 
                     type="button" 
                     x-data
@@ -99,19 +99,19 @@
                     class="p-2 text-ink hover:text-forest rounded-sm transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest cursor-pointer flex items-center gap-2"
                     aria-label="Open Shopping Bag"
                 >
-                    <div class="relative">
+                    <div class="relative flex items-center justify-center">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
-                        <!-- Cart Count Bubble -->
+                        <!-- Bag item-count badge bound to Alpine.store('cart').count (hidden when 0) -->
                         <span 
                             x-show="$store.cart.count > 0" 
                             x-text="$store.cart.count" 
                             x-cloak
-                            class="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 bg-forest text-ivory text-xs font-sans font-medium flex items-center justify-center rounded-full leading-none"
+                            class="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 bg-forest text-ivory text-xs font-sans font-medium flex items-center justify-center rounded-full leading-none pointer-events-none"
                         ></span>
                     </div>
-                    <span class="hidden sm:inline text-xs uppercase tracking-wider font-medium text-ink/90">
+                    <span class="hidden lg:inline text-xs uppercase tracking-wider font-medium text-ink/90">
                         Bag (<span x-text="$store.cart.count">0</span>)
                     </span>
                 </button>

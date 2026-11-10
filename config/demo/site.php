@@ -16,12 +16,14 @@ return [
         'link' => '/shop',
         'link_text' => 'Shop Now',
     ],
-    // DEMO: Placeholder contact details for frontend presentation
+    // DEMO PLACEHOLDER: replace before launch
+    'shipping_and_returns_note' => 'Free standard shipping over $75. 30-day returns on unopened items.', // DEMO PLACEHOLDER: replace before launch
+    // DEMO PLACEHOLDER: replace before launch
     'contact' => [
-        'email' => 'concierge@the-everbloom.com', // DEMO: replace with real contact email
-        'phone' => '+1 (800) 412-8874',           // DEMO: replace with real customer phone
-        'hours' => 'Mon – Fri: 9:00 AM – 6:00 PM EST', // DEMO: replace with real operating hours
-        'address' => '740 Botanical Way, Suite 400, Portland, OR 97201', // DEMO: placeholder address
+        'email' => 'concierge@the-everbloom.com', // DEMO PLACEHOLDER: replace before launch
+        'phone' => '+1 (800) 412-8874',           // DEMO PLACEHOLDER: replace before launch
+        'hours' => 'Mon – Fri: 9:00 AM – 6:00 PM EST', // DEMO PLACEHOLDER: replace before launch
+        'address' => '740 Botanical Way, Suite 400, Portland, OR 97201', // DEMO PLACEHOLDER: replace before launch
     ],
     'socials' => [
         ['platform' => 'Instagram', 'url' => 'https://instagram.com/theeverbloom', 'handle' => '@theeverbloom'],

@@ -5,19 +5,19 @@
 
 <footer class="mt-auto" role="contentinfo">
     <!-- Top Newsletter Band: Separated on Warm Beige with Forest Green CTA -->
-    <section class="bg-beige text-ink border-t border-b border-beige-dark/40 py-14 md:py-20" aria-label="Newsletter Subscription">
+    <section class="bg-beige text-ink border-t border-b border-beige-dark/40 py-12 md:py-16" aria-label="Newsletter Subscription">
         <div class="site-container">
-            <div class="max-w-2xl mx-auto text-center space-y-4">
+            <div class="max-w-2xl mx-auto text-center space-y-3">
                 <span class="text-xs uppercase tracking-[0.25em] text-forest font-semibold block">
                     Botanical Correspondence
                 </span>
                 <h2 class="font-serif text-3xl sm:text-4xl text-ink font-normal tracking-tight">
                     Join The Everbloom Archive
                 </h2>
-                <p class="text-sm text-ink/80 leading-relaxed max-w-lg mx-auto">
+                <p class="text-[13px] sm:text-sm text-ink/80 leading-relaxed max-w-lg mx-auto font-sans">
                     Receive seasonal harvest bulletins, private botanical previews, and thoughtful skincare rituals directly in your inbox.
                 </p>
-                <div class="mt-6 max-w-md mx-auto pt-2">
+                <div class="mt-6 max-w-md mx-auto pt-1">
                     <x-storefront.newsletter-form :dark="false" />
                 </div>
             </div>
@@ -26,7 +26,7 @@
 
     <!-- Main Footer: Forest Background with High-Contrast Ivory & Sage Accents -->
     <div class="bg-forest text-ivory">
-        <div class="site-container py-16 md:py-20">
+        <div class="site-container py-12 md:py-16">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12">
                 
                 <!-- Brand & Heritage Column -->
@@ -44,7 +44,8 @@
                         Thoughtfully formulated for everyday rituals using carefully selected botanical ingredients and plant-derived oils.
                     </p>
 
-                    <div class="pt-3 text-xs text-ivory/80 space-y-1.5 font-sans">
+                    <!-- DEMO PLACEHOLDER: replace before launch -->
+                    <div class="pt-2 text-xs text-ivory/80 space-y-1.5 font-sans">
                         <p><span class="text-sage-light font-medium">Apothecary Concierge:</span> {{ $site['contact']['phone'] }}</p>
                         <p><span class="text-sage-light font-medium">Email Dispatch:</span> {{ $site['contact']['email'] }}</p>
                         <p><span class="text-sage-light font-medium">Hours:</span> {{ $site['contact']['hours'] }}</p>
@@ -145,7 +146,7 @@
         </div>
 
         <!-- Bottom Bar: Generic Payment Icons & Legal Notice -->
-        <div class="border-t border-white/10 py-8 bg-[#253B2F] text-xs text-ivory/80">
+        <div class="border-t border-white/10 py-6 bg-[#253B2F] text-xs text-ivory/80">
             <div class="site-container flex flex-col md:flex-row items-center justify-between gap-6">
                 <!-- Copyright & Currency -->
                 <div class="flex flex-wrap items-center gap-4 text-xs uppercase tracking-wider text-ivory/75">

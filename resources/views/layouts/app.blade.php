@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', config('demo.site.name') . ' — ' . config('demo.site.tagline'))</title>
-    <meta name="description" content="@yield('meta_description', 'Discover The Everbloom: conscious, botanical skincare crafted with cold-pressed plant extracts and natural hydration actives.')">
+    <meta name="description" content="@yield('meta_description', 'Discover The Everbloom: conscious, botanical skincare thoughtfully formulated for your daily ritual.')">
     <meta name="robots" content="@yield('meta_robots', 'index, follow')">
     <link rel="canonical" href="@yield('canonical', url()->current())">
 
     <!-- Open Graph / Social Sharing -->
     <meta property="og:site_name" content="{{ config('demo.site.name') }}">
     <meta property="og:title" content="@yield('title', config('demo.site.name') . ' — ' . config('demo.site.tagline'))">
-    <meta property="og:description" content="@yield('meta_description', 'Discover The Everbloom: conscious, botanical skincare crafted with cold-pressed plant extracts and natural hydration actives.')">
+    <meta property="og:description" content="@yield('meta_description', 'Discover The Everbloom: conscious, botanical skincare thoughtfully formulated for your daily ritual.')">
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="@yield('canonical', url()->current())">
     <meta property="og:image" content="@yield('og_image', asset('images/editorial/og-default.jpg'))">

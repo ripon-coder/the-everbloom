@@ -35,7 +35,6 @@ return [
             'links' => [
                 ['label' => 'Our Botanical Philosophy', 'url' => '/about'],
                 ['label' => 'Conscious Sourcing', 'url' => '/about#sourcing'],
-                ['label' => 'Style Guide & Design Tokens', 'url' => '/styleguide'],
                 ['label' => 'Customer Testimonials', 'url' => '/#testimonials'],
                 ['label' => 'Journal & Botanical Notes', 'url' => '/about#journal'],
             ],

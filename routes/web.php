@@ -58,12 +58,20 @@ Route::get('/shop/product/{slug}', function ($slug) {
     if (!$product) {
         abort(404, 'Product not found');
     }
-    $related = collect(config('demo.products'))
+    $sameCat = collect(config('demo.products'))
         ->where('category_slug', $product['category_slug'] ?? '')
         ->where('slug', '!=', $slug)
-        ->take(4)
-        ->values()
-        ->all();
+        ->values();
+
+    if ($sameCat->count() < 4) {
+        $otherCat = collect(config('demo.products'))
+            ->where('category_slug', '!=', $product['category_slug'] ?? '')
+            ->where('slug', '!=', $slug)
+            ->values();
+        $related = $sameCat->concat($otherCat)->take(4)->all();
+    } else {
+        $related = $sameCat->take(4)->all();
+    }
 
     return view('frontend.shop.product', [
         'product' => $product,

@@ -7,7 +7,8 @@ return [
         'name' => 'Face Care',
         'short_name' => 'Face',
         'tagline' => 'Gentle botanicals formulated to nurture facial skin balance and natural radiance.',
-        'description' => 'Every formula is crafted with cold-pressed plant extracts and gentle lipid complexes to nourish skin throughout every season.',
+        // VERIFY CLAIM before launch
+        'description' => 'Thoughtfully formulated botanical skincare for your daily ritual.',
         'image' => 'categories/category-face-care.jpg',
         'item_count' => 8,
     ],
@@ -17,7 +18,8 @@ return [
         'name' => 'Body Care',
         'short_name' => 'Body',
         'tagline' => 'Full-body hydration therapies crafted from botanical oils and nutrient-dense butters.',
-        'description' => 'Indulgent, fast-absorbing body butters and dry botanical oils infused with subtle floral essences.',
+        // VERIFY CLAIM before launch
+        'description' => 'Thoughtfully formulated botanical skincare for your daily ritual.',
         'image' => 'categories/category-body-care.jpg',
         'item_count' => 3,
     ],
@@ -27,7 +29,8 @@ return [
         'name' => 'Serums',
         'short_name' => 'Serums',
         'tagline' => 'Concentrated active botanicals delivered in light, rapidly absorbing textures.',
-        'description' => 'Targeted elixirs enriched with plant squalane, bakuchiol, and stabilized vitamin C from wild elderberries.',
+        // VERIFY CLAIM before launch
+        'description' => 'Thoughtfully formulated botanical skincare for your daily ritual.',
         'image' => 'categories/category-serums.jpg',
         'item_count' => 4,
     ],
@@ -37,7 +40,8 @@ return [
         'name' => 'Moisturizers',
         'short_name' => 'Moisturizers',
         'tagline' => 'Barrier-supporting creams designed to lock in essential moisture without heaviness.',
-        'description' => 'From airy day gels to restorative nocturnal creams powered by cold-extracted camellia seed and shea.',
+        // VERIFY CLAIM before launch
+        'description' => 'Thoughtfully formulated botanical skincare for your daily ritual.',
         'image' => 'categories/category-moisturizers.jpg',
         'item_count' => 4,
     ],
@@ -47,7 +51,8 @@ return [
         'name' => 'Cleansers',
         'short_name' => 'Cleansers',
         'tagline' => 'Melt away daily residue while maintaining your skin’s delicate lipid barrier.',
-        'description' => 'Balms, milk washes, and gentle jelly cleansers made with chamomile, oat extracts, and sweet almond oil.',
+        // VERIFY CLAIM before launch
+        'description' => 'Thoughtfully formulated botanical skincare for your daily ritual.',
         'image' => 'categories/category-cleansers.jpg',
         'item_count' => 3,
     ],
@@ -57,7 +62,8 @@ return [
         'name' => 'Sunscreens',
         'short_name' => 'Sun Care',
         'tagline' => 'Mineral-based daily sun shielding enriched with antioxidant plant leaves.',
-        'description' => 'Non-nano zinc oxide blends seamlessly into every skin tone, providing broad-spectrum protection with a velvety finish.',
+        // VERIFY CLAIM before launch
+        'description' => 'Thoughtfully formulated botanical skincare for your daily ritual.',
         'image' => 'categories/category-sunscreens.jpg',
         'item_count' => 2,
     ],

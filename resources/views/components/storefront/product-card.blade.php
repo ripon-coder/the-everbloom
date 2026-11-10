@@ -29,11 +29,7 @@
                 </span>
             @endif
 
-            @if(!empty($product['badge']) && $product['badge'] !== 'Bestseller' && !$isOnSale)
-                <span class="inline-block bg-ivory/95 text-forest font-sans text-xs uppercase tracking-[0.18em] font-medium px-2.5 py-1 border border-sage/30 shadow-sm">
-                    {{ $product['badge'] }}
-                </span>
-            @elseif(!empty($product['badge']) && !$isOnSale)
+            @if(!empty($product['badge']) && !$isOnSale)
                 <span class="inline-block bg-ivory/95 text-forest font-sans text-xs uppercase tracking-[0.18em] font-medium px-2.5 py-1 border border-sage/30 shadow-sm">
                     {{ $product['badge'] }}
                 </span>
@@ -45,9 +41,24 @@
             <x-storefront.wishlist-button :product="$product" size="sm" />
         </div>
 
-        <!-- Quick Add on Hover (Desktop) -->
-        <div class="absolute inset-x-3 bottom-3 z-10 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hidden md:block">
-            <x-storefront.add-to-cart-button :product="$product" size="{{ $product['sizes'][0] ?? null }}" label="Quick Add" class="!py-2.5 !text-xs shadow-sm" />
+        <!-- Quick Add on Mobile (Visible compact "+ Add" in image corner below lg) -->
+        <div class="absolute bottom-2.5 right-2.5 z-10 lg:hidden">
+            <x-storefront.add-to-cart-button 
+                :product="$product" 
+                size="{{ $product['sizes'][0] ?? null }}" 
+                label="+ Add" 
+                class="!w-auto !px-2.5 !py-1 !text-xs !min-h-0 !h-8 !bg-ivory/95 !text-forest hover:!bg-forest hover:!text-ivory !border !border-sage/40 shadow-sm backdrop-blur-xs font-medium tracking-normal" 
+            />
+        </div>
+
+        <!-- Quick Add on Desktop (Revealed on hover AND keyboard focus using group-focus-within on lg+) -->
+        <div class="absolute inset-x-3 bottom-3 z-10 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0 transition-all duration-300 hidden lg:block">
+            <x-storefront.add-to-cart-button 
+                :product="$product" 
+                size="{{ $product['sizes'][0] ?? null }}" 
+                label="Quick Add" 
+                class="!py-2.5 !text-xs shadow-sm" 
+            />
         </div>
     </div>
 
@@ -75,11 +86,6 @@
         <div class="mt-3 pt-2 border-t border-beige/40">
             <div class="flex items-baseline justify-between">
                 <x-storefront.price-display :price="$product['price']" :compare-at-price="$product['compare_at_price'] ?? null" />
-            </div>
-
-            <!-- Quick Add Button Always Visible on Mobile (Instruction 7) -->
-            <div class="mt-3 md:hidden">
-                <x-storefront.add-to-cart-button :product="$product" size="{{ $product['sizes'][0] ?? null }}" label="Add to Bag" class="!py-2.5 !text-xs w-full" />
             </div>
         </div>
     </div>
