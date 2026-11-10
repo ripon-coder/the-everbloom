@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Checkout — ' . config('demo.site.name'))</title>
-    <meta name="description" content="Secure and encrypted botanical checkout demonstration for The Everbloom.">
+    <title>@yield('title', 'Demo Checkout — ' . config('demo.site.name'))</title>
+    <meta name="description" content="Botanical skincare demo checkout for The Everbloom.">
     <meta name="robots" content="noindex, nofollow">
 
     <!-- Preconnect to Google Fonts -->
@@ -13,6 +13,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 
     @stack('meta')
+
+    <!-- Preload products catalog & discounts payload for Alpine Cart Store -->
+    <script>
+        window.__everbloomProducts = {!! json_encode(config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
+        window.__everbloomDiscounts = {!! json_encode(config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
+    </script>
+    <script id="everbloom-products-data" type="application/json">
+    {!! json_encode(config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+    <script id="everbloom-discounts-data" type="application/json">
+    {!! json_encode(config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
@@ -22,53 +35,66 @@
         Skip to checkout content
     </a>
 
-    <!-- Minimal Distraction-Free Checkout Header -->
-    <header class="border-b border-beige/60 bg-ivory/95 backdrop-blur-sm sticky top-0 z-30">
-        <div class="site-container py-4 md:py-5 flex items-center justify-between">
-            <a href="/cart" class="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted hover:text-forest transition-colors font-medium">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 19l-7-7 7-7" />
-                </svg>
-                <span>Return to Bag</span>
-            </a>
-
-            <!-- Brand Logo -->
-            <a href="/" class="text-center group" aria-label="{{ config('demo.site.name') }} Home">
-                <span class="font-serif text-xl md:text-2xl font-normal tracking-wide text-ink group-hover:text-forest transition-colors block">
-                    THE EVERBLOOM
-                </span>
-                <span class="text-[9px] uppercase tracking-[0.28em] text-muted block -mt-0.5">
-                    Apothecary
-                </span>
-            </a>
-
-            <!-- Secure Badge -->
-            <div class="inline-flex items-center gap-1.5 text-xs text-muted font-medium">
-                <svg class="w-4 h-4 text-forest" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <span class="hidden sm:inline">Encrypted Checkout Demo</span>
-            </div>
-        </div>
-    </header>
+    <!-- 1. HEADER: Exact same announcement bar and header component as the cart page -->
+    <x-storefront.announcement-bar />
+    <x-storefront.header />
 
     <!-- Main Checkout View -->
-    <main id="checkout-content" class="flex-1 focus:outline-none py-8 md:py-12" tabindex="-1">
+    <main id="checkout-content" class="flex-1 focus:outline-none" tabindex="-1">
         {{ $slot ?? '' }}
         @yield('content')
     </main>
 
-    <!-- Minimal Distraction-Free Footer -->
-    <footer class="border-t border-beige/60 py-6 text-center text-xs text-muted bg-ivory">
-        <div class="site-container flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p>© {{ date('Y') }} {{ config('demo.site.name') }}. Turnkey Frontend Architecture.</p>
-            <div class="flex items-center gap-5">
-                <a href="/privacy-policy" class="hover:text-forest transition-colors">Privacy</a>
-                <a href="/terms-and-conditions" class="hover:text-forest transition-colors">Terms</a>
-                <a href="/faq" class="hover:text-forest transition-colors">Help</a>
-            </div>
-        </div>
-    </footer>
+    <!-- Site Footer (Identical to cart page & app layout) -->
+    <x-storefront.footer />
+
+    <!-- Global Interactive Components for Header Functionality -->
+    <x-storefront.mobile-navigation />
+    <x-storefront.cart-drawer />
+    <x-storefront.search-modal />
+
+    <!-- Ensure Alpine cart store extensions (.lines & .totals) -->
+    <script>
+        (function() {
+            function syncCartStore() {
+                if (window.Alpine && typeof Alpine.store === 'function') {
+                    try {
+                        const cart = Alpine.store('cart');
+                        if (cart) {
+                            if (!('lines' in cart)) {
+                                Object.defineProperty(cart, 'lines', {
+                                    get() { return this.items; },
+                                    enumerable: true,
+                                    configurable: true
+                                });
+                            }
+                            if (!('totals' in cart)) {
+                                Object.defineProperty(cart, 'totals', {
+                                    get() {
+                                        return {
+                                            subtotal: this.subtotal,
+                                            discount: this.discountAmount,
+                                            shipping: this.shippingCost,
+                                            total: this.total
+                                        };
+                                    },
+                                    enumerable: true,
+                                    configurable: true
+                                });
+                            }
+                            if (typeof cart.cleanAndValidate === 'function') {
+                                cart.cleanAndValidate();
+                            }
+                        }
+                    } catch (e) {}
+                }
+            }
+            document.addEventListener('alpine:init', syncCartStore);
+            document.addEventListener('DOMContentLoaded', syncCartStore);
+            window.addEventListener('load', syncCartStore);
+            syncCartStore();
+        })();
+    </script>
 
     @stack('scripts')
 </body>
