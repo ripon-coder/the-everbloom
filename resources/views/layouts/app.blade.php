@@ -68,6 +68,9 @@
     <!-- Site Footer -->
     <x-storefront.footer />
 
+    <!-- Global Mobile Navigation Drawer -->
+    <x-storefront.mobile-navigation />
+
     <!-- Global Cart Drawer -->
     <x-storefront.cart-drawer />
 

@@ -30,7 +30,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <span>Search</span>
-                    <kbd class="px-1.5 py-0.5 text-[10px] bg-beige/40 border border-beige/80 font-mono text-muted rounded">⌘K</kbd>
+                    <kbd class="px-1.5 py-0.5 text-xs bg-beige/40 border border-beige/80 font-mono text-muted rounded">⌘K</kbd>
                 </button>
             </div>
 
@@ -40,13 +40,13 @@
                     <span class="font-serif text-2xl sm:text-3xl lg:text-[2rem] font-medium tracking-tight text-ink group-hover:text-forest transition-colors block">
                         THE EVERBLOOM
                     </span>
-                    <span class="text-[9px] uppercase tracking-[0.28em] text-muted -mt-0.5 group-hover:text-ink transition-colors font-sans block">
+                    <span class="text-xs uppercase tracking-[0.22em] text-muted -mt-0.5 group-hover:text-ink transition-colors font-sans block">
                         Botanical Skincare
                     </span>
                 </a>
             </div>
 
-            <!-- Right: Actions (Mobile Search, Wishlist, Bag) -->
+            <!-- Right: Actions (Mobile Search, Wishlist, Account, Bag) -->
             <div class="flex items-center justify-end space-x-1 sm:space-x-3 flex-1">
                 <!-- Mobile Search Icon Button -->
                 <button 
@@ -76,8 +76,19 @@
                         x-show="$store.wishlist.count > 0" 
                         x-text="$store.wishlist.count" 
                         x-cloak
-                        class="absolute top-1 right-1 w-4 h-4 bg-forest text-ivory text-[9px] font-sans font-bold flex items-center justify-center rounded-full"
+                        class="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-forest text-ivory text-xs font-sans font-medium flex items-center justify-center rounded-full leading-none"
                     ></span>
+                </a>
+
+                <!-- Account Icon (Between Wishlist and Bag) -->
+                <a 
+                    href="/account" 
+                    class="p-2 text-ink hover:text-forest rounded-sm transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                    aria-label="My Account"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
                 </a>
 
                 <!-- Cart Drawer Trigger Button with Live Counter -->
@@ -97,10 +108,10 @@
                             x-show="$store.cart.count > 0" 
                             x-text="$store.cart.count" 
                             x-cloak
-                            class="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 bg-forest text-ivory text-[9px] font-sans font-bold flex items-center justify-center rounded-full"
+                            class="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 bg-forest text-ivory text-xs font-sans font-medium flex items-center justify-center rounded-full leading-none"
                         ></span>
                     </div>
-                    <span class="hidden sm:inline text-xs uppercase tracking-wider font-medium text-ink/80">
+                    <span class="hidden sm:inline text-xs uppercase tracking-wider font-medium text-ink/90">
                         Bag (<span x-text="$store.cart.count">0</span>)
                     </span>
                 </button>
@@ -112,7 +123,4 @@
             <x-storefront.navigation />
         </div>
     </div>
-
-    <!-- Mobile Navigation Drawer Mount -->
-    <x-storefront.mobile-navigation />
 </header>

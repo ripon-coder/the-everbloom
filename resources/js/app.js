@@ -167,6 +167,23 @@ Alpine.store('wishlist', {
     },
 });
 
+// Alpine Mobile Navigation Component
+Alpine.data('mobileNavigation', () => ({
+    open: false,
+    toggle() {
+        this.open = !this.open;
+        if (this.open) {
+            document.body.classList.add('overflow-hidden');
+        } else {
+            document.body.classList.remove('overflow-hidden');
+        }
+    },
+    close() {
+        this.open = false;
+        document.body.classList.remove('overflow-hidden');
+    }
+}));
+
 // Alpine Search Modal Component
 Alpine.data('searchModal', () => ({
     open: false,

@@ -38,7 +38,7 @@
             <p class="font-serif text-xs md:text-sm text-forest/80 font-normal tracking-wide px-2 line-clamp-1">
                 {{ $alt }}
             </p>
-            <span class="mt-1 font-mono text-[10px] text-muted tracking-tight px-1.5 py-0.5 bg-ivory/80 border border-sage/20 uppercase">
+            <span class="mt-1 font-mono text-xs text-muted tracking-tight px-2 py-0.5 bg-ivory/90 border border-sage/20 uppercase">
                 {{ $filename ?: 'placeholder.jpg' }}
             </span>
         </div>

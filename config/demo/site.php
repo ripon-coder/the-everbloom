@@ -16,11 +16,12 @@ return [
         'link' => '/shop',
         'link_text' => 'Shop Now',
     ],
+    // DEMO: Placeholder contact details for frontend presentation
     'contact' => [
-        'email' => 'concierge@the-everbloom.com',
-        'phone' => '+1 (800) 412-8874',
-        'hours' => 'Mon – Fri: 9:00 AM – 6:00 PM EST',
-        'address' => '740 Botanical Way, Suite 400, Portland, OR 97201',
+        'email' => 'concierge@the-everbloom.com', // DEMO: replace with real contact email
+        'phone' => '+1 (800) 412-8874',           // DEMO: replace with real customer phone
+        'hours' => 'Mon – Fri: 9:00 AM – 6:00 PM EST', // DEMO: replace with real operating hours
+        'address' => '740 Botanical Way, Suite 400, Portland, OR 97201', // DEMO: placeholder address
     ],
     'socials' => [
         ['platform' => 'Instagram', 'url' => 'https://instagram.com/theeverbloom', 'handle' => '@theeverbloom'],
