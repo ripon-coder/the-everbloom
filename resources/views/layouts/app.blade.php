@@ -20,7 +20,7 @@
     <!-- Preconnect to Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 
     @stack('meta')
 
@@ -46,10 +46,13 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
+    @php
+        $showBottomNav = !View::hasSection('hide_bottom_nav') && !request()->is('checkout*');
+    @endphp
 </head>
-<body class="min-h-full flex flex-col bg-ivory text-ink selection:bg-sage selection:text-ink">
+<body class="min-h-full flex flex-col bg-ivory text-ink selection:bg-sage selection:text-ink {{ $showBottomNav ? 'pb-[calc(56px+env(safe-area-inset-bottom))] lg:pb-0' : '' }}">
     <!-- Accessible Skip to Content -->
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-forest focus:text-ivory focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-forest text-xs uppercase tracking-widest font-medium">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-forest focus:text-ivory text-xs uppercase tracking-widest font-medium">
         Skip to main content
     </a>
 
@@ -59,12 +62,8 @@
     <!-- Site Header & Navigation -->
     <x-storefront.header />
 
-    @php
-        $showBottomNav = !View::hasSection('hide_bottom_nav') && !request()->is('checkout*');
-    @endphp
-
     <!-- Main Content Area -->
-    <main id="main-content" class="flex-1 focus:outline-none {{ $showBottomNav ? 'pb-[calc(56px+env(safe-area-inset-bottom))] lg:pb-0' : '' }}" tabindex="-1">
+    <main id="main-content" class="flex-1 focus:outline-none" tabindex="-1">
         {{ $slot ?? '' }}
         @yield('content')
     </main>

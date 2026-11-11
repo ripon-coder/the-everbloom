@@ -4,19 +4,19 @@
 @endphp
 
 <footer class="mt-auto" role="contentinfo">
-    @if(!View::hasSection('hide_newsletter') && !request()->is('cart*') && !request()->is('checkout*') && !request()->is('account*'))
+    @if(!View::hasSection('hide_newsletter') && !request()->is('cart*') && !request()->is('checkout*') && !request()->is('account*') && !request()->is('wishlist*'))
     <!-- Top Newsletter Band: Separated on Warm Beige with Forest Green CTA -->
-    <section class="bg-beige text-ink border-t border-b border-beige-dark/40 py-12 md:py-16" aria-label="Newsletter Subscription">
+    <section class="bg-beige text-ink border-t border-b border-[#E3E6DD] py-12 md:py-16" aria-label="Newsletter Subscription">
         <div class="site-container">
             <div class="max-w-2xl mx-auto text-center space-y-3">
-                <span class="text-xs uppercase tracking-[0.25em] text-forest font-semibold block">
+                <span class="text-xs uppercase tracking-[0.2em] text-forest font-semibold block">
                     Botanical Correspondence
                 </span>
                 <h2 class="font-serif text-3xl sm:text-4xl text-ink font-normal tracking-tight">
                     Join The Everbloom Archive
                 </h2>
-                <p class="text-[13px] sm:text-sm text-ink/80 leading-relaxed max-w-lg mx-auto font-sans">
-                    Receive seasonal harvest bulletins, private botanical previews, and thoughtful skincare rituals directly in your inbox.
+                <p class="text-[13px] sm:text-sm text-ink/85 leading-relaxed max-w-lg mx-auto font-sans">
+                    Receive seasonal botanical notes, private product previews, and thoughtful skincare rituals directly in your inbox.
                 </p>
                 <div class="mt-6 max-w-md mx-auto pt-1">
                     <x-storefront.newsletter-form :dark="false" />
@@ -26,41 +26,45 @@
     </section>
     @endif
 
-    <!-- Main Footer: Forest Background with High-Contrast Ivory & Sage Accents -->
+    <!-- Main Footer: Forest Background (#304C3D) with High-Contrast Ivory (#F8F6F0) & Sage Accents -->
     <div class="bg-forest text-ivory">
         <div class="site-container py-12 md:py-16">
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-12">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12">
                 
-                <!-- Brand & Heritage Column -->
-                <div class="lg:col-span-2 space-y-4">
-                    <a href="/" class="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage" aria-label="{{ $site['name'] }} Home">
-                        <span class="font-serif text-2xl tracking-wide text-ivory font-normal block">
+                <!-- Brand & Heritage Column: Identical Lockup + Same Tagline (4 cols on lg) -->
+                <div class="lg:col-span-4 space-y-4">
+                    <a href="/" class="inline-block" aria-label="{{ $site['name'] }} Home">
+                        <span class="font-serif text-2xl tracking-tight text-ivory font-medium block">
                             THE EVERBLOOM
                         </span>
-                        <span class="text-xs uppercase tracking-[0.22em] text-sage-light block mt-1 font-sans">
-                            Naturally Beautiful. Always Blooming.
+                        <span class="text-xs uppercase tracking-[0.2em] text-sage-light block -mt-0.5 font-sans">
+                            Botanical Skincare
                         </span>
                     </a>
 
-                    <p class="text-[13px] text-ivory/85 leading-relaxed max-w-sm">
+                    <p class="text-xs uppercase tracking-[0.2em] text-ivory/90 font-sans">
+                        {{ $site['tagline'] ?? 'Naturally Beautiful. Always Blooming.' }}
+                    </p>
+
+                    <p class="text-[13px] text-ivory/90 leading-relaxed max-w-sm">
                         Thoughtfully formulated for everyday rituals using carefully selected botanical ingredients and plant-derived oils.
                     </p>
 
                     <!-- DEMO PLACEHOLDER: replace before launch -->
-                    <div class="pt-2 text-xs text-ivory/80 space-y-1.5 font-sans">
-                        <p><span class="text-sage-light font-medium">Apothecary Concierge:</span> {{ $site['contact']['phone'] }}</p>
-                        <p><span class="text-sage-light font-medium">Email Dispatch:</span> {{ $site['contact']['email'] }}</p>
-                        <p><span class="text-sage-light font-medium">Hours:</span> {{ $site['contact']['hours'] }}</p>
+                    <div class="pt-2 text-xs text-ivory/90 space-y-1.5 font-sans">
+                        <p><span class="text-sage-light font-medium">Client Care:</span> <a href="tel:{{ $site['contact']['phone'] }}" class="text-ivory hover:text-sage-light transition-colors">{{ $site['contact']['phone'] }}</a></p>
+                        <p><span class="text-sage-light font-medium">Email:</span> <a href="mailto:{{ $site['contact']['email'] }}" class="text-ivory hover:text-sage-light transition-colors">{{ $site['contact']['email'] }}</a></p>
+                        <p><span class="text-sage-light font-medium">Hours:</span> <span class="text-ivory">{{ $site['contact']['hours'] }}</span></p>
                     </div>
 
-                    <!-- Social Icons (Instruction 8: Social icons instead of text links) -->
+                    <!-- Social Icons (44x44px touch targets) -->
                     <div class="flex items-center space-x-3 pt-3">
                         <!-- Instagram -->
                         <a 
                             href="{{ $site['socials'][0]['url'] ?? 'https://instagram.com' }}" 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            class="w-9 h-9 rounded-full border border-sage/40 flex items-center justify-center text-ivory hover:text-forest hover:bg-sage-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage"
+                            class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full border border-sage/50 flex items-center justify-center text-ivory hover:text-forest hover:bg-sage-light transition-colors"
                             aria-label="Follow The Everbloom on Instagram"
                         >
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -73,7 +77,7 @@
                             href="{{ $site['socials'][1]['url'] ?? 'https://pinterest.com' }}" 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            class="w-9 h-9 rounded-full border border-sage/40 flex items-center justify-center text-ivory hover:text-forest hover:bg-sage-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage"
+                            class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full border border-sage/50 flex items-center justify-center text-ivory hover:text-forest hover:bg-sage-light transition-colors"
                             aria-label="Follow The Everbloom on Pinterest"
                         >
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -86,7 +90,7 @@
                             href="{{ $site['socials'][2]['url'] ?? 'https://facebook.com' }}" 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            class="w-9 h-9 rounded-full border border-sage/40 flex items-center justify-center text-ivory hover:text-forest hover:bg-sage-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage"
+                            class="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full border border-sage/50 flex items-center justify-center text-ivory hover:text-forest hover:bg-sage-light transition-colors"
                             aria-label="Follow The Everbloom on Facebook"
                         >
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -96,17 +100,17 @@
                     </div>
                 </div>
 
-                <!-- Link Columns in 2 columns on mobile, 3 columns from sm up -->
-                <div class="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-10 lg:gap-12">
-                    <!-- Shop Column (Min 13px links) -->
+                <!-- 4 Link Columns in a balanced 2x2 grid on mobile (grid-cols-2), 4 columns on sm+ -->
+                <div class="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-6 lg:gap-8">
+                    <!-- 1. Shop Column -->
                     <div>
                         <h3 class="font-serif text-base text-ivory font-medium tracking-wide mb-4">
                             {{ $footerNav['shop']['title'] ?? 'Botanical Offerings' }}
                         </h3>
-                        <ul class="space-y-3 text-[13px] text-ivory/85">
+                        <ul class="space-y-2.5 text-[13px] text-ivory/90">
                             @foreach($footerNav['shop']['links'] ?? [] as $link)
                                 <li>
-                                    <a href="{{ $link['url'] }}" class="hover:text-sage-light transition-colors">
+                                    <a href="{{ $link['url'] }}" class="text-ivory/90 hover:text-sage-light transition-colors py-1 inline-block">
                                         {{ $link['label'] }}
                                     </a>
                                 </li>
@@ -114,15 +118,15 @@
                         </ul>
                     </div>
 
-                    <!-- House Column (Min 13px links) -->
+                    <!-- 2. The House Column -->
                     <div>
                         <h3 class="font-serif text-base text-ivory font-medium tracking-wide mb-4">
                             {{ $footerNav['about']['title'] ?? 'The House' }}
                         </h3>
-                        <ul class="space-y-3 text-[13px] text-ivory/85">
+                        <ul class="space-y-2.5 text-[13px] text-ivory/90">
                             @foreach($footerNav['about']['links'] ?? [] as $link)
                                 <li>
-                                    <a href="{{ $link['url'] }}" class="hover:text-sage-light transition-colors">
+                                    <a href="{{ $link['url'] }}" class="text-ivory/90 hover:text-sage-light transition-colors py-1 inline-block">
                                         {{ $link['label'] }}
                                     </a>
                                 </li>
@@ -130,15 +134,31 @@
                         </ul>
                     </div>
 
-                    <!-- Concierge Column (Min 13px links) -->
-                    <div class="col-span-2 sm:col-span-1">
+                    <!-- 3. Concierge & Care Column -->
+                    <div>
                         <h3 class="font-serif text-base text-ivory font-medium tracking-wide mb-4">
                             {{ $footerNav['help']['title'] ?? 'Concierge & Care' }}
                         </h3>
-                        <ul class="space-y-3 text-[13px] text-ivory/85">
+                        <ul class="space-y-2.5 text-[13px] text-ivory/90">
                             @foreach($footerNav['help']['links'] ?? [] as $link)
                                 <li>
-                                    <a href="{{ $link['url'] }}" class="hover:text-sage-light transition-colors">
+                                    <a href="{{ $link['url'] }}" class="text-ivory/90 hover:text-sage-light transition-colors py-1 inline-block">
+                                        {{ $link['label'] }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+
+                    <!-- 4. Legal & Terms Column (Visible directly in the 2x2 mobile grid as well as bottom bar) -->
+                    <div>
+                        <h3 class="font-serif text-base text-ivory font-medium tracking-wide mb-4">
+                            {{ $footerNav['legal']['title'] ?? 'Legal & Terms' }}
+                        </h3>
+                        <ul class="space-y-2.5 text-[13px] text-ivory/90">
+                            @foreach($footerNav['legal']['links'] ?? [] as $link)
+                                <li>
+                                    <a href="{{ $link['url'] }}" class="text-ivory/90 hover:text-sage-light transition-colors py-1 inline-block">
                                         {{ $link['label'] }}
                                     </a>
                                 </li>
@@ -150,56 +170,47 @@
             </div>
         </div>
 
-        <!-- Bottom Bar: Generic Payment Icons & Legal Notice -->
-        <div class="border-t border-white/10 py-6 bg-[#253B2F] text-xs text-ivory/80">
-            <div class="site-container flex flex-col md:flex-row items-center justify-between gap-6">
+        <!-- Bottom Bar: Copyright, Currency Line & Payment Icons (Fully visible above mobile bottom nav) -->
+        <div class="border-t border-white/15 py-6 bg-[#253B2F] text-xs text-ivory">
+            <div class="site-container flex flex-col md:flex-row items-center justify-between gap-4">
                 <!-- Copyright & Currency -->
-                <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 text-xs uppercase tracking-wider text-ivory/75 text-center md:text-left">
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-2.5 sm:gap-4 text-xs uppercase tracking-wider text-ivory text-center md:text-left">
                     <span>© {{ date('Y') }} THE EVERBLOOM. ALL RIGHTS RESERVED.</span>
-                    <span class="hidden sm:inline">·</span>
-                    <span>CURRENCY: {{ $site['currency']['code'] }} ({{ $site['currency']['symbol'] }})</span>
+                    <span class="text-sage/60" aria-hidden="true">·</span>
+                    <span class="font-medium text-sage-light">CURRENCY: {{ $site['currency']['code'] }} ({{ $site['currency']['symbol'] }})</span>
                 </div>
 
-                <!-- Generic Payment Icons (Instruction 8: No brand logos required) -->
+                <!-- Generic Payment Icons -->
                 <div class="flex items-center gap-2" aria-label="Supported Payment Methods">
-                    <!-- Generic Card 1 -->
-                    <div class="px-2.5 py-1.5 rounded-none bg-ivory/10 border border-white/20 text-ivory flex items-center justify-center" title="Credit / Debit Card">
+                    <!-- Credit / Debit Card -->
+                    <div class="px-2.5 py-1.5 rounded-none bg-ivory/10 border border-white/25 text-ivory flex items-center justify-center" title="Credit / Debit Card">
                         <svg class="w-6 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <rect x="2" y="5" width="20" height="14" rx="2" stroke-width="1.5" />
                             <line x1="2" y1="10" x2="22" y2="10" stroke-width="1.5" />
                         </svg>
                     </div>
 
-                    <!-- Generic Chip Card -->
-                    <div class="px-2.5 py-1.5 rounded-none bg-ivory/10 border border-white/20 text-ivory flex items-center justify-center" title="EMV Chip Card">
+                    <!-- EMV Chip Card -->
+                    <div class="px-2.5 py-1.5 rounded-none bg-ivory/10 border border-white/25 text-ivory flex items-center justify-center" title="EMV Chip Card">
                         <svg class="w-6 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <rect x="2" y="5" width="20" height="14" rx="2" stroke-width="1.5" />
                             <rect x="5" y="9" width="4" height="4" stroke-width="1.25" />
                         </svg>
                     </div>
 
-                    <!-- Generic Contactless Payment -->
-                    <div class="px-2.5 py-1.5 rounded-none bg-ivory/10 border border-white/20 text-ivory flex items-center justify-center" title="Contactless Payment">
+                    <!-- Contactless Payment -->
+                    <div class="px-2.5 py-1.5 rounded-none bg-ivory/10 border border-white/25 text-ivory flex items-center justify-center" title="Contactless Payment">
                         <svg class="w-6 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-width="1.5" d="M8.5 8.5a5 5 0 017 7M6 6a8.5 8.5 0 0112 12" />
                         </svg>
                     </div>
 
-                    <!-- Generic Encrypted Shield Checkout -->
-                    <div class="px-2.5 py-1.5 rounded-none bg-ivory/10 border border-white/20 text-ivory flex items-center justify-center" title="256-Bit Encrypted Checkout">
+                    <!-- Secure Checkout -->
+                    <div class="px-2.5 py-1.5 rounded-none bg-ivory/10 border border-white/25 text-ivory flex items-center justify-center" title="Secure Checkout">
                         <svg class="w-6 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                     </div>
-                </div>
-
-                <!-- Legal Policy Links (Min 13px) -->
-                <div class="flex flex-wrap items-center gap-5 text-[13px] text-ivory/85">
-                    @foreach($footerNav['legal']['links'] ?? [] as $link)
-                        <a href="{{ $link['url'] }}" class="hover:text-sage-light transition-colors">
-                            {{ $link['label'] }}
-                        </a>
-                    @endforeach
                 </div>
             </div>
         </div>

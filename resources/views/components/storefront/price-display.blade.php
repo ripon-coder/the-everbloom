@@ -18,13 +18,13 @@
     };
 @endphp
 
-<div {{ $attributes->merge(['class' => "inline-flex items-baseline gap-2 font-sans font-medium text-ink {$sizeClasses} {$class}"]) }}>
-    <span class="tracking-tight text-ink font-semibold">
+<div {{ $attributes->merge(['class' => "price inline-flex items-baseline gap-2 font-sans font-medium text-ink {$sizeClasses} {$class}"]) }}>
+    <span class="price tracking-tight text-ink font-medium">
         {{ $formattedPrice }}
     </span>
 
     @if($hasDiscount)
-        <span class="text-xs md:text-sm text-muted line-through font-normal">
+        <span class="price text-xs md:text-sm text-muted line-through font-normal">
             {{ $formattedCompare }}
         </span>
     @endif

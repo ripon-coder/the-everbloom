@@ -34,23 +34,10 @@
     $site = config('demo.site');
 @endphp
 
-<!-- Data Payloads for Store Products & Discounts Synchronization -->
-<script id="everbloom-products-data" type="application/json">
-{!! json_encode(config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-</script>
-<script id="everbloom-discounts-data" type="application/json">
-{!! json_encode(config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-</script>
-<script>
-    window.__everbloomProducts = {!! json_encode(config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
-    window.__everbloomDiscounts = {!! json_encode(config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
-</script>
-
-<!-- Width referenced directly from cart/index.blade.php (.site-container py-8 md:py-12) -->
 <div class="site-container py-8 md:py-12" x-data="checkoutComponent()">
     
     <!-- Demo Notice Banner (Single demo notice at top) -->
-    <div class="mb-8 p-4 bg-sage-light/70 border border-forest/20 text-xs sm:text-sm text-forest font-medium flex items-center gap-3">
+    <div class="mb-6 p-4 bg-sage-light/70 border border-[#E3E6DD] text-xs sm:text-sm text-forest font-medium flex items-center gap-3">
         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
@@ -82,8 +69,8 @@
     </div>
 
     <!-- ORDER SUCCESS FEEDBACK: Shows ONLY the required demo message -->
-    <div x-show="orderPlaced" x-cloak class="py-16 px-6 bg-white border border-[#E3E6DD] text-center max-w-xl mx-auto space-y-5">
-        <div class="w-14 h-14 rounded-full bg-forest text-ivory flex items-center justify-center mx-auto shadow-sm">
+    <div x-show="orderPlaced" x-cloak class="py-16 px-6 bg-white border border-[#E3E6DD] text-center max-w-xl mx-auto space-y-5" role="status" aria-live="polite">
+        <div class="w-14 h-14 rounded-full bg-forest text-ivory flex items-center justify-center mx-auto">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
@@ -109,28 +96,36 @@
     <!-- CHECKOUT MAIN GRID (When items present and not completed) -->
     <div x-show="!cartIsEmpty && !orderPlaced" class="space-y-6">
         
-        <!-- MOBILE COLLAPSIBLE ORDER SUMMARY BAR (lg:hidden) -->
+        <!-- Semantic H1 for Checkout -->
+        <div class="flex items-baseline justify-between border-b border-[#ECEEE6] pb-4">
+            <h1 class="font-serif text-2xl sm:text-3xl text-ink font-normal">Checkout</h1>
+            <a href="/cart" class="text-[13px] text-muted hover:text-forest underline underline-offset-4 transition-colors">
+                Return to bag
+            </a>
+        </div>
+
+        <!-- MOBILE COLLAPSIBLE ORDER SUMMARY BAR (lg:hidden, not sticky) -->
         <div class="lg:hidden border border-[#E3E6DD] bg-white">
             <button 
                 type="button" 
                 @click="showMobileSummary = !showMobileSummary" 
-                class="w-full flex items-center justify-between p-4 text-left font-medium text-ink focus:outline-none min-h-[48px]"
+                class="w-full flex items-center justify-between p-4 text-left font-medium text-ink min-h-[48px] cursor-pointer"
                 :aria-expanded="showMobileSummary ? 'true' : 'false'"
                 aria-controls="mobile-order-summary-panel"
             >
-                <div class="flex items-center gap-2 text-xs uppercase tracking-wider text-forest font-semibold">
+                <div class="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-forest font-semibold">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                     <span x-text="showMobileSummary ? 'Hide order summary' : 'Show order summary'">Show order summary</span>
-                    <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': showMobileSummary }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': showMobileSummary }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </div>
-                <span class="price font-serif font-semibold text-base text-ink" x-text="'$' + calculatedTotal.toFixed(2)"></span>
+                <span class="price text-base text-ink" x-text="'$' + calculatedTotal.toFixed(2)"></span>
             </button>
 
-            <!-- Collapsible Summary Content on Mobile: Plain flow with no max-height or scrollbar -->
+            <!-- Collapsible Summary Content on Mobile -->
             <div id="mobile-order-summary-panel" x-show="showMobileSummary" x-collapse x-cloak class="px-4 pb-5 pt-3 border-t border-[#ECEEE6] bg-ivory/40 space-y-4">
                 
                 <!-- Items List & Edit Bag Link -->
@@ -147,7 +142,7 @@
                                         class="w-full h-full object-cover" 
                                     />
                                     <span 
-                                        class="absolute -top-2 -right-2 w-5 h-5 bg-forest text-ivory text-xs font-medium rounded-full flex items-center justify-center shadow-sm pointer-events-none z-10 price" 
+                                        class="price absolute -top-2 -right-2 w-5 h-5 bg-forest text-ivory text-xs font-medium rounded-full flex items-center justify-center pointer-events-none z-10" 
                                         x-text="item.qty || item.quantity"
                                     ></span>
                                 </div>
@@ -156,43 +151,45 @@
                                     <p class="text-xs text-muted mt-0.5 truncate" x-show="item.size || (item.variant && item.variant.size)" x-text="item.size || (item.variant ? item.variant.size : '')"></p>
                                 </div>
                                 <div class="shrink-0 text-right pl-3">
-                                    <span class="price text-sm font-medium text-ink font-serif" x-text="'$' + (item.lineTotal !== undefined ? item.lineTotal : (item.price * item.qty)).toFixed(2)"></span>
+                                    <span class="price text-sm font-medium text-ink" x-text="'$' + (item.lineTotal !== undefined ? item.lineTotal : (item.price * item.qty)).toFixed(2)"></span>
                                 </div>
                             </div>
                         </template>
                     </div>
 
-                    <!-- Edit bag link sitting directly under the row (mt-2, text-xs underline) -->
+                    <!-- Edit bag link sitting directly under the row -->
                     <div class="mt-2 text-right">
-                        <a href="/cart" class="text-xs text-muted hover:text-forest transition-colors font-medium underline">
+                        <a href="/cart" class="text-xs text-muted hover:text-forest transition-colors font-medium underline underline-offset-4">
                             Edit bag
                         </a>
                     </div>
                 </div>
 
                 <!-- Mobile Promo Code Input & Apply Button -->
-                <div class="pt-3 border-t border-[#ECEEE6] space-y-2">
+                <div class="pt-3 border-t border-[#ECEEE6] space-y-2" aria-live="polite">
+                    <label for="mobile-discount-code" class="sr-only">Discount code</label>
                     <div class="flex gap-2 items-center">
                         <input 
+                            id="mobile-discount-code"
                             type="text" 
                             x-model="discountInput" 
                             placeholder="Discount code" 
-                            class="input-field flex-1 !h-12 !min-h-[48px] focus:outline-none"
+                            class="input-field flex-1"
                             @keydown.enter.prevent="applyDiscountCode()"
                         >
                         <button 
                             type="button" 
                             @click="applyDiscountCode()" 
-                            class="h-12 min-h-[48px] px-5 inline-flex items-center justify-center bg-transparent text-forest border border-forest hover:bg-forest hover:text-ivory text-xs uppercase tracking-[0.2em] font-medium transition-colors shrink-0 rounded-none focus:outline-none cursor-pointer"
+                            class="btn-secondary !h-12 !min-h-[48px] !px-5 shrink-0 cursor-pointer"
                         >
                             Apply
                         </button>
                     </div>
-                    <p x-show="$store.cart.discountError" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="$store.cart.discountError"></p>
+                    <p x-show="$store.cart.discountError" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="$store.cart.discountError" role="alert"></p>
                     <template x-if="$store.cart.discountCode">
-                        <div class="flex items-center justify-between text-xs bg-sage-light/60 px-3 py-2 border border-forest/20 text-forest">
+                        <div class="flex items-center justify-between text-xs bg-sage-light/60 px-3 py-2 border border-[#E3E6DD] text-forest">
                             <span class="font-medium price" x-text="'Applied: ' + $store.cart.discountCode + ($store.cart.discount ? ' (' + $store.cart.discount.label + ')' : '')"></span>
-                            <button type="button" @click="$store.cart.removeDiscount()" class="text-xs uppercase tracking-wider hover:underline text-ink font-semibold ml-2">
+                            <button type="button" @click="$store.cart.removeDiscount()" class="text-xs uppercase tracking-wider hover:underline text-ink font-semibold ml-2 cursor-pointer">
                                 Remove
                             </button>
                         </div>
@@ -203,23 +200,23 @@
                 <div class="pt-3 border-t border-[#ECEEE6] space-y-2 text-sm">
                     <div class="flex justify-between text-muted">
                         <span>Subtotal</span>
-                        <span class="price font-medium text-ink font-serif" x-text="'$' + ($store.cart.subtotal || 0).toFixed(2)"></span>
+                        <span class="price font-medium text-ink" x-text="'$' + ($store.cart.subtotal || 0).toFixed(2)"></span>
                     </div>
 
                     <div x-show="$store.cart.discountAmount > 0" x-cloak class="flex justify-between text-forest font-medium">
                         <span>Discount (<span x-text="$store.cart.discountCode"></span>)</span>
-                        <span class="price font-serif" x-text="'-$' + ($store.cart.discountAmount || 0).toFixed(2)"></span>
+                        <span class="price" x-text="'-$' + ($store.cart.discountAmount || 0).toFixed(2)"></span>
                     </div>
 
                     <div class="flex justify-between text-muted">
                         <span x-text="'Shipping (' + (selectedShippingRate ? selectedShippingRate.name : 'Standard') + ')'"></span>
-                        <span :class="calculatedShippingCost === 0 ? 'text-forest font-medium' : 'price text-ink font-medium font-serif'" 
+                        <span :class="calculatedShippingCost === 0 ? 'text-forest font-medium' : 'price text-ink font-medium'" 
                               x-text="calculatedShippingCost === 0 ? 'Complimentary' : '$' + calculatedShippingCost.toFixed(2)"></span>
                     </div>
 
-                    <div class="border-t border-[#ECEEE6] pt-3 flex justify-between font-serif text-base font-semibold text-ink">
-                        <span>Total Due</span>
-                        <span class="price font-serif font-semibold text-base text-ink" x-text="'$' + calculatedTotal.toFixed(2)"></span>
+                    <div class="border-t border-[#ECEEE6] pt-3 flex justify-between text-base font-medium text-ink">
+                        <span class="font-serif">Total Due</span>
+                        <span class="price text-base text-ink" x-text="'$' + calculatedTotal.toFixed(2)"></span>
                     </div>
                 </div>
             </div>
@@ -229,9 +226,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             
             <!-- LEFT COLUMN: ONE WHITE PANEL WITH DIVIDERS (lg:col-span-7) -->
-            <div class="lg:col-span-7 bg-white border border-[#E3E6DD] divide-y divide-[#ECEEE6] shadow-xs">
+            <div class="lg:col-span-7 bg-white border border-[#E3E6DD] divide-y divide-[#ECEEE6]">
                 
-                <!-- SECTION 1: CONTACT (consistent pt-8 pb-6) -->
+                <!-- SECTION 1: CONTACT -->
                 <section class="px-6 sm:px-8 pt-8 pb-6 space-y-4" aria-labelledby="section-contact-heading">
                     <div class="flex items-center justify-between">
                         <h2 id="section-contact-heading" class="font-serif text-lg sm:text-xl text-ink font-medium">
@@ -242,7 +239,7 @@
 
                     <div class="space-y-4">
                         <div>
-                            <label for="email" class="block text-xs uppercase tracking-widest text-muted mb-1.5 font-medium">
+                            <label for="email" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
                                 Email Address *
                             </label>
                             <input 
@@ -255,14 +252,14 @@
                                 :aria-invalid="errors.email ? 'true' : 'false'"
                                 :aria-describedby="errors.email ? 'email-error' : null"
                                 placeholder="name@example.com" 
-                                class="input-field focus:outline-none"
+                                class="input-field"
                                 :class="{ 'input-error': errors.email }"
                             >
                             <p id="email-error" x-show="errors.email" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.email" role="alert"></p>
                         </div>
 
                         <div>
-                            <label for="phone" class="block text-xs uppercase tracking-widest text-muted mb-1.5 font-medium">
+                            <label for="phone" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
                                 Phone (optional)
                             </label>
                             <input 
@@ -275,7 +272,7 @@
                                 :aria-invalid="errors.phone ? 'true' : 'false'"
                                 :aria-describedby="errors.phone ? 'phone-error' : null"
                                 placeholder="Phone number" 
-                                class="input-field focus:outline-none"
+                                class="input-field"
                                 :class="{ 'input-error': errors.phone }"
                             >
                             <p id="phone-error" x-show="errors.phone" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.phone" role="alert"></p>
@@ -283,7 +280,7 @@
                     </div>
                 </section>
 
-                <!-- SECTION 2: SHIPPING ADDRESS (consistent pt-8 pb-6) -->
+                <!-- SECTION 2: SHIPPING ADDRESS -->
                 <section class="px-6 sm:px-8 pt-8 pb-6 space-y-4" aria-labelledby="section-shipping-heading">
                     <h2 id="section-shipping-heading" class="font-serif text-lg sm:text-xl text-ink font-medium">
                         2. Shipping Address
@@ -292,7 +289,7 @@
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label for="first_name" class="block text-xs uppercase tracking-widest text-muted mb-1.5 font-medium">
+                                <label for="first_name" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
                                     First Name *
                                 </label>
                                 <input 
@@ -305,14 +302,14 @@
                                     :aria-invalid="errors.firstName ? 'true' : 'false'"
                                     :aria-describedby="errors.firstName ? 'first_name-error' : null"
                                     placeholder="First name"
-                                    class="input-field focus:outline-none"
+                                    class="input-field"
                                     :class="{ 'input-error': errors.firstName }"
                                 >
                                 <p id="first_name-error" x-show="errors.firstName" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.firstName" role="alert"></p>
                             </div>
 
                             <div>
-                                <label for="last_name" class="block text-xs uppercase tracking-widest text-muted mb-1.5 font-medium">
+                                <label for="last_name" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
                                     Last Name *
                                 </label>
                                 <input 
@@ -325,16 +322,16 @@
                                     :aria-invalid="errors.lastName ? 'true' : 'false'"
                                     :aria-describedby="errors.lastName ? 'last_name-error' : null"
                                     placeholder="Last name"
-                                    class="input-field focus:outline-none"
+                                    class="input-field"
                                     :class="{ 'input-error': errors.lastName }"
                                 >
                                 <p id="last_name-error" x-show="errors.lastName" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.lastName" role="alert"></p>
                             </div>
                         </div>
 
-                        <!-- Country Select: same height, border and font as inputs, appearance-none, custom chevron icon -->
+                        <!-- Country Select -->
                         <div>
-                            <label for="country" class="block text-xs uppercase tracking-widest text-muted mb-1.5 font-medium">
+                            <label for="country" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
                                 Country / Region *
                             </label>
                             <div class="relative">
@@ -346,7 +343,7 @@
                                     @change="clearError('country')"
                                     :aria-invalid="errors.country ? 'true' : 'false'"
                                     :aria-describedby="errors.country ? 'country-error' : null"
-                                    class="input-field pr-10 appearance-none cursor-pointer focus:outline-none"
+                                    class="input-field pr-10 appearance-none cursor-pointer"
                                     :class="{ 'input-error': errors.country }"
                                 >
                                     @foreach($countries as $code => $countryName)
@@ -364,7 +361,7 @@
 
                         <!-- Street Address -->
                         <div>
-                            <label for="address" class="block text-xs uppercase tracking-widest text-muted mb-1.5 font-medium">
+                            <label for="address" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
                                 Street Address *
                             </label>
                             <input 
@@ -377,7 +374,7 @@
                                 :aria-invalid="errors.address ? 'true' : 'false'"
                                 :aria-describedby="errors.address ? 'address-error' : null"
                                 placeholder="Street address" 
-                                class="input-field focus:outline-none"
+                                class="input-field"
                                 :class="{ 'input-error': errors.address }"
                             >
                             <p id="address-error" x-show="errors.address" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.address" role="alert"></p>
@@ -385,7 +382,7 @@
 
                         <!-- Apartment / Suite -->
                         <div>
-                            <label for="apartment" class="block text-xs uppercase tracking-widest text-muted mb-1.5 font-medium">
+                            <label for="apartment" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
                                 Apartment, suite, unit, etc. (optional)
                             </label>
                             <input 
@@ -395,14 +392,14 @@
                                 autocomplete="address-line2" 
                                 x-model="form.apartment" 
                                 placeholder="Apartment, suite, unit (optional)" 
-                                class="input-field focus:outline-none"
+                                class="input-field"
                             >
                         </div>
 
                         <!-- City, Adaptive State/Province, Adaptive ZIP/Postal Code -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label for="city" class="block text-xs uppercase tracking-widest text-muted mb-1.5 font-medium">
+                                <label for="city" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
                                     City *
                                 </label>
                                 <input 
@@ -415,14 +412,14 @@
                                     :aria-invalid="errors.city ? 'true' : 'false'"
                                     :aria-describedby="errors.city ? 'city-error' : null"
                                     placeholder="City"
-                                    class="input-field focus:outline-none"
+                                    class="input-field"
                                     :class="{ 'input-error': errors.city }"
                                 >
                                 <p id="city-error" x-show="errors.city" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.city" role="alert"></p>
                             </div>
 
                             <div>
-                                <label for="state" class="block text-xs uppercase tracking-widest text-muted mb-1.5 font-medium">
+                                <label for="state" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
                                     <span x-text="stateLabel">State / Province</span> *
                                 </label>
                                 <input 
@@ -435,14 +432,14 @@
                                     :aria-invalid="errors.state ? 'true' : 'false'"
                                     :aria-describedby="errors.state ? 'state-error' : null"
                                     :placeholder="stateLabel"
-                                    class="input-field focus:outline-none"
+                                    class="input-field"
                                     :class="{ 'input-error': errors.state }"
                                 >
                                 <p id="state-error" x-show="errors.state" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.state" role="alert"></p>
                             </div>
 
                             <div>
-                                <label for="postal_code" class="block text-xs uppercase tracking-widest text-muted mb-1.5 font-medium">
+                                <label for="postal_code" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
                                     <span x-text="postalCodeLabel">Postal Code</span> *
                                 </label>
                                 <input 
@@ -455,7 +452,7 @@
                                     :aria-invalid="errors.zip ? 'true' : 'false'"
                                     :aria-describedby="errors.zip ? 'postal_code-error' : null"
                                     :placeholder="postalCodeLabel"
-                                    class="input-field focus:outline-none"
+                                    class="input-field"
                                     :class="{ 'input-error': errors.zip }"
                                 >
                                 <p id="postal_code-error" x-show="errors.zip" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.zip" role="alert"></p>
@@ -464,7 +461,7 @@
                     </div>
                 </section>
 
-                <!-- SECTION 3: DELIVERY / SHIPPING METHOD RADIOS (consistent pt-8 pb-6) -->
+                <!-- SECTION 3: DELIVERY / SHIPPING METHOD RADIOS -->
                 <section class="px-6 sm:px-8 pt-8 pb-6 space-y-4" aria-labelledby="section-delivery-heading">
                     <div>
                         <h2 id="section-delivery-heading" class="font-serif text-lg sm:text-xl text-ink font-medium">
@@ -473,7 +470,6 @@
                         <p class="text-xs text-muted mt-0.5">Selection automatically updates your shipping fee and total.</p>
                     </div>
 
-                    <!-- Radio Options: Unselected = 1px #D5DBCF on white; Selected = 1px #304C3D on #E8EEE5 background -->
                     <div class="space-y-3" role="radiogroup" aria-label="Shipping Method">
                         @foreach($shippingRates as $rateKey => $rate)
                         <label 
@@ -486,14 +482,14 @@
                                     name="shipping_method" 
                                     value="{{ $rateKey }}" 
                                     x-model="shippingMethod" 
-                                    class="w-4 h-4 text-forest accent-[#304C3D] focus:ring-1 focus:ring-[#304C3D] focus:ring-offset-2 focus-visible:ring-1 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 cursor-pointer"
+                                    class="w-4 h-4 text-forest accent-[#304C3D] cursor-pointer"
                                 >
                                 <div>
                                     <span class="block text-sm font-medium text-ink">{{ $rate['name'] }}</span>
                                     <span class="block text-xs text-muted mt-0.5">{{ $rate['time'] }}</span>
                                 </div>
                             </div>
-                            <span class="price text-sm font-semibold text-ink shrink-0 ml-3 font-serif" x-text="getShippingRatePrice('{{ $rateKey }}')">
+                            <span class="price text-sm font-medium text-ink shrink-0 ml-3" x-text="getShippingRatePrice('{{ $rateKey }}')">
                                 ${{ number_format($rate['cost'], 2) }}
                             </span>
                         </label>
@@ -501,7 +497,7 @@
                     </div>
                 </section>
 
-                <!-- SECTION 4: PAYMENT METHOD (consistent pt-8 pb-6) -->
+                <!-- SECTION 4: PAYMENT METHOD -->
                 <section class="px-6 sm:px-8 pt-8 pb-6 space-y-5" aria-labelledby="section-payment-heading">
                     <div>
                         <h2 id="section-payment-heading" class="font-serif text-lg sm:text-xl text-ink font-medium">
@@ -509,7 +505,6 @@
                         </h2>
                     </div>
 
-                    <!-- Payment Options: Unselected = 1px #D5DBCF on white; Selected = 1px #304C3D on #E8EEE5 background -->
                     <div class="space-y-3" role="radiogroup" aria-label="Demo Payment Method">
                         <label 
                             class="relative flex items-center justify-between p-4 rounded-none cursor-pointer transition-colors min-h-[48px] border"
@@ -521,7 +516,7 @@
                                     name="payment_method" 
                                     value="card_demo" 
                                     x-model="paymentMethod" 
-                                    class="w-4 h-4 text-forest accent-[#304C3D] focus:ring-1 focus:ring-[#304C3D] focus:ring-offset-2 focus-visible:ring-1 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 cursor-pointer"
+                                    class="w-4 h-4 text-forest accent-[#304C3D] cursor-pointer"
                                 >
                                 <div>
                                     <span class="block text-sm font-medium text-ink">Credit / Debit Card (demo)</span>
@@ -540,7 +535,7 @@
                                     name="payment_method" 
                                     value="digital_wallet_demo" 
                                     x-model="paymentMethod" 
-                                    class="w-4 h-4 text-forest accent-[#304C3D] focus:ring-1 focus:ring-[#304C3D] focus:ring-offset-2 focus-visible:ring-1 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 cursor-pointer"
+                                    class="w-4 h-4 text-forest accent-[#304C3D] cursor-pointer"
                                 >
                                 <div>
                                     <span class="block text-sm font-medium text-ink">Digital wallet (demo)</span>
@@ -550,12 +545,10 @@
                         </label>
                     </div>
 
-                    <!-- Small 13px Helper Line -->
                     <p class="text-[13px] text-muted text-center font-sans">
                         This is a demo. No payment is taken and no order is placed.
                     </p>
 
-                    <!-- Button: Standard storefront button component -->
                     <div class="pt-1">
                         <x-storefront.button 
                             type="button" 
@@ -568,11 +561,10 @@
                         </x-storefront.button>
                     </div>
 
-                    <!-- Trust line at 13px with higher contrast -->
                     <!-- DEMO PLACEHOLDER: replace before launch -->
-                    <div class="pt-3 text-center text-[13px] text-ink/80 space-y-1 font-sans">
-                        <p>{{ config('demo.site.trust_badges.returns_policy', '30-Day Complimentary Botanical Returns') }}</p>
-                        <p>{{ config('demo.site.trust_badges.support_contact', 'Concierge Support: ' . config('demo.site.contact.email', 'concierge@the-everbloom.com')) }}</p>
+                    <div class="pt-3 text-center text-[13px] text-muted space-y-1 font-sans">
+                        <p>{{ config('demo.site.trust_badges.returns_policy', '30-Day Returns on Unopened Items') }}</p>
+                        <p>{{ config('demo.site.trust_badges.support_contact', 'Client Care: ' . config('demo.site.contact.email', 'concierge@the-everbloom.com')) }}</p>
                     </div>
                 </section>
 
@@ -580,9 +572,8 @@
 
             <!-- RIGHT COLUMN: STICKY ORDER SUMMARY ON DESKTOP (lg:col-span-5 lg:sticky lg:top-6 h-fit) -->
             <aside class="hidden lg:block lg:col-span-5 lg:sticky lg:top-6 h-fit" aria-label="Order Summary">
-                <div class="bg-white p-6 lg:p-7 border border-[#E3E6DD] space-y-6 shadow-xs">
+                <div class="bg-white p-6 lg:p-7 border border-[#E3E6DD] space-y-6" aria-live="polite">
                     
-                    <!-- Heading with only one divider between the heading and the first item -->
                     <div class="border-b border-[#ECEEE6] pb-4 flex items-baseline justify-between">
                         <h2 class="font-serif text-xl text-ink font-normal pb-0.5">
                             Order Summary
@@ -590,7 +581,7 @@
                         <span class="text-xs text-muted" x-text="($store.cart.count === 1) ? '1 item' : (($store.cart.count || 0) + ' items')"></span>
                     </div>
 
-                    <!-- Items Table and Edit bag link: sitting directly under the row (mt-2, text-xs underline) -->
+                    <!-- Items Table and Edit bag link -->
                     <div>
                         <div class="divide-y divide-[#ECEEE6]">
                             <template x-for="item in cartLines" :key="item.key || (item.productId + '-' + (item.variantId || ''))">
@@ -604,56 +595,55 @@
                                             class="w-full h-full object-cover" 
                                         />
                                         <span 
-                                            class="absolute -top-2 -right-2 w-5 h-5 bg-forest text-ivory text-xs font-medium rounded-full flex items-center justify-center shadow-sm pointer-events-none z-10 price" 
+                                            class="price absolute -top-2 -right-2 w-5 h-5 bg-forest text-ivory text-xs font-medium rounded-full flex items-center justify-center pointer-events-none z-10" 
                                             x-text="item.qty || item.quantity"
                                         ></span>
                                     </div>
 
-                                    <!-- Gap-4 between thumbnail and name, name in flex-1 min-w-0 -->
                                     <div class="flex-1 min-w-0">
                                         <h3 class="font-serif text-sm font-medium text-ink truncate leading-snug" x-text="item.name"></h3>
                                         <p class="text-xs text-muted mt-0.5 truncate" x-show="item.size || (item.variant && item.variant.size)" x-text="item.size || (item.variant ? item.variant.size : '')"></p>
                                     </div>
 
-                                    <!-- Price right-aligned with shrink-0 and padding-left -->
                                     <div class="shrink-0 text-right pl-3">
-                                        <span class="price text-sm font-medium text-ink font-serif" x-text="'$' + (item.lineTotal !== undefined ? item.lineTotal : (item.price * item.qty)).toFixed(2)"></span>
+                                        <span class="price text-sm font-medium text-ink" x-text="'$' + (item.lineTotal !== undefined ? item.lineTotal : (item.price * item.qty)).toFixed(2)"></span>
                                     </div>
                                 </div>
                             </template>
                         </div>
 
-                        <!-- Edit bag link sits directly under the row (mt-2, text-xs underline) -->
                         <div class="mt-2 text-right">
-                            <a href="/cart" class="text-xs text-muted hover:text-forest transition-colors font-medium underline">
+                            <a href="/cart" class="text-xs text-muted hover:text-forest transition-colors font-medium underline underline-offset-4">
                                 Edit bag
                             </a>
                         </div>
                     </div>
 
-                    <!-- Discount Code Field with Apply Button Component (same height 48px, outline style) -->
+                    <!-- Discount Code Field with Apply Button -->
                     <div class="pt-4 border-t border-[#ECEEE6] space-y-2">
+                        <label for="desktop-discount-code" class="sr-only">Discount code</label>
                         <div class="flex gap-2 items-center">
                             <input 
+                                id="desktop-discount-code"
                                 type="text" 
                                 x-model="discountInput" 
                                 placeholder="Discount code" 
-                                class="input-field flex-1 !h-12 !min-h-[48px] focus:outline-none"
+                                class="input-field flex-1"
                                 @keydown.enter.prevent="applyDiscountCode()"
                             >
                             <button 
                                 type="button" 
                                 @click="applyDiscountCode()" 
-                                class="h-12 min-h-[48px] px-5 inline-flex items-center justify-center bg-transparent text-forest border border-forest hover:bg-forest hover:text-ivory text-xs uppercase tracking-[0.2em] font-medium transition-colors shrink-0 rounded-none focus:outline-none cursor-pointer"
+                                class="btn-secondary !h-12 !min-h-[48px] !px-5 shrink-0 cursor-pointer"
                             >
                                 Apply
                             </button>
                         </div>
-                        <p x-show="$store.cart.discountError" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="$store.cart.discountError"></p>
+                        <p x-show="$store.cart.discountError" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="$store.cart.discountError" role="alert"></p>
                         <template x-if="$store.cart.discountCode">
-                            <div class="flex items-center justify-between text-xs bg-sage-light/60 px-3 py-2 border border-forest/20 text-forest">
+                            <div class="flex items-center justify-between text-xs bg-sage-light/60 px-3 py-2 border border-[#E3E6DD] text-forest">
                                 <span class="font-medium price" x-text="'Applied: ' + $store.cart.discountCode + ($store.cart.discount ? ' (' + $store.cart.discount.label + ')' : '')"></span>
-                                <button type="button" @click="$store.cart.removeDiscount()" class="text-xs uppercase tracking-wider hover:underline text-ink font-semibold ml-2">
+                                <button type="button" @click="$store.cart.removeDiscount()" class="text-xs uppercase tracking-wider hover:underline text-ink font-semibold ml-2 cursor-pointer">
                                     Remove
                                 </button>
                             </div>
@@ -664,26 +654,26 @@
                     <div class="pt-4 border-t border-[#ECEEE6] space-y-2.5 text-sm">
                         <div class="flex justify-between text-muted">
                             <span>Subtotal</span>
-                            <span class="price font-medium text-ink font-serif" x-text="'$' + ($store.cart.subtotal || 0).toFixed(2)"></span>
+                            <span class="price font-medium text-ink" x-text="'$' + ($store.cart.subtotal || 0).toFixed(2)"></span>
                         </div>
 
                         <!-- Discount (only when applied) -->
                         <div x-show="$store.cart.discountAmount > 0" x-cloak class="flex justify-between text-forest font-medium">
                             <span>Discount (<span x-text="$store.cart.discountCode"></span>)</span>
-                            <span class="price font-serif" x-text="'-$' + ($store.cart.discountAmount || 0).toFixed(2)"></span>
+                            <span class="price" x-text="'-$' + ($store.cart.discountAmount || 0).toFixed(2)"></span>
                         </div>
 
-                        <!-- Shipping Row: Reflects selected method with consistent wording -->
+                        <!-- Shipping Row -->
                         <div class="flex justify-between text-muted">
                             <span x-text="'Shipping (' + (selectedShippingRate ? selectedShippingRate.name : 'Standard') + ')'"></span>
-                            <span :class="calculatedShippingCost === 0 ? 'text-forest font-medium' : 'price text-ink font-medium font-serif'" 
+                            <span :class="calculatedShippingCost === 0 ? 'text-forest font-medium' : 'price text-ink font-medium'" 
                                   x-text="calculatedShippingCost === 0 ? 'Complimentary' : '$' + calculatedShippingCost.toFixed(2)"></span>
                         </div>
 
                         <!-- Total -->
-                        <div class="border-t border-[#ECEEE6] pt-3.5 flex justify-between font-serif text-lg font-semibold text-ink">
-                            <span>Total Due</span>
-                            <span class="price font-serif" x-text="'$' + calculatedTotal.toFixed(2)"></span>
+                        <div class="border-t border-[#ECEEE6] pt-3.5 flex justify-between text-lg font-medium text-ink">
+                            <span class="font-serif">Total Due</span>
+                            <span class="price text-lg" x-text="'$' + calculatedTotal.toFixed(2)"></span>
                         </div>
                     </div>
 
@@ -729,7 +719,6 @@ function checkoutComponent() {
         },
 
         init() {
-            // Re-validate against catalog upon component initialization
             if (this.$store && this.$store.cart && typeof this.$store.cart.cleanAndValidate === 'function') {
                 this.$store.cart.cleanAndValidate();
             }
@@ -814,8 +803,6 @@ function checkoutComponent() {
             } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email.trim())) {
                 errs.email = 'Please enter a valid email address.';
             }
-
-            // Phone is optional: no required check
 
             if (!this.form.firstName.trim()) {
                 errs.firstName = 'Please enter your first name.';

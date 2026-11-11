@@ -12,27 +12,28 @@
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 max-h-12"
         x-transition:leave-end="opacity-0 max-h-0"
-        class="bg-forest text-ivory text-[11px] sm:text-xs tracking-wider uppercase font-medium py-2 px-6 sm:px-8 relative z-40 border-b border-forest-600/40"
+        class="bg-forest text-ivory text-xs tracking-wider uppercase font-medium relative z-40 border-b border-forest-600/40"
     >
-        <div class="site-container flex items-center justify-center text-center relative">
-            <!-- Single-line container preventing wrapping on mobile -->
-            <div class="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs max-w-full">
-                <span class="md:hidden whitespace-nowrap">Free shipping over $75</span>
-                <span class="hidden md:inline whitespace-nowrap">{{ $message }}</span>
+        <div class="site-container flex items-center justify-between min-h-[44px] gap-2">
+            <!-- Left spacer on desktop to keep announcement text centered -->
+            <div class="hidden sm:block w-11 shrink-0" aria-hidden="true"></div>
+
+            <!-- Single-line container preventing wrapping or truncation at 320px -->
+            <div class="flex-1 flex items-center justify-center gap-1.5 text-xs whitespace-nowrap">
+                <span class="md:hidden">Free shipping over $75</span>
+                <span class="hidden md:inline">{{ $message }}</span>
                 @if($link && $linkText)
-                    <span class="whitespace-nowrap ml-1 shrink-0">
-                        <a href="{{ $link }}" class="underline underline-offset-4 font-semibold hover:text-beige transition-colors">
-                            {{ $linkText }}
-                        </a>
-                    </span>
+                    <a href="{{ $link }}" class="underline underline-offset-4 font-semibold hover:text-beige transition-colors shrink-0 ml-1">
+                        {{ $linkText }}
+                    </a>
                 @endif
             </div>
 
-            <!-- Dismiss Button -->
+            <!-- Dismiss Button (44x44px touch target, never overlaps text at 320px) -->
             <button 
                 type="button" 
                 @click="showAnnouncement = false" 
-                class="absolute right-0 top-1/2 -translate-y-1/2 text-ivory/70 hover:text-ivory p-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ivory cursor-pointer"
+                class="w-11 h-11 -mr-2 shrink-0 inline-flex items-center justify-center text-ivory/80 hover:text-ivory transition-colors cursor-pointer"
                 aria-label="Dismiss announcement"
             >
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

@@ -11,21 +11,21 @@
 @endphp
 
 <article class="group relative flex flex-col bg-transparent rounded-none transition-all duration-200">
-    <!-- Image Media Container -->
+    <!-- Image Media Container (Fixed aspect-[4/5] so it never collapses or shifts layout) -->
     <div class="relative overflow-hidden bg-sage-light/40 aspect-[4/5] w-full rounded-none">
-        <a href="{{ $url }}" class="block w-full h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest" tabindex="0">
+        <a href="{{ $url }}" class="block w-full h-full focus-visible:outline-none" tabindex="0">
             <x-storefront.image 
                 :src="$image" 
                 :alt="$product['name']" 
                 aspect-ratio="aspect-[4/5]"
-                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
         </a>
 
-        <!-- Badges (Sale takes precedence or pairs with status badge) -->
-        <div class="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none max-w-[70%]">
+        <!-- Badges (Solid = sale, Outline = editorial label; constrained max-w-[65%] so it never overlaps wishlist button) -->
+        <div class="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 flex flex-col gap-1.5 pointer-events-none max-w-[65%] z-10">
             @if($isOnSale)
-                <span class="inline-block bg-forest text-ivory font-sans text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.18em] font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 shadow-sm truncate max-w-full">
+                <span class="inline-block bg-forest text-ivory font-sans text-xs uppercase tracking-[0.16em] sm:tracking-[0.2em] font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 truncate max-w-full">
                     Sale
                 </span>
             @endif
@@ -35,20 +35,20 @@
                     $badgeText = $product['badge'];
                     $mobileBadge = ($badgeText === 'Daily Essential') ? 'Essential' : $badgeText;
                 @endphp
-                <span class="inline-block bg-ivory/95 text-forest font-sans text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.18em] font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 border border-sage/30 shadow-sm truncate max-w-full" title="{{ $badgeText }}">
+                <span class="inline-block bg-ivory/95 text-forest font-sans text-xs uppercase tracking-[0.16em] sm:tracking-[0.2em] font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 border border-forest truncate max-w-full" title="{{ $badgeText }}">
                     <span class="sm:hidden">{{ $mobileBadge }}</span>
                     <span class="hidden sm:inline">{{ $badgeText }}</span>
                 </span>
             @endif
         </div>
 
-        <!-- Floating Wishlist Button -->
-        <div class="absolute top-3 right-3 z-10">
+        <!-- Floating Wishlist Button (44x44px touch target) -->
+        <div class="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10">
             <x-storefront.wishlist-button :product="$product" size="sm" />
         </div>
 
-        <!-- Quick Add on Mobile (compact icon-only "+" button in bottom-right corner, 44px touch target) -->
-        <div class="absolute bottom-2.5 right-2.5 z-10 lg:hidden">
+        <!-- Quick Add on Mobile/Touch (Compact icon-only "+" button in bottom-right corner, 44x44px touch target, always visible on <lg) -->
+        <div class="absolute bottom-2 right-2 sm:bottom-2.5 sm:right-2.5 z-10 lg:hidden">
             <button 
                 type="button" 
                 x-data="{ adding: false }"
@@ -58,7 +58,7 @@
                     setTimeout(() => adding = false, 800);
                 "
                 :disabled="adding || '{{ $product['stock_status'] ?? 'in_stock' }}' === 'out_of_stock'"
-                class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-ivory/95 text-forest hover:bg-forest hover:text-ivory border border-sage/40 shadow-sm backdrop-blur-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-ivory/95 text-forest hover:bg-forest hover:text-ivory border border-[#E3E6DD] shadow-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:border-forest"
                 aria-label="Add {{ $product['name'] }} to bag"
             >
                 <template x-if="!adding">
@@ -67,7 +67,7 @@
                     </svg>
                 </template>
                 <template x-if="adding">
-                    <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -87,14 +87,14 @@
     </div>
 
     <!-- Product Meta Below Image -->
-    <div class="pt-4 flex-1 flex flex-col justify-between">
+    <div class="pt-3.5 flex-1 flex flex-col justify-between">
         <div>
-            <!-- Category Tag (Minimum 12px) -->
-            <span class="block text-xs uppercase tracking-[0.18em] font-medium text-muted mb-1">
+            <!-- Category Tag (12px) -->
+            <span class="block text-xs uppercase tracking-[0.2em] font-medium text-muted mb-1 truncate">
                 {{ $product['category'] }}
             </span>
 
-            <!-- Title (Minimum 13px+) -->
+            <!-- Title (line-clamp-2 per C5) -->
             <h3 class="font-serif text-sm sm:text-base text-ink font-normal tracking-tight group-hover:text-forest transition-colors line-clamp-2">
                 <a href="{{ $url }}" class="text-sm sm:text-base">
                     {{ $product['name'] }}
@@ -107,7 +107,7 @@
             </div>
         </div>
 
-        <div class="mt-3 pt-2 border-t border-beige/40">
+        <div class="mt-3 pt-2 border-t border-[#ECEEE6]">
             <div class="flex items-baseline justify-between">
                 <x-storefront.price-display :price="$product['price']" :compare-at-price="$product['compare_at_price'] ?? null" />
             </div>

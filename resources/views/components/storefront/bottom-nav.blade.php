@@ -10,14 +10,14 @@
     @focusin.window="inputFocused = ['INPUT', 'TEXTAREA', 'SELECT'].includes($event.target?.tagName) || Boolean($event.target?.isContentEditable)"
     @focusout.window="setTimeout(() => { if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) && !document.activeElement?.isContentEditable) inputFocused = false; }, 50)"
     x-show="!inputFocused"
-    aria-label="Primary"
+    aria-label="Mobile Bottom Navigation"
     class="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 lg:hidden bg-[#F8F6F0] border-t border-[#E3E6DD]"
     style="padding-bottom: env(safe-area-inset-bottom, 0px);"
 >
     <!-- 1. Home -->
     <a 
         href="{{ route('home') }}" 
-        class="w-full h-14 flex flex-col items-center justify-center gap-1 relative transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-inset {{ $isHome ? 'text-[#304C3D]' : 'text-[#777D74] hover:text-[#304C3D]' }}"
+        class="w-full h-14 flex flex-col items-center justify-center gap-1 relative transition-colors {{ $isHome ? 'text-[#304C3D]' : 'text-[#585D55] hover:text-[#304C3D]' }}"
         @if($isHome) aria-current="page" @endif
     >
         @if($isHome)
@@ -33,7 +33,7 @@
     <!-- 2. Shop -->
     <a 
         href="{{ route('shop.index') }}" 
-        class="w-full h-14 flex flex-col items-center justify-center gap-1 relative transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-inset {{ $isShop ? 'text-[#304C3D]' : 'text-[#777D74] hover:text-[#304C3D]' }}"
+        class="w-full h-14 flex flex-col items-center justify-center gap-1 relative transition-colors {{ $isShop ? 'text-[#304C3D]' : 'text-[#585D55] hover:text-[#304C3D]' }}"
         @if($isShop) aria-current="page" @endif
     >
         @if($isShop)
@@ -53,7 +53,7 @@
     <button 
         type="button" 
         @click="$dispatch('open-search')"
-        class="w-full h-14 flex flex-col items-center justify-center gap-1 relative text-[#777D74] hover:text-[#304C3D] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-inset cursor-pointer"
+        class="w-full h-14 flex flex-col items-center justify-center gap-1 relative text-[#585D55] hover:text-[#304C3D] transition-colors cursor-pointer"
         aria-label="Open search modal"
     >
         <svg class="w-[22px] h-[22px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -66,7 +66,7 @@
     <!-- 4. Wishlist -->
     <a 
         href="{{ route('wishlist') }}" 
-        class="w-full h-14 flex flex-col items-center justify-center gap-1 relative transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-inset {{ $isWishlist ? 'text-[#304C3D]' : 'text-[#777D74] hover:text-[#304C3D]' }}"
+        class="w-full h-14 flex flex-col items-center justify-center gap-1 relative transition-colors {{ $isWishlist ? 'text-[#304C3D]' : 'text-[#585D55] hover:text-[#304C3D]' }}"
         @if($isWishlist) aria-current="page" @endif
     >
         @if($isWishlist)
@@ -80,7 +80,7 @@
                 x-show="$store.wishlist && $store.wishlist.count > 0" 
                 x-text="$store.wishlist.count" 
                 x-cloak
-                class="absolute -top-1 -right-2 min-w-[14px] h-3.5 px-0.5 bg-[#304C3D] text-[#F8F6F0] text-[9px] font-sans font-medium flex items-center justify-center rounded-full leading-none pointer-events-none"
+                class="price absolute -top-1 -right-2 min-w-[14px] h-3.5 px-0.5 bg-[#304C3D] text-[#F8F6F0] text-[10px] font-sans font-medium flex items-center justify-center rounded-full leading-none pointer-events-none"
             ></span>
         </div>
         <span class="text-[10px] uppercase tracking-wider font-medium leading-none whitespace-nowrap">Wishlist</span>
@@ -90,7 +90,7 @@
     <button 
         type="button" 
         @click="if (window.Alpine && $store.cart && typeof $store.cart.openDrawer === 'function') { $store.cart.openDrawer(); } else { window.location.href = '{{ route('cart.index') }}'; }"
-        class="w-full h-14 flex flex-col items-center justify-center gap-1 relative transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-inset cursor-pointer {{ $isCart ? 'text-[#304C3D]' : 'text-[#777D74] hover:text-[#304C3D]' }}"
+        class="w-full h-14 flex flex-col items-center justify-center gap-1 relative transition-colors cursor-pointer {{ $isCart ? 'text-[#304C3D]' : 'text-[#585D55] hover:text-[#304C3D]' }}"
         aria-label="Open shopping bag"
         @if($isCart) aria-current="page" @endif
     >
@@ -107,7 +107,7 @@
                 x-show="$store.cart && $store.cart.count > 0" 
                 x-text="$store.cart.count" 
                 x-cloak
-                class="absolute -top-1 -right-2 min-w-[14px] h-3.5 px-0.5 bg-[#304C3D] text-[#F8F6F0] text-[9px] font-sans font-medium flex items-center justify-center rounded-full leading-none pointer-events-none"
+                class="price absolute -top-1 -right-2 min-w-[14px] h-3.5 px-0.5 bg-[#304C3D] text-[#F8F6F0] text-[10px] font-sans font-medium flex items-center justify-center rounded-full leading-none pointer-events-none"
             ></span>
         </div>
         <span class="text-[10px] uppercase tracking-wider font-medium leading-none whitespace-nowrap">Bag</span>

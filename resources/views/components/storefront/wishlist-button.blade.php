@@ -1,5 +1,5 @@
 @props([
-    'product' => null, // Array or object containing id, slug, name, price, images
+    'product' => null,
     'productId' => null,
     'size' => 'md',
     'class' => '',
@@ -7,14 +7,15 @@
 
 @php
     $id = $product['id'] ?? $productId;
+    $productName = $product['name'] ?? 'item';
     $buttonSize = match($size) {
-        'sm' => 'w-8 h-8',
-        'lg' => 'w-12 h-12',
-        default => 'w-10 h-10',
+        'sm' => 'w-11 h-11 min-w-[44px] min-h-[44px]',
+        'lg' => 'w-12 h-12 min-w-[44px] min-h-[44px]',
+        default => 'w-11 h-11 min-w-[44px] min-h-[44px]',
     };
     $iconSize = match($size) {
         'sm' => 'w-4 h-4',
-        'lg' => 'w-6 h-6',
+        'lg' => 'w-5 h-5',
         default => 'w-5 h-5',
     };
     $productJson = $product ? htmlspecialchars(json_encode($product), ENT_QUOTES, 'UTF-8') : null;
@@ -30,9 +31,10 @@
             $store.wishlist.toggle('{{ $id }}')
         @endif
     "
-    :aria-label="$store.wishlist.has('{{ $id }}') ? 'Remove from wishlist' : 'Save to wishlist'"
-    :class="$store.wishlist.has('{{ $id }}') ? 'text-forest bg-ivory/95 border-forest shadow-sm' : 'text-ink/70 hover:text-forest bg-ivory/80 hover:bg-ivory border-sage/30'"
-    {{ $attributes->merge(['class' => "inline-flex items-center justify-center rounded-full border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest cursor-pointer {$buttonSize} {$class}"]) }}
+    :aria-label="$store.wishlist.has('{{ $id }}') ? 'Remove {{ addslashes($productName) }} from wishlist' : 'Save {{ addslashes($productName) }} to wishlist'"
+    :aria-pressed="$store.wishlist.has('{{ $id }}') ? 'true' : 'false'"
+    :class="$store.wishlist.has('{{ $id }}') ? 'text-forest bg-ivory border-forest shadow-sm' : 'text-ink/80 hover:text-forest bg-ivory/90 hover:bg-ivory border-[#E3E6DD] hover:border-[#A8B7A0]'"
+    {{ $attributes->merge(['class' => "inline-flex items-center justify-center rounded-full border transition-all duration-200 focus-visible:outline-none focus-visible:border-forest focus-visible:shadow-[0_0_0_3px_rgba(48,76,61,0.12)] cursor-pointer {$buttonSize} {$class}"]) }}
 >
     <!-- Filled Heart (Active) -->
     <svg 

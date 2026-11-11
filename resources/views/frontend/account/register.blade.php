@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Create Account — ' . config('demo.site.name'))
+@section('meta_description', 'Create an account with The Everbloom to track orders, save favorite botanical formulations, and manage delivery addresses.')
 @section('meta_robots', 'noindex, nofollow')
 @section('hide_newsletter', true)
 
@@ -22,18 +23,63 @@
                 email: '',
                 password: '',
                 showPassword: false,
-                agreeTerms: true,
+                agreeTerms: false,
+                errors: {},
                 demoNotice: '',
                 socialNotice: '',
+                clearError(field) {
+                    if (this.errors[field]) delete this.errors[field];
+                },
+                validate() {
+                    this.errors = {};
+                    if (!this.firstName.trim()) {
+                        this.errors.firstName = 'Please enter your first name.';
+                    }
+                    if (!this.lastName.trim()) {
+                        this.errors.lastName = 'Please enter your last name.';
+                    }
+                    if (!this.email.trim()) {
+                        this.errors.email = 'Please enter your email address.';
+                    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim())) {
+                        this.errors.email = 'Please enter a valid email address.';
+                    }
+                    if (!this.password) {
+                        this.errors.password = 'Please create a password.';
+                    } else if (this.password.length < 8) {
+                        this.errors.password = 'Password must be at least 8 characters.';
+                    }
+                    if (!this.agreeTerms) {
+                        this.errors.agreeTerms = 'Please accept the Terms and Privacy Policy.';
+                    }
+
+                    const fieldMap = {
+                        firstName: 'reg-first_name',
+                        lastName: 'reg-last_name',
+                        email: 'reg-email',
+                        password: 'reg-password',
+                        agreeTerms: 'reg-terms'
+                    };
+                    const keys = Object.keys(this.errors);
+                    if (keys.length > 0) {
+                        const targetId = fieldMap[keys[0]];
+                        this.$nextTick(() => {
+                            const el = document.getElementById(targetId);
+                            if (el) el.focus();
+                        });
+                        return false;
+                    }
+                    return true;
+                },
                 submit() {
+                    if (!this.validate()) return;
                     this.demoNotice = 'Demo only. No account was created.';
                 },
                 socialRegister(provider) {
-                    this.socialNotice = 'Demo only. Registration via ' + provider + ' is simulated in demo mode.';
+                    this.socialNotice = 'Demo only. Registration via ' + provider + ' is not connected in demo mode.';
                     setTimeout(() => { this.socialNotice = ''; }, 6000);
                 }
             }" 
-            class="space-y-6"
+            class="bg-white border border-[#E3E6DD] p-6 sm:p-8 space-y-6"
         >
             <!-- Header -->
             <div class="border-b border-[#ECEEE6] pb-5">
@@ -44,10 +90,10 @@
                     Create Account
                 </h1>
                 <p class="text-sm text-muted mt-1 leading-relaxed">
-                    Join The Everbloom to track botanical orders, save formulas, and enjoy personal ritual recommendations.
+                    Join The Everbloom to track orders, save favorite formulations, and manage your delivery preferences.
                 </p>
-                <p class="text-xs text-muted/80 mt-1 font-normal">
-                    Demo account. Sample data.
+                <p class="text-xs text-muted mt-1.5 font-normal">
+                    Demo account — sample data for preview only.
                 </p>
             </div>
 
@@ -56,16 +102,17 @@
                 x-show="demoNotice" 
                 x-cloak 
                 x-transition 
-                class="p-4 bg-forest text-ivory text-xs space-y-2 border-l-2 border-sage"
+                class="p-4 bg-forest text-ivory text-xs space-y-2 border border-forest"
                 role="status"
+                aria-live="polite"
             >
-                <div class="flex items-center justify-between">
-                    <span class="uppercase tracking-wider font-medium" x-text="demoNotice"></span>
-                    <button type="button" @click="demoNotice = ''" class="p-1 hover:text-sage text-ivory min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Close message">✕</button>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="uppercase tracking-[0.2em] font-medium" x-text="demoNotice"></span>
+                    <button type="button" @click="demoNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
                 </div>
                 <div class="pt-1">
-                    <a href="{{ route('account') }}" class="underline font-medium hover:text-sage text-xs uppercase tracking-wider block">
-                        → Access Demo Account Dashboard Directly
+                    <a href="{{ route('account') }}" class="underline underline-offset-4 font-medium hover:text-sage-light text-xs uppercase tracking-[0.2em] block">
+                        → View Sample Account Overview
                     </a>
                 </div>
             </div>
@@ -74,16 +121,17 @@
                 x-show="socialNotice" 
                 x-cloak 
                 x-transition 
-                class="p-4 bg-forest text-ivory text-xs space-y-2 border-l-2 border-sage"
+                class="p-4 bg-forest text-ivory text-xs space-y-2 border border-forest"
                 role="status"
+                aria-live="polite"
             >
-                <div class="flex items-center justify-between">
-                    <span class="uppercase tracking-wider font-medium" x-text="socialNotice"></span>
-                    <button type="button" @click="socialNotice = ''" class="p-1 hover:text-sage text-ivory min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Close message">✕</button>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="uppercase tracking-[0.2em] font-medium" x-text="socialNotice"></span>
+                    <button type="button" @click="socialNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
                 </div>
                 <div class="pt-1">
-                    <a href="{{ route('account') }}" class="underline font-medium hover:text-sage text-xs uppercase tracking-wider block">
-                        → Access Demo Account Dashboard Directly
+                    <a href="{{ route('account') }}" class="underline underline-offset-4 font-medium hover:text-sage-light text-xs uppercase tracking-[0.2em] block">
+                        → View Sample Account Overview
                     </a>
                 </div>
             </div>
@@ -94,7 +142,7 @@
                 <button 
                     type="button" 
                     @click="socialRegister('Google')" 
-                    class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F2F5F3] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors cursor-pointer rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                    class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F2F5F3] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors cursor-pointer rounded-none"
                     aria-label="Sign up with Google"
                 >
                     <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
@@ -110,7 +158,7 @@
                 <button 
                     type="button" 
                     @click="socialRegister('Apple')" 
-                    class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F2F5F3] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors cursor-pointer rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                    class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F2F5F3] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors cursor-pointer rounded-none"
                     aria-label="Sign up with Apple"
                 >
                     <svg class="w-5 h-5 shrink-0 fill-current text-ink" viewBox="0 0 24 24" aria-hidden="true">
@@ -125,77 +173,96 @@
                 <div class="absolute inset-0 flex items-center" aria-hidden="true">
                     <div class="w-full border-t border-[#ECEEE6]"></div>
                 </div>
-                <div class="relative flex justify-center text-xs uppercase">
-                    <span class="bg-[#F8F6F0] px-4 text-muted tracking-widest text-[11px] font-medium">
+                <div class="relative flex justify-center">
+                    <span class="bg-white px-4 text-muted uppercase tracking-[0.2em] text-xs font-medium">
                         Or register with email
                     </span>
                 </div>
             </div>
 
-            <!-- Form -->
+            <!-- Form (Neutral placeholders: First name, Last name, name@example.com) -->
             <form @submit.prevent="submit()" class="space-y-5" novalidate>
                 <!-- First and Last Name -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="reg-first_name" class="block text-xs uppercase tracking-[0.16em] text-muted font-medium mb-1.5">
-                            First Name
+                        <label for="reg-first_name" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                            First Name <span class="text-forest" aria-hidden="true">*</span>
                         </label>
                         <input 
                             type="text" 
                             id="reg-first_name" 
                             x-model="firstName" 
+                            @input="clearError('firstName')"
                             autocomplete="given-name" 
                             required 
-                            placeholder="Eleanor"
+                            placeholder="First name"
                             class="input-field" 
+                            :class="errors.firstName ? 'input-error' : ''"
+                            :aria-invalid="errors.firstName ? 'true' : 'false'"
+                            :aria-describedby="errors.firstName ? 'err-reg-first_name' : null"
                         />
+                        <p id="err-reg-first_name" x-show="errors.firstName" x-text="errors.firstName" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                     </div>
                     <div>
-                        <label for="reg-last_name" class="block text-xs uppercase tracking-[0.16em] text-muted font-medium mb-1.5">
-                            Last Name
+                        <label for="reg-last_name" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                            Last Name <span class="text-forest" aria-hidden="true">*</span>
                         </label>
                         <input 
                             type="text" 
                             id="reg-last_name" 
                             x-model="lastName" 
+                            @input="clearError('lastName')"
                             autocomplete="family-name" 
                             required 
-                            placeholder="Vance"
+                            placeholder="Last name"
                             class="input-field" 
+                            :class="errors.lastName ? 'input-error' : ''"
+                            :aria-invalid="errors.lastName ? 'true' : 'false'"
+                            :aria-describedby="errors.lastName ? 'err-reg-last_name' : null"
                         />
+                        <p id="err-reg-last_name" x-show="errors.lastName" x-text="errors.lastName" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                     </div>
                 </div>
 
                 <!-- Email Address -->
                 <div>
-                    <label for="reg-email" class="block text-xs uppercase tracking-[0.16em] text-muted font-medium mb-1.5">
-                        Email Address
+                    <label for="reg-email" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                        Email Address <span class="text-forest" aria-hidden="true">*</span>
                     </label>
                     <input 
                         type="email" 
                         id="reg-email" 
                         x-model="email" 
+                        @input="clearError('email')"
                         autocomplete="email" 
                         required 
-                        placeholder="name@domain.com" 
+                        placeholder="name@example.com" 
                         class="input-field" 
+                        :class="errors.email ? 'input-error' : ''"
+                        :aria-invalid="errors.email ? 'true' : 'false'"
+                        :aria-describedby="errors.email ? 'err-reg-email' : null"
                     />
+                    <p id="err-reg-email" x-show="errors.email" x-text="errors.email" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                 </div>
 
                 <!-- Create Password -->
                 <div>
-                    <label for="reg-password" class="block text-xs uppercase tracking-[0.16em] text-muted font-medium mb-1.5">
-                        Create Password
+                    <label for="reg-password" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                        Create Password <span class="text-forest" aria-hidden="true">*</span>
                     </label>
                     <div class="relative">
                         <input 
                             :type="showPassword ? 'text' : 'password'" 
                             id="reg-password" 
                             x-model="password" 
+                            @input="clearError('password')"
                             autocomplete="new-password" 
                             required 
                             placeholder="At least 8 characters"
                             class="input-field pr-12" 
+                            :class="errors.password ? 'input-error' : ''"
+                            :aria-invalid="errors.password ? 'true' : 'false'"
+                            :aria-describedby="errors.password ? 'err-reg-password' : null"
                         />
                         <button 
                             type="button" 
@@ -216,21 +283,28 @@
                             </template>
                         </button>
                     </div>
+                    <p id="err-reg-password" x-show="errors.password" x-text="errors.password" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                 </div>
 
                 <!-- Terms & Privacy Agreement -->
-                <div class="flex items-start gap-3 pt-1">
-                    <input 
-                        type="checkbox" 
-                        id="reg-terms" 
-                        x-model="agreeTerms" 
-                        class="w-4 h-4 mt-0.5 rounded-none accent-[#304C3D] text-[#304C3D] border-[#D5DBCF] focus:ring-forest focus:ring-offset-0"
-                    />
-                    <label for="reg-terms" class="text-xs text-muted leading-relaxed select-none cursor-pointer">
-                        I agree to The Everbloom's 
-                        <a href="{{ route('terms') }}" class="text-ink underline hover:text-forest">Terms</a> and 
-                        <a href="{{ route('privacy') }}" class="text-ink underline hover:text-forest">Privacy Policy</a>.
-                    </label>
+                <div>
+                    <div class="flex items-start gap-3 pt-1">
+                        <input 
+                            type="checkbox" 
+                            id="reg-terms" 
+                            x-model="agreeTerms" 
+                            @change="clearError('agreeTerms')"
+                            :aria-invalid="errors.agreeTerms ? 'true' : 'false'"
+                            :aria-describedby="errors.agreeTerms ? 'err-reg-terms' : null"
+                            class="w-4 h-4 mt-0.5 rounded-none accent-[#304C3D] border-[#D5DBCF] cursor-pointer"
+                        />
+                        <label for="reg-terms" class="text-xs text-muted leading-relaxed select-none cursor-pointer">
+                            I agree to The Everbloom's 
+                            <a href="{{ route('terms') }}" class="text-ink underline underline-offset-4 hover:text-forest">Terms</a> and 
+                            <a href="{{ route('privacy') }}" class="text-ink underline underline-offset-4 hover:text-forest">Privacy Policy</a>.
+                        </label>
+                    </div>
+                    <p id="err-reg-terms" x-show="errors.agreeTerms" x-text="errors.agreeTerms" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                 </div>
 
                 <!-- Primary Submit -->
@@ -239,22 +313,22 @@
                         type="submit" 
                         class="btn-primary w-full min-h-[48px] cursor-pointer"
                     >
-                        Create account
+                        Create Account
                     </button>
                 </div>
             </form>
 
             <!-- Bottom Cross-links -->
-            <div class="text-center pt-6 border-t border-[#ECEEE6] text-xs text-muted space-y-3">
+            <div class="text-center pt-6 border-t border-[#ECEEE6] text-[13px] text-muted space-y-3">
                 <p>
                     Already have an account? 
-                    <a href="{{ route('login') }}" class="text-forest font-medium hover:underline ml-1">
+                    <a href="{{ route('login') }}" class="text-forest font-medium underline underline-offset-4 hover:text-ink ml-1">
                         Sign in
                     </a>
                 </p>
                 <div>
-                    <a href="{{ route('account') }}" class="inline-flex items-center text-xs uppercase tracking-wider text-muted hover:text-forest underline underline-offset-4">
-                        Explore Demo Account directly →
+                    <a href="{{ route('account') }}" class="min-h-[44px] inline-flex items-center text-xs uppercase tracking-[0.2em] text-muted hover:text-forest underline underline-offset-4">
+                        Explore Demo Account Overview →
                     </a>
                 </div>
             </div>

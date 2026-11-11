@@ -56,6 +56,40 @@ function getDemoDiscounts() {
 }
 
 /**
+ * Retrieve shipping configuration from #everbloom-shipping-data or defaults ($75 threshold, $6 cost).
+ */
+function getShippingConfig() {
+    const defaults = {
+        free_threshold: 75.00,
+        standard_cost: 6.00,
+    };
+    if (typeof document !== 'undefined') {
+        const el = document.getElementById('everbloom-shipping-data');
+        if (el) {
+            try {
+                const data = JSON.parse(el.textContent);
+                return {
+                    free_threshold: parseFloat(data.free_threshold ?? defaults.free_threshold),
+                    standard_cost: parseFloat(data.standard_cost ?? defaults.standard_cost),
+                };
+            } catch (e) {}
+        }
+    }
+    return defaults;
+}
+
+/**
+ * Dispatch an event to close any other open overlays so only one overlay is open at a time.
+ */
+function closeOtherOverlays(exceptOverlay) {
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('everbloom-overlay-opened', {
+            detail: { overlay: exceptOverlay }
+        }));
+    }
+}
+
+/**
  * Creates a cart item storing only { productId, variantId, qty }.
  * Attaches non-enumerable getters to derive name, image, price, and compare-at price
  * from config/demo/products.php on every render.
@@ -164,6 +198,59 @@ function createDerivedCartItem(itemData) {
     return raw;
 }
 
+/**
+ * Creates a derived wishlist item storing only { id } in localStorage
+ * and deriving product metadata from config/demo/products.php.
+ */
+function createDerivedWishlistItem(productId) {
+    const raw = {
+        id: Number(productId) || productId
+    };
+
+    Object.defineProperties(raw, {
+        product: {
+            get() {
+                const catalog = getProductsCatalog();
+                return catalog.find(p => p.id === this.id || String(p.id) === String(this.id)) || null;
+            },
+            enumerable: false
+        },
+        name: {
+            get() {
+                return this.product ? this.product.name : '';
+            },
+            enumerable: false
+        },
+        slug: {
+            get() {
+                return this.product ? this.product.slug : '';
+            },
+            enumerable: false
+        },
+        category: {
+            get() {
+                return this.product ? this.product.category : '';
+            },
+            enumerable: false
+        },
+        price: {
+            get() {
+                return this.product && this.product.price !== undefined ? parseFloat(this.product.price) : 0;
+            },
+            enumerable: false
+        },
+        image: {
+            get() {
+                const p = this.product;
+                return (p && Array.isArray(p.images) && p.images.length > 0) ? p.images[0] : null;
+            },
+            enumerable: false
+        }
+    });
+
+    return raw;
+}
+
 // Global Cart Store
 Alpine.store('cart', {
     items: [],
@@ -185,6 +272,14 @@ Alpine.store('cart', {
         } catch (e) {}
 
         this.cleanAndLoad();
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('everbloom-overlay-opened', (e) => {
+                if (e.detail && e.detail.overlay !== 'cart' && this.drawerOpen) {
+                    this.closeDrawer();
+                }
+            });
+        }
 
         // Re-validate against catalog as soon as DOM is fully ready
         if (typeof document !== 'undefined' && document.readyState === 'loading') {
@@ -236,13 +331,11 @@ Alpine.store('cart', {
                 let variantId = rawItem.variantId !== undefined ? rawItem.variantId : (rawItem.size !== undefined ? rawItem.size : null);
                 let qty = rawItem.qty !== undefined ? rawItem.qty : (rawItem.quantity !== undefined ? rawItem.quantity : 1);
                 qty = parseInt(qty, 10) || 1;
-                // Limit qty to 1-10
                 qty = Math.min(10, Math.max(1, qty));
 
                 if (catalog.length > 0) {
                     const product = catalog.find(p => p.id === productId || String(p.id) === String(productId));
                     if (!product) {
-                        // Unknown product: remove silently
                         continue;
                     }
 
@@ -250,7 +343,6 @@ Alpine.store('cart', {
                         if (variantId) {
                             const matchedVariant = product.variants.find(v => v.size === variantId || v.id === variantId || String(v.size) === String(variantId));
                             if (!matchedVariant) {
-                                // Unknown variant: remove silently
                                 continue;
                             }
                             variantId = matchedVariant.size || matchedVariant.id || variantId;
@@ -293,7 +385,6 @@ Alpine.store('cart', {
         for (const item of this.items) {
             const product = catalog.find(p => p.id === item.productId || String(p.id) === String(item.productId));
             if (!product) {
-                // Unknown product: remove silently
                 changed = true;
                 continue;
             }
@@ -303,7 +394,6 @@ Alpine.store('cart', {
                 if (variantId) {
                     const matchedVariant = product.variants.find(v => v.size === variantId || v.id === variantId || String(v.size) === String(variantId));
                     if (!matchedVariant) {
-                        // Unknown variant: remove silently
                         changed = true;
                         continue;
                     }
@@ -354,13 +444,12 @@ Alpine.store('cart', {
     },
 
     openDrawer() {
+        closeOtherOverlays('cart');
         this.drawerOpen = true;
-        document.body.classList.add('overflow-hidden');
     },
 
     closeDrawer() {
         this.drawerOpen = false;
-        document.body.classList.remove('overflow-hidden');
     },
 
     toggleDrawer() {
@@ -397,7 +486,6 @@ Alpine.store('cart', {
         const catalog = getProductsCatalog();
         const product = catalog.find(p => p.id === productId || String(p.id) === String(productId));
         if (!product) {
-            // Unknown product: reject silently
             return;
         }
 
@@ -405,7 +493,6 @@ Alpine.store('cart', {
             if (variantId) {
                 const matched = product.variants.find(v => v.size === variantId || v.id === variantId || String(v.size) === String(variantId));
                 if (!matched) {
-                    // Unknown variant: reject silently
                     return;
                 }
                 variantId = matched.size || matched.id || variantId;
@@ -487,12 +574,13 @@ Alpine.store('cart', {
 
     get shippingCost() {
         if (this.items.length === 0) return 0;
-        const threshold = 65.00;
+        const shippingConfig = getShippingConfig();
+        const threshold = shippingConfig.free_threshold;
         const d = this.discount;
         if (this.subtotal >= threshold || (d && d.type === 'shipping')) {
             return 0;
         }
-        return 6.00;
+        return shippingConfig.standard_cost;
     },
 
     get total() {
@@ -537,20 +625,86 @@ Alpine.store('wishlist', {
     items: [],
 
     init() {
+        this.cleanAndLoad();
+
+        if (typeof document !== 'undefined' && document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.cleanAndValidate();
+            });
+        }
+    },
+
+    cleanAndLoad() {
         try {
             const saved = localStorage.getItem('everbloom_wishlist');
-            if (saved) {
-                this.items = JSON.parse(saved);
+            if (!saved) {
+                this.items = [];
+                return;
             }
+            const parsed = JSON.parse(saved);
+            if (!Array.isArray(parsed)) {
+                this.items = [];
+                return;
+            }
+            const catalog = getProductsCatalog();
+            const valid = [];
+            const seen = new Set();
+
+            for (const entry of parsed) {
+                const rawId = (entry && typeof entry === 'object') ? entry.id : entry;
+                if (rawId === undefined || rawId === null) continue;
+                const key = String(rawId);
+                if (seen.has(key)) continue;
+
+                if (catalog.length > 0) {
+                    const product = catalog.find(p => p.id === rawId || String(p.id) === key);
+                    if (!product) continue;
+                    seen.add(String(product.id));
+                    valid.push(createDerivedWishlistItem(product.id));
+                } else {
+                    seen.add(key);
+                    valid.push(createDerivedWishlistItem(rawId));
+                }
+            }
+            this.items = valid;
+            this.save();
         } catch (e) {
             console.warn('Unable to load wishlist from localStorage:', e);
             this.items = [];
         }
     },
 
+    cleanAndValidate() {
+        const catalog = getProductsCatalog();
+        if (catalog.length === 0) return;
+
+        const valid = [];
+        const seen = new Set();
+        let changed = false;
+
+        for (const item of this.items) {
+            const rawId = item && typeof item === 'object' ? item.id : item;
+            const product = catalog.find(p => p.id === rawId || String(p.id) === String(rawId));
+            if (!product || seen.has(String(product.id))) {
+                changed = true;
+                continue;
+            }
+            seen.add(String(product.id));
+            valid.push(createDerivedWishlistItem(product.id));
+        }
+
+        if (changed || valid.length !== this.items.length) {
+            this.items = valid;
+            this.save();
+        } else {
+            this.items = valid;
+        }
+    },
+
     save() {
         try {
-            localStorage.setItem('everbloom_wishlist', JSON.stringify(this.items));
+            const cleanIds = this.items.map(item => ({ id: item.id }));
+            localStorage.setItem('everbloom_wishlist', JSON.stringify(cleanIds));
         } catch (e) {
             console.warn('Unable to save wishlist to localStorage:', e);
         }
@@ -562,21 +716,16 @@ Alpine.store('wishlist', {
     },
 
     toggle(product) {
-        const targetId = typeof product === 'object' ? product.id : product;
+        const targetId = (typeof product === 'object' && product !== null) ? product.id : product;
         if (this.has(targetId)) {
             this.items = this.items.filter(item => String(item.id || item) !== String(targetId));
         } else {
-            if (typeof product === 'object') {
-                this.items.push({
-                    id: product.id,
-                    slug: product.slug,
-                    name: product.name,
-                    price: product.price,
-                    category: product.category,
-                    image: (product.images && product.images.length > 0) ? product.images[0] : null,
-                });
-            } else {
-                this.items.push({ id: targetId });
+            const catalog = getProductsCatalog();
+            const matched = catalog.find(p => p.id === targetId || String(p.id) === String(targetId));
+            if (matched) {
+                this.items.push(createDerivedWishlistItem(matched.id));
+            } else if (targetId !== undefined && targetId !== null) {
+                this.items.push(createDerivedWishlistItem(targetId));
             }
         }
         this.save();
@@ -590,17 +739,23 @@ Alpine.store('wishlist', {
 // Alpine Mobile Navigation Component
 Alpine.data('mobileNavigation', () => ({
     open: false,
+    init() {
+        window.addEventListener('everbloom-overlay-opened', (e) => {
+            if (e.detail && e.detail.overlay !== 'mobile-nav' && this.open) {
+                this.close();
+            }
+        });
+    },
     toggle() {
-        this.open = !this.open;
         if (this.open) {
-            document.body.classList.add('overflow-hidden');
+            this.close();
         } else {
-            document.body.classList.remove('overflow-hidden');
+            closeOtherOverlays('mobile-nav');
+            this.open = true;
         }
     },
     close() {
         this.open = false;
-        document.body.classList.remove('overflow-hidden');
     }
 }));
 
@@ -611,7 +766,7 @@ Alpine.data('searchModal', () => ({
     products: [],
 
     init() {
-        const el = document.getElementById('everbloom-search-data');
+        const el = document.getElementById('everbloom-search-data') || document.getElementById('everbloom-products-data');
         if (el) {
             try {
                 this.products = JSON.parse(el.textContent);
@@ -619,9 +774,15 @@ Alpine.data('searchModal', () => ({
                 console.warn('Failed to parse search products JSON:', e);
             }
         }
+        window.addEventListener('everbloom-overlay-opened', (e) => {
+            if (e.detail && e.detail.overlay !== 'search' && this.open) {
+                this.closeModal();
+            }
+        });
     },
 
     openModal() {
+        closeOtherOverlays('search');
         this.open = true;
         this.$nextTick(() => {
             const input = document.getElementById('storefront-search-input');
@@ -645,5 +806,6 @@ Alpine.data('searchModal', () => ({
     }
 }));
 
+window.__closeOtherEverbloomOverlays = closeOtherOverlays;
 window.Alpine = Alpine;
 Alpine.start();

@@ -1,488 +1,451 @@
 @extends('layouts.app')
 
-@section('title', config('demo.site.name') . ' — ' . config('demo.site.tagline'))
-@section('meta_description', 'Thoughtfully formulated for everyday rituals using carefully selected botanical ingredients. Naturally beautiful, always blooming.')
+@section('title', 'The Everbloom | Clean Botanical Skincare')
+@section('meta_description', 'Pure botanical skincare crafted for daily ritual and calm skin. Discover nutrient-dense serums, moisturizers, cleansers, and mineral sunscreens.')
 
 @section('content')
-<div class="space-y-12 md:space-y-16 pb-12 md:pb-16">
+@php
+    $allProducts = collect(config('demo.products', []));
+    $featuredProducts = $allProducts->where('is_featured', true)->take(4)->values()->all();
+    $bestsellerProducts = $allProducts->where('is_bestseller', true)->take(4)->values()->all();
+    $categories = config('demo.categories', []);
+    $testimonials = array_slice(config('demo.testimonials', []), 0, 3);
+    $trustItems = array_values(array_filter(config('demo.site.trust_badges', []), fn($item) => is_array($item) && isset($item['title'])));
+@endphp
 
-    <!-- 1. HERO SECTION: Asymmetric Editorial, Overlapping Images, py-12 md:py-16 -->
-    <!-- VERIFY CLAIM before launch: Review botanical ingredient statements -->
-    <section class="relative bg-sage-light/30 border-b border-beige/70 py-12 md:py-16 overflow-hidden">
-        <div class="site-container">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
-                
-                <!-- Left Text Column -->
-                <div class="lg:col-span-7 space-y-5">
-                    <!-- Small Label Above Headline -->
-                    <span class="text-xs uppercase tracking-[0.2em] font-medium text-forest block">
-                        {{ config('demo.site.tagline') }}
-                    </span>
-
-                    <!-- Editorial Asymmetric Headline (H1) -->
-                    <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-ink font-normal tracking-tight leading-[1.12]">
-                        A Ritual of<br>
-                        <span class="italic font-normal">Natural Beauty.</span>
-                    </h1>
-
-                    <!-- Factual Copy -->
-                    <p class="text-base sm:text-lg text-muted max-w-xl leading-relaxed font-sans">
-                        Carefully selected botanical ingredients and plant-derived oils, thoughtfully formulated for everyday rituals. Designed to nurture skin balance and a radiant finish.
-                    </p>
-
-                    <!-- CTAs (Min 13px link) -->
-                    <div class="flex flex-wrap items-center gap-4 pt-2">
-                        <x-storefront.button href="/shop" variant="primary" size="lg" class="text-[13px]">
-                            Explore Formulations
-                        </x-storefront.button>
-                        <x-storefront.button href="/about" variant="secondary" size="lg" class="text-[13px]">
-                            Our Philosophy
-                        </x-storefront.button>
-                    </div>
-                </div>
-
-                <!-- Right Overlapping Editorial Image Composition -->
-                <div class="lg:col-span-5 relative">
-                    <div class="relative max-w-md mx-auto">
-                        <!-- Primary Arch Image (1px subtle sage border, no heavy white frame) -->
-                        <div class="relative overflow-hidden rounded-t-[140px] rounded-b-none border border-sage/40 bg-sage-light/40 shadow-soft">
-                            <x-storefront.image 
-                                src="hero/hero-botanical-arch.jpg" 
-                                alt="A Ritual of Natural Beauty with Botanicals" 
-                                aspect-ratio="aspect-[4/5]" 
-                                class="rounded-t-[138px]"
-                            />
-                        </div>
-
-                        <!-- Secondary Overlapping Rectangular Image (Asymmetric Editorial Accent) -->
-                        <div class="absolute -bottom-6 -left-6 sm:-bottom-8 sm:-left-8 w-44 sm:w-52 aspect-[3/4] overflow-hidden border border-beige-dark/40 shadow-soft bg-ivory p-1 hidden sm:block">
-                            <x-storefront.image 
-                                src="hero/hero-botanical-detail.jpg" 
-                                alt="Botanical Ingredients and Glass Pipette" 
-                                aspect-ratio="aspect-[3/4]"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- 2. WHY CHOOSE THE EVERBLOOM: 4 Points in a simple icon + text row (NO cards, 13px description) -->
-    <!-- VERIFY CLAIM before launch: Review packaging recyclability & formulation test claims -->
-    <section class="site-container py-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 border-b border-beige/70 pb-12 md:pb-16">
+<!-- 1. HERO SECTION (Asymmetric 50/50 split on desktop, natural rhythm, arch frame without white border) -->
+<section class="relative overflow-hidden bg-ivory pt-6 pb-16 md:py-16 lg:py-20 border-b border-[#ECEEE6]">
+    <div class="site-container">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             
-            <!-- Point 1 -->
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 shrink-0 text-forest flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
+            <!-- Left Editorial Column (5 cols on lg) -->
+            <div class="lg:col-span-5 space-y-6 text-left order-2 lg:order-1">
+                <div class="inline-flex items-center gap-2 border-b border-forest/30 pb-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-forest"></span>
+                    <span class="text-xs uppercase tracking-[0.2em] font-medium text-forest">
+                        Small-Batch Botanical Formulations
+                    </span>
                 </div>
-                <div>
-                    <h3 class="font-serif text-base text-ink font-medium">Carefully Selected</h3>
-                    <p class="text-[13px] text-muted leading-relaxed mt-1">Formulated with plant-derived extracts and gentle floral waters.</p>
+
+                <h1 class="font-serif text-5xl lg:text-6xl text-ink font-normal leading-[1.08] tracking-tight">
+                    A Ritual of <span class="italic font-normal text-forest">Natural</span> Beauty.
+                </h1>
+
+                <p class="text-base text-muted leading-relaxed max-w-md font-normal">
+                    Pure botanical skincare crafted for daily ritual and calm skin. Thoughtfully formulated with plant oils, hydrosols, and barrier-supportive actives.
+                </p>
+
+                <div class="pt-2 flex flex-wrap items-center gap-4">
+                    <x-storefront.button href="/shop" variant="primary" size="lg">
+                        Explore Collection
+                    </x-storefront.button>
+                    <x-storefront.button href="/about" variant="secondary" size="lg">
+                        Our Philosophy
+                    </x-storefront.button>
+                </div>
+
+                <!-- Subtle Editorial Credential Line (No duplicate 3-col stat block or old-style 1oo% numerals) -->
+                <!-- VERIFY CLAIM before launch -->
+                <div class="pt-5 border-t border-[#ECEEE6] flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted">
+                    <span class="inline-flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-forest/70"></span>
+                        <span>pH-Balanced Formulas</span>
+                    </span>
+                    <span class="text-[#D5DBCF]" aria-hidden="true">&bull;</span>
+                    <span>No Synthetic Fragrance</span>
+                    <span class="text-[#D5DBCF]" aria-hidden="true">&bull;</span>
+                    <span>Gentle Daily Rituals</span>
                 </div>
             </div>
 
-            <!-- Point 2 -->
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 shrink-0 text-forest flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="font-serif text-base text-ink font-medium">Thoughtful Formulations</h3>
-                    <p class="text-[13px] text-muted leading-relaxed mt-1">Crafted for everyday rituals to support skin barrier balance.</p>
-                </div>
-            </div>
+            <!-- Right Arch Visual Composition (7 cols on lg, no white border/frame, clean overlapping detail) -->
+            <div class="lg:col-span-7 relative order-1 lg:order-2 flex justify-center lg:justify-end">
+                <div class="relative w-full max-w-md lg:max-w-lg xl:max-w-xl lg:pl-12">
+                    <!-- Main Arch Hero Image (No white frame or padding) -->
+                    <div class="relative z-10 overflow-hidden rounded-t-[200px] sm:rounded-t-[260px]">
+                        <x-storefront.image 
+                            src="hero/hero-main.jpg" 
+                            alt="The Everbloom Botanical Skincare Collection" 
+                            aspect-ratio="aspect-[4/5]"
+                            width="960"
+                            height="1200"
+                            loading="eager"
+                            class="w-full"
+                        />
+                    </div>
 
-            <!-- Point 3 -->
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 shrink-0 text-forest flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="font-serif text-base text-ink font-medium">Recyclable Glass Jars</h3>
-                    <p class="text-[13px] text-muted leading-relaxed mt-1">Packaged in amber UV-protective bottles and recyclable cartons.</p>
-                </div>
-            </div>
+                    <!-- Overlapping Secondary Botanical Detail Image (Positioned lower-left so it never hides the main subject) -->
+                    <div class="hidden sm:block absolute -bottom-6 left-0 z-20 w-36 md:w-44 border border-[#E3E6DD] shadow-ambient overflow-hidden">
+                        <x-storefront.image 
+                            src="hero/hero-secondary.jpg" 
+                            alt="Freshly pressed botanical oils and flora" 
+                            aspect-ratio="aspect-square"
+                            width="360"
+                            height="360"
+                            loading="eager"
+                        />
+                    </div>
 
-            <!-- Point 4: "Gentle Formulations" (Instruction 3) -->
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 shrink-0 text-forest flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="font-serif text-base text-ink font-medium">Gentle Formulations</h3>
-                    <p class="text-[13px] text-muted leading-relaxed mt-1">Formulated without synthetic dyes or harsh artificial fragrances.</p>
+                    <!-- Floating Editorial Glass Card -->
+                    <div class="absolute top-6 right-3 sm:top-10 sm:-left-2 sm:right-auto z-20 glass-panel px-4 py-3 max-w-[210px] border border-[#E3E6DD]">
+                        <p class="font-serif italic text-xs text-forest leading-snug">
+                            "Formulated to honor your skin's natural rhythm."
+                        </p>
+                    </div>
                 </div>
             </div>
 
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- 3. CATEGORIES: All 6 Categories in 2 Large (Row 1) + 4 Small (Row 2), Borderless Tiles -->
-    <section class="site-container">
+<!-- 2. TRUST / PROMISE BAR (Architectural 2x2 grid on mobile with stacked icon, 4-col row on desktop) -->
+<section class="bg-[#F2EFE9]/70 border-b border-[#ECEEE6] py-8 md:py-10" aria-label="Our Standards">
+    <div class="site-container">
+        <div class="grid grid-cols-2 lg:grid-cols-4 bg-ivory border border-[#E3E6DD]">
+            @foreach($trustItems as $idx => $badge)
+                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start gap-3 sm:gap-3.5 border-[#ECEEE6] {{ $idx % 2 === 0 ? 'border-r' : '' }} {{ $idx < 2 ? 'border-b lg:border-b-0' : '' }} {{ $idx === 1 ? 'lg:border-r' : '' }}">
+                    <div class="w-9 h-9 rounded-full bg-[#F2EFE9] border border-[#E3E6DD] flex items-center justify-center shrink-0 text-forest">
+                        @if(($badge['icon'] ?? '') === 'leaf')
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
+                        @elseif(($badge['icon'] ?? '') === 'heart')
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                        @elseif(($badge['icon'] ?? '') === 'globe')
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                        @else
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        @endif
+                    </div>
+                    <div class="min-w-0">
+                        <h2 class="font-sans text-xs uppercase tracking-[0.14em] sm:tracking-[0.18em] font-semibold text-ink leading-snug lining-nums">
+                            {{ $badge['title'] }}
+                        </h2>
+                        <p class="text-xs text-muted mt-1 leading-relaxed lining-nums">
+                            {{ $badge['description'] }}
+                        </p>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- 3. FEATURED CATEGORIES (All 6 Categories: 2 Editorial Feature Cards + 4 Targeted Category Cards, no truncated taglines) -->
+<section class="py-16 md:py-20 bg-ivory">
+    <div class="site-container">
         <x-storefront.section-heading 
-            eyebrow="Targeted Rituals" 
-            title="Curated by Skin Goal" 
-            description="Explore all six specialized formulations crafted for face, body, and daily sun care."
-            link-text="Shop All Categories" 
+            eyebrow="Curated Rituals" 
+            title="Shop by Category" 
+            description="Explore targeted botanical formulations designed to cleanse, replenish, and protect every skin state."
+            link-text="View All Formulations"
             link-url="/shop"
         />
 
         @php
-            $cats = collect(config('demo.categories'));
-            $faceCat = $cats->firstWhere('slug', 'face-care');
-            $bodyCat = $cats->firstWhere('slug', 'body-care');
-            $serumCat = $cats->firstWhere('slug', 'serums');
-            $moistCat = $cats->firstWhere('slug', 'moisturizers');
-            $cleanCat = $cats->firstWhere('slug', 'cleansers');
-            $sunCat = $cats->firstWhere('slug', 'sunscreens');
+            $catBySlug = collect($categories)->keyBy('slug');
+            $faceCat = $catBySlug->get('face-care', $categories[0] ?? null);
+            $bodyCat = $catBySlug->get('body-care', $categories[4] ?? null);
+            $subCats = [
+                $catBySlug->get('serums'),
+                $catBySlug->get('moisturizers'),
+                $catBySlug->get('cleansers'),
+                $catBySlug->get('sunscreens'),
+            ];
         @endphp
 
-        <!-- 6-Category Asymmetric Borderless Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-12 gap-5 sm:gap-6">
-            
-            <!-- Row 1 - Large Card 1: Face Care (Half width, borderless, text below) -->
-            @if($faceCat)
-                <div class="col-span-2 md:col-span-6 group block">
-                    <a href="/shop/category/{{ $faceCat['slug'] }}" class="block">
-                        <div class="aspect-[16/10] overflow-hidden bg-sage-light/40">
+        <div class="space-y-6">
+            <!-- Top Row: 2 Primary Category Feature Cards (Face Care & Body Care) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @if($faceCat)
+                    <a href="{{ url('/shop/category/' . $faceCat['slug']) }}" class="group relative overflow-hidden bg-sage-light/30 flex flex-col justify-end min-h-[340px] sm:min-h-[380px] p-6 sm:p-8 border border-[#E3E6DD]">
+                        <div class="absolute inset-0 z-0">
                             <x-storefront.image 
                                 :src="$faceCat['image']" 
                                 :alt="$faceCat['name']" 
-                                aspect-ratio="aspect-[16/10]" 
-                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                aspect-ratio="h-full w-full"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
+                            <div class="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/30 to-transparent"></div>
                         </div>
-                        <div class="pt-3.5 flex items-baseline justify-between">
-                            <div>
-                                <span class="text-xs uppercase tracking-[0.2em] text-muted block">Essential Collection</span>
-                                <h3 class="font-serif text-xl sm:text-2xl text-ink font-normal group-hover:text-forest transition-colors mt-0.5">
-                                    {{ $faceCat['name'] }}
-                                </h3>
-                                <p class="text-[13px] text-muted mt-1 max-w-md line-clamp-1">{{ $faceCat['tagline'] }}</p>
-                            </div>
-                            <span class="text-[13px] uppercase tracking-widest text-forest font-medium group-hover:translate-x-1 transition-transform shrink-0 ml-4">
-                                Explore →
+                        <div class="relative z-10 text-ivory max-w-md">
+                            <span class="text-xs uppercase tracking-[0.2em] text-ivory/90 block mb-1.5">
+                                {{ $faceCat['item_count'] }} Formulations
+                            </span>
+                            <h3 class="font-serif text-2xl sm:text-3xl font-normal tracking-tight text-ivory">
+                                {{ $faceCat['name'] }}
+                            </h3>
+                            <p class="text-xs sm:text-sm text-ivory/90 mt-1.5 leading-relaxed">
+                                {{ $faceCat['tagline'] }}
+                            </p>
+                            <span class="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-medium text-ivory border-b border-ivory/60 pb-1 group-hover:border-ivory transition-colors">
+                                <span>Explore {{ $faceCat['name'] }}</span>
+                                <span aria-hidden="true">&rarr;</span>
                             </span>
                         </div>
                     </a>
-                </div>
-            @endif
+                @endif
 
-            <!-- Row 1 - Large Card 2: Body Care (Half width, borderless, text below) -->
-            @if($bodyCat)
-                <div class="col-span-2 md:col-span-6 group block">
-                    <a href="/shop/category/{{ $bodyCat['slug'] }}" class="block">
-                        <div class="aspect-[16/10] overflow-hidden bg-sage-light/40">
+                @if($bodyCat)
+                    <a href="{{ url('/shop/category/' . $bodyCat['slug']) }}" class="group relative overflow-hidden bg-sage-light/30 flex flex-col justify-end min-h-[340px] sm:min-h-[380px] p-6 sm:p-8 border border-[#E3E6DD]">
+                        <div class="absolute inset-0 z-0">
                             <x-storefront.image 
                                 :src="$bodyCat['image']" 
                                 :alt="$bodyCat['name']" 
-                                aspect-ratio="aspect-[16/10]" 
-                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                aspect-ratio="h-full w-full"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
+                            <div class="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/30 to-transparent"></div>
                         </div>
-                        <div class="pt-3.5 flex items-baseline justify-between">
-                            <div>
-                                <span class="text-xs uppercase tracking-[0.2em] text-muted block">Full Body Therapies</span>
-                                <h3 class="font-serif text-xl sm:text-2xl text-ink font-normal group-hover:text-forest transition-colors mt-0.5">
-                                    {{ $bodyCat['name'] }}
-                                </h3>
-                                <p class="text-[13px] text-muted mt-1 max-w-md line-clamp-1">{{ $bodyCat['tagline'] }}</p>
-                            </div>
-                            <span class="text-[13px] uppercase tracking-widest text-forest font-medium group-hover:translate-x-1 transition-transform shrink-0 ml-4">
-                                Explore →
+                        <div class="relative z-10 text-ivory max-w-md">
+                            <span class="text-xs uppercase tracking-[0.2em] text-ivory/90 block mb-1.5">
+                                {{ $bodyCat['item_count'] }} Formulations
+                            </span>
+                            <h3 class="font-serif text-2xl sm:text-3xl font-normal tracking-tight text-ivory">
+                                {{ $bodyCat['name'] }}
+                            </h3>
+                            <p class="text-xs sm:text-sm text-ivory/90 mt-1.5 leading-relaxed">
+                                {{ $bodyCat['tagline'] }}
+                            </p>
+                            <span class="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-medium text-ivory border-b border-ivory/60 pb-1 group-hover:border-ivory transition-colors">
+                                <span>Explore {{ $bodyCat['name'] }}</span>
+                                <span aria-hidden="true">&rarr;</span>
                             </span>
                         </div>
                     </a>
-                </div>
-            @endif
-
-            <!-- Row 2 - 4 Smaller Borderless Tiles: Serums, Moisturizers, Cleansers, Sunscreens -->
-            @foreach([$serumCat, $moistCat, $cleanCat, $sunCat] as $cat)
-                @if($cat)
-                    <div class="col-span-1 md:col-span-3 group block">
-                        <a href="/shop/category/{{ $cat['slug'] }}" class="block">
-                            <div class="aspect-square overflow-hidden bg-sage-light/40">
-                                <x-storefront.image 
-                                    :src="$cat['image']" 
-                                    :alt="$cat['name']" 
-                                    aspect-ratio="aspect-square" 
-                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                />
-                            </div>
-                            <div class="pt-3">
-                                <h3 class="font-serif text-base text-ink font-medium group-hover:text-forest transition-colors">
-                                    {{ $cat['name'] }}
-                                </h3>
-                                <p class="text-xs text-muted uppercase tracking-wider mt-0.5">
-                                    {{ $cat['item_count'] }} Formulations
-                                </p>
-                            </div>
-                        </a>
-                    </div>
                 @endif
-            @endforeach
+            </div>
 
+            <!-- Bottom Row: 4 Equal Columns on Desktop (2x2 on Mobile) with full taglines (no ellipsis) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                @foreach(array_filter($subCats) as $cat)
+                    <a href="{{ url('/shop/category/' . $cat['slug']) }}" class="group relative overflow-hidden bg-sage-light/30 flex flex-col justify-end aspect-[4/5] p-5 sm:p-6 border border-[#E3E6DD]">
+                        <div class="absolute inset-0 z-0">
+                            <x-storefront.image 
+                                :src="$cat['image']" 
+                                :alt="$cat['name']" 
+                                aspect-ratio="h-full w-full"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div class="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 to-transparent"></div>
+                        </div>
+                        <div class="relative z-10 text-ivory">
+                            <span class="text-xs uppercase tracking-[0.2em] text-ivory/90 block mb-1">
+                                {{ $cat['item_count'] }} Products
+                            </span>
+                            <h3 class="font-serif text-lg sm:text-xl font-normal tracking-tight text-ivory group-hover:underline">
+                                {{ $cat['name'] }}
+                            </h3>
+                            <p class="text-xs text-ivory/85 mt-1 leading-relaxed hidden sm:block">
+                                {{ $cat['tagline'] }}
+                            </p>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- 4. FEATURED PRODUCTS: Responsive Grid with Quick Add & Sale Badges -->
-    <section class="site-container">
+<!-- 4. FEATURED PRODUCTS (4 Products) -->
+<section class="py-16 md:py-20 bg-beige/25 border-y border-[#ECEEE6]">
+    <div class="site-container">
         <x-storefront.section-heading 
-            eyebrow="The Essentials" 
-            title="Signature Formulations" 
-            description="Our customer favorites formulated with carefully selected botanical ingredients."
-            link-text="Shop Full Catalogue" 
+            eyebrow="Seasonal Edit" 
+            title="Featured Botanicals" 
+            description="Thoughtfully selected formulations to restore hydration, luminosity, and calm."
+            link-text="Shop All Products"
             link-url="/shop"
         />
 
-        @php
-            $featured = array_filter(config('demo.products'), fn($p) => $p['is_featured'] ?? false);
-            $featured = array_slice($featured, 0, 4);
-        @endphp
+        <x-storefront.product-grid :products="$featuredProducts" columns="4" />
+    </div>
+</section>
 
-        <x-storefront.product-grid :products="$featured" columns="4" />
-    </section>
-
-    <!-- 5. BRAND PHILOSOPHY: Left-Bleeding Image, Text on Ivory, No Bordered Card (Instruction 4) -->
-    <!-- VERIFY CLAIM before launch: Review plant extract claims and formulation notes -->
-    <section class="py-12 md:py-16">
-        <div class="site-container">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
-                
-                <!-- Left: Full-Height Bleeding Botanical Image (No card frame) -->
-                <div class="lg:col-span-6">
-                    <div class="aspect-[4/5] sm:aspect-[16/11] lg:aspect-[4/5] overflow-hidden bg-sage-light/40">
-                        <x-storefront.image 
-                            src="editorial/philosophy-botanical.jpg" 
-                            alt="Botanical Still Life and Harvest Plants" 
-                            aspect-ratio="aspect-[4/5] sm:aspect-[16/11] lg:aspect-[4/5]"
-                            class="w-full h-full object-cover"
-                        />
-                    </div>
+<!-- 5. EDITORIAL STORY / BRAND PHILOSOPHY SPLIT (Borderless/bleeding image, max-h-[560px] aspect-[4/5]) -->
+<section class="py-16 md:py-20 bg-ivory overflow-hidden">
+    <div class="site-container">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+            
+            <!-- Left Visual Column (Borderless, bleeding aesthetic, max-h-[560px] aspect-[4/5]) -->
+            <div class="lg:col-span-6 relative">
+                <div class="relative z-10 overflow-hidden max-h-[560px] aspect-[4/5] w-full">
+                    <x-storefront.image 
+                        src="editorial/about-founder.jpg" 
+                        alt="Botanical extraction and slow infusion process at The Everbloom" 
+                        aspect-ratio="aspect-[4/5] max-h-[560px]"
+                        width="800"
+                        height="1000"
+                    />
                 </div>
-
-                <!-- Right: Unboxed Typography Directly on Ivory Canvas -->
-                <div class="lg:col-span-6 space-y-5 lg:pl-6">
-                    <span class="text-xs uppercase tracking-[0.25em] font-medium text-forest block">
-                        Our Botanical Philosophy
-                    </span>
-                    <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-ink font-normal tracking-tight leading-tight">
-                        Beauty That Grows With You.
-                    </h2>
-                    <div class="space-y-4 text-[13px] sm:text-base text-muted leading-relaxed font-sans">
-                        <p>
-                            True skincare is a daily act of listening. We formulate with carefully selected botanical ingredients to complement your skin's natural rhythm across every season.
-                        </p>
-                        <p>
-                            From elderberry extract to evening primrose oil, our recipes avoid unnecessary fillers, artificial dyes, and harsh sulfates. The result is pure, comforting skincare that works in harmony with your body.
-                        </p>
-                    </div>
-                    <div class="pt-3">
-                        <x-storefront.button href="/about" variant="secondary" size="md" class="text-[13px]">
-                            Read Our Full Story
-                        </x-storefront.button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- 6. FEATURED COLLECTION: Large Editorial Image with Overlapping Text Panel -->
-    <!-- VERIFY CLAIM before launch: Review evening sequence formulation claims -->
-    <section class="site-container">
-        <div class="relative overflow-hidden border border-beige bg-sage-light/30">
-            <!-- Full Width Editorial Image Background -->
-            <div class="aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden">
-                <x-storefront.image 
-                    src="editorial/featured-collection-hydrating.jpg" 
-                    alt="The Hydration Ritual Feature" 
-                    aspect-ratio="aspect-[16/9] md:aspect-[21/9]" 
-                    class="w-full h-full object-cover"
-                />
             </div>
 
-            <!-- Overlapping Editorial Text Card (Desktop: positioned over the right side) -->
-            <div class="md:absolute md:right-8 md:top-1/2 md:-translate-y-1/2 max-w-lg bg-ivory p-6 sm:p-8 md:p-10 border border-beige shadow-soft m-4 md:m-0">
-                <span class="text-xs uppercase tracking-[0.2em] font-medium text-forest block mb-2">
-                    Curated Ritual
+            <!-- Right Editorial Narrative Column -->
+            <div class="lg:col-span-6 space-y-6">
+                <span class="block text-xs uppercase tracking-[0.2em] font-medium text-forest">
+                    The Everbloom Philosophy
                 </span>
-                <h2 class="font-serif text-2xl sm:text-3xl text-ink font-normal leading-tight">
-                    The Restorative Evening Protocol
+
+                <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-ink font-normal leading-[1.15]">
+                    Slow Skincare for <span class="italic text-forest">Resilient</span> Skin Barriers.
                 </h2>
-                <p class="mt-3 text-xs sm:text-[13px] text-muted leading-relaxed">
-                    A three-step evening sequence featuring gentle cleansing milk, bakuchiol night elixir, and camellia cream to soothe and replenish your skin barrier while you rest.
+
+                <!-- VERIFY CLAIM before launch -->
+                <p class="text-base text-muted leading-relaxed">
+                    We believe skincare should never overwhelm the skin. Rather than chasing aggressive quick fixes, our formulations focus on lipid replenishment, pH harmony, and gentle botanical nourishment.
                 </p>
-                <div class="mt-5 flex items-center gap-4">
-                    <x-storefront.button href="/shop" variant="primary" size="md" class="text-[13px]">
-                        Shop The Routine
+
+                <!-- VERIFY CLAIM before launch -->
+                <p class="text-sm text-muted leading-relaxed">
+                    Every bottle begins with carefully selected seeds, flowers, and roots—prepared in small batches and housed in UV-protective amber glass to safeguard potency from our studio to your vanity.
+                </p>
+
+                <!-- Ingredient Highlight Pills -->
+                <div class="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-[#ECEEE6]">
+                    <div class="pt-4">
+                        <h3 class="font-serif text-lg text-ink font-normal">Whole-Plant Infusions</h3>
+                        <p class="text-xs text-muted mt-1 leading-relaxed">
+                            Formulated with nutrient-rich plant oils, hydrosols, and soothing botanical extracts.
+                        </p>
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="font-serif text-lg text-ink font-normal">Barrier-First Science</h3>
+                        <p class="text-xs text-muted mt-1 leading-relaxed">
+                            Biocompatible squalane, ceramides, and niacinamide paired with gentle plant actives.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <x-storefront.button href="/about" variant="secondary">
+                        Read Our Full Story
                     </x-storefront.button>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- 7. TESTIMONIALS: 1 Large Featured Quote + 2 Smaller Quotes (NO borders, keep "Sample review") -->
-    <section class="site-container" id="testimonials">
+        </div>
+    </div>
+</section>
+
+<!-- 6. BEST SELLERS (4 Products) -->
+<section class="py-16 md:py-20 bg-sage-light/30 border-t border-[#ECEEE6]">
+    <div class="site-container">
         <x-storefront.section-heading 
-            eyebrow="Client Experiences" 
-            title="Real Words from Our Community" 
-            centered
+            eyebrow="Community Favorites" 
+            title="Most Loved Rituals" 
+            description="Our foundational daily essentials—trusted for morning protection and evening recovery."
+            link-text="Shop Best Sellers"
+            link-url="/shop?sort=best_selling"
         />
 
-        @php
-            $reviews = config('demo.testimonials');
-            $featuredReview = $reviews[0] ?? null;
-            $otherReviews = array_slice($reviews, 1, 2);
-        @endphp
+        <x-storefront.product-grid :products="$bestsellerProducts" columns="4" />
+    </div>
+</section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center pt-2">
-            
-            <!-- 1 Large Featured Quote (No borders) -->
-            @if($featuredReview)
-                <div class="lg:col-span-7 bg-ivory p-6 sm:p-10 space-y-4">
-                    <div class="flex items-center justify-between">
-                        <x-storefront.rating :rating="$featuredReview['rating']" :show-count="false" />
-                        <span class="text-xs uppercase tracking-widest text-muted bg-sage-light/60 px-2 py-0.5 font-medium">Sample review</span>
+<!-- 7. TESTIMONIALS ("What Our Community Says", labeled "Sample review", top-aligned, no "Verified" labels) -->
+<section class="py-16 md:py-20 bg-ivory border-t border-[#ECEEE6]">
+    <div class="site-container">
+        <x-storefront.section-heading 
+            eyebrow="Community Reflections" 
+            title="What Our Community Says" 
+            description="Experiences shared by rituals practiced morning and evening."
+            :centered="true"
+        />
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-start">
+            @foreach($testimonials as $index => $review)
+                <div class="bg-[#F2EFE9]/60 border border-[#E3E6DD] p-7 sm:p-8 flex flex-col justify-between transition-all duration-300">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-5">
+                            <x-storefront.rating :rating="$review['rating']" :show-count="false" size="sm" />
+                            <span class="text-xs uppercase tracking-[0.2em] text-muted border border-[#E3E6DD] bg-ivory px-2.5 py-0.5">
+                                Sample review
+                            </span>
+                        </div>
+
+                        <blockquote class="font-serif italic text-lg sm:text-xl text-ink leading-relaxed mb-6">
+                            "{{ $review['quote'] }}"
+                        </blockquote>
                     </div>
 
-                    <blockquote class="font-serif text-2xl sm:text-3xl text-ink font-normal leading-snug italic">
-                        "{{ $featuredReview['quote'] }}"
-                    </blockquote>
-
-                    <div class="pt-2 text-xs text-muted font-sans space-y-0.5">
-                        <p class="font-semibold text-ink text-sm">{{ $featuredReview['author'] }}</p>
-                        <p>{{ $featuredReview['location'] }} · <span class="text-forest font-medium">{{ $featuredReview['product'] }}</span></p>
+                    <div class="pt-5 border-t border-[#ECEEE6] flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-full overflow-hidden shrink-0 border border-[#E3E6DD]">
+                            <x-storefront.image 
+                                :src="$review['avatar'] ?? ''" 
+                                :alt="$review['author']" 
+                                aspect-ratio="aspect-square"
+                                :rounded="true"
+                                width="88"
+                                height="88"
+                            />
+                        </div>
+                        <div class="min-w-0">
+                            <p class="font-sans text-xs font-semibold uppercase tracking-[0.2em] text-ink truncate">
+                                {{ $review['author'] }}
+                            </p>
+                            <p class="text-xs text-muted truncate mt-0.5">
+                                {{ $review['skin_type'] ?? $review['location'] ?? 'Daily Ritual' }} &middot; <span class="text-forest">{{ $review['product'] ?? 'Botanical Collection' }}</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
-            @endif
-
-            <!-- 2 Smaller Quotes (No borders) -->
-            <div class="lg:col-span-5 space-y-5">
-                @foreach($otherReviews as $review)
-                    <div class="bg-ivory/80 p-5 space-y-2.5">
-                        <div class="flex items-center justify-between">
-                            <x-storefront.rating :rating="$review['rating']" :show-count="false" size="sm" />
-                            <span class="text-xs uppercase tracking-widest text-muted bg-sage-light/50 px-2 py-0.5 font-medium">Sample review</span>
-                        </div>
-
-                        <p class="font-serif text-base text-ink italic leading-relaxed">
-                            "{{ $review['quote'] }}"
-                        </p>
-
-                        <div class="pt-1 text-xs text-muted font-sans">
-                            <span class="font-semibold text-ink">{{ $review['author'] }}</span> · 
-                            <span class="text-forest">{{ $review['product'] }}</span>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-
+            @endforeach
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- 8. INSTAGRAM-STYLE GALLERY: 4-Column Desktop (2 Mobile), Item 1 Spans 2x2, Gap-3, No Empty Cells (Instruction 1) -->
-    <section class="site-container py-12 md:py-16">
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+<!-- 8. BOTANICAL GALLERY (No gaps, no giant panorama tile, 6 uniform square tiles) -->
+<section class="py-16 md:py-20 bg-ivory border-t border-[#ECEEE6]">
+    <div class="site-container">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
             <div>
-                <span class="text-xs uppercase tracking-[0.2em] font-medium text-forest block mb-1">
-                    Visual Archive
+                <span class="block text-xs uppercase tracking-[0.2em] font-medium text-forest mb-1.5">
+                    @@theeverbloom.botanicals
                 </span>
                 <h2 class="font-serif text-2xl sm:text-3xl text-ink font-normal">
-                    Captured from the Apothecary
+                    Captured from the Studio
                 </h2>
             </div>
-            <!-- Min 13px link -->
-            <a 
-                href="https://instagram.com/theeverbloom" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                class="inline-flex items-center gap-2 text-[13px] uppercase tracking-widest text-forest font-medium hover:text-ink transition-colors pb-1 border-b border-forest"
-            >
-                <span>Follow @theeverbloom</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
+            <a href="/about" class="text-xs uppercase tracking-[0.2em] font-medium text-forest hover:text-ink border-b border-forest pb-0.5 self-start sm:self-auto transition-colors">
+                Explore Our Rituals &rarr;
             </a>
         </div>
 
-        <!-- 4-Column Desktop / 2-Column Mobile Grid with Dense Packing and Equal gap-3 -->
-        <div class="grid grid-cols-2 md:grid-cols-4 grid-flow-dense gap-3">
-            
-            <!-- Item 1: Spans 2 columns and 2 rows on desktop (and full width on mobile) -->
-            <div class="col-span-2 row-span-2 md:col-span-2 md:row-span-2 overflow-hidden bg-sage-light/40 border border-beige">
-                <x-storefront.image 
-                    src="gallery/gallery-botanical-01.jpg" 
-                    alt="Botanical leaf texture and water droplets" 
-                    aspect-ratio="aspect-square" 
-                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                />
-            </div>
+        @php
+            $galleryItems = [
+                ['src' => 'gallery/gallery-1.jpg', 'alt' => 'Morning botanical oil ritual'],
+                ['src' => 'gallery/gallery-2.jpg', 'alt' => 'Dried calendula and chamomile petals'],
+                ['src' => 'gallery/gallery-3.jpg', 'alt' => 'Amber glass dropper bottles in sunlight'],
+                ['src' => 'gallery/gallery-4.jpg', 'alt' => 'Rich cream texture swatch on linen'],
+                ['src' => 'gallery/gallery-5.jpg', 'alt' => 'Green tea and bamboo cleanser mousse'],
+                ['src' => 'gallery/gallery-6.jpg', 'alt' => 'Evening self-care sanctuary'],
+            ];
+        @endphp
 
-            <!-- Item 2: 1 Cell (Row 1, Col 3 on desktop) -->
-            <div class="col-span-1 overflow-hidden bg-sage-light/40 border border-beige">
-                <x-storefront.image 
-                    src="gallery/gallery-botanical-02.jpg" 
-                    alt="Amber dropper bottle on natural linen" 
-                    aspect-ratio="aspect-square" 
-                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                />
-            </div>
-
-            <!-- Item 3: 1 Cell (Row 1, Col 4 on desktop) -->
-            <div class="col-span-1 overflow-hidden bg-sage-light/40 border border-beige">
-                <x-storefront.image 
-                    src="gallery/gallery-botanical-03.jpg" 
-                    alt="Whipped cream swirl on handmade ceramic dish" 
-                    aspect-ratio="aspect-square" 
-                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                />
-            </div>
-
-            <!-- Item 4: 1 Cell (Row 2, Col 3 on desktop) -->
-            <div class="col-span-1 overflow-hidden bg-sage-light/40 border border-beige">
-                <x-storefront.image 
-                    src="gallery/gallery-botanical-04.jpg" 
-                    alt="Harvested wild chamomile flowers in morning light" 
-                    aspect-ratio="aspect-square" 
-                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                />
-            </div>
-
-            <!-- Item 5: 1 Cell (Row 2, Col 4 on desktop) -->
-            <div class="col-span-1 overflow-hidden bg-sage-light/40 border border-beige">
-                <x-storefront.image 
-                    src="gallery/gallery-botanical-05.jpg" 
-                    alt="Pouring golden jojoba botanical oil into beaker" 
-                    aspect-ratio="aspect-square" 
-                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                />
-            </div>
-
-            <!-- Item 6: Spans full width of Row 3 on desktop (cols 1-4) and Row 4 on mobile (cols 1-2) with no empty cells -->
-            <div class="col-span-2 md:col-span-4 overflow-hidden bg-sage-light/40 border border-beige">
-                <x-storefront.image 
-                    src="gallery/gallery-botanical-06.jpg" 
-                    alt="Apothecary shelf with amber glassware and botanical notebooks" 
-                    aspect-ratio="aspect-[2/1] sm:aspect-[21/9]" 
-                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                />
-            </div>
-
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-0 border border-[#E3E6DD]">
+            @foreach($galleryItems as $item)
+                <div class="group relative overflow-hidden aspect-square">
+                    <x-storefront.image 
+                        :src="$item['src']" 
+                        :alt="$item['alt']" 
+                        aspect-ratio="aspect-square"
+                        width="480"
+                        height="480"
+                        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div class="absolute inset-0 bg-forest/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 pointer-events-none">
+                        <span class="text-xs text-ivory font-sans tracking-wide leading-snug">{{ $item['alt'] }}</span>
+                    </div>
+                </div>
+            @endforeach
         </div>
-    </section>
-
-</div>
+    </div>
+</section>
 @endsection

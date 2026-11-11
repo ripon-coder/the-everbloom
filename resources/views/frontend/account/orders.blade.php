@@ -18,7 +18,7 @@
         <div class="hidden lg:block overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="border-b border-[#ECEEE6] text-[11px] uppercase tracking-[0.18em] text-muted font-medium">
+                    <tr class="border-b border-[#ECEEE6] text-xs uppercase tracking-[0.2em] text-muted font-medium">
                         <th scope="col" class="py-3.5 pr-4 font-medium">Order</th>
                         <th scope="col" class="py-3.5 px-4 font-medium">Date</th>
                         <th scope="col" class="py-3.5 px-4 font-medium">Status</th>
@@ -31,7 +31,7 @@
                     @foreach($orders as $order)
                         <tr class="hover:bg-beige-light/30 transition-colors">
                             <td class="py-4 pr-4 font-medium text-ink break-words">
-                                <a href="{{ route('account.order.details', $order['id']) }}" class="hover:text-forest underline underline-offset-4">
+                                <a href="{{ route('account.order.details', $order['id']) }}" class="hover:text-forest underline underline-offset-4 lining-nums">
                                     #{{ $order['id'] }}
                                 </a>
                             </td>
@@ -44,15 +44,15 @@
                             <td class="py-4 px-4 text-muted lining-nums whitespace-nowrap">
                                 {{ $order['items_count'] ?? count($order['items'] ?? []) }} {{ ($order['items_count'] ?? count($order['items'] ?? [])) === 1 ? 'item' : 'items' }}
                             </td>
-                            <td class="py-4 px-4 text-right font-medium text-ink lining-nums whitespace-nowrap">
+                            <td class="py-4 px-4 text-right price text-ink whitespace-nowrap">
                                 ${{ number_format($order['total'], 2) }}
                             </td>
                             <td class="py-4 pl-4 text-right whitespace-nowrap">
                                 <a 
                                     href="{{ route('account.order.details', $order['id']) }}" 
-                                    class="min-h-[44px] inline-flex items-center text-xs uppercase tracking-wider text-forest hover:text-forest-700 font-medium underline underline-offset-4 transition-colors"
+                                    class="min-h-[44px] inline-flex items-center text-[13px] text-forest hover:text-ink font-medium underline underline-offset-4 transition-colors"
                                 >
-                                    View
+                                    View details
                                 </a>
                             </td>
                         </tr>
@@ -61,15 +61,15 @@
             </table>
         </div>
 
-        <!-- Mobile Stacked Order Rows (below lg) -->
+        <!-- Mobile Stacked Order Rows (below lg, no tables, full-width button) -->
         <div class="lg:hidden divide-y divide-[#ECEEE6]">
             @foreach($orders as $order)
                 <div class="py-5 space-y-3">
                     <div class="flex items-start justify-between gap-4">
-                        <div class="space-y-0.5 min-w-0">
+                        <div class="space-y-1 min-w-0">
                             <a 
                                 href="{{ route('account.order.details', $order['id']) }}" 
-                                class="text-base font-semibold text-ink hover:text-forest break-words block"
+                                class="text-base font-medium text-ink hover:text-forest break-words block lining-nums"
                             >
                                 Order #{{ $order['id'] }}
                             </a>
@@ -77,9 +77,9 @@
                                 {{ $order['date'] }} · {{ $order['items_count'] ?? count($order['items'] ?? []) }} {{ ($order['items_count'] ?? count($order['items'] ?? [])) === 1 ? 'item' : 'items' }}
                             </p>
                         </div>
-                        <div class="text-right shrink-0 space-y-1">
+                        <div class="text-right shrink-0 space-y-1.5">
                             <x-storefront.status-badge :status="$order['status']" />
-                            <p class="text-sm font-semibold text-ink lining-nums">
+                            <p class="price text-sm text-ink block">
                                 ${{ number_format($order['total'], 2) }}
                             </p>
                         </div>
@@ -88,9 +88,9 @@
                     <div>
                         <a 
                             href="{{ route('account.order.details', $order['id']) }}" 
-                            class="min-h-[44px] w-full flex items-center justify-center border border-forest text-forest hover:bg-forest hover:text-ivory text-xs uppercase tracking-wider font-medium transition-colors"
+                            class="btn-secondary w-full text-center"
                         >
-                            View details
+                            View Order Details
                         </a>
                     </div>
                 </div>
@@ -98,9 +98,9 @@
         </div>
     @else
         <!-- Empty State -->
-        <div class="py-16 text-center space-y-4 max-w-md mx-auto">
-            <div class="w-12 h-12 mx-auto rounded-full bg-forest/5 flex items-center justify-center text-forest/70">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <div class="py-16 text-center border border-[#E3E6DD] bg-white p-8 space-y-4 max-w-lg mx-auto">
+            <div class="w-14 h-14 mx-auto rounded-full bg-sage-light/50 flex items-center justify-center text-forest/70">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
             </div>
@@ -108,11 +108,11 @@
                 No Orders Yet
             </h2>
             <p class="text-sm text-muted leading-relaxed">
-                You have not placed any botanical orders yet. When you complete an order, its details and shipment tracking will appear here.
+                You have not placed any botanical orders yet. When you complete an order, its details and shipment status will appear here.
             </p>
             <div class="pt-2">
-                <a href="{{ route('shop.index') }}" class="btn-primary min-h-[44px]">
-                    Start shopping
+                <a href="{{ route('shop.index') }}" class="btn-primary w-full sm:w-auto">
+                    Explore Formulations
                 </a>
             </div>
         </div>

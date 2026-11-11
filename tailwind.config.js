@@ -49,9 +49,9 @@ export default {
                     light: '#424741',
                 },
                 muted: {
-                    DEFAULT: '#777D74',
-                    light: '#9DA39A',
-                    dark: '#585D55',
+                    DEFAULT: '#585D55',
+                    light: '#777D74',
+                    dark: '#424741',
                 },
             },
             fontFamily: {

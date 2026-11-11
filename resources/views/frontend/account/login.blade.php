@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Sign In — ' . config('demo.site.name'))
+@section('meta_description', 'Sign in to your account at The Everbloom to view orders, saved formulations, and delivery addresses.')
 @section('meta_robots', 'noindex, nofollow')
 @section('hide_newsletter', true)
 
@@ -17,18 +18,44 @@
 
         <div 
             x-data="{
-                email: 'eleanor.vance@example.com',
-                password: '••••••••',
+                email: '',
+                password: '',
                 showPassword: false,
-                rememberMe: true,
+                rememberMe: false,
+                errors: {},
                 demoNotice: '',
                 socialNotice: '',
                 forgotNotice: '',
+                clearError(field) {
+                    if (this.errors[field]) delete this.errors[field];
+                },
+                validate() {
+                    this.errors = {};
+                    if (!this.email.trim()) {
+                        this.errors.email = 'Please enter your email address.';
+                    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim())) {
+                        this.errors.email = 'Please enter a valid email address.';
+                    }
+                    if (!this.password) {
+                        this.errors.password = 'Please enter your password.';
+                    }
+                    const keys = Object.keys(this.errors);
+                    if (keys.length > 0) {
+                        const first = keys[0];
+                        this.$nextTick(() => {
+                            const el = document.getElementById('login-' + first);
+                            if (el) el.focus();
+                        });
+                        return false;
+                    }
+                    return true;
+                },
                 submit() {
-                    this.demoNotice = 'Demo only. Authentication is simulated for sample exploration.';
+                    if (!this.validate()) return;
+                    this.demoNotice = 'Demo only. No authentication was performed.';
                 },
                 socialLogin(provider) {
-                    this.socialNotice = 'Demo only. ' + provider + ' authentication is simulated in demo mode.';
+                    this.socialNotice = 'Demo only. ' + provider + ' sign-in is not connected in demo mode.';
                     setTimeout(() => { this.socialNotice = ''; }, 6000);
                 },
                 forgot() {
@@ -36,7 +63,7 @@
                     setTimeout(() => { this.forgotNotice = ''; }, 5000);
                 }
             }" 
-            class="space-y-6"
+            class="bg-white border border-[#E3E6DD] p-6 sm:p-8 space-y-6"
         >
             <!-- Header -->
             <div class="border-b border-[#ECEEE6] pb-5">
@@ -47,10 +74,10 @@
                     Sign In
                 </h1>
                 <p class="text-sm text-muted mt-1 leading-relaxed">
-                    Sign in to access your previous orders, saved botanical formulations, and customer details.
+                    Sign in to access your order history, saved botanical formulations, and delivery addresses.
                 </p>
-                <p class="text-xs text-muted/80 mt-1 font-normal">
-                    Demo account. Sample data.
+                <p class="text-xs text-muted mt-1.5 font-normal">
+                    Demo account — sample data for preview only.
                 </p>
             </div>
 
@@ -59,16 +86,17 @@
                 x-show="demoNotice" 
                 x-cloak 
                 x-transition 
-                class="p-4 bg-forest text-ivory text-xs space-y-2 border-l-2 border-sage"
+                class="p-4 bg-forest text-ivory text-xs space-y-2 border border-forest"
                 role="status"
+                aria-live="polite"
             >
-                <div class="flex items-center justify-between">
-                    <span class="uppercase tracking-wider font-medium" x-text="demoNotice"></span>
-                    <button type="button" @click="demoNotice = ''" class="p-1 hover:text-sage text-ivory min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Close message">✕</button>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="uppercase tracking-[0.2em] font-medium" x-text="demoNotice"></span>
+                    <button type="button" @click="demoNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
                 </div>
                 <div class="pt-1">
-                    <a href="{{ route('account') }}" class="underline font-medium hover:text-sage text-xs uppercase tracking-wider block">
-                        → Access Demo Account Dashboard Directly
+                    <a href="{{ route('account') }}" class="underline underline-offset-4 font-medium hover:text-sage-light text-xs uppercase tracking-[0.2em] block">
+                        → View Sample Account Overview
                     </a>
                 </div>
             </div>
@@ -77,16 +105,17 @@
                 x-show="socialNotice" 
                 x-cloak 
                 x-transition 
-                class="p-4 bg-forest text-ivory text-xs space-y-2 border-l-2 border-sage"
+                class="p-4 bg-forest text-ivory text-xs space-y-2 border border-forest"
                 role="status"
+                aria-live="polite"
             >
-                <div class="flex items-center justify-between">
-                    <span class="uppercase tracking-wider font-medium" x-text="socialNotice"></span>
-                    <button type="button" @click="socialNotice = ''" class="p-1 hover:text-sage text-ivory min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Close message">✕</button>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="uppercase tracking-[0.2em] font-medium" x-text="socialNotice"></span>
+                    <button type="button" @click="socialNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
                 </div>
                 <div class="pt-1">
-                    <a href="{{ route('account') }}" class="underline font-medium hover:text-sage text-xs uppercase tracking-wider block">
-                        → Access Demo Account Dashboard Directly
+                    <a href="{{ route('account') }}" class="underline underline-offset-4 font-medium hover:text-sage-light text-xs uppercase tracking-[0.2em] block">
+                        → View Sample Account Overview
                     </a>
                 </div>
             </div>
@@ -95,11 +124,12 @@
                 x-show="forgotNotice" 
                 x-cloak 
                 x-transition 
-                class="p-4 bg-white border border-[#E3E6DD] text-ink text-xs uppercase tracking-wider flex items-center justify-between"
+                class="p-4 bg-sage-light/60 border border-[#E3E6DD] text-ink text-xs uppercase tracking-[0.2em] flex items-center justify-between gap-2"
                 role="status"
+                aria-live="polite"
             >
                 <span x-text="forgotNotice"></span>
-                <button type="button" @click="forgotNotice = ''" class="p-1 text-muted hover:text-ink min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Close message">✕</button>
+                <button type="button" @click="forgotNotice = ''" class="w-11 h-11 -mr-2 text-muted hover:text-ink flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
             </div>
 
             <!-- Social Authentication Section -->
@@ -108,7 +138,7 @@
                 <button 
                     type="button" 
                     @click="socialLogin('Google')" 
-                    class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F2F5F3] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors cursor-pointer rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                    class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F2F5F3] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors cursor-pointer rounded-none"
                     aria-label="Continue with Google"
                 >
                     <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
@@ -124,7 +154,7 @@
                 <button 
                     type="button" 
                     @click="socialLogin('Apple')" 
-                    class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F2F5F3] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors cursor-pointer rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                    class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F2F5F3] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors cursor-pointer rounded-none"
                     aria-label="Continue with Apple"
                 >
                     <svg class="w-5 h-5 shrink-0 fill-current text-ink" viewBox="0 0 24 24" aria-hidden="true">
@@ -139,41 +169,46 @@
                 <div class="absolute inset-0 flex items-center" aria-hidden="true">
                     <div class="w-full border-t border-[#ECEEE6]"></div>
                 </div>
-                <div class="relative flex justify-center text-xs uppercase">
-                    <span class="bg-[#F8F6F0] px-4 text-muted tracking-widest text-[11px] font-medium">
+                <div class="relative flex justify-center">
+                    <span class="bg-white px-4 text-muted uppercase tracking-[0.2em] text-xs font-medium">
                         Or continue with email
                     </span>
                 </div>
             </div>
 
-            <!-- Email & Password Form -->
+            <!-- Email & Password Form (Neutral placeholders, no fake prefilled values) -->
             <form @submit.prevent="submit()" class="space-y-5" novalidate>
                 <!-- Email Address -->
                 <div>
-                    <label for="login-email" class="block text-xs uppercase tracking-[0.16em] text-muted font-medium mb-1.5">
-                        Email Address
+                    <label for="login-email" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                        Email Address <span class="text-forest" aria-hidden="true">*</span>
                     </label>
                     <input 
                         type="email" 
                         id="login-email" 
                         x-model="email" 
+                        @input="clearError('email')"
                         autocomplete="email" 
                         required 
-                        placeholder="name@domain.com" 
+                        placeholder="name@example.com" 
                         class="input-field" 
+                        :class="errors.email ? 'input-error' : ''"
+                        :aria-invalid="errors.email ? 'true' : 'false'"
+                        :aria-describedby="errors.email ? 'err-login-email' : null"
                     />
+                    <p id="err-login-email" x-show="errors.email" x-text="errors.email" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                 </div>
 
                 <!-- Password -->
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
-                        <label for="login-password" class="block text-xs uppercase tracking-[0.16em] text-muted font-medium">
-                            Password
+                        <label for="login-password" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium">
+                            Password <span class="text-forest" aria-hidden="true">*</span>
                         </label>
                         <button 
                             type="button" 
                             @click="forgot()" 
-                            class="text-xs text-muted hover:text-forest underline underline-offset-2 min-h-[44px] flex items-center cursor-pointer"
+                            class="text-[13px] text-muted hover:text-forest underline underline-offset-4 min-h-[44px] flex items-center cursor-pointer"
                         >
                             Forgot password?
                         </button>
@@ -183,9 +218,14 @@
                             :type="showPassword ? 'text' : 'password'" 
                             id="login-password" 
                             x-model="password" 
+                            @input="clearError('password')"
                             autocomplete="current-password" 
                             required 
+                            placeholder="Enter your password"
                             class="input-field pr-12" 
+                            :class="errors.password ? 'input-error' : ''"
+                            :aria-invalid="errors.password ? 'true' : 'false'"
+                            :aria-describedby="errors.password ? 'err-login-password' : null"
                         />
                         <button 
                             type="button" 
@@ -206,6 +246,7 @@
                             </template>
                         </button>
                     </div>
+                    <p id="err-login-password" x-show="errors.password" x-text="errors.password" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                 </div>
 
                 <!-- Remember Me Checkbox -->
@@ -214,9 +255,9 @@
                         type="checkbox" 
                         id="remember-me" 
                         x-model="rememberMe"
-                        class="w-4 h-4 rounded-none accent-[#304C3D] text-[#304C3D] border-[#D5DBCF] focus:ring-forest focus:ring-offset-0"
+                        class="w-4 h-4 rounded-none accent-[#304C3D] border-[#D5DBCF] cursor-pointer"
                     />
-                    <label for="remember-me" class="text-xs text-ink select-none cursor-pointer">
+                    <label for="remember-me" class="text-sm text-ink select-none cursor-pointer">
                         Keep me signed in on this device
                     </label>
                 </div>
@@ -227,22 +268,22 @@
                         type="submit" 
                         class="btn-primary w-full min-h-[48px] cursor-pointer"
                     >
-                        Sign in
+                        Sign In
                     </button>
                 </div>
             </form>
 
             <!-- Bottom Cross-links -->
-            <div class="text-center pt-6 border-t border-[#ECEEE6] text-xs text-muted space-y-3">
+            <div class="text-center pt-6 border-t border-[#ECEEE6] text-[13px] text-muted space-y-3">
                 <p>
                     Don't have an account? 
-                    <a href="{{ route('register') }}" class="text-forest font-medium hover:underline ml-1">
+                    <a href="{{ route('register') }}" class="text-forest font-medium underline underline-offset-4 hover:text-ink ml-1">
                         Create an account
                     </a>
                 </p>
                 <div>
-                    <a href="{{ route('account') }}" class="inline-flex items-center text-xs uppercase tracking-wider text-muted hover:text-forest underline underline-offset-4">
-                        Explore Demo Account directly →
+                    <a href="{{ route('account') }}" class="min-h-[44px] inline-flex items-center text-xs uppercase tracking-[0.2em] text-muted hover:text-forest underline underline-offset-4">
+                        Explore Demo Account Overview →
                     </a>
                 </div>
             </div>

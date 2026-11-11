@@ -1,51 +1,91 @@
-@extends('layouts.app')
+@extends('layouts.account')
 
-@section('title', 'Your Saved Formulations — The Everbloom')
-@section('meta_description', 'View your saved wishlist of botanical skincare products.')
+@section('title', 'Saved Wishlist — ' . config('demo.site.name'))
+@section('meta_description', 'View and manage your saved wishlist of botanical skincare formulations at The Everbloom.')
 
-@section('content')
-<div class="site-container py-12 md:py-16 space-y-8" x-data>
-    <x-storefront.breadcrumbs :items="[['label' => 'Wishlist', 'url' => '']]" />
+@section('breadcrumbs')
+    <x-storefront.breadcrumbs :items="[
+        ['label' => 'My Account', 'url' => route('account')],
+        ['label' => 'Wishlist', 'url' => ''],
+    ]" />
+@endsection
 
-    <div class="border-b border-beige pb-6 flex items-baseline justify-between">
-        <div>
-            <h1 class="font-serif text-3xl sm:text-4xl text-ink font-normal">Saved Botanical Rituals</h1>
-            <p class="text-sm text-muted mt-1">Formulations you have saved to your private curation list.</p>
-        </div>
-        <span class="text-xs uppercase tracking-widest text-muted" x-text="$store.wishlist.count + ' Saved'"></span>
+@section('page_title', 'Saved Botanical Rituals')
+
+@section('page_subtitle')
+    <p class="text-sm text-muted">
+        Formulations you have saved to your personal curation list.
+    </p>
+@endsection
+
+@section('header_actions')
+    <div x-data class="text-xs uppercase tracking-[0.2em] text-muted font-medium" aria-live="polite">
+        <span class="price" x-text="$store.wishlist ? $store.wishlist.count : 0">0</span> Saved
     </div>
+@endsection
 
+@section('account_content')
+<div x-data class="space-y-8">
     <!-- Empty State -->
-    <div x-show="$store.wishlist.count === 0" class="py-16 text-center border border-dashed border-beige bg-white p-8">
-        <svg class="w-12 h-12 mx-auto text-muted mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-        </svg>
-        <p class="font-serif text-lg text-ink">No saved formulations yet</p>
-        <p class="text-xs text-muted max-w-xs mx-auto mt-1 mb-6">Click the heart icon on any product to curate your personal collection.</p>
-        <x-storefront.button href="/shop" size="sm">
-            Browse Formulations
-        </x-storefront.button>
+    <div x-show="!$store.wishlist || $store.wishlist.count === 0" class="py-16 text-center border border-[#E3E6DD] bg-white p-8 max-w-lg mx-auto space-y-4">
+        <div class="w-14 h-14 mx-auto rounded-full bg-sage-light/50 flex items-center justify-center text-forest/70">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+        </div>
+        <div class="space-y-1">
+            <h2 class="font-serif text-2xl text-ink font-normal">No Saved Formulations Yet</h2>
+            <p class="text-sm text-muted max-w-xs mx-auto leading-relaxed">
+                Select the heart icon on any product to curate your personal botanical ritual.
+            </p>
+        </div>
+        <div class="pt-2">
+            <a href="{{ route('shop.index') }}" class="btn-primary w-full sm:w-auto">
+                Explore Formulations
+            </a>
+        </div>
     </div>
 
     <!-- Wishlist Items Grid -->
-    <div x-show="$store.wishlist.count > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div x-show="$store.wishlist && $store.wishlist.count > 0" x-cloak class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
         <template x-for="item in $store.wishlist.items" :key="item.id || item">
-            <div class="bg-white border border-beige p-4 flex flex-col justify-between">
+            <article class="bg-white border border-[#E3E6DD] p-3 sm:p-4 flex flex-col justify-between">
                 <div>
-                    <div class="aspect-[4/5] bg-sage-light/40 overflow-hidden mb-3 relative">
-                        <template x-if="item.image">
-                            <img :src="'/images/' + item.image" :alt="item.name" class="w-full h-full object-cover">
-                        </template>
+                    <a :href="'/shop/product/' + item.slug" class="block aspect-[4/5] bg-sage-light/40 overflow-hidden mb-3 relative">
+                        <x-storefront.image 
+                            ::src="item.image ? '/images/' + item.image : ''" 
+                            ::alt="item.name || 'Botanical formulation'" 
+                            aspect-ratio="aspect-[4/5]" 
+                            class="w-full h-full object-cover" 
+                        />
+                    </a>
+                    <span class="text-xs uppercase tracking-[0.2em] text-muted block truncate" x-text="item.category"></span>
+                    <a :href="'/shop/product/' + item.slug" class="font-serif text-base text-ink hover:text-forest transition-colors line-clamp-2 mt-0.5 min-h-[2.5rem]" x-text="item.name"></a>
+                    <p class="price text-sm font-medium text-ink mt-1.5" x-text="'$' + parseFloat(item.price || 0).toFixed(2)"></p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-[#ECEEE6] space-y-2">
+                    <button 
+                        type="button" 
+                        @click="$store.cart.add(item.id, 1)" 
+                        class="btn-primary w-full !px-3 !py-2.5 !text-xs cursor-pointer"
+                    >
+                        Add to Bag
+                    </button>
+                    <div class="flex items-center justify-between">
+                        <button 
+                            type="button" 
+                            @click="$store.wishlist.toggle(item)" 
+                            class="min-h-[44px] inline-flex items-center text-[13px] text-muted hover:text-ink underline underline-offset-4 cursor-pointer"
+                            :aria-label="'Remove ' + item.name + ' from wishlist'"
+                        >
+                            Remove
+                        </button>
+                        <a :href="'/shop/product/' + item.slug" class="min-h-[44px] inline-flex items-center text-[13px] text-forest font-medium hover:underline underline-offset-4">
+                            Details →
+                        </a>
                     </div>
-                    <span class="text-[10px] uppercase tracking-widest text-muted block" x-text="item.category"></span>
-                    <a :href="'/shop/product/' + item.slug" class="font-serif text-base text-ink hover:text-forest transition-colors line-clamp-1" x-text="item.name"></a>
-                    <p class="text-xs font-semibold text-ink mt-1" x-text="'$' + parseFloat(item.price || 0).toFixed(2)"></p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-beige flex items-center justify-between">
-                    <button type="button" @click="$store.wishlist.toggle(item)" class="text-xs text-rose-800 hover:underline">Remove</button>
-                    <a :href="'/shop/product/' + item.slug" class="text-xs uppercase tracking-widest text-forest font-medium hover:underline">View →</a>
-                </div>
-            </div>
+            </article>
         </template>
     </div>
 </div>

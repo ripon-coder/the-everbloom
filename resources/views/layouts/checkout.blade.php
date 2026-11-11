@@ -10,7 +10,7 @@
     <!-- Preconnect to Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 
     @stack('meta')
 
@@ -19,25 +19,19 @@
         window.__everbloomProducts = {!! json_encode(config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
         window.__everbloomDiscounts = {!! json_encode(config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
     </script>
-    <script id="everbloom-products-data" type="application/json">
-    {!! json_encode(config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-    </script>
-    <script id="everbloom-discounts-data" type="application/json">
-    {!! json_encode(config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-    </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
 <body class="min-h-full flex flex-col bg-ivory text-ink selection:bg-sage selection:text-ink">
     <!-- Accessible Skip to Content -->
-    <a href="#checkout-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-forest focus:text-ivory focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-forest text-xs uppercase tracking-widest font-medium">
+    <a href="#checkout-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-forest focus:text-ivory text-xs uppercase tracking-widest font-medium">
         Skip to checkout content
     </a>
 
-    <!-- Non-sticky header on checkout with solid background and 1px border -->
+    <!-- Identical non-sticky header with solid #F8F6F0 background and 1px border -->
     <x-storefront.announcement-bar />
-    <x-storefront.header :sticky="false" />
+    <x-storefront.header />
 
     <!-- Main Checkout View -->
     <main id="checkout-content" class="flex-1 focus:outline-none" tabindex="-1">
@@ -48,10 +42,10 @@
     <!-- Minimal Checkout Footer: Copyright + Privacy, Terms, Returns only (No link columns, no newsletter) -->
     <footer class="mt-auto bg-[#253B2F] text-ivory/80 border-t border-white/10 py-6 text-xs" role="contentinfo">
         <div class="site-container flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p class="text-xs uppercase tracking-wider text-ivory/75">
+            <p class="text-xs uppercase tracking-wider text-ivory/85">
                 © {{ date('Y') }} {{ config('demo.site.name', 'THE EVERBLOOM') }}. ALL RIGHTS RESERVED.
             </p>
-            <nav class="flex flex-wrap items-center gap-6 text-[13px] text-ivory/85" aria-label="Checkout Legal Links">
+            <nav class="flex flex-wrap items-center gap-6 text-[13px] text-ivory/90" aria-label="Checkout Legal Links">
                 <a href="/privacy-policy" class="hover:text-sage-light transition-colors">Privacy</a>
                 <a href="/terms-and-conditions" class="hover:text-sage-light transition-colors">Terms</a>
                 <a href="/shipping-and-returns" class="hover:text-sage-light transition-colors">Returns</a>
