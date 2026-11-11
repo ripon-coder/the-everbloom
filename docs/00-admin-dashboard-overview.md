@@ -104,7 +104,7 @@ public/admin/assets/
 
 ---
 
-## 5. Target Laravel Route Architecture (`routes/web.php` or `routes/admin.php`)
+## 5. Target Laravel Route Architecture (`routes/admin.php`)
 
 ```php
 Route::prefix('admin')->name('admin.')->group(function () {
