@@ -8,6 +8,7 @@
 >   - `resources/views/layouts/admin-auth.blade.php` (Standalone Auth Shell)
 >   - `resources/views/components/admin/topbar.blade.php`
 >   - `resources/views/components/admin/sidebar.blade.php`
+>   - `resources/views/components/admin/offcanvas-drawers.blade.php`
 >   - `resources/views/components/admin/footer.blade.php`
 
 ---

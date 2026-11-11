@@ -129,3 +129,4 @@ Route::get('/account/orders', [AccountController::class, 'orders'])->name('accou
 Route::get('/account/orders/{id}', [AccountController::class, 'showOrder'])->name('account.order.details');
 Route::get('/account/addresses', [AccountController::class, 'addresses'])->name('account.addresses');
 Route::get('/account/profile', [AccountController::class, 'profile'])->name('account.profile');
+

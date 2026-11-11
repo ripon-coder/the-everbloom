@@ -41,31 +41,30 @@ The Everbloom project uses two completely separate frontend styling paradigms th
 
 `docs/admin-dashboard/` contains **123 HTML files**. For **The Everbloom** (a single-brand botanical skincare store), we only extract **26 core templates** and exclude multi-vendor seller pages, generic SaaS apps, and UI kitchen-sink demos.
 
-### 3.1 Core Templates to Extract & Adapt (Priority 1 — MVP Admin)
+### 3.1 Core Templates to Extract & Adapt (Priority 1 — MVP Admin — Implemented)
 
-| Admin Module | Source File in `docs/admin-dashboard/` | Target Blade View | Purpose in The Everbloom |
-| :--- | :--- | :--- | :--- |
-| **Layout Shell** | `index.html` (lines 1–1245, 1760–1798) | `layouts/admin.blade.php` | Master wrapper, Topbar, Sidebar, Theme Settings Offcanvas, Activity Offcanvas, Footer |
-| **Auth Shell** | `auth-signin.html`, `auth-password.html`, `auth-lock-screen.html` | `layouts/admin-auth.blade.php`<br>`admin/auth/login.blade.php`<br>`admin/auth/forgot-password.blade.php` | Split-screen 2-column admin sign-in & password reset |
-| **Dashboard** | `index.html` (lines 1245–1760) | `admin/dashboard/index.blade.php` | Store KPIs, Performance ApexChart, Conversions RadialBar, Recent Orders |
-| **Products** | `product-list.html` | `admin/products/index.blade.php` | Skincare catalogue table with thumbnail, sizes, price, stock, rating, actions |
-| **Products** | `product-grid.html` | `admin/products/grid.blade.php` | Visual card grid with sidebar filter for botanical products |
-| **Products** | `product-details.html` | `admin/products/show.blade.php` | Admin product preview, variant stock breakdown, review summary |
-| **Products** | `product-add.html`, `product-edit.html` | `admin/products/create.blade.php`<br>`admin/products/edit.blade.php` | Live preview card + Dropzone image uploader + product/ingredients/variant/pricing form |
-| **Categories** | `category-list.html`, `category-add.html`, `category-edit.html` | `admin/categories/index.blade.php`<br>`admin/categories/create.blade.php`<br>`admin/categories/edit.blade.php` | Face Care, Body Care, Serums, Moisturizers, Cleansers, Sunscreens management |
-| **Orders** | `orders-list.html` | `admin/orders/index.blade.php` | 8-card order status summary + filterable order list (`#EVB-*`) |
-| **Orders** | `order-detail.html` | `admin/orders/show.blade.php` | 5-step progress tracker, line items, order timeline, customer/shipping/payment sidebar |
-| **Inventory** | `inventory-warehouse.html`, `inventory-received-orders.html` | `admin/inventory/index.blade.php`<br>`admin/inventory/received.blade.php` | Variant SKU stock levels (`in_stock`, `low_stock`, `out_of_stock`) & restock batches |
-| **Customers** | `customer-list.html`, `customer-detail.html` | `admin/customers/index.blade.php`<br>`admin/customers/show.blade.php` | Customer KPI cards, directory table, customer profile, saved addresses & order history |
-| **Coupons** | `coupons-list.html`, `coupons-add.html` | `admin/coupons/index.blade.php`<br>`admin/coupons/create.blade.php` | Promo code management (`WELCOME10`, `BLOOM10`, `FREESHIP`, `BOTANICAL20`) |
-| **Reviews** | `pages-review.html` | `admin/reviews/index.blade.php` | Customer product review moderation & star ratings |
-| **Invoices** | `invoice-list.html`, `invoice-details.html`, `invoice-add.html` | `admin/invoices/index.blade.php`<br>`admin/invoices/show.blade.php` | Printable order invoices & billing records |
-| **Settings** | `settings.html`, `pages-profile.html` | `admin/settings/index.blade.php`<br>`admin/profile/index.blade.php` | Store metadata, announcement bar, shipping thresholds (`$75`), tax & review toggles |
+| Admin Module | Source File in `docs/admin-dashboard/` | Implemented Blade View | Controller (`app/Http/Controllers/Admin/`) | Purpose in The Everbloom |
+| :--- | :--- | :--- | :--- | :--- |
+| **Layout Shell** | `index.html` (lines 1–1245, 1760–1798) | `layouts/admin.blade.php`<br>`components/admin/topbar.blade.php`<br>`components/admin/sidebar.blade.php`<br>`components/admin/offcanvas-drawers.blade.php`<br>`components/admin/footer.blade.php` | — | Master wrapper, Topbar, Sidebar, Theme Settings Offcanvas, Activity Offcanvas, Footer |
+| **Auth Shell** | `auth-signin.html`, `auth-password.html` | `layouts/admin-auth.blade.php`<br>`admin/auth/login.blade.php` | `AdminAuthController` | Split-screen 2-column admin sign-in & authentication |
+| **Dashboard** | `index.html` (lines 1245–1760) | `admin/dashboard/index.blade.php` | `AdminDashboardController` | Store KPIs, Performance ApexChart, Conversions RadialBar, World Map, Top Formulations, Recent Orders |
+| **Products (List)** | `product-list.html` | `admin/products/index.blade.php` | `AdminProductController@index` | Skincare catalogue table with category/search filters, thumbnails, sizes, SKU, price, stock, rating, actions |
+| **Products (Create / Edit)** | `product-add.html`, `product-edit.html` | `admin/products/create.blade.php` *(handles both Create & Edit via `$isEdit`)* | `AdminProductController@create`<br>`AdminProductController@edit` | Sticky live preview card + Dropzone image uploader + botanical INCI/ritual/variant/pricing form |
+| **Categories** | `category-list.html`, `category-add.html`, `category-edit.html` | `admin/categories/index.blade.php`<br>`admin/categories/create.blade.php` *(Create & Edit via `$isEdit`)* | `AdminCategoryController` | 4 featured category hero cards + full categories table & form |
+| **Orders (List)** | `orders-list.html` | `admin/orders/index.blade.php` | `AdminOrderController@index` | 4 status counter cards (`All`, `Processing`, `Dispatched`, `Delivered`) + filterable order list (`#EVB-*`) |
+| **Orders (Detail)** | `order-detail.html` | `admin/orders/show.blade.php` | `AdminOrderController@show` | 5-step animated progress tracker, line items, courier tracking, customer/shipping/payment sidebar |
+| **Inventory** | `inventory-warehouse.html` | `admin/inventory/index.blade.php` | `AdminInventoryController@index` | Batch stock health KPI cards + SKU/Lot# stock levels (`In Stock`, `Low Stock`, `Out of Stock`) |
+| **Customers** | `customer-list.html`, `customer-detail.html` | `admin/customers/index.blade.php`<br>`admin/customers/show.blade.php` | `AdminCustomerController` | Client metric cards, directory table, VIP client profile, saved addresses & order history |
+| **Coupons** | `coupons-list.html`, `coupons-add.html` | `admin/coupons/index.blade.php`<br>`admin/coupons/create.blade.php` | `AdminCouponController` | Promo code management (`WELCOME10`, `BLOOM10`, `FREESHIP`, `BOTANICAL20`) & creation form |
+| **Reviews** | `pages-review.html` | `admin/reviews/index.blade.php` | `AdminReviewController` | Customer product review moderation, star ratings & approval status toggle |
+| **Invoices** | `invoice-list.html`, `invoice-details.html` | `admin/invoices/index.blade.php`<br>`admin/invoices/show.blade.php` | `AdminInvoiceController` | Billing directory & printable branded botanical skincare invoice |
+| **Settings** | `settings.html` | `admin/settings/index.blade.php` | `AdminSettingController` | Brand identity, announcement bar toggle, shipping thresholds (`$75`), return window & studio contact |
 
 ### 3.2 Phase 2 / Optional Templates
 
 | Module | Source Files | When to Use |
 | :--- | :--- | :--- |
+| **Products Grid / Detail** | `product-grid.html`, `product-details.html` | Optional visual card grid (`admin/products/grid.blade.php`) or read-only admin inspection screen (`admin/products/show.blade.php`). |
 | **Attributes** | `attributes-list.html`, `attributes-add.html`, `attributes-edit.html` | When dynamic product attributes (e.g., Skin Type, Bottle Volume, Key Botanical Active) are stored in DB tables. |
 | **Roles & Permissions** | `role-list.html`, `role-add.html`, `role-edit.html`, `pages-permissions.html` | When multi-staff RBAC (Admin, Fulfillment Manager, Support Concierge) is implemented. |
 | **Purchases** | `purchase-list.html`, `purchase-order.html`, `purchase-returns.html` | When raw botanical ingredient / packaging supplier purchase orders are tracked. |
@@ -104,35 +103,69 @@ public/admin/assets/
 
 ---
 
-## 5. Target Laravel Route Architecture (`routes/admin.php`)
+## 5. Laravel Route Architecture (`routes/admin.php` & `bootstrap/app.php`)
 
+All admin routes are isolated in `routes/admin.php` (kept completely separate from `routes/web.php`) and registered in `bootstrap/app.php` via Laravel 11's `withRouting(then: ...)` callback:
+
+### 5.1 Route Registration (`bootstrap/app.php`)
 ```php
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
+        then: function () {
+            Route::middleware('web')
+                ->group(base_path('routes/admin.php'));
+        },
+    )
+```
+
+### 5.2 Active Route Definitions (`routes/admin.php`)
+```php
+// Admin Authentication
+Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
+Route::post('/admin/login', [AdminAuthController::class, 'login']);
+Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+
+// Authenticated Admin Console Area
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Auth
-    Route::get('/login', [AdminAuthController::class, 'login'])->name('login');
-    Route::get('/forgot-password', [AdminAuthController::class, 'forgotPassword'])->name('password.request');
+    // BACKEND: Add 'auth:admin' middleware here
 
     // Dashboard
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    // Catalogue: Products & Categories
+    // Products Management (index, create, store, show, edit, update, destroy)
     Route::resource('products', AdminProductController::class);
-    Route::get('products-grid', [AdminProductController::class, 'grid'])->name('products.grid');
+
+    // Categories Management (index, create, store, show, edit, update, destroy)
     Route::resource('categories', AdminCategoryController::class);
 
-    // Fulfillment: Orders, Inventory & Invoices
-    Route::resource('orders', AdminOrderController::class)->only(['index', 'show', 'update']);
+    // Orders Management
+    Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
+    Route::post('orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+    // Inventory & Batch Tracking
     Route::get('inventory', [AdminInventoryController::class, 'index'])->name('inventory.index');
-    Route::resource('invoices', AdminInvoiceController::class)->only(['index', 'show', 'create']);
 
-    // Customers, Reviews & Marketing
-    Route::resource('customers', AdminCustomerController::class)->only(['index', 'show']);
-    Route::resource('coupons', AdminCouponController::class)->only(['index', 'create', 'store', 'destroy']);
+    // Invoices
+    Route::get('invoices', [AdminInvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('invoices/{id}', [AdminInvoiceController::class, 'show'])->name('invoices.show');
+
+    // Customers
+    Route::get('customers', [AdminCustomerController::class, 'index'])->name('customers.index');
+    Route::get('customers/{id}', [AdminCustomerController::class, 'show'])->name('customers.show');
+
+    // Coupons & Promotions
+    Route::resource('coupons', AdminCouponController::class)->only(['index', 'create', 'store']);
+
+    // Customer Reviews Moderation
     Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+    Route::post('reviews/{id}/toggle', [AdminReviewController::class, 'toggleStatus'])->name('reviews.toggleStatus');
 
-    // Configuration & Access
+    // Store Settings
     Route::get('settings', [AdminSettingController::class, 'index'])->name('settings.index');
-    Route::get('profile', [AdminProfileController::class, 'index'])->name('profile.index');
-    Route::resource('roles', AdminRoleController::class)->only(['index', 'create', 'edit']);
+    Route::post('settings', [AdminSettingController::class, 'update'])->name('settings.update');
 });
 ```
