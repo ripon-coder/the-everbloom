@@ -12,7 +12,7 @@
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 max-h-12"
         x-transition:leave-end="opacity-0 max-h-0"
-        class="bg-forest text-ivory text-[11px] sm:text-xs tracking-wider uppercase font-medium py-2 px-8 relative z-40 border-b border-forest-600/40"
+        class="bg-forest text-ivory text-[11px] sm:text-xs tracking-wider uppercase font-medium py-2 px-6 sm:px-8 relative z-40 border-b border-forest-600/40"
     >
         <div class="site-container flex items-center justify-center text-center relative">
             <!-- Single-line container preventing wrapping on mobile -->

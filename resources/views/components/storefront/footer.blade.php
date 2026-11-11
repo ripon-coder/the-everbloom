@@ -4,7 +4,7 @@
 @endphp
 
 <footer class="mt-auto" role="contentinfo">
-    @if(!View::hasSection('hide_newsletter') && !request()->is('cart*') && !request()->is('checkout*'))
+    @if(!View::hasSection('hide_newsletter') && !request()->is('cart*') && !request()->is('checkout*') && !request()->is('account*'))
     <!-- Top Newsletter Band: Separated on Warm Beige with Forest Green CTA -->
     <section class="bg-beige text-ink border-t border-b border-beige-dark/40 py-12 md:py-16" aria-label="Newsletter Subscription">
         <div class="site-container">

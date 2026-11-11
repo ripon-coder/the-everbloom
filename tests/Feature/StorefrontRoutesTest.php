@@ -28,6 +28,8 @@ class StorefrontRoutesTest extends TestCase
             '/account',
             '/account/orders',
             '/account/orders/EVB-8921',
+            '/account/addresses',
+            '/account/profile',
         ];
 
         foreach ($routes as $route) {

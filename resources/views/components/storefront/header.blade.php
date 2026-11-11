@@ -1,8 +1,8 @@
 @props([
-    'sticky' => !request()->is('checkout*'),
+    'sticky' => !request()->is('checkout*') && !request()->is('account*'),
 ])
 
-<header class="{{ $sticky ? 'sticky top-0 z-40' : 'static z-40' }} bg-[#F8F6F0] border-b border-[#ECEEE6] transition-all duration-200">
+<header class="{{ $sticky ? 'static lg:sticky lg:top-0 z-40' : 'static z-40' }} bg-[#F8F6F0] border-b border-[#ECEEE6] transition-all duration-200">
     <div class="site-container">
         <!-- Top Tier: Brand Logo & Actions -->
         <div class="flex items-center justify-between h-16 md:h-20">
@@ -50,22 +50,9 @@
                 </a>
             </div>
 
-            <!-- Right: Actions (Mobile: Search & Bag only; Desktop: Search, Wishlist, Account, Bag) -->
+            <!-- Right: Actions (Mobile: Account only; Desktop: Wishlist, Account, Bag) -->
             <div class="flex items-center justify-end space-x-1 sm:space-x-3 flex-1">
-                <!-- Mobile Search Icon Button (Mobile Only) -->
-                <button 
-                    type="button" 
-                    x-data
-                    @click="$dispatch('open-search')"
-                    class="lg:hidden p-2 text-ink hover:text-forest rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest cursor-pointer"
-                    aria-label="Search botanical products"
-                >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </button>
-
-                <!-- Wishlist Link with Live Counter (Desktop Only - moved to mobile drawer on mobile) -->
+                <!-- Wishlist Link with Live Counter (Desktop Only - moved to bottom nav on mobile) -->
                 <a 
                     href="/wishlist" 
                     x-data
@@ -84,10 +71,10 @@
                     ></span>
                 </a>
 
-                <!-- Account Icon (Desktop Only - moved to mobile drawer on mobile) -->
+                <!-- Account Icon (Visible on Mobile & Desktop) -->
                 <a 
                     href="/account" 
-                    class="hidden lg:inline-flex p-2 text-ink hover:text-forest rounded-sm transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                    class="inline-flex p-2 text-ink hover:text-forest rounded-sm transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
                     aria-label="My Account"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -95,27 +82,18 @@
                     </svg>
                 </a>
 
-                <!-- Cart Drawer Trigger Button with Item-Count Badge bound to Alpine.store('cart').count (hidden when 0) -->
+                <!-- Cart Drawer Trigger Button with Item-Count Badge (Desktop Only: Search and bag live in bottom bar on mobile) -->
                 <button 
                     type="button" 
                     x-data
                     @click="$store.cart.openDrawer()"
-                    class="p-2 text-ink hover:text-forest rounded-sm transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest cursor-pointer flex items-center gap-2"
+                    class="hidden lg:flex p-2 text-ink hover:text-forest rounded-sm transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest cursor-pointer items-center gap-2"
                     aria-label="Open Shopping Bag"
                 >
-                    <div class="relative flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                        <!-- Bag item-count badge bound to Alpine.store('cart').count (mobile only, hidden on desktop to avoid collision with Bag (X) label) -->
-                        <span 
-                            x-show="$store.cart.count > 0" 
-                            x-text="$store.cart.count" 
-                            x-cloak
-                            class="lg:hidden absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 bg-forest text-ivory text-xs font-sans font-medium flex items-center justify-center rounded-full leading-none pointer-events-none"
-                        ></span>
-                    </div>
-                    <span class="hidden lg:inline text-xs uppercase tracking-wider font-medium text-ink/90">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span class="text-xs uppercase tracking-wider font-medium text-ink/90">
                         Bag (<span x-text="$store.cart.count">0</span>)
                     </span>
                 </button>

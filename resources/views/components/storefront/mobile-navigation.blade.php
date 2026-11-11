@@ -99,6 +99,9 @@
                     ></span>
                 </a>
             </div>
+            <div class="pt-2 pb-1 text-right">
+                <a href="/account/login" @click="close()" class="text-[11px] text-muted hover:text-forest underline transition-colors">Sign out</a>
+            </div>
         </div>
 
         <!-- Quick Search Trigger inside Mobile Drawer -->

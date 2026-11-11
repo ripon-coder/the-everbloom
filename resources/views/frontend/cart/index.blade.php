@@ -32,7 +32,7 @@
 {!! json_encode($allProducts, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 </script>
 
-<div class="site-container py-8 md:py-12 space-y-8 pb-28 lg:pb-12" x-data>
+<div class="site-container py-8 md:py-12 space-y-8" x-data>
     <x-storefront.breadcrumbs :items="[
         ['label' => 'Shopping Bag', 'url' => '']
     ]" />
@@ -323,22 +323,6 @@
                     @foreach($pairingProducts as $pairedProduct)
                         <x-storefront.product-card :product="$pairedProduct" />
                     @endforeach
-                </div>
-            </div>
-
-            <!-- 3. STICKY CHECKOUT BAR (mobile only: fixed bottom bar with estimated total and Proceed to Checkout) -->
-            <div 
-                class="fixed bottom-0 inset-x-0 z-30 bg-ivory border-t border-beige px-4 py-3 sm:px-6 lg:hidden shadow-[0_-4px_12px_rgba(0,0,0,0.05)]"
-                style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));"
-            >
-                <div class="site-container flex items-center justify-between gap-4 !px-0">
-                    <div class="min-w-0">
-                        <span class="text-[11px] uppercase tracking-wider text-muted block font-sans">Estimated Total</span>
-                        <span class="price font-serif text-lg font-semibold text-ink block leading-tight truncate" x-text="'$' + $store.cart.total.toFixed(2)"></span>
-                    </div>
-                    <x-storefront.button href="/checkout" variant="primary" class="!py-3 !px-6 !text-xs whitespace-nowrap shrink-0">
-                        Proceed to Checkout
-                    </x-storefront.button>
                 </div>
             </div>
 

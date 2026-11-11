@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -119,28 +120,12 @@ Route::get('/shipping-and-returns', function () {
     return view('frontend.pages.shipping-and-returns');
 })->name('shipping');
 
-// Account Authentication & Dashboard (Demo)
-Route::get('/account/login', function () {
-    // BACKEND: replace with Laravel Fortify / Breeze / Sanctum auth
-    return view('frontend.account.login');
-})->name('login');
-
-Route::get('/account/register', function () {
-    // BACKEND: replace with user registration logic
-    return view('frontend.account.register');
-})->name('register');
-
-Route::get('/account', function () {
-    // BACKEND: replace with auth middleware and User model
-    return view('frontend.account.index');
-})->name('account');
-
-Route::get('/account/orders', function () {
-    // BACKEND: replace with $user->orders()->latest()->paginate()
-    return view('frontend.account.orders');
-})->name('account.orders');
-
-Route::get('/account/orders/{id}', function ($id) {
-    // BACKEND: replace with Order::findOrFail($id)
-    return view('frontend.account.order-details', ['id' => $id]);
-})->name('account.order.details');
+// Account Authentication & Customer Area (Demo)
+// BACKEND: replace with auth middleware, Fortify / Breeze / Sanctum auth controllers
+Route::get('/account/login', [AccountController::class, 'login'])->name('login');
+Route::get('/account/register', [AccountController::class, 'register'])->name('register');
+Route::get('/account', [AccountController::class, 'index'])->name('account');
+Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
+Route::get('/account/orders/{id}', [AccountController::class, 'showOrder'])->name('account.order.details');
+Route::get('/account/addresses', [AccountController::class, 'addresses'])->name('account.addresses');
+Route::get('/account/profile', [AccountController::class, 'profile'])->name('account.profile');

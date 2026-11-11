@@ -59,14 +59,23 @@
     <!-- Site Header & Navigation -->
     <x-storefront.header />
 
+    @php
+        $showBottomNav = !View::hasSection('hide_bottom_nav') && !request()->is('checkout*');
+    @endphp
+
     <!-- Main Content Area -->
-    <main id="main-content" class="flex-1 focus:outline-none" tabindex="-1">
+    <main id="main-content" class="flex-1 focus:outline-none {{ $showBottomNav ? 'pb-[calc(56px+env(safe-area-inset-bottom))] lg:pb-0' : '' }}" tabindex="-1">
         {{ $slot ?? '' }}
         @yield('content')
     </main>
 
     <!-- Site Footer -->
     <x-storefront.footer />
+
+    <!-- Mobile Bottom Navigation Bar (Visible only below lg) -->
+    @if ($showBottomNav)
+        <x-storefront.bottom-nav />
+    @endif
 
     <!-- Global Mobile Navigation Drawer -->
     <x-storefront.mobile-navigation />

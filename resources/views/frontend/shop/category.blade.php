@@ -43,8 +43,8 @@
         </div>
     </div>
 
-    <!-- Mobile Sticky Toolbar Under Header (lg:hidden) -->
-    <div class="sticky top-16 z-30 lg:hidden bg-ivory/95 backdrop-blur-md border-b border-beige/80 px-4 py-2.5 flex items-center justify-between">
+    <!-- Mobile Sticky Toolbar (lg:hidden, sticks at top-0 since header is not sticky on mobile) -->
+    <div class="sticky top-0 z-30 lg:hidden bg-ivory/95 backdrop-blur-md border-b border-beige/80 px-4 py-2.5 flex items-center justify-between">
         <!-- Left: Product Count -->
         <span class="text-xs uppercase tracking-[0.16em] font-medium text-muted">
             {{ count($products ?? []) }} Formulations
@@ -195,8 +195,8 @@
                 </div>
             </div>
 
-            <!-- Drawer Footer -->
-            <div class="p-4 bg-sage-light/40 border-t border-beige flex items-center justify-between gap-3">
+            <!-- Drawer Footer (Safe area padding to clear any bottom obstruction) -->
+            <div class="p-4 bg-sage-light/40 border-t border-beige flex items-center justify-between gap-3" style="padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));">
                 <a 
                     href="/shop/category/{{ $category['slug'] ?? 'face-care' }}" 
                     class="text-xs text-muted hover:text-forest underline underline-offset-4 py-2"
@@ -246,6 +246,7 @@
             x-transition:leave-start="translate-y-0"
             x-transition:leave-end="translate-y-full"
             class="fixed inset-x-0 bottom-0 bg-ivory rounded-t-2xl shadow-drawer p-5 z-50"
+            style="padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem));"
         >
             <div class="flex items-center justify-between pb-3 border-b border-beige/80 mb-3">
                 <h3 class="font-serif text-base text-ink font-medium">Sort By</h3>
