@@ -16,8 +16,9 @@
     >
         <div class="site-container flex items-center justify-center text-center relative">
             <!-- Single-line container preventing wrapping on mobile -->
-            <div class="flex items-center justify-center gap-1.5 truncate text-[11px] sm:text-xs max-w-full">
-                <span class="truncate">{{ $message }}</span>
+            <div class="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs max-w-full">
+                <span class="md:hidden whitespace-nowrap">Free shipping over $75</span>
+                <span class="hidden md:inline whitespace-nowrap">{{ $message }}</span>
                 @if($link && $linkText)
                     <span class="whitespace-nowrap ml-1 shrink-0">
                         <a href="{{ $link }}" class="underline underline-offset-4 font-semibold hover:text-beige transition-colors">

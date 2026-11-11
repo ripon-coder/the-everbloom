@@ -7,6 +7,7 @@
     $hoverImage = $product['images'][1] ?? $image;
     $url = url('/shop/product/' . $product['slug']);
     $isOnSale = !empty($product['compare_at_price']) && $product['compare_at_price'] > $product['price'];
+    $productJson = htmlspecialchars(json_encode($product), ENT_QUOTES, 'UTF-8');
 @endphp
 
 <article class="group relative flex flex-col bg-transparent rounded-none transition-all duration-200">
@@ -22,16 +23,21 @@
         </a>
 
         <!-- Badges (Sale takes precedence or pairs with status badge) -->
-        <div class="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
+        <div class="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none max-w-[70%]">
             @if($isOnSale)
-                <span class="inline-block bg-forest text-ivory font-sans text-xs uppercase tracking-[0.18em] font-medium px-2.5 py-1 shadow-sm">
+                <span class="inline-block bg-forest text-ivory font-sans text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.18em] font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 shadow-sm truncate max-w-full">
                     Sale
                 </span>
             @endif
 
             @if(!empty($product['badge']) && !$isOnSale)
-                <span class="inline-block bg-ivory/95 text-forest font-sans text-xs uppercase tracking-[0.18em] font-medium px-2.5 py-1 border border-sage/30 shadow-sm">
-                    {{ $product['badge'] }}
+                @php
+                    $badgeText = $product['badge'];
+                    $mobileBadge = ($badgeText === 'Daily Essential') ? 'Essential' : $badgeText;
+                @endphp
+                <span class="inline-block bg-ivory/95 text-forest font-sans text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.18em] font-medium px-2 py-0.5 sm:px-2.5 sm:py-1 border border-sage/30 shadow-sm truncate max-w-full" title="{{ $badgeText }}">
+                    <span class="sm:hidden">{{ $mobileBadge }}</span>
+                    <span class="hidden sm:inline">{{ $badgeText }}</span>
                 </span>
             @endif
         </div>
@@ -41,14 +47,32 @@
             <x-storefront.wishlist-button :product="$product" size="sm" />
         </div>
 
-        <!-- Quick Add on Mobile (Visible compact "+ Add" in image corner below lg) -->
+        <!-- Quick Add on Mobile (compact icon-only "+" button in bottom-right corner, 44px touch target) -->
         <div class="absolute bottom-2.5 right-2.5 z-10 lg:hidden">
-            <x-storefront.add-to-cart-button 
-                :product="$product" 
-                size="{{ $product['sizes'][0] ?? null }}" 
-                label="+ Add" 
-                class="!w-auto !px-2.5 !py-1 !text-xs !min-h-0 !h-8 !bg-ivory/95 !text-forest hover:!bg-forest hover:!text-ivory !border !border-sage/40 shadow-sm backdrop-blur-xs font-medium tracking-normal" 
-            />
+            <button 
+                type="button" 
+                x-data="{ adding: false }"
+                @click.stop.prevent="
+                    adding = true;
+                    $store.cart.add({{ $productJson }}, 1, '{{ $product['sizes'][0] ?? null }}', true);
+                    setTimeout(() => adding = false, 800);
+                "
+                :disabled="adding || '{{ $product['stock_status'] ?? 'in_stock' }}' === 'out_of_stock'"
+                class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-ivory/95 text-forest hover:bg-forest hover:text-ivory border border-sage/40 shadow-sm backdrop-blur-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                aria-label="Add {{ $product['name'] }} to bag"
+            >
+                <template x-if="!adding">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                </template>
+                <template x-if="adding">
+                    <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </template>
+            </button>
         </div>
 
         <!-- Quick Add on Desktop (Revealed on hover AND keyboard focus using group-focus-within on lg+) -->
@@ -71,8 +95,8 @@
             </span>
 
             <!-- Title (Minimum 13px+) -->
-            <h3 class="font-serif text-base sm:text-lg text-ink font-normal tracking-tight group-hover:text-forest transition-colors line-clamp-1">
-                <a href="{{ $url }}" class="text-[15px] sm:text-base">
+            <h3 class="font-serif text-sm sm:text-base text-ink font-normal tracking-tight group-hover:text-forest transition-colors line-clamp-2">
+                <a href="{{ $url }}" class="text-sm sm:text-base">
                     {{ $product['name'] }}
                 </a>
             </h3>

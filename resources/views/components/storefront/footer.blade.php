@@ -29,7 +29,7 @@
     <!-- Main Footer: Forest Background with High-Contrast Ivory & Sage Accents -->
     <div class="bg-forest text-ivory">
         <div class="site-container py-12 md:py-16">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-12">
                 
                 <!-- Brand & Heritage Column -->
                 <div class="lg:col-span-2 space-y-4">
@@ -96,52 +96,55 @@
                     </div>
                 </div>
 
-                <!-- Shop Column (Min 13px links) -->
-                <div>
-                    <h3 class="font-serif text-base text-ivory font-medium tracking-wide mb-4">
-                        {{ $footerNav['shop']['title'] ?? 'Botanical Offerings' }}
-                    </h3>
-                    <ul class="space-y-3 text-[13px] text-ivory/85">
-                        @foreach($footerNav['shop']['links'] ?? [] as $link)
-                            <li>
-                                <a href="{{ $link['url'] }}" class="hover:text-sage-light transition-colors">
-                                    {{ $link['label'] }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
+                <!-- Link Columns in 2 columns on mobile, 3 columns from sm up -->
+                <div class="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-10 lg:gap-12">
+                    <!-- Shop Column (Min 13px links) -->
+                    <div>
+                        <h3 class="font-serif text-base text-ivory font-medium tracking-wide mb-4">
+                            {{ $footerNav['shop']['title'] ?? 'Botanical Offerings' }}
+                        </h3>
+                        <ul class="space-y-3 text-[13px] text-ivory/85">
+                            @foreach($footerNav['shop']['links'] ?? [] as $link)
+                                <li>
+                                    <a href="{{ $link['url'] }}" class="hover:text-sage-light transition-colors">
+                                        {{ $link['label'] }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
 
-                <!-- House Column (Min 13px links) -->
-                <div>
-                    <h3 class="font-serif text-base text-ivory font-medium tracking-wide mb-4">
-                        {{ $footerNav['about']['title'] ?? 'The House' }}
-                    </h3>
-                    <ul class="space-y-3 text-[13px] text-ivory/85">
-                        @foreach($footerNav['about']['links'] ?? [] as $link)
-                            <li>
-                                <a href="{{ $link['url'] }}" class="hover:text-sage-light transition-colors">
-                                    {{ $link['label'] }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
+                    <!-- House Column (Min 13px links) -->
+                    <div>
+                        <h3 class="font-serif text-base text-ivory font-medium tracking-wide mb-4">
+                            {{ $footerNav['about']['title'] ?? 'The House' }}
+                        </h3>
+                        <ul class="space-y-3 text-[13px] text-ivory/85">
+                            @foreach($footerNav['about']['links'] ?? [] as $link)
+                                <li>
+                                    <a href="{{ $link['url'] }}" class="hover:text-sage-light transition-colors">
+                                        {{ $link['label'] }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
 
-                <!-- Concierge Column (Min 13px links) -->
-                <div>
-                    <h3 class="font-serif text-base text-ivory font-medium tracking-wide mb-4">
-                        {{ $footerNav['help']['title'] ?? 'Concierge & Care' }}
-                    </h3>
-                    <ul class="space-y-3 text-[13px] text-ivory/85">
-                        @foreach($footerNav['help']['links'] ?? [] as $link)
-                            <li>
-                                <a href="{{ $link['url'] }}" class="hover:text-sage-light transition-colors">
-                                    {{ $link['label'] }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
+                    <!-- Concierge Column (Min 13px links) -->
+                    <div class="col-span-2 sm:col-span-1">
+                        <h3 class="font-serif text-base text-ivory font-medium tracking-wide mb-4">
+                            {{ $footerNav['help']['title'] ?? 'Concierge & Care' }}
+                        </h3>
+                        <ul class="space-y-3 text-[13px] text-ivory/85">
+                            @foreach($footerNav['help']['links'] ?? [] as $link)
+                                <li>
+                                    <a href="{{ $link['url'] }}" class="hover:text-sage-light transition-colors">
+                                        {{ $link['label'] }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
                 </div>
 
             </div>
@@ -151,7 +154,7 @@
         <div class="border-t border-white/10 py-6 bg-[#253B2F] text-xs text-ivory/80">
             <div class="site-container flex flex-col md:flex-row items-center justify-between gap-6">
                 <!-- Copyright & Currency -->
-                <div class="flex flex-wrap items-center gap-4 text-xs uppercase tracking-wider text-ivory/75">
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 text-xs uppercase tracking-wider text-ivory/75 text-center md:text-left">
                     <span>© {{ date('Y') }} THE EVERBLOOM. ALL RIGHTS RESERVED.</span>
                     <span class="hidden sm:inline">·</span>
                     <span>CURRENCY: {{ $site['currency']['code'] }} ({{ $site['currency']['symbol'] }})</span>

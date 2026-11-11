@@ -27,15 +27,12 @@
     }
 @endphp
 
-<!-- Data Payloads for Store Products & Discounts Synchronization -->
+<!-- Data Payloads for Store Products Synchronization -->
 <script id="everbloom-products-data" type="application/json">
 {!! json_encode($allProducts, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 </script>
-<script id="everbloom-discounts-data" type="application/json">
-{!! json_encode(config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-</script>
 
-<div class="site-container py-8 md:py-12 space-y-8" x-data>
+<div class="site-container py-8 md:py-12 space-y-8 pb-28 lg:pb-12" x-data>
     <x-storefront.breadcrumbs :items="[
         ['label' => 'Shopping Bag', 'url' => '']
     ]" />
@@ -90,75 +87,148 @@
                 <!-- Items List (8 Columns) -->
                 <div class="lg:col-span-8 divide-y divide-beige/80 border-t border-b border-beige/80">
                     <template x-for="item in $store.cart.items" :key="item.key">
-                        <div class="py-6 flex flex-col sm:flex-row gap-5 sm:gap-6 sm:items-center">
-                            
-                            {{-- 2. IMAGES: Use x-storefront.image (aspect-square, object-cover, fixed 96px size). Link to product page --}}
-                            <a :href="'/shop/product/' + item.slug" class="w-24 h-24 shrink-0 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest">
-                                <x-storefront.image 
-                                    ::src="'/images/' + item.image" 
-                                    ::alt="item.name" 
-                                    aspect-ratio="aspect-square" 
-                                    class="w-24 h-24 shrink-0 object-cover border border-beige" 
-                                />
-                            </a>
+                        <div>
+                            <!-- Mobile Cart Item Row (below lg: horizontal layout, 80x80 thumbnail, right side name/variant/price, stepper & remove on same line, right-aligned total) -->
+                            <div class="py-5 flex gap-4 items-start lg:hidden">
+                                <!-- Fixed 80x80 thumbnail on the left (shrink-0, aspect-square, object-cover) -->
+                                <a :href="'/shop/product/' + item.slug" class="w-[80px] h-[80px] min-w-[80px] min-h-[80px] shrink-0 block aspect-square overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest">
+                                    <x-storefront.image 
+                                        ::src="item.image ? '/images/' + item.image : ''" 
+                                        ::alt="item.name" 
+                                        aspect-ratio="aspect-square" 
+                                        class="w-[80px] h-[80px] min-w-[80px] min-h-[80px] shrink-0 aspect-square border border-beige" 
+                                    />
+                                </a>
 
-                            <!-- 3. ROW DETAILS: Product Name Link, Variant, "$84.10 each" under variant -->
-                            <div class="flex-1 min-w-0 space-y-1">
-                                <span class="text-[10px] uppercase tracking-widest text-muted block" x-text="item.category"></span>
-                                <a 
-                                    :href="'/shop/product/' + item.slug" 
-                                    class="font-serif text-base text-ink hover:text-forest transition-colors block font-normal truncate" 
-                                    x-text="item.name"
-                                ></a>
-                                <p class="text-xs text-muted" x-show="item.size" x-text="item.size"></p>
-                                <p class="text-xs text-muted" x-text="'$' + parseFloat(item.price).toFixed(2) + ' each'"></p>
+                                <!-- Name, variant and "$X each" on the right -->
+                                <div class="flex-1 min-w-0 flex flex-col justify-between gap-3">
+                                    <div class="space-y-0.5">
+                                        <span class="text-[10px] uppercase tracking-widest text-muted block" x-text="item.category"></span>
+                                        <a 
+                                            :href="'/shop/product/' + item.slug" 
+                                            class="font-serif text-[15px] leading-snug text-ink hover:text-forest transition-colors block font-normal truncate" 
+                                            x-text="item.name"
+                                        ></a>
+                                        <p class="text-xs text-muted" x-show="item.size" x-text="item.size"></p>
+                                        <p class="text-xs text-muted price" x-text="'$' + parseFloat(item.price).toFixed(2) + ' each'"></p>
+                                    </div>
+
+                                    <!-- Below the text: quantity stepper, remove link on same line, line total right-aligned -->
+                                    <div class="flex items-center justify-between gap-2 pt-1">
+                                        <div class="flex items-center gap-3">
+                                            <!-- Compact Stepper (min 44px touch targets, not full width) -->
+                                            <div class="inline-flex items-center border border-beige bg-ivory shrink-0">
+                                                <button 
+                                                    type="button" 
+                                                    @click="$store.cart.updateQty(item.key, item.qty - 1)" 
+                                                    class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-ink/70 hover:text-forest transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest cursor-pointer"
+                                                    :aria-label="'Decrease quantity of ' + item.name + (item.size ? ' (' + item.size + ')' : '')"
+                                                >
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                                    </svg>
+                                                </button>
+                                                <span class="w-8 text-center text-xs font-medium text-ink select-none" x-text="item.qty"></span>
+                                                <button 
+                                                    type="button" 
+                                                    @click="$store.cart.updateQty(item.key, item.qty + 1)" 
+                                                    class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-ink/70 hover:text-forest transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest cursor-pointer"
+                                                    :disabled="item.qty >= 10"
+                                                    :aria-label="'Increase quantity of ' + item.name + (item.size ? ' (' + item.size + ')' : '')"
+                                                >
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <!-- Remove link on same line -->
+                                            <button 
+                                                type="button" 
+                                                @click="$store.cart.remove(item.key)" 
+                                                class="text-[13px] text-muted hover:text-ink underline transition-colors cursor-pointer"
+                                                :aria-label="'Remove ' + item.name + (item.size ? ' ' + item.size : '') + ' from bag'"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+
+                                        <!-- Line Total Right-Aligned -->
+                                        <span class="price text-sm font-medium text-ink font-serif text-right shrink-0" x-text="'$' + (item.price * item.qty).toFixed(2)"></span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- 3. Quantity Buttons: Proper minus icon, min 44x44px touch targets, clamped 1-10 -->
-                            <div class="inline-flex items-center border border-beige bg-ivory shrink-0">
-                                <button 
-                                    type="button" 
-                                    @click="$store.cart.updateQty(item.key, item.qty - 1)" 
-                                    class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-ink/70 hover:text-forest transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest cursor-pointer"
-                                    :aria-label="'Decrease quantity of ' + item.name + (item.size ? ' (' + item.size + ')' : '')"
-                                >
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                                    </svg>
-                                </button>
-                                <span class="w-10 text-center text-xs font-medium text-ink select-none" x-text="item.qty"></span>
-                                <button 
-                                    type="button" 
-                                    @click="$store.cart.updateQty(item.key, item.qty + 1)" 
-                                    class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-ink/70 hover:text-forest transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest cursor-pointer"
-                                    :disabled="item.qty >= 10"
-                                    :aria-label="'Increase quantity of ' + item.name + (item.size ? ' (' + item.size + ')' : '')"
-                                >
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </button>
-                            </div>
+                            <!-- Desktop Cart Item Row (lg and up: kept as is) -->
+                            <div class="hidden lg:flex py-6 gap-6 items-center">
+                                
+                                {{-- 2. IMAGES: Use x-storefront.image (aspect-square, object-cover, fixed 96px size). Link to product page --}}
+                                <a :href="'/shop/product/' + item.slug" class="w-24 h-24 shrink-0 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest">
+                                    <x-storefront.image 
+                                        ::src="'/images/' + item.image" 
+                                        ::alt="item.name" 
+                                        aspect-ratio="aspect-square" 
+                                        class="w-24 h-24 shrink-0 object-cover border border-beige" 
+                                    />
+                                </a>
 
-                            <!-- 3. Line total on right & 13px Remove link with product + variant in aria-label -->
-                            <div class="text-right sm:w-28 shrink-0 flex sm:flex-col items-center sm:items-end justify-between sm:justify-center">
-                                <span class="text-sm font-semibold text-forest block" x-text="'$' + (item.price * item.qty).toFixed(2)"></span>
-                                <button 
-                                    type="button" 
-                                    @click="$store.cart.remove(item.key)" 
-                                    class="text-[13px] text-muted hover:text-ink underline transition-colors cursor-pointer sm:mt-2"
-                                    :aria-label="'Remove ' + item.name + (item.size ? ' (' + item.size + ')' : '') + ' from shopping bag'"
-                                >
-                                    Remove
-                                </button>
-                            </div>
+                                <!-- 3. ROW DETAILS: Product Name Link, Variant, "$84.10 each" under variant -->
+                                <div class="flex-1 min-w-0 space-y-1">
+                                    <span class="text-[10px] uppercase tracking-widest text-muted block" x-text="item.category"></span>
+                                    <a 
+                                        :href="'/shop/product/' + item.slug" 
+                                        class="font-serif text-base text-ink hover:text-forest transition-colors block font-normal truncate" 
+                                        x-text="item.name"
+                                    ></a>
+                                    <p class="text-xs text-muted" x-show="item.size" x-text="item.size"></p>
+                                    <p class="text-xs text-muted price" x-text="'$' + parseFloat(item.price).toFixed(2) + ' each'"></p>
+                                </div>
 
+                                <!-- 3. Quantity Buttons: Proper minus icon, min 44x44px touch targets, clamped 1-10 -->
+                                <div class="inline-flex items-center border border-beige bg-ivory shrink-0">
+                                    <button 
+                                        type="button" 
+                                        @click="$store.cart.updateQty(item.key, item.qty - 1)" 
+                                        class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-ink/70 hover:text-forest transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest cursor-pointer"
+                                        :aria-label="'Decrease quantity of ' + item.name + (item.size ? ' (' + item.size + ')' : '')"
+                                    >
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                        </svg>
+                                    </button>
+                                    <span class="w-10 text-center text-xs font-medium text-ink select-none" x-text="item.qty"></span>
+                                    <button 
+                                        type="button" 
+                                        @click="$store.cart.updateQty(item.key, item.qty + 1)" 
+                                        class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-ink/70 hover:text-forest transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest cursor-pointer"
+                                        :disabled="item.qty >= 10"
+                                        :aria-label="'Increase quantity of ' + item.name + (item.size ? ' (' + item.size + ')' : '')"
+                                    >
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- 3. Line total on right & 13px Remove link with product + variant in aria-label -->
+                                <div class="text-right sm:w-28 shrink-0 flex sm:flex-col items-center sm:items-end justify-between sm:justify-center">
+                                    <span class="price text-sm font-medium text-ink font-serif block" x-text="'$' + (item.price * item.qty).toFixed(2)"></span>
+                                    <button 
+                                        type="button" 
+                                        @click="$store.cart.remove(item.key)" 
+                                        class="text-[13px] text-muted hover:text-ink underline transition-colors cursor-pointer sm:mt-2"
+                                        :aria-label="'Remove ' + item.name + (item.size ? ' ' + item.size : '') + ' from bag'"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+
+                            </div>
                         </div>
                     </template>
                 </div>
 
                 <!-- 4. ORDER SUMMARY (Sticky on lg, Subtotal, Discount, Shipping, Total, Free Shipping Progress, Demo Codes) -->
-                <div class="lg:col-span-4 bg-white p-6 border border-beige space-y-6 lg:sticky lg:top-36 h-fit">
+                <div class="lg:col-span-4 bg-white p-6 border border-beige space-y-6 lg:sticky lg:top-24 h-auto lg:h-fit">
                     <h2 class="font-serif text-lg text-ink font-medium border-b border-beige pb-3">Order Summary</h2>
 
                     <!-- Free-shipping progress message based on config threshold -->
@@ -172,11 +242,11 @@
                             </p>
                         </template>
                         <template x-if="$store.cart.subtotal < {{ $freeShippingThreshold }}">
-                            <div class="space-y-1.5">
+                            <div class="flex flex-col gap-2">
                                 <p class="text-xs text-muted">
                                     Add <span class="font-semibold text-ink" x-text="'$' + ({{ $freeShippingThreshold }} - $store.cart.subtotal).toFixed(2)"></span> more for free shipping
                                 </p>
-                                <div class="w-full bg-beige/80 h-1.5 rounded-full overflow-hidden">
+                                <div class="w-full bg-beige/80 h-1 rounded-full overflow-hidden">
                                     <div 
                                         class="bg-forest h-full transition-all duration-300 rounded-full" 
                                         :style="'width: ' + Math.min(100, ($store.cart.subtotal / {{ $freeShippingThreshold }}) * 100) + '%'"
@@ -190,84 +260,21 @@
                     <div class="space-y-3 text-sm">
                         <div class="flex justify-between text-muted">
                             <span>Subtotal</span>
-                            <span class="font-semibold text-ink" x-text="'$' + $store.cart.subtotal.toFixed(2)"></span>
+                            <span class="price font-medium text-ink font-serif" x-text="'$' + $store.cart.subtotal.toFixed(2)"></span>
                         </div>
-
-                        <!-- Discount row: shown ONLY when a code is applied -->
-                        <template x-if="$store.cart.discountCode && $store.cart.discountAmount > 0">
-                            <div class="flex justify-between text-forest">
-                                <span class="flex items-center gap-1.5">
-                                    <span>Discount</span>
-                                    <span class="text-xs uppercase tracking-wider font-mono font-medium" x-text="'(' + $store.cart.discountCode + ')'"></span>
-                                </span>
-                                <div class="flex items-center gap-2">
-                                    <span class="font-semibold" x-text="'-$' + $store.cart.discountAmount.toFixed(2)"></span>
-                                    <button 
-                                        type="button" 
-                                        @click="$store.cart.removeDiscount()" 
-                                        class="text-muted hover:text-ink text-xs transition-colors cursor-pointer"
-                                        title="Remove discount"
-                                        aria-label="Remove applied discount"
-                                    >
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </template>
 
                         <div class="flex justify-between text-muted">
                             <span>Shipping</span>
-                            <span class="text-forest font-medium" x-text="$store.cart.subtotal >= {{ $freeShippingThreshold }} || ($store.cart.discount && $store.cart.discount.type === 'shipping') ? 'Complimentary' : '${{ number_format($standardShippingCost, 2) }}'"></span>
+                            <span class="price" :class="$store.cart.subtotal >= {{ $freeShippingThreshold }} ? 'text-forest font-medium' : 'text-ink font-medium font-serif'" x-text="$store.cart.subtotal >= {{ $freeShippingThreshold }} ? 'Complimentary' : '${{ number_format($standardShippingCost, 2) }}'"></span>
                         </div>
 
                         <div class="border-t border-beige pt-3 flex justify-between font-serif text-lg font-semibold text-ink">
                             <span>Estimated Total</span>
-                            <span x-text="'$' + $store.cart.total.toFixed(2)"></span>
+                            <span class="price font-serif" x-text="'$' + $store.cart.total.toFixed(2)"></span>
                         </div>
                     </div>
 
                     <p class="text-xs text-muted">Taxes calculated at checkout.</p>
-
-                    <!-- Discount Code Field with Apply button & aria-live messages -->
-                    <div x-data="{ codeInput: '' }" class="pt-2 border-t border-beige/60 space-y-2">
-                        <label for="cart-discount-input" class="text-xs font-medium text-ink uppercase tracking-wider block">
-                            Promotional Code
-                        </label>
-                        <form @submit.prevent="if(codeInput.trim()) { $store.cart.applyDiscount(codeInput.trim()); codeInput = ''; }" class="flex gap-2">
-                            <input 
-                                type="text" 
-                                id="cart-discount-input"
-                                x-model="codeInput" 
-                                placeholder="Try WELCOME10" 
-                                class="flex-1 bg-ivory border border-beige px-3 py-2 text-xs uppercase placeholder:normal-case placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest"
-                                aria-label="Promotional discount code"
-                            />
-                            <button 
-                                type="submit" 
-                                class="btn-secondary !py-2 !px-4 !text-xs !tracking-wider uppercase whitespace-nowrap cursor-pointer"
-                            >
-                                Apply
-                            </button>
-                        </form>
-
-                        <!-- Inline success and error messages (aria-live) -->
-                        <div aria-live="polite" class="min-h-[1.25rem]">
-                            <p x-show="$store.cart.discountSuccess" x-cloak class="text-xs text-forest flex items-center gap-1.5 font-medium">
-                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                                <span x-text="$store.cart.discountSuccess"></span>
-                            </p>
-                            <p x-show="$store.cart.discountError" x-cloak class="text-xs text-red-600 flex items-center gap-1.5 font-medium">
-                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span x-text="$store.cart.discountError"></span>
-                            </p>
-                        </div>
-                    </div>
 
                     <!-- Checkout & Shopping Action Buttons -->
                     <div class="space-y-3 pt-2">
@@ -285,7 +292,7 @@
                             <svg class="w-4 h-4 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
-                            <span>{{ config('demo.site.trust_badges.secure_checkout', '256-Bit Encrypted Botanical Checkout') }}</span>
+                            <span>Secure checkout (demo)</span>
                         </div>
                         <div class="flex items-start gap-2.5">
                             <svg class="w-4 h-4 text-forest shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -312,10 +319,26 @@
                     <h2 class="font-serif text-xl sm:text-2xl text-ink font-normal">Pairs Thoughtfully With</h2>
                     <p class="text-xs text-muted">Pure botanical formulations selected to enhance and balance your daily skincare regimen.</p>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
                     @foreach($pairingProducts as $pairedProduct)
                         <x-storefront.product-card :product="$pairedProduct" />
                     @endforeach
+                </div>
+            </div>
+
+            <!-- 3. STICKY CHECKOUT BAR (mobile only: fixed bottom bar with estimated total and Proceed to Checkout) -->
+            <div 
+                class="fixed bottom-0 inset-x-0 z-30 bg-ivory border-t border-beige px-4 py-3 sm:px-6 lg:hidden shadow-[0_-4px_12px_rgba(0,0,0,0.05)]"
+                style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));"
+            >
+                <div class="site-container flex items-center justify-between gap-4 !px-0">
+                    <div class="min-w-0">
+                        <span class="text-[11px] uppercase tracking-wider text-muted block font-sans">Estimated Total</span>
+                        <span class="price font-serif text-lg font-semibold text-ink block leading-tight truncate" x-text="'$' + $store.cart.total.toFixed(2)"></span>
+                    </div>
+                    <x-storefront.button href="/checkout" variant="primary" class="!py-3 !px-6 !text-xs whitespace-nowrap shrink-0">
+                        Proceed to Checkout
+                    </x-storefront.button>
                 </div>
             </div>
 
