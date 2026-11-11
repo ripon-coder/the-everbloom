@@ -12,7 +12,7 @@ return [
     ],
     'announcement' => [
         'enabled' => true,
-        'message' => 'Complimentary botanical discovery duo on orders over $75 · Worldwide insured shipping',
+        'message' => 'Free shipping on orders over $75',
         'link' => '/shop',
         'link_text' => 'Shop Now',
     ],
@@ -48,7 +48,7 @@ return [
             'name' => 'Standard Ground Botanical Shipping',
             'time' => '3–5 business days',
             'cost' => 6.00,
-            'free_threshold' => 65.00,
+            'free_threshold' => 75.00,
         ],
         'express' => [
             'id' => 'express',

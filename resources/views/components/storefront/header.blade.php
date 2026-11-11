@@ -1,4 +1,8 @@
-<header class="sticky top-0 z-40 bg-ivory/95 backdrop-blur-md border-b border-beige/60 transition-all duration-200">
+@props([
+    'sticky' => !request()->is('checkout*'),
+])
+
+<header class="{{ $sticky ? 'sticky top-0 z-40' : 'static z-40' }} bg-[#F8F6F0] border-b border-[#ECEEE6] transition-all duration-200">
     <div class="site-container">
         <!-- Top Tier: Brand Logo & Actions -->
         <div class="flex items-center justify-between h-16 md:h-20">
@@ -119,7 +123,7 @@
         </div>
 
         <!-- Bottom Tier: Centered Navigation (Desktop) -->
-        <div class="hidden lg:flex items-center justify-center border-t border-beige/60 py-3">
+        <div class="hidden lg:flex items-center justify-center border-t border-[#ECEEE6] py-3">
             <x-storefront.navigation />
         </div>
     </div>

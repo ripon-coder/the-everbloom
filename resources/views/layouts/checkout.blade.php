@@ -35,9 +35,9 @@
         Skip to checkout content
     </a>
 
-    <!-- 1. HEADER: Exact same announcement bar and header component as the cart page -->
+    <!-- Non-sticky header on checkout with solid background and 1px border -->
     <x-storefront.announcement-bar />
-    <x-storefront.header />
+    <x-storefront.header :sticky="false" />
 
     <!-- Main Checkout View -->
     <main id="checkout-content" class="flex-1 focus:outline-none" tabindex="-1">
@@ -45,8 +45,19 @@
         @yield('content')
     </main>
 
-    <!-- Site Footer (Identical to cart page & app layout) -->
-    <x-storefront.footer />
+    <!-- Minimal Checkout Footer: Copyright + Privacy, Terms, Returns only (No link columns, no newsletter) -->
+    <footer class="mt-auto bg-[#253B2F] text-ivory/80 border-t border-white/10 py-6 text-xs" role="contentinfo">
+        <div class="site-container flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-xs uppercase tracking-wider text-ivory/75">
+                © {{ date('Y') }} {{ config('demo.site.name', 'THE EVERBLOOM') }}. ALL RIGHTS RESERVED.
+            </p>
+            <nav class="flex flex-wrap items-center gap-6 text-[13px] text-ivory/85" aria-label="Checkout Legal Links">
+                <a href="/privacy-policy" class="hover:text-sage-light transition-colors">Privacy</a>
+                <a href="/terms-and-conditions" class="hover:text-sage-light transition-colors">Terms</a>
+                <a href="/shipping-and-returns" class="hover:text-sage-light transition-colors">Returns</a>
+            </nav>
+        </div>
+    </footer>
 
     <!-- Global Interactive Components for Header Functionality -->
     <x-storefront.mobile-navigation />

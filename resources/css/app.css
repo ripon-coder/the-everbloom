@@ -27,23 +27,46 @@
         text-rendering: optimizeLegibility;
     }
 
-    /* Headings font */
+    /* Headings font with Playfair lining figures */
     h1, h2, h3, h4, h5, h6, .font-heading {
         font-family: 'Playfair Display', Georgia, serif;
         color: #292D29;
         font-weight: 500;
         letter-spacing: -0.01em;
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "lnum";
     }
 
-    /* Focus visible accessibility */
-    :focus-visible {
+    /* Radio styling: accent-color #304C3D and visible focus ring */
+    input[type="radio"] {
+        accent-color: #304C3D;
+    }
+    input[type="radio"]:focus-visible {
         outline: 2px solid #304C3D;
         outline-offset: 2px;
     }
 
-    /* Clean inputs & buttons border-radius defaults */
-    input, button, select, textarea {
-        border-radius: 2px;
+    /* Focus visible accessibility - exclude text inputs, selects, textareas to prevent outline stacking */
+    :focus-visible:not(input):not(select):not(textarea) {
+        outline: 2px solid #304C3D;
+        outline-offset: 2px;
+    }
+
+    /* Form control reset for text inputs, selects, and textareas */
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea {
+        outline: none;
+        box-shadow: none;
+        border-radius: 0;
+    }
+    input:not([type="checkbox"]):not([type="radio"]):focus,
+    input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+    select:focus,
+    select:focus-visible,
+    textarea:focus,
+    textarea:focus-visible {
+        outline: none !important;
     }
 
     /* Custom scrollbar */
@@ -64,6 +87,52 @@
 }
 
 @layer components {
+    /* Shared Input Field Component */
+    .input-field {
+        @apply w-full bg-white text-ink text-[16px] px-4 py-3 rounded-none outline-none;
+        height: 48px;
+        min-height: 48px;
+        border: 1px solid #D5DBCF;
+        border-radius: 0;
+        box-shadow: none !important;
+        outline: none !important;
+        transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+    }
+
+    .input-field::placeholder {
+        color: #8B9188;
+        opacity: 1;
+    }
+
+    .input-field:hover {
+        border-color: #A8B7A0;
+    }
+
+    .input-field:focus,
+    .input-field:focus-visible {
+        border-color: #304C3D !important;
+        box-shadow: 0 0 0 3px rgba(48, 76, 61, 0.12) !important;
+        outline: none !important;
+        --tw-ring-shadow: 0 0 #0000 !important;
+        --tw-ring-offset-shadow: 0 0 #0000 !important;
+    }
+
+    .input-field.input-error,
+    .input-field[aria-invalid="true"] {
+        border-color: #B3453A !important;
+    }
+
+    .input-field.input-error:focus,
+    .input-field.input-error:focus-visible,
+    .input-field[aria-invalid="true"]:focus,
+    .input-field[aria-invalid="true"]:focus-visible {
+        border-color: #B3453A !important;
+        box-shadow: 0 0 0 3px rgba(179, 69, 58, 0.12) !important;
+        outline: none !important;
+        --tw-ring-shadow: 0 0 #0000 !important;
+        --tw-ring-offset-shadow: 0 0 #0000 !important;
+    }
+
     /* Typography scale */
     .type-display {
         font-family: 'Playfair Display', serif;
@@ -71,6 +140,8 @@
         line-height: 1.1;
         letter-spacing: -0.02em;
         font-weight: 500;
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "lnum";
     }
 
     .type-h1 {
@@ -79,6 +150,8 @@
         line-height: 1.2;
         letter-spacing: -0.015em;
         font-weight: 500;
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "lnum";
     }
 
     .type-h2 {
@@ -87,6 +160,8 @@
         line-height: 1.25;
         letter-spacing: -0.01em;
         font-weight: 500;
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "lnum";
     }
 
     .type-h3 {
@@ -94,6 +169,8 @@
         font-size: clamp(1.25rem, 1.8vw + 0.2rem, 1.625rem);
         line-height: 1.3;
         font-weight: 500;
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "lnum";
     }
 
     .type-h4 {
@@ -101,6 +178,8 @@
         font-size: 1.125rem;
         line-height: 1.4;
         font-weight: 600;
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "lnum";
     }
 
     .type-body {
@@ -124,6 +203,12 @@
         text-transform: uppercase;
         font-weight: 500;
         line-height: 1.4;
+    }
+
+    /* Shared Price Class with lining figures */
+    .price {
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "lnum";
     }
 
     /* Button variants */
@@ -214,6 +299,13 @@
             padding-left: 2.5rem;
             padding-right: 2.5rem;
         }
+    }
+}
+
+@layer utilities {
+    .lining-nums {
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "lnum";
     }
 }
 

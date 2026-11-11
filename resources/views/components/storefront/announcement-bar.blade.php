@@ -1,5 +1,5 @@
 @props([
-    'message' => config('demo.site.announcement.message', 'Complimentary botanical discovery duo on orders over $75 · Worldwide insured shipping'),
+    'message' => config('demo.site.announcement.message', 'Free shipping on orders over $' . (int)config('demo.site.shipping_rates.standard.free_threshold', 75)),
     'link' => config('demo.site.announcement.link', '/shop'),
     'linkText' => config('demo.site.announcement.link_text', 'Shop Now'),
 ])
@@ -17,10 +17,7 @@
         <div class="site-container flex items-center justify-center text-center relative">
             <!-- Single-line container preventing wrapping on mobile -->
             <div class="flex items-center justify-center gap-1.5 truncate text-[11px] sm:text-xs max-w-full">
-                <!-- Short message on mobile -->
-                <span class="md:hidden truncate">Free insured shipping over $75</span>
-                <!-- Full message on md and up -->
-                <span class="hidden md:inline">{{ $message }}</span>
+                <span class="truncate">{{ $message }}</span>
                 @if($link && $linkText)
                     <span class="whitespace-nowrap ml-1 shrink-0">
                         <a href="{{ $link }}" class="underline underline-offset-4 font-semibold hover:text-beige transition-colors">
