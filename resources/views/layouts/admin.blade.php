@@ -18,12 +18,12 @@
     <link href="{{ asset('admin/assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
 
     <!-- App css (Larkon theme) -->
-    <link href="{{ asset('admin/assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('admin/assets/css/app.min.css') }}?v={{ filemtime(public_path('admin/assets/css/app.min.css')) }}" rel="stylesheet" type="text/css" />
 
     @stack('styles')
 
     <!-- Theme Config Js (MUST run in <head> to set layout attributes before first paint) -->
-    <script src="{{ asset('admin/assets/js/config.js') }}"></script>
+    <script src="{{ asset('admin/assets/js/config.js') }}?v={{ filemtime(public_path('admin/assets/js/config.js')) }}"></script>
 </head>
 
 <body>
@@ -54,7 +54,7 @@
 
     <!-- Core Vendor & App JS -->
     <script src="{{ asset('admin/assets/js/vendor.js') }}"></script>
-    <script src="{{ asset('admin/assets/js/app.js') }}"></script>
+    <script src="{{ asset('admin/assets/js/app.js') }}?v={{ filemtime(public_path('admin/assets/js/app.js')) }}"></script>
 
     @stack('scripts')
 </body>
