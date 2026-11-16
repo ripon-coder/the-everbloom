@@ -2,19 +2,30 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AccountAreaTest extends TestCase
 {
+    use RefreshDatabase;
+
+    private function demoUser(): User
+    {
+        $this->seed();
+
+        return User::where('email', 'eleanor.vance@example.com')->firstOrFail();
+    }
+
     public function test_account_overview_page_loads_with_required_elements(): void
     {
-        $response = $this->get('/account');
+        $user = $this->demoUser();
+        $response = $this->actingAs($user, 'web')->get('/account');
 
         $response->assertStatus(200);
         $response->assertSee('MY ACCOUNT');
         $response->assertSee('Welcome, Eleanor');
         $response->assertSee('eleanor.vance@example.com');
-        $response->assertSee('Demo account. Sample data.');
         $response->assertDontSee('Client since');
         $response->assertDontSee('Join The Everbloom Archive'); // No newsletter
         $response->assertSee('Recent Orders');
@@ -26,7 +37,8 @@ class AccountAreaTest extends TestCase
 
     public function test_orders_list_page_and_empty_state(): void
     {
-        $response = $this->get('/account/orders');
+        $user = $this->demoUser();
+        $response = $this->actingAs($user, 'web')->get('/account/orders');
 
         $response->assertStatus(200);
         $response->assertSee('Orders');
@@ -35,23 +47,22 @@ class AccountAreaTest extends TestCase
         $response->assertSee('View details');
 
         // Test empty state
-        $emptyResponse = $this->get('/account/orders?empty=1');
+        $emptyResponse = $this->actingAs($user, 'web')->get('/account/orders?empty=1');
         $emptyResponse->assertStatus(200);
-        $emptyResponse->assertSee('No Orders Yet');
+        $emptyResponse->assertSee('No orders yet');
         $emptyResponse->assertSee('Start shopping');
     }
 
     public function test_order_details_page(): void
     {
-        $response = $this->get('/account/orders/EVB-8921');
+        $user = $this->demoUser();
+        $response = $this->actingAs($user, 'web')->get('/account/orders/EVB-8921');
 
         $response->assertStatus(200);
         $response->assertSee('Order #EVB-8921');
-        $response->assertSee('Demo order');
         $response->assertSee('Botanical Radiance Serum');
         $response->assertSee('Camellia Restorative Moisturizer');
         $response->assertSee('Order Summary');
-        $response->assertSee('Buy again');
         $response->assertSee('Back to orders');
         $response->assertSee('Processing');
         $response->assertSee('Shipped');
@@ -60,19 +71,20 @@ class AccountAreaTest extends TestCase
 
     public function test_addresses_page(): void
     {
-        $response = $this->get('/account/addresses');
+        $user = $this->demoUser();
+        $response = $this->actingAs($user, 'web')->get('/account/addresses');
 
         $response->assertStatus(200);
         $response->assertSee('Addresses');
         $response->assertSee('Default');
-        $response->assertSee('740 Botanical Way');
+        $response->assertSee('House 42, Road 71, Gulshan 2');
         $response->assertSee('Add new address');
-        $response->assertSee('Demo only. Nothing was saved.');
     }
 
     public function test_profile_page(): void
     {
-        $response = $this->get('/account/profile');
+        $user = $this->demoUser();
+        $response = $this->actingAs($user, 'web')->get('/account/profile');
 
         $response->assertStatus(200);
         $response->assertSee('Profile');
@@ -100,6 +112,5 @@ class AccountAreaTest extends TestCase
         $register->assertSee('Sign up with Google');
         $register->assertSee('Sign up with Apple');
         $register->assertSee('Or register with email');
-        $register->assertSee('Demo only. No account was created.');
     }
 }

@@ -18,17 +18,23 @@
     <div class="mx-auto w-full max-w-md">
         <div 
             x-data="{
-                firstName: '',
-                lastName: '',
-                email: '',
+                firstName: @js(old('first_name', '')),
+                lastName: @js(old('last_name', '')),
+                email: @js(old('email', '')),
                 password: '',
                 confirmPassword: '',
                 showPassword: false,
                 showConfirmPassword: false,
                 confirmTouched: false,
                 agreeTerms: false,
-                errors: {},
-                demoNotice: '',
+                errors: {
+                    @error('first_name') firstName: @js($message), @enderror
+                    @error('last_name') lastName: @js($message), @enderror
+                    @error('email') email: @js($message), @enderror
+                    @error('password') password: @js($message), @enderror
+                    @error('terms') agreeTerms: @js($message), @enderror
+                },
+                demoNotice: @js(session('status', '')),
                 get hasMinLength() {
                     return this.password.length >= 8;
                 },
@@ -89,7 +95,7 @@
                 },
                 submit() {
                     if (!this.validate()) return;
-                    this.demoNotice = 'Demo only. No account was created.';
+                    this.$refs.registerForm.submit();
                 }
             }" 
             class="bg-white border border-[#E3E6DD] p-6 sm:p-8 space-y-6"
@@ -124,7 +130,8 @@
             <x-storefront.social-login-buttons :providers="config('demo.auth.enabled_providers')" mode="register" />
 
             <!-- Registration Form -->
-            <form @submit.prevent="submit()" class="space-y-5" novalidate>
+            <form x-ref="registerForm" method="POST" action="{{ route('register.submit') }}" @submit.prevent="submit()" class="space-y-5" novalidate>
+                @csrf
                 <!-- First and Last Name -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -134,6 +141,7 @@
                         <input 
                             type="text" 
                             id="reg-first_name" 
+                            name="first_name"
                             x-model="firstName" 
                             @input="clearError('firstName')"
                             autocomplete="given-name" 
@@ -153,6 +161,7 @@
                         <input 
                             type="text" 
                             id="reg-last_name" 
+                            name="last_name"
                             x-model="lastName" 
                             @input="clearError('lastName')"
                             autocomplete="family-name" 
@@ -175,6 +184,7 @@
                     <input 
                         type="email" 
                         id="reg-email" 
+                        name="email"
                         x-model="email" 
                         @input="clearError('email')"
                         autocomplete="email" 
@@ -198,6 +208,7 @@
                         <input 
                             :type="showPassword ? 'text' : 'password'" 
                             id="reg-password" 
+                            name="password"
                             x-model="password" 
                             @input="clearError('password')"
                             autocomplete="new-password" 
@@ -286,6 +297,7 @@
                         <input 
                             :type="showConfirmPassword ? 'text' : 'password'" 
                             id="reg-confirm_password" 
+                            name="password_confirmation"
                             x-model="confirmPassword" 
                             @input="confirmTouched = true; clearError('confirmPassword')"
                             @blur="confirmTouched = true"
@@ -337,6 +349,8 @@
                         <input 
                             type="checkbox" 
                             id="reg-terms" 
+                            name="terms"
+                            value="1"
                             x-model="agreeTerms" 
                             @change="clearError('agreeTerms')"
                             :aria-invalid="errors.agreeTerms ? 'true' : 'false'"

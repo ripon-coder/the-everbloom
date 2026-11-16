@@ -76,19 +76,21 @@
             </svg>
         </div>
         <div class="space-y-2">
-            <h1 class="font-serif text-2xl sm:text-3xl text-ink font-normal">
+            <h1 class="font-serif text-2xl sm:text-3xl text-ink font-normal" x-text="placedOrderNumber ? 'Thank you. Order #' + placedOrderNumber + ' confirmed.' : 'Demo order. No payment was processed and no order was placed.'">
                 Demo order. No payment was processed and no order was placed.
             </h1>
             <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">
-                Thank you for reviewing the botanical checkout flow. Your selections remain safely stored in your local session.
+                Thank you for your order with The Everbloom. Your botanical selections are being prepared for dispatch.
             </p>
         </div>
         <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <x-storefront.button href="/shop" variant="primary">
+            <template x-if="placedOrderUrl">
+                <a :href="placedOrderUrl" class="btn-primary inline-flex items-center justify-center">
+                    View Order Details
+                </a>
+            </template>
+            <x-storefront.button href="/shop" variant="secondary">
                 Continue Shopping
-            </x-storefront.button>
-            <x-storefront.button href="/cart" variant="secondary">
-                Return to bag
             </x-storefront.button>
         </div>
     </div>
@@ -329,40 +331,117 @@
                             </div>
                         </div>
 
-                        <!-- Country Select -->
+                        <!-- Country (Fixed: Bangladesh) -->
                         <div>
                             <label for="country" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
                                 Country / Region *
                             </label>
-                            <div class="relative">
-                                <select 
-                                    id="country" 
-                                    name="country" 
-                                    autocomplete="country" 
-                                    x-model="form.country" 
-                                    @change="clearError('country')"
-                                    :aria-invalid="errors.country ? 'true' : 'false'"
-                                    :aria-describedby="errors.country ? 'country-error' : null"
-                                    class="input-field pr-10 appearance-none cursor-pointer"
-                                    :class="{ 'input-error': errors.country }"
-                                >
-                                    @foreach($countries as $code => $countryName)
-                                        <option value="{{ $code }}">{{ $countryName }}</option>
-                                    @endforeach
-                                </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-forest">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
+                            <input 
+                                id="country" 
+                                name="country" 
+                                type="text" 
+                                x-model="form.country" 
+                                readonly 
+                                class="input-field bg-ivory/60 cursor-not-allowed"
+                            >
+                        </div>
+
+                        <!-- District, Thana, Area (Bangladesh Cascading Selects) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label for="district_id" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
+                                    District *
+                                </label>
+                                <div class="relative">
+                                    <select 
+                                        id="district_id" 
+                                        name="district_id" 
+                                        x-model="form.district_id" 
+                                        @change="onDistrictChange()"
+                                        :aria-invalid="errors.district_id ? 'true' : 'false'"
+                                        :aria-describedby="errors.district_id ? 'district_id-error' : null"
+                                        class="input-field pr-10 appearance-none cursor-pointer"
+                                        :class="{ 'input-error': errors.district_id }"
+                                    >
+                                        <option value="">Select District</option>
+                                        <template x-for="d in districts" :key="d.id">
+                                            <option :value="String(d.id)" x-text="d.name"></option>
+                                        </template>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-forest">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
                                 </div>
+                                <p id="district_id-error" x-show="errors.district_id" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.district_id" role="alert"></p>
                             </div>
-                            <p id="country-error" x-show="errors.country" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.country" role="alert"></p>
+
+                            <div>
+                                <label for="thana_id" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
+                                    Thana / Upazila *
+                                </label>
+                                <div class="relative">
+                                    <select 
+                                        id="thana_id" 
+                                        name="thana_id" 
+                                        x-model="form.thana_id" 
+                                        @change="onThanaChange()"
+                                        :disabled="!form.district_id"
+                                        :aria-invalid="errors.thana_id ? 'true' : 'false'"
+                                        :aria-describedby="errors.thana_id ? 'thana_id-error' : null"
+                                        class="input-field pr-10 appearance-none cursor-pointer disabled:bg-ivory/60 disabled:cursor-not-allowed"
+                                        :class="{ 'input-error': errors.thana_id }"
+                                    >
+                                        <option value="">Select Thana</option>
+                                        <template x-for="t in thanas" :key="t.id">
+                                            <option :value="String(t.id)" x-text="t.name"></option>
+                                        </template>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-forest">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p id="thana_id-error" x-show="errors.thana_id" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.thana_id" role="alert"></p>
+                            </div>
+
+                            <div>
+                                <label for="area_id" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
+                                    Area / Locality *
+                                </label>
+                                <div class="relative">
+                                    <select 
+                                        id="area_id" 
+                                        name="area_id" 
+                                        x-model="form.area_id" 
+                                        @change="onAreaChange()"
+                                        :disabled="!form.thana_id"
+                                        :aria-invalid="errors.area_id ? 'true' : 'false'"
+                                        :aria-describedby="errors.area_id ? 'area_id-error' : null"
+                                        class="input-field pr-10 appearance-none cursor-pointer disabled:bg-ivory/60 disabled:cursor-not-allowed"
+                                        :class="{ 'input-error': errors.area_id }"
+                                    >
+                                        <option value="">Select Area</option>
+                                        <template x-for="a in areas" :key="a.id">
+                                            <option :value="String(a.id)" x-text="a.name"></option>
+                                        </template>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-forest">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p id="area_id-error" x-show="errors.area_id" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.area_id" role="alert"></p>
+                            </div>
                         </div>
 
                         <!-- Street Address -->
                         <div>
                             <label for="address" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
-                                Street Address *
+                                House / Road / Block *
                             </label>
                             <input 
                                 id="address" 
@@ -373,74 +452,33 @@
                                 @input="clearError('address')"
                                 :aria-invalid="errors.address ? 'true' : 'false'"
                                 :aria-describedby="errors.address ? 'address-error' : null"
-                                placeholder="Street address" 
+                                placeholder="House, road, block" 
                                 class="input-field"
                                 :class="{ 'input-error': errors.address }"
                             >
                             <p id="address-error" x-show="errors.address" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.address" role="alert"></p>
                         </div>
 
-                        <!-- Apartment / Suite -->
-                        <div>
-                            <label for="apartment" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
-                                Apartment, suite, unit, etc. (optional)
-                            </label>
-                            <input 
-                                id="apartment" 
-                                name="apartment" 
-                                type="text" 
-                                autocomplete="address-line2" 
-                                x-model="form.apartment" 
-                                placeholder="Apartment, suite, unit (optional)" 
-                                class="input-field"
-                            >
-                        </div>
-
-                        <!-- City, Adaptive State/Province, Adaptive ZIP/Postal Code -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Apartment / Suite & Postal Code -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label for="city" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
-                                    City *
+                                <label for="apartment" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
+                                    Apartment, suite, floor (optional)
                                 </label>
                                 <input 
-                                    id="city" 
-                                    name="city" 
+                                    id="apartment" 
+                                    name="apartment" 
                                     type="text" 
-                                    autocomplete="address-level2" 
-                                    x-model="form.city" 
-                                    @input="clearError('city')"
-                                    :aria-invalid="errors.city ? 'true' : 'false'"
-                                    :aria-describedby="errors.city ? 'city-error' : null"
-                                    placeholder="City"
+                                    autocomplete="address-line2" 
+                                    x-model="form.apartment" 
+                                    placeholder="Apartment, suite, floor (optional)" 
                                     class="input-field"
-                                    :class="{ 'input-error': errors.city }"
                                 >
-                                <p id="city-error" x-show="errors.city" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.city" role="alert"></p>
-                            </div>
-
-                            <div>
-                                <label for="state" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
-                                    <span x-text="stateLabel">State / Province</span> *
-                                </label>
-                                <input 
-                                    id="state" 
-                                    name="state" 
-                                    type="text" 
-                                    autocomplete="address-level1" 
-                                    x-model="form.state" 
-                                    @input="clearError('state')"
-                                    :aria-invalid="errors.state ? 'true' : 'false'"
-                                    :aria-describedby="errors.state ? 'state-error' : null"
-                                    :placeholder="stateLabel"
-                                    class="input-field"
-                                    :class="{ 'input-error': errors.state }"
-                                >
-                                <p id="state-error" x-show="errors.state" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.state" role="alert"></p>
                             </div>
 
                             <div>
                                 <label for="postal_code" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
-                                    <span x-text="postalCodeLabel">Postal Code</span> *
+                                    Postal Code (optional)
                                 </label>
                                 <input 
                                     id="postal_code" 
@@ -449,13 +487,9 @@
                                     autocomplete="postal-code" 
                                     x-model="form.zip" 
                                     @input="clearError('zip')"
-                                    :aria-invalid="errors.zip ? 'true' : 'false'"
-                                    :aria-describedby="errors.zip ? 'postal_code-error' : null"
-                                    :placeholder="postalCodeLabel"
+                                    placeholder="Postal Code"
                                     class="input-field"
-                                    :class="{ 'input-error': errors.zip }"
                                 >
-                                <p id="postal_code-error" x-show="errors.zip" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.zip" role="alert"></p>
                             </div>
                         </div>
                     </div>
@@ -688,39 +722,102 @@
 function checkoutComponent() {
     return {
         orderPlaced: false,
+        placedOrderNumber: '',
+        placedOrderUrl: '',
+        submitting: false,
         showMobileSummary: false,
         discountInput: '',
         shippingMethod: 'standard',
         paymentMethod: 'card_demo',
         shippingRates: @js($shippingRates),
-        form: {
-            email: '',
-            phone: '',
-            firstName: '',
-            lastName: '',
-            country: 'US',
-            address: '',
-            apartment: '',
-            city: '',
-            state: '',
-            zip: '',
-        },
+        districts: @js($districts ?? []),
+        thanas: [],
+        areas: [],
+        form: @js($prefillForm ?? [
+            'email' => '',
+            'phone' => '',
+            'firstName' => '',
+            'lastName' => '',
+            'country' => 'Bangladesh',
+            'district_id' => '',
+            'thana_id' => '',
+            'area_id' => '',
+            'address' => '',
+            'apartment' => '',
+            'zip' => '',
+        ]),
         errors: {},
         fieldIdMap: {
             email: 'email',
             phone: 'phone',
             firstName: 'first_name',
             lastName: 'last_name',
-            country: 'country',
+            district_id: 'district_id',
+            thana_id: 'thana_id',
+            area_id: 'area_id',
             address: 'address',
-            city: 'city',
-            state: 'state',
             zip: 'postal_code',
         },
 
-        init() {
+        async init() {
             if (this.$store && this.$store.cart && typeof this.$store.cart.cleanAndValidate === 'function') {
                 this.$store.cart.cleanAndValidate();
+            }
+            if (this.form.district_id) {
+                await this.loadThanas(this.form.district_id);
+                if (this.form.thana_id) {
+                    await this.loadAreas(this.form.thana_id);
+                }
+            }
+        },
+
+        async loadThanas(districtId) {
+            if (!districtId) {
+                this.thanas = [];
+                return;
+            }
+            try {
+                const res = await fetch(`/locations/districts/${districtId}/thanas`);
+                const data = await res.json();
+                this.thanas = data.thanas || [];
+            } catch (e) {
+                this.thanas = [];
+            }
+        },
+
+        async loadAreas(thanaId) {
+            if (!thanaId) {
+                this.areas = [];
+                return;
+            }
+            try {
+                const res = await fetch(`/locations/thanas/${thanaId}/areas`);
+                const data = await res.json();
+                this.areas = data.areas || [];
+            } catch (e) {
+                this.areas = [];
+            }
+        },
+
+        async onDistrictChange() {
+            this.clearError('district_id');
+            this.form.thana_id = '';
+            this.form.area_id = '';
+            this.areas = [];
+            await this.loadThanas(this.form.district_id);
+        },
+
+        async onThanaChange() {
+            this.clearError('thana_id');
+            this.form.area_id = '';
+            await this.loadAreas(this.form.thana_id);
+        },
+
+        onAreaChange() {
+            this.clearError('area_id');
+            const selected = this.areas.find(a => String(a.id) === String(this.form.area_id));
+            if (selected && selected.postal_code) {
+                this.form.zip = selected.postal_code;
             }
         },
 
@@ -812,31 +909,27 @@ function checkoutComponent() {
                 errs.lastName = 'Please enter your last name.';
             }
 
-            if (!this.form.country.trim()) {
-                errs.country = 'Please select a country.';
+            if (!this.form.district_id) {
+                errs.district_id = 'Please select a district.';
+            }
+
+            if (!this.form.thana_id) {
+                errs.thana_id = 'Please select a thana.';
+            }
+
+            if (!this.form.area_id) {
+                errs.area_id = 'Please select an area.';
             }
 
             if (!this.form.address.trim()) {
-                errs.address = 'Please enter your street address.';
-            }
-
-            if (!this.form.city.trim()) {
-                errs.city = 'Please enter your city.';
-            }
-
-            if (!this.form.state.trim()) {
-                errs.state = 'Please enter your state or province.';
-            }
-
-            if (!this.form.zip.trim()) {
-                errs.zip = 'Please enter your postal or ZIP code.';
+                errs.address = 'Please enter your house, road, or block.';
             }
 
             this.errors = errs;
             return Object.keys(errs).length === 0;
         },
 
-        submitDemoOrder() {
+        async submitDemoOrder() {
             if (!this.validate()) {
                 const firstKey = Object.keys(this.errors)[0];
                 const targetId = this.fieldIdMap[firstKey];
@@ -852,10 +945,59 @@ function checkoutComponent() {
                 return;
             }
 
-            this.orderPlaced = true;
-            this.$nextTick(() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+            if (this.submitting) return;
+            this.submitting = true;
+
+            try {
+                const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const payload = {
+                    ...this.form,
+                    shippingMethod: this.shippingMethod,
+                    paymentMethod: this.paymentMethod,
+                    discountCode: this.$store?.cart?.discount?.code || null,
+                    items: (this.$store?.cart?.items || []).map(item => ({
+                        productId: item.productId,
+                        variantId: item.variantId,
+                        qty: item.qty,
+                    })),
+                };
+
+                const response = await fetch(@js(route('checkout.store')), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    if (data.errors) {
+                        Object.entries(data.errors).forEach(([k, v]) => {
+                            this.errors[k] = Array.isArray(v) ? v[0] : v;
+                        });
+                    }
+                    this.submitting = false;
+                    return;
+                }
+
+                this.placedOrderNumber = data.order_number || '';
+                this.placedOrderUrl = data.redirect_url || '';
+                if (this.$store && this.$store.cart && typeof this.$store.cart.clear === 'function') {
+                    this.$store.cart.clear();
+                }
+                this.orderPlaced = true;
+                this.$nextTick(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            } catch (e) {
+                this.errors.email = 'Unable to place order right now. Please try again.';
+            } finally {
+                this.submitting = false;
+            }
         }
     };
 }

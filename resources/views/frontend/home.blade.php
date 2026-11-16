@@ -6,8 +6,8 @@
 @section('content')
 @php
     $allProducts = collect(config('demo.products', []));
-    $featuredProducts = $allProducts->where('is_featured', true)->take(4)->values()->all();
-    $bestsellerProducts = $allProducts->where('best_seller', true)
+    $featuredProducts = $featuredProducts ?? $allProducts->where('is_featured', true)->take(4)->values()->all();
+    $bestsellerProducts = $bestsellerProducts ?? $allProducts->where('best_seller', true)
         ->whereNotIn('id', collect($featuredProducts)->pluck('id')->all())
         ->take(4)
         ->values()
@@ -15,8 +15,8 @@
     if (empty($bestsellerProducts)) {
         $bestsellerProducts = $allProducts->whereNotIn('id', collect($featuredProducts)->pluck('id')->all())->take(4)->values()->all();
     }
-    $categories = config('demo.categories', []);
-    $testimonials = array_slice(config('demo.testimonials', []), 0, 3);
+    $categories = $categories ?? config('demo.categories', []);
+    $testimonials = $testimonials ?? array_slice(config('demo.testimonials', []), 0, 3);
     $trustItems = array_values(array_filter(config('demo.site.trust_badges', []), fn($item) => is_array($item) && isset($item['title'])));
 @endphp
 

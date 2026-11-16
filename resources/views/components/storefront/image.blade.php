@@ -1,5 +1,6 @@
 @props([
     'src' => '',
+    'source' => null,
     'alt' => 'The Everbloom Botanical Skincare',
     'aspectRatio' => 'aspect-[4/5]',
     'width' => 800,
@@ -14,10 +15,23 @@
     $dynamicSrc = $attributes->get(':src') ?? $attributes->get('x-bind:src');
     $dynamicAlt = $attributes->get(':alt') ?? $attributes->get('x-bind:alt');
 
-    $realPath = (!$isDynamic && !empty($src)) ? public_path('images/' . ltrim($src, '/')) : null;
-    $fileExists = $realPath && file_exists($realPath);
-    $imageUrl = $fileExists ? asset('images/' . ltrim($src, '/')) : ($src ? asset(ltrim($src, '/')) : '');
-    $filename = basename($src);
+    $isExternalOrCloud = !$isDynamic && !empty($src) && (
+        \Illuminate\Support\Str::startsWith($src, ['http://', 'https://']) ||
+        (!empty($source) && $source !== 'local')
+    );
+
+    if ($isExternalOrCloud) {
+        $fileExists = true;
+        $imageUrl = app(\App\Services\ImageStorageService::class)->resolveUrl($src, $source ?? 'local');
+    } else {
+        $cleanSrc = ltrim((string) $src, '/');
+        $realPath = (!$isDynamic && !empty($cleanSrc)) ? public_path(\Illuminate\Support\Str::startsWith($cleanSrc, ['images/', 'admin/']) ? $cleanSrc : 'images/' . $cleanSrc) : null;
+        $fileExists = $realPath && file_exists($realPath);
+        $imageUrl = $fileExists
+            ? asset(\Illuminate\Support\Str::startsWith($cleanSrc, ['images/', 'admin/']) ? $cleanSrc : 'images/' . $cleanSrc)
+            : ($cleanSrc ? asset($cleanSrc) : '');
+    }
+    $filename = basename((string) $src);
 @endphp
 
 @if($isDynamic)

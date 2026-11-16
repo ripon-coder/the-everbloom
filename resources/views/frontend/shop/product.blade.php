@@ -4,25 +4,26 @@
 @section('meta_description', $product['short_description'] ?? 'Botanical skincare formulation from The Everbloom.')
 
 @php
-    $allProducts = collect(config('demo.products', []));
-    $categories = collect(config('demo.categories', []));
     $productCategory = $product['category'] ?? 'Skincare';
-    $categoryObj = $categories->firstWhere('name', $productCategory);
-    $categoryUrl = $categoryObj ? '/shop/category/' . $categoryObj['slug'] : '/shop';
+    $categoryUrl = !empty($product['category_slug']) ? route('shop.category', $product['category_slug']) : '/shop';
 
-    // Related products: 4 items from the same category, or fallback to other products
-    $sameCategory = $allProducts
-        ->where('category', $productCategory)
-        ->where('id', '!=', $product['id'] ?? 0)
-        ->values();
-
-    if ($sameCategory->count() < 4) {
-        $needed = 4 - $sameCategory->count();
-        $excludeIds = $sameCategory->pluck('id')->push($product['id'] ?? 0)->all();
-        $fallbacks = $allProducts->whereNotIn('id', $excludeIds)->take($needed);
-        $relatedProducts = $sameCategory->concat($fallbacks)->values()->all();
+    if (isset($related) && is_array($related)) {
+        $relatedProducts = $related;
     } else {
-        $relatedProducts = $sameCategory->take(4)->values()->all();
+        $allProducts = collect(config('demo.products', []));
+        $sameCategory = $allProducts
+            ->where('category', $productCategory)
+            ->where('id', '!=', $product['id'] ?? 0)
+            ->values();
+
+        if ($sameCategory->count() < 4) {
+            $needed = 4 - $sameCategory->count();
+            $excludeIds = $sameCategory->pluck('id')->push($product['id'] ?? 0)->all();
+            $fallbacks = $allProducts->whereNotIn('id', $excludeIds)->take($needed);
+            $relatedProducts = $sameCategory->concat($fallbacks)->values()->all();
+        } else {
+            $relatedProducts = $sameCategory->take(4)->values()->all();
+        }
     }
 
     $images = !empty($product['images']) && is_array($product['images']) ? array_values($product['images']) : ['products/placeholder.jpg'];
@@ -39,10 +40,12 @@
     $variants = [];
     if (!empty($product['variants']) && is_array($product['variants'])) {
         foreach ($product['variants'] as $v) {
-            $vLabel = $v['size'] ?? $v['id'] ?? $v['label'] ?? $sizes[0];
+            $vLabel = $v['title'] ?? $v['size'] ?? $v['id'] ?? $v['label'] ?? $sizes[0];
             $variants[] = [
                 'id' => $vLabel,
                 'label' => $vLabel,
+                'attributes' => $v['attributes'] ?? [],
+                'image' => $v['image'] ?? null,
                 'price' => (float) ($v['price'] ?? $basePrice),
                 'compare_at_price' => !empty($v['compare_at_price']) ? (float) $v['compare_at_price'] : null,
                 'stock_status' => $v['stock_status'] ?? ($product['stock_status'] ?? 'in_stock'),
@@ -245,9 +248,16 @@
                         @touchstart.passive="handleTouchStart($event)"
                         @touchend.passive="handleTouchEnd($event)"
                     >
+                        <div
+                            x-show="currentVariant && currentVariant.image"
+                            x-cloak
+                            class="absolute inset-0 w-full h-full"
+                        >
+                            <img :src="currentVariant?.image" alt="{{ $product['name'] ?? 'Product' }}" class="w-full h-full object-cover object-center">
+                        </div>
                         @foreach($images as $index => $imgSrc)
                             <div 
-                                x-show="activeImageIndex === {{ $index }}" 
+                                x-show="!(currentVariant && currentVariant.image) && activeImageIndex === {{ $index }}" 
                                 x-transition:enter="transition-opacity ease-out duration-200"
                                 x-transition:enter-start="opacity-0"
                                 x-transition:enter-end="opacity-100"
@@ -780,7 +790,8 @@
     ]);
     $avgRating = (float) ($product['rating'] ?? 4.8);
     $totalRatingsCount = (int) ($product['review_count'] ?? 94);
-    $sampleReviews = collect(config('demo.reviews', []))->map(function ($rev) use ($defaultVariant) {
+    $reviewSource = !empty($reviews) ? $reviews : config('demo.reviews', []);
+    $sampleReviews = collect($reviewSource)->map(function ($rev) use ($defaultVariant) {
         return [
             'id' => $rev['id'] ?? 1,
             'author' => $rev['author'] ?? 'Customer',

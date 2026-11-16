@@ -6,7 +6,10 @@
 >   1. **Separate Tables & Sessions for Admin vs. User**: `admins` table (`App\Models\Admin`, guard `admin`, cookie `everbloom_admin_session`) and `users` table (`App\Models\User`, guard `web`, cookie `everbloom_user_session`).
 >   2. **Full-Text Search Engine**: **TNTSearch** via `laravel/scout` and `teamtnt/laravel-scout-tntsearch-driver`.
 >   3. **Third-Party Cloud Image Storage + Source Column + WebP Conversion**: Every table that stores an image path also has a companion source column (`image_source` or `avatar_source`, e.g., `'s3'`, `'r2'`, `'spaces'`, `'cloudinary'`, or `'local'` for demo seed assets). All uploaded images are automatically converted to **`.webp`** before being pushed to third-party storage.
->   4. **Zero-Breakage View Compatibility**: Eloquent models implement `ArrayAccess` (native in Laravel Eloquent) and define computed accessors matching the keys in `config/demo/*.php` so existing Storefront and `/admin` Blade views require minimal or zero structural changes.
+>   4. **Bangladesh Location Hierarchy (`Country = Bangladesh` -> `District` -> `Thana` -> `Area`)**: Country is always **Bangladesh**. Districts, Thanas, and Areas are stored in database tables (`districts`, `thanas`, `areas`) populated via `BangladeshLocationSeeder`. Customers select District -> Thana -> Area sequentially on Checkout and Address pages, and Admins can **rename** or **enable/disable (`is_active`)** any District, Thana, or Area in `/admin/locations`.
+>   5. **Wholesale Purchase Batches, Available-Stock Weighted Average Price & Order Profit Tracking**: Admin buys products wholesale by **Vendor Name** (`vendors`) and **Batch** (`purchase_batches` & `purchase_batch_items`). When a new batch is added for an existing product, `avg_buy_price` is calculated **strictly from currently available stock (`stock_count`) + new batch quantity** (already-sold units never dilute or skew the current average cost). When an order is received, `order_items` and `orders` snapshot the buy cost and display exact per-item and per-order **Profit** in `/admin`.
+>   6. **Multi-Attribute Product Variants (`Brand`, `Size`, `Color`, etc.) + Optional Variant Image**: Variants are not restricted to bottle size alone. Admin can define reusable attributes (`Brand`, `Size`, `Color`, `Scent`, `Finish`, etc.) in `attributes` & `attribute_values`, assign any combination of attributes to each `ProductVariant`, and **optionally attach a variant-specific image** (`image` + `image_source`, converted to `.webp` on third-party storage).
+>   7. **Zero-Breakage View Compatibility**: Eloquent models implement `ArrayAccess` (native in Laravel Eloquent) and define computed accessors matching the keys in `config/demo/*.php` so existing Storefront and `/admin` Blade views require minimal or zero structural changes.
 
 ---
 
@@ -62,6 +65,8 @@ erDiagram
         string subtitle
         decimal price
         decimal compare_at_price
+        decimal avg_buy_price
+        decimal last_buy_price
         decimal rating
         int review_count
         text short_description
@@ -93,16 +98,116 @@ erDiagram
         int sort_order
     }
 
+    ATTRIBUTES {
+        bigint id PK
+        string name
+        string slug UK
+        string display_type
+        int sort_order
+        boolean is_active
+    }
+
+    ATTRIBUTE_VALUES {
+        bigint id PK
+        bigint attribute_id FK
+        string value
+        string slug
+        string color_code
+        int sort_order
+        boolean is_active
+    }
+
     PRODUCT_VARIANTS {
         bigint id PK
         bigint product_id FK
+        string title
         string size
+        json attributes_json
         string sku
         decimal price
         decimal compare_at_price
+        decimal avg_buy_price
+        decimal last_buy_price
         int stock_count
         string stock_status
+        string image
+        string image_source
         int sort_order
+        boolean is_active
+    }
+
+    PRODUCT_VARIANT_VALUES {
+        bigint id PK
+        bigint product_variant_id FK
+        bigint attribute_id FK
+        bigint attribute_value_id FK
+    }
+
+    VENDORS {
+        bigint id PK
+        string name
+        string company_name
+        string phone
+        string email
+        string address
+        boolean is_active
+    }
+
+    PURCHASE_BATCHES {
+        bigint id PK
+        string batch_code UK
+        bigint vendor_id FK
+        string vendor_name
+        string reference_no
+        date purchased_at
+        int total_qty
+        decimal total_cost
+        text notes
+        bigint created_by FK
+    }
+
+    PURCHASE_BATCH_ITEMS {
+        bigint id PK
+        bigint purchase_batch_id FK
+        bigint vendor_id FK
+        bigint product_id FK
+        bigint product_variant_id FK
+        string batch_lot
+        int purchased_qty
+        int remaining_qty
+        decimal unit_buy_price
+        decimal line_total_cost
+    }
+
+    DISTRICTS {
+        bigint id PK
+        string name
+        string bn_name
+        string slug UK
+        decimal delivery_charge
+        int sort_order
+        boolean is_active
+    }
+
+    THANAS {
+        bigint id PK
+        bigint district_id FK
+        string name
+        string bn_name
+        string slug
+        int sort_order
+        boolean is_active
+    }
+
+    AREAS {
+        bigint id PK
+        bigint district_id FK
+        bigint thana_id FK
+        string name
+        string bn_name
+        string postal_code
+        int sort_order
+        boolean is_active
     }
 
     ADDRESSES {
@@ -112,12 +217,16 @@ erDiagram
         string first_name
         string last_name
         string company
+        string country
+        bigint district_id FK
+        bigint thana_id FK
+        bigint area_id FK
+        string district_name
+        string thana_name
+        string area_name
         string address_line1
         string address_line2
-        string city
-        string state
         string postal_code
-        string country
         string phone
     }
 
@@ -147,6 +256,8 @@ erDiagram
         decimal shipping_cost
         decimal tax_amount
         decimal total
+        decimal total_cost
+        decimal total_profit
         int items_count
         string delivery_method
         string payment_method
@@ -168,8 +279,12 @@ erDiagram
         string image
         string image_source
         int qty
+        decimal unit_buy_price
         decimal price
+        decimal line_cost_total
         decimal line_total
+        decimal unit_profit
+        decimal line_profit
     }
 
     INVOICES {
@@ -205,11 +320,23 @@ erDiagram
     }
 
     USERS ||--o{ ADDRESSES : "has many"
+    DISTRICTS ||--o{ THANAS : "has many"
+    DISTRICTS ||--o{ AREAS : "has many"
+    THANAS ||--o{ AREAS : "has many"
+    DISTRICTS ||--o{ ADDRESSES : "located in"
+    THANAS ||--o{ ADDRESSES : "located in"
+    AREAS ||--o{ ADDRESSES : "located in"
     USERS ||--o{ ORDERS : "places"
     USERS ||--o{ REVIEWS : "writes"
     CATEGORIES ||--o{ PRODUCTS : "contains"
     PRODUCTS ||--o{ PRODUCT_IMAGES : "has gallery"
     PRODUCTS ||--o{ PRODUCT_VARIANTS : "has variants"
+    ATTRIBUTES ||--o{ ATTRIBUTE_VALUES : "has options"
+    PRODUCT_VARIANTS ||--o{ PRODUCT_VARIANT_VALUES : "has attributes"
+    ATTRIBUTE_VALUES ||--o{ PRODUCT_VARIANT_VALUES : "assigned to"
+    PRODUCTS ||--o{ PURCHASE_BATCH_ITEMS : "stocked via"
+    VENDORS ||--o{ PURCHASE_BATCHES : "supplies"
+    PURCHASE_BATCHES ||--|{ PURCHASE_BATCH_ITEMS : "contains"
     PRODUCTS ||--o{ REVIEWS : "has reviews"
     PRODUCTS ||--o{ ORDER_ITEMS : "referenced in"
     COUPONS ||--o{ ORDERS : "applied to"
@@ -369,8 +496,10 @@ Update the default `users` migration to match customer fields used in `AccountCo
 | `sku` | `string(60)` | `unique()` | Batch SKU (`'EB-SKU-0001'`) |
 | `name` | `string(180)` | required | Product title |
 | `subtitle` | `string(255)` | `nullable()` | Optional italic subtitle |
-| `price` | `decimal(10,2)` | required | Base retail price |
+| `price` | `decimal(10,2)` | required | Base retail selling price |
 | `compare_at_price` | `decimal(10,2)` | `nullable()` | Original price before sale |
+| `avg_buy_price` | `decimal(10,2)` | `default(0.00)` | **Weighted Average Wholesale Buy Price** of currently available stock (`stock_count`) |
+| `last_buy_price` | `decimal(10,2)` | `default(0.00)` | Wholesale unit buy price from the most recent batch |
 | `rating` | `decimal(3,2)` | `default(5.00)` | Cached average rating |
 | `review_count` | `unsignedInteger` | `default(0)` | Cached count of approved reviews |
 | `short_description` | `text` | `nullable()` | Catalogue summary |
@@ -406,33 +535,123 @@ In addition to the cached `images` + `image_source` columns on `products`, `prod
 | `sort_order` | `integer` | `default(0)` | Gallery display order |
 | `timestamps` | `timestamps` | — | `created_at`, `updated_at` |
 
-### 3.5 `product_variants` Table (`create_product_variants_table`)
+### 3.5 `attributes`, `attribute_values`, `product_variants` & `product_variant_values` Tables
+
+#### `attributes` Table (`create_attributes_and_variant_values_tables`)
+Stores dynamic variant attribute types (`Brand`, `Size`, `Color`, `Scent`, `Finish`, `Pack Size`, etc.):
+| Column | Type | Modifiers | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `bigIncrements` | PK | Attribute ID |
+| `name` | `string(100)` | required | Display name (e.g., `'Brand'`, `'Size'`, `'Color'`) |
+| `slug` | `string(100)` | `unique()` | URL/lookup slug (`'brand'`, `'size'`, `'color'`) |
+| `display_type` | `string(30)` | `default('button')` | `'button'`, `'color_swatch'`, `'dropdown'` |
+| `sort_order` | `integer` | `default(0)` | Ordering in Admin & Storefront |
+| `is_active` | `boolean` | `default(true)` | Active toggle |
+| `timestamps` | `timestamps` | — | `created_at`, `updated_at` |
+
+#### `attribute_values` Table (`create_attributes_and_variant_values_tables`)
+Stores selectable values for each attribute (e.g., `Size` -> `'30ml / 1.0 fl oz'`, `'50ml / 1.7 fl oz'`; `Color` -> `'Amber Glass'`, `'Frosted Ivory'`; `Brand` -> `'The Everbloom'`):
+| Column | Type | Modifiers | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `bigIncrements` | PK | Attribute Value ID |
+| `attribute_id` | `foreignId` | `constrained('attributes')->cascadeOnDelete()` | Parent Attribute |
+| `value` | `string(120)` | required | Option label (e.g., `'50ml / 1.7 fl oz'`, `'Amber Glass'`) |
+| `slug` | `string(140)` | `index()` | Slug |
+| `color_code` | `string(20)` | `nullable()` | Optional hex color (e.g., `'#8B5A2B'`) when `display_type === 'color_swatch'` |
+| `sort_order` | `integer` | `default(0)` | Display order |
+| `is_active` | `boolean` | `default(true)` | Active toggle |
+| `timestamps` | `timestamps` | — | `created_at`, `updated_at` |
+
+#### `product_variants` Table (`create_products_and_variants_tables`)
+Stores each product variant with multi-attribute combinations AND an **optional per-variant WebP image**:
 | Column | Type | Modifiers | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | `bigIncrements` | PK | Variant ID |
 | `product_id` | `foreignId` | `constrained()->cascadeOnDelete()` | Parent product |
-| `size` | `string(80)` | required | e.g., `'30ml / 1.0 fl oz'` |
+| `title` | `string(180)` | required | Composite variant label (e.g., `'30ml / 1.0 fl oz'` or `'50ml / Amber Glass / The Everbloom'`) |
+| `size` | `string(180)` | required | Synced with `title` for backward compatibility with existing storefront views |
+| `attributes_json` | `json` | `nullable()` | Key-value map of attributes for this variant, e.g., `{"Brand": "The Everbloom", "Size": "50ml / 1.7 fl oz", "Color": "Amber Glass"}` |
 | `sku` | `string(80)` | `nullable()` | Variant-specific SKU |
-| `price` | `decimal(10,2)` | required | Variant price |
+| `price` | `decimal(10,2)` | required | Variant retail price |
 | `compare_at_price` | `decimal(10,2)` | `nullable()` | Variant compare-at price |
+| `avg_buy_price` | `decimal(10,2)` | `default(0.00)` | Weighted average wholesale buy cost for this variant's available stock |
+| `last_buy_price` | `decimal(10,2)` | `default(0.00)` | Latest wholesale unit buy price |
 | `stock_count` | `integer` | `default(25)` | Variant stock count |
 | `stock_status` | `string(30)` | `default('in_stock')` | `'in_stock'`, `'low_stock'`, `'out_of_stock'` |
+| `image` | `string` | `nullable()` | **Optional variant-specific `.webp` image path** (e.g., `'products/variants/serum-50ml-amber.webp'`) |
+| `image_source` | `string(40)` | `default('local')` | Companion storage provider column (`'s3'`, `'r2'`, `'spaces'`, `'cloudinary'`, `'local'`) |
 | `sort_order` | `integer` | `default(0)` | Ordering |
+| `is_active` | `boolean` | `default(true)` | Active toggle |
 | `timestamps` | `timestamps` | — | `created_at`, `updated_at` |
 
-### 3.6 `addresses` Table (`create_addresses_table`)
-Matches `config/demo/account.php` `addresses` and `frontend/account/addresses.blade.php`:
-- `id`, `user_id` (`foreignId` -> `users`), `is_default` (`boolean`), `first_name`, `last_name`, `company` (`nullable`), `address_line1`, `address_line2` (`nullable`), `city`, `state`, `postal_code`, `country`, `phone` (`nullable`), `timestamps`.
+#### `product_variant_values` Pivot Table (`create_attributes_and_variant_values_tables`)
+Links each `ProductVariant` to its relational `Attribute` and `AttributeValue` rows for structured filtering:
+| Column | Type | Modifiers | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `bigIncrements` | PK | Row ID |
+| `product_variant_id` | `foreignId` | `constrained('product_variants')->cascadeOnDelete()` | Variant |
+| `attribute_id` | `foreignId` | `constrained('attributes')->cascadeOnDelete()` | Attribute (`Brand`, `Size`, `Color`, etc.) |
+| `attribute_value_id` | `foreignId` | `constrained('attribute_values')->cascadeOnDelete()` | Selected Value |
+
+### 3.6 `districts`, `thanas`, `areas` & `addresses` Tables (Bangladesh Cascading Location System)
+
+#### `districts` Table (`create_bangladesh_locations_tables`)
+| Column | Type | Modifiers | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `bigIncrements` | PK | District ID |
+| `name` | `string(120)` | required | English name (e.g., `'Dhaka'`, `'Chattogram'`) — **Editable by Admin** |
+| `bn_name` | `string(120)` | `nullable()` | Bangla name (e.g., `'ঢাকা'`) — **Editable by Admin** |
+| `slug` | `string(120)` | `unique()` | URL/lookup slug (`'dhaka'`) |
+| `delivery_charge` | `decimal(10,2)` | `nullable()` | Optional district-level shipping fee override |
+| `sort_order` | `integer` | `default(0)` | Custom ordering (e.g., Dhaka first) |
+| `is_active` | `boolean` | `default(true)` | **Admin Enable/Disable toggle** (`true` = visible on Checkout/Addresses) |
+| `timestamps` | `timestamps` | — | `created_at`, `updated_at` |
+
+#### `thanas` Table (`create_bangladesh_locations_tables`)
+| Column | Type | Modifiers | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `bigIncrements` | PK | Thana / Upazila ID |
+| `district_id` | `foreignId` | `constrained('districts')->cascadeOnDelete()` | Parent District |
+| `name` | `string(120)` | required | Thana name (e.g., `'Gulshan'`, `'Dhanmondi'`, `'Uttara'`) — **Editable by Admin** |
+| `bn_name` | `string(120)` | `nullable()` | Bangla name |
+| `slug` | `string(140)` | `index()` | Slug |
+| `sort_order` | `integer` | `default(0)` | Display order |
+| `is_active` | `boolean` | `default(true)` | **Admin Enable/Disable toggle** |
+| `timestamps` | `timestamps` | — | `created_at`, `updated_at` |
+
+#### `areas` Table (`create_bangladesh_locations_tables`)
+| Column | Type | Modifiers | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `bigIncrements` | PK | Area / Locality ID |
+| `district_id` | `foreignId` | `constrained('districts')->cascadeOnDelete()` | Parent District |
+| `thana_id` | `foreignId` | `constrained('thanas')->cascadeOnDelete()` | Parent Thana |
+| `name` | `string(150)` | required | Area name (e.g., `'Gulshan 2'`, `'Banani DOHS'`, `'Dhanmondi Road 27'`) — **Editable by Admin** |
+| `bn_name` | `string(150)` | `nullable()` | Bangla name |
+| `postal_code` | `string(20)` | `nullable()` | Optional postal code (e.g., `'1212'`, `'1209'`) |
+| `sort_order` | `integer` | `default(0)` | Display order |
+| `is_active` | `boolean` | `default(true)` | **Admin Enable/Disable toggle** |
+| `timestamps` | `timestamps` | — | `created_at`, `updated_at` |
+
+#### `addresses` Table (`create_addresses_table`)
+Stores customer saved addresses with **Bangladesh** as the fixed country and foreign keys + snapshot names for `District -> Thana -> Area`:
+- `id`, `user_id` (`foreignId` -> `users`), `is_default` (`boolean`, `default(false)`), `first_name`, `last_name`, `company` (`nullable`), `country` (`string(60)`, `default('Bangladesh')`), `district_id` (`foreignId` -> `districts`, `nullable()->nullOnDelete()`), `thana_id` (`foreignId` -> `thanas`, `nullable()->nullOnDelete()`), `area_id` (`foreignId` -> `areas`, `nullable()->nullOnDelete()`), `district_name` (`string`), `thana_name` (`string`), `area_name` (`string`), `address_line1` (House/Road/Block), `address_line2` (`nullable`, Apt/Floor), `postal_code` (`nullable`), `phone`, `timestamps`.
+- **Compatibility Accessors on `Address` Model**: `getCityAttribute()` returns `$this->thana?->name ?? $this->thana_name`, `getStateAttribute()` returns `$this->district?->name ?? $this->district_name` so any existing order/invoice templates referencing `city` or `state` work out-of-the-box alongside `district_name`, `thana_name`, and `area_name`.
 
 ### 3.7 `coupons` Table (`create_coupons_table`)
 Matches `config/demo/site.php` `demo_discounts` and `AdminCouponController`:
 - `id`, `code` (`unique`, uppercase), `type` (`'percentage'`, `'fixed'`, `'shipping'`), `value` (`decimal(10,2)`), `label` (`string`), `min_order_amount` (`decimal(10,2)`, `default(0)`), `usage_limit` (`integer`, `nullable`), `used_count` (`integer`, `default(0)`), `is_active` (`boolean`, `default(true)`), `expires_at` (`timestamp`, `nullable`), `timestamps`.
 
-### 3.8 `orders`, `order_items`, and `invoices` Tables
+### 3.8 `orders`, `order_items`, `invoices`, `vendors`, `purchase_batches`, and `purchase_batch_items` Tables
+- **`vendors`**:
+  - `id`, `name` (Vendor Name, e.g. `'Botanical Extracts Co.'`), `company_name` (`nullable`), `phone` (`nullable`), `email` (`nullable`), `address` (`nullable`), `is_active` (`boolean`, `default(true)`), `timestamps`.
+- **`purchase_batches`**:
+  - `id`, `batch_code` (`unique`, e.g. `'BATCH-2026-0001'`), `vendor_id` (`foreignId` -> `vendors`), `vendor_name` (`string`), `reference_no` (`nullable`), `purchased_at` (`date`), `total_qty` (`unsignedInteger`), `total_cost` (`decimal(12,2)`), `notes` (`nullable`), `created_by` (`nullable`, `foreignId` -> `admins`), `timestamps`.
+- **`purchase_batch_items`**:
+  - `id`, `purchase_batch_id` (`foreignId` -> `purchase_batches`, `cascadeOnDelete()`), `vendor_id` (`foreignId` -> `vendors`), `product_id` (`foreignId` -> `products`, `cascadeOnDelete()`), `product_variant_id` (`nullable`, `foreignId` -> `product_variants`, `nullOnDelete()`), `batch_lot` (`string`, e.g. `'LOT-2026-B01'`), `purchased_qty` (`unsignedInteger`), `remaining_qty` (`unsignedInteger` — currently available unsold units from this batch), `unit_buy_price` (`decimal(10,2)`), `line_total_cost` (`decimal(12,2)`), `timestamps`.
 - **`orders`**:
-  - `id`, `order_number` (`unique`, e.g., `'EVB-9204'`), `user_id` (`nullable()->constrained()->nullOnDelete()`), `coupon_id` (`nullable()->constrained()->nullOnDelete()`), `customer_email`, `customer_phone` (`nullable`), `status` (`'Placed'`, `'Processing'`, `'Shipped'`, `'Delivered'`, `'Cancelled'`), `current_step`, `subtotal`, `discount_amount` (`default(0)`), `discount_code` (`nullable`), `shipping_cost` (`default(0)`), `tax_amount` (`default(0)`), `total`, `items_count`, `delivery_method`, `payment_method`, `payment_status` (`default('Paid')`), `tracking_number` (`default('Pending assignment')`), `shipping_address` (`json`), `placed_at` (`timestamp`), `timestamps`.
+  - `id`, `order_number` (`unique`, e.g., `'EVB-9204'`), `user_id` (`nullable()->constrained()->nullOnDelete()`), `coupon_id` (`nullable()->constrained()->nullOnDelete()`), `customer_email`, `customer_phone` (`nullable`), `status` (`'Placed'`, `'Processing'`, `'Shipped'`, `'Delivered'`, `'Cancelled'`), `current_step`, `subtotal`, `discount_amount` (`default(0)`), `discount_code` (`nullable`), `shipping_cost` (`default(0)`), `tax_amount` (`default(0)`), `total`, `total_cost` (`decimal(10,2)`, `default(0)` — sum of `order_items.line_cost_total`), `total_profit` (`decimal(10,2)`, `default(0)` — `(subtotal - discount_amount) - total_cost`), `items_count`, `delivery_method`, `payment_method`, `payment_status` (`default('Paid')`), `tracking_number` (`default('Pending assignment')`), `shipping_address` (`json`), `placed_at` (`timestamp`), `timestamps`.
 - **`order_items`**:
-  - `id`, `order_id` (`constrained()->cascadeOnDelete()`), `product_id` (`nullable()->constrained()->nullOnDelete()`), `product_variant_id` (`nullable`), `name`, `slug`, `variant` (`nullable`), `image` (`nullable`), `image_source` (`string(40)`, `default('local')`), `qty` (`unsignedInteger`), `price` (`decimal(10,2)`), `line_total` (`decimal(10,2)`), `timestamps`.
+  - `id`, `order_id` (`constrained()->cascadeOnDelete()`), `product_id` (`nullable()->constrained()->nullOnDelete()`), `product_variant_id` (`nullable`), `name`, `slug`, `variant` (`nullable`), `image` (`nullable`), `image_source` (`string(40)`, `default('local')`), `qty` (`unsignedInteger`), `unit_buy_price` (`decimal(10,2)`, `default(0)` — snapshot of product `avg_buy_price` at time of order), `price` (`decimal(10,2)` — selling price), `line_cost_total` (`decimal(10,2)`, `default(0)` — `unit_buy_price * qty`), `line_total` (`decimal(10,2)` — `price * qty`), `unit_profit` (`decimal(10,2)`, `default(0)` — `price - unit_buy_price`), `line_profit` (`decimal(10,2)`, `default(0)` — `line_total - line_cost_total`), `timestamps`.
 - **`invoices`**:
   - `id`, `order_id` (`constrained()->cascadeOnDelete()`), `invoice_no` (`unique`, e.g., `'INV-2026-1001'`), `customer_name`, `customer_email`, `amount` (`decimal(10,2)`), `status` (`default('Paid')`), `payment_method`, `issued_at` (`timestamp`), `timestamps`.
 
@@ -654,5 +873,168 @@ class ImageStorageService
 2. **Alpine Dynamic Image Bindings (`cart-drawer.blade.php`, `cart/index.blade.php`, `checkout/index.blade.php`, `search-modal.blade.php`, `wishlist.blade.php`)**:
    - When Eloquent serializes `Product` for `#everbloom-products-data` and `#everbloom-search-data`, resolve each image via `ImageStorageService::resolveUrl($img, $this->image_source)` (or provide a helper `resolveImageUrl(item.image)` in `resources/js/app.js` that returns `item.image` directly if it starts with `http://`, `https://`, or `/`, otherwise prefixes `'/images/' + item.image`).
    - This guarantees both local seeded images (`products/botanical-radiance-serum-01.jpg`) and third-party cloud `.webp` URLs (`https://cdn.the-everbloom.com/products/botanical-radiance-serum-01.webp`) render everywhere without broken URLs.
+
+---
+
+## 6. Bangladesh Cascading Location Architecture (`District -> Thana -> Area`)
+
+### 6.1 Cascading Selection Flow
+1. **Country**: Always fixed to **`Bangladesh`** (`<input type="text" value="Bangladesh" readonly class="input-field bg-ivory/60 cursor-not-allowed">`).
+2. **District Select (`district_id`)**:
+   - Populated with `District::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(['id', 'name', 'bn_name', 'delivery_charge'])`.
+   - Selecting a District resets `thana_id` and `area_id` and fetches active Thanas for that District.
+3. **Thana Select (`thana_id`)**:
+   - Fetched via `GET /locations/districts/{district}/thanas` (`Thana::where('district_id', $district->id)->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(['id', 'name', 'bn_name'])`).
+   - Selecting a Thana resets `area_id` and fetches active Areas for that Thana.
+4. **Area Select (`area_id`)**:
+   - Fetched via `GET /locations/thanas/{thana}/areas` (`Area::where('thana_id', $thana->id)->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(['id', 'name', 'bn_name', 'postal_code'])`).
+   - Selecting an Area automatically populates `postal_code` if the Area has one defined.
+
+### 6.2 Admin Location Management (`/admin/locations`)
+In the Admin Console (`AdminLocationController`), administrators have full control over the seeded Bangladesh location database:
+- **Rename Any Location**: Inline modal or edit form to update `name`, `bn_name`, `postal_code` (for Area), or `delivery_charge` (for District) on any `District`, `Thana`, or `Area`.
+- **Enable / Disable Toggle (`is_active`)**:
+  - One-click switch on every District, Thana, and Area (`POST /admin/locations/districts/{district}/toggle`, `POST /admin/locations/thanas/{thana}/toggle`, `POST /admin/locations/areas/{area}/toggle`).
+  - When a District is disabled (`is_active = false`), it immediately disappears from Storefront Checkout and Customer Address selectors.
+  - When a Thana or Area is disabled (`is_active = false`), it is excluded from the cascading dropdown API (`where('is_active', true)`).
+- **Add New Thana / Area**: Admin can add new Thanas under any District or new Areas under any Thana at any time.
+
+---
+
+## 7. Wholesale Purchase Batches, Available-Stock Weighted Average Cost & Order Profit Architecture
+
+### 7.1 Available-Stock-Only Weighted Average Buy Price Formula
+When an Admin records a new Wholesale Purchase Batch (`PurchaseBatch`) for an existing product from a vendor (`Vendor`):
+- **Core Business Rule**: Only the **currently available (`stock_count > 0`) units** of that product participate in calculating the new `avg_buy_price`. Units that were already sold in previous orders are excluded so historical depleted stock never skews the cost of current inventory.
+- **Formula**:
+  $$\text{New Avg Buy Price} = \frac{(\text{Current Available Stock} \times \text{Current Avg Buy Price}) + (\text{New Batch Qty} \times \text{New Batch Unit Buy Price})}{\text{Current Available Stock} + \text{New Batch Qty}}$$
+- **Edge Case (`Available Stock == 0`)**:
+  - When `stock_count <= 0`, `New Avg Buy Price = New Batch Unit Buy Price`.
+
+#### Step-by-Step Numerical Example
+1. **Batch #1**: Admin buys `50` units of *Botanical Radiance Serum* from Vendor `"Alpine Herbs Ltd"` at **`$25.00`** per unit.
+   - Available Stock = `50`, `avg_buy_price` = **`$25.00`**, Selling Price = `$64.00` (Expected Profit = `$39.00/unit`).
+2. **Customer Orders**: `30` units are sold across customer orders.
+   - Each sold unit records `unit_buy_price = $25.00`, `price = $64.00`, `unit_profit = $39.00` (`line_profit = 30 * $39 = $1,170.00`).
+   - Available Stock remaining = **`20` units** at `avg_buy_price = $25.00` (Available Inventory Valuation = `20 * $25.00 = $500.00`).
+3. **Batch #2 (Same Product, New Wholesale Price)**: Admin buys `30` new units of *Botanical Radiance Serum* from Vendor `"Pacific Botanicals"` at **`$35.00`** per unit (`30 * $35.00 = $1,050.00`).
+   - Only the **`20` available units** (`$500.00`) and the **`30` new batch units** (`$1,050.00`) are combined:
+   - New Available Stock = `20 + 30 = 50` units.
+   - New `avg_buy_price` = `($500.00 + $1,050.00) / 50` = **`$31.00`** per unit!
+   - Next customer order will snapshot `unit_buy_price = $31.00`, `price = $64.00`, and show **`unit_profit = $33.00`**!
+
+### 7.2 `PurchaseBatchService` Implementation Blueprint (`app/Services/PurchaseBatchService.php`)
+```php
+<?php
+
+namespace App\Services;
+
+use App\Models\Product;
+use App\Models\PurchaseBatch;
+use App\Models\PurchaseBatchItem;
+use App\Models\Vendor;
+use Illuminate\Support\Facades\DB;
+
+class PurchaseBatchService
+{
+    /**
+     * Calculate the new weighted average buy price using ONLY available stock.
+     */
+    public static function calculateWeightedAveragePrice(
+        int $availableStock,
+        float $currentAvgBuyPrice,
+        int $newBatchQty,
+        float $newBatchUnitBuyPrice
+    ): float {
+        $availableStock = max(0, $availableStock);
+        if ($newBatchQty <= 0) {
+            return round($currentAvgBuyPrice, 2);
+        }
+        if ($availableStock === 0 || $currentAvgBuyPrice <= 0) {
+            return round($newBatchUnitBuyPrice, 2);
+        }
+
+        $existingAvailableValue = $availableStock * $currentAvgBuyPrice;
+        $newBatchValue = $newBatchQty * $newBatchUnitBuyPrice;
+        $totalAvailableUnits = $availableStock + $newBatchQty;
+
+        return round(($existingAvailableValue + $newBatchValue) / $totalAvailableUnits, 2);
+    }
+
+    /**
+     * Deduct sold quantity from active purchase_batch_items in FIFO order when an order is placed.
+     */
+    public static function deductFromAvailableBatches(int $productId, int $qtyToDeduct): void
+    {
+        $remaining = $qtyToDeduct;
+        $batches = PurchaseBatchItem::where('product_id', $productId)
+            ->where('remaining_qty', '>', 0)
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($batches as $batchItem) {
+            if ($remaining <= 0) {
+                break;
+            }
+            $deduct = min($batchItem->remaining_qty, $remaining);
+            $batchItem->decrement('remaining_qty', $deduct);
+            $remaining -= $deduct;
+        }
+    }
+}
+```
+
+### 7.3 Order Received Profit Calculation (`CheckoutController` & `AdminOrderController`)
+When an order is received:
+1. **Per-Item Profit (`order_items`)**:
+   - `unit_buy_price` = `$product->avg_buy_price`
+   - `line_cost_total` = `round($unit_buy_price * $qty, 2)`
+   - `unit_profit` = `round($unitPrice - $unit_buy_price, 2)`
+   - `line_profit` = `round($lineTotal - $line_cost_total, 2)`
+2. **Order Total Profit (`orders`)**:
+   - `total_cost` = `sum(order_items.line_cost_total)`
+   - `total_profit` = `round(($subtotal - $discountAmount) - $total_cost, 2)`
+3. **Admin Visibility**:
+   - **`/admin/orders` (Order List)**: Displays `Order Total`, `Wholesale Cost`, and **`Profit` (`+$XX.XX`)** per order row, plus a `Total Profit` KPI counter card.
+   - **`/admin/orders/{id}` (Order Detail)**: Displays `Avg Buy Cost`, `Selling Price`, `Qty`, `Line Total`, and **`Product Profit` (`+$XX.XX`)** on every line item row, plus a dedicated **Order Profit Summary** row in the financial breakdown.
+   - **`/admin/purchases` (Wholesale Buy List & Create Batch)**: Lists all wholesale purchases with `Vendor Name`, `Batch Code`, `Purchased Qty`, `Available Qty`, `Batch Buy Price`, `Current Avg Buy Price`, `Selling Price`, and `Unit Profit`.
+
+---
+
+## 8. Multi-Attribute Product Variants (`Brand`, `Size`, `Color`, etc.) & Optional Variant Image Architecture
+
+### 8.1 Why Multi-Attribute Variants Instead of Fixed Sizes?
+In the initial prototype (`admin/products/create.blade.php`), variants were limited to a hardcoded list of bottle size checkboxes (`30ml`, `50ml`, `100ml`). In production:
+1. **Flexible Attributes**: A product variant can be defined by **any combination of attributes** (`Brand`, `Size`, `Color`, `Scent`, `Vessel Type`, `Pack Size`, etc.).
+2. **Per-Variant Pricing, SKU & Stock**: Each variant row has its own `sku`, `price`, `compare_at_price`, `stock_count`, `stock_status`, and `avg_buy_price`.
+3. **Optional Variant Image (`image` + `image_source`)**:
+   - Every variant row in `/admin/products/create` (and `/admin/products/{id}/edit`) includes an **optional image file input** (`variant_images[i]`).
+   - When an admin uploads an image for a variant, `ImageStorageService::uploadAsWebp($file, 'products/variants', ...)` converts the image to `.webp`, stores it on the configured third-party cloud disk (`s3`, `r2`, `spaces`, etc.), and saves both `image` (`.webp` path) and `image_source` (disk name) on the `product_variants` row.
+   - If the admin does **not** upload a variant image (`image = null`), the variant automatically inherits the parent product's primary image (`$product->resolvedImages()[0]`).
+
+### 8.2 Storefront & Cart Behavior with Variant Attributes & Optional Image
+1. **Product Detail Page (`/shop/product/{slug}`)**:
+   - Displays attribute groups dynamically (e.g., `BRAND`, `SIZE`, `COLOR`) or variant selector buttons showing each variant's composite `title`, attributes, and `price`.
+   - When a customer selects a variant that has a non-null `variant.image`, the main product gallery stage immediately previews `variant.image`.
+2. **Cart & Checkout (`$store.cart` & `CheckoutController@store`)**:
+   - `createDerivedCartItem()` in `resources/js/app.js` resolves `image` as:
+     ```js
+     image: {
+         get() {
+             const v = this.variant;
+             if (v && v.image) {
+                 return v.image;
+             }
+             const p = this.product;
+             return (p && Array.isArray(p.images) && p.images.length > 0) ? p.images[0] : null;
+         },
+         enumerable: false
+     }
+     ```
+   - When an order is placed (`POST /checkout`), `OrderItem` stores the variant's `image` and `image_source` if present, or falls back to `$product->images[0]` and `$product->image_source`.
+
+
+
 
 

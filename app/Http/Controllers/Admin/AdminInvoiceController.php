@@ -3,37 +3,47 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Invoice;
+use App\Models\Order;
 
 class AdminInvoiceController extends Controller
 {
     public function index()
     {
-        // BACKEND: Invoice::with('order.customer')->latest()->paginate(15)
-        $orders = config('demo.account.orders') ?? [];
-
-        $invoices = array_map(function($o, $idx) {
-            return [
-                'invoice_no' => 'INV-2026-' . (1001 + $idx),
-                'order_id' => $o['id'],
-                'customer_name' => $o['shipping_address']['first_name'] . ' ' . $o['shipping_address']['last_name'],
-                'customer_email' => 'eleanor.vance@example.com',
-                'date' => $o['date'],
-                'amount' => $o['total'],
-                'status' => 'Paid',
-                'status_badge' => 'success',
-                'payment_method' => $o['payment_method'],
-            ];
-        }, $orders, array_keys($orders));
+        $invoices = Invoice::with('order.items')
+            ->latest('issued_at')
+            ->get()
+            ->map(fn (Invoice $inv) => [
+                'invoice_no' => $inv->invoice_no,
+                'order_id' => $inv->order?->order_number ?? $inv->order_id,
+                'customer_name' => $inv->customer_name,
+                'customer_email' => $inv->customer_email,
+                'date' => $inv->issued_at?->format('F j, Y') ?? '',
+                'amount' => (float) $inv->amount,
+                'status' => $inv->status,
+                'status_badge' => $inv->status === 'Paid' ? 'success' : 'warning',
+                'payment_method' => $inv->payment_method,
+            ])
+            ->all();
 
         return view('admin.invoices.index', compact('invoices'));
     }
 
     public function show($id)
     {
-        $orders = config('demo.account.orders') ?? [];
-        $order = collect($orders)->firstWhere('id', $id) ?? $orders[0];
-        $customer = config('demo.account.customer') ?? [];
+        $orderModel = Order::with(['items', 'user'])
+            ->where('order_number', $id)
+            ->orWhere('id', is_numeric($id) ? (int) $id : 0)
+            ->firstOrFail();
+
+        $order = $orderModel->toViewArray();
+        $customer = $orderModel->user?->toArray() ?? [
+            'first_name' => $order['shipping_address']['first_name'] ?? 'Guest',
+            'last_name' => $order['shipping_address']['last_name'] ?? 'Customer',
+            'email' => $orderModel->customer_email,
+            'phone' => $orderModel->customer_phone,
+        ];
+
         return view('admin.invoices.show', compact('order', 'customer'));
     }
 }

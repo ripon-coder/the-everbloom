@@ -1,6 +1,14 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,15 +21,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Homepage
-Route::get('/', function () {
-    // BACKEND: replace with database product/content queries
-    $featured = array_filter(config('demo.products'), fn($p) => $p['is_featured'] ?? false);
-    return view('frontend.home', [
-        'featured' => $featured,
-        'categories' => config('demo.categories'),
-        'testimonials' => config('demo.testimonials'),
-    ]);
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Instant Search (TNTSearch)
+Route::get('/search', [SearchController::class, 'index'])->name('search');
 
 // Living Styleguide & Design Tokens
 Route::get('/styleguide', function () {
@@ -29,66 +32,28 @@ Route::get('/styleguide', function () {
 })->name('styleguide');
 
 // Shop Catalogue
-Route::get('/shop', function () {
-    // BACKEND: replace with paginate() and search query filters
-    return view('frontend.shop.index', [
-        'products' => config('demo.products'),
-        'categories' => config('demo.categories'),
-    ]);
-})->name('shop.index');
+Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 
 // Shop by Category
-Route::get('/shop/category/{slug}', function ($slug) {
-    // BACKEND: replace with Category::where('slug', $slug)->firstOrFail()
-    $category = collect(config('demo.categories'))->firstWhere('slug', $slug);
-    if (!$category) {
-        abort(404, 'Category not found');
-    }
-    $products = collect(config('demo.products'))->where('category_slug', $slug)->values()->all();
-
-    return view('frontend.shop.category', [
-        'category' => $category,
-        'products' => $products,
-    ]);
-})->name('shop.category');
+Route::get('/shop/category/{slug}', [ShopController::class, 'category'])->name('shop.category');
 
 // Product Detail Page
-Route::get('/shop/product/{slug}', function ($slug) {
-    // BACKEND: replace with Product::where('slug', $slug)->firstOrFail()
-    $product = collect(config('demo.products'))->firstWhere('slug', $slug);
-    if (!$product) {
-        abort(404, 'Product not found');
-    }
-    $sameCat = collect(config('demo.products'))
-        ->where('category_slug', $product['category_slug'] ?? '')
-        ->where('slug', '!=', $slug)
-        ->values();
-
-    if ($sameCat->count() < 4) {
-        $otherCat = collect(config('demo.products'))
-            ->where('category_slug', '!=', $product['category_slug'] ?? '')
-            ->where('slug', '!=', $slug)
-            ->values();
-        $related = $sameCat->concat($otherCat)->take(4)->all();
-    } else {
-        $related = $sameCat->take(4)->all();
-    }
-
-    return view('frontend.shop.product', [
-        'product' => $product,
-        'related' => $related,
-    ]);
-})->name('shop.product');
+Route::get('/shop/product/{slug}', [ShopController::class, 'product'])->name('shop.product');
 
 // Shopping Bag
 Route::get('/cart', function () {
     return view('frontend.cart.index');
 })->name('cart.index');
 
-// Checkout Demonstration (No payment processed)
-Route::get('/checkout', function () {
-    return view('frontend.checkout.index');
-})->name('checkout.index');
+// Bangladesh Cascading Locations API
+Route::get('/locations/districts', [LocationController::class, 'districts'])->name('locations.districts');
+Route::get('/locations/districts/{district}/thanas', [LocationController::class, 'thanas'])->name('locations.thanas');
+Route::get('/locations/thanas/{thana}/areas', [LocationController::class, 'areas'])->name('locations.areas');
+
+// Checkout & Order Placement
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/checkout/validate-coupon', [CheckoutController::class, 'validateCoupon'])->name('checkout.validateCoupon');
 
 // Static / Editorial Pages
 Route::get('/about', function () {
@@ -96,9 +61,11 @@ Route::get('/about', function () {
 })->name('about');
 
 Route::get('/contact', function () {
-    // BACKEND: handle contact inquiry form submission
     return view('frontend.pages.contact');
 })->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::post('/newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
+Route::post('/shop/product/{slug}/reviews', [ReviewController::class, 'store'])->name('shop.product.reviews.store');
 
 Route::get('/faq', function () {
     return view('frontend.pages.faq');
@@ -120,14 +87,29 @@ Route::get('/shipping-and-returns', function () {
     return view('frontend.pages.shipping-and-returns');
 })->name('shipping');
 
-// Account Authentication & Customer Area (Demo)
-// BACKEND: replace with auth middleware, Fortify / Breeze / Sanctum auth controllers
-Route::get('/account/login', [AccountController::class, 'login'])->name('login');
-Route::get('/account/register', [AccountController::class, 'register'])->name('register');
-Route::get('/account/forgot-password', [AccountController::class, 'forgotPassword'])->name('password.request');
-Route::get('/account', [AccountController::class, 'index'])->name('account');
-Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
-Route::get('/account/orders/{id}', [AccountController::class, 'showOrder'])->name('account.order.details');
-Route::get('/account/addresses', [AccountController::class, 'addresses'])->name('account.addresses');
-Route::get('/account/profile', [AccountController::class, 'profile'])->name('account.profile');
+// Account Authentication & Customer Area
+Route::middleware('guest:web')->group(function () {
+    Route::get('/account/login', [AccountController::class, 'login'])->name('login');
+    Route::post('/account/login', [AccountController::class, 'loginSubmit'])->name('login.submit');
+    Route::get('/account/register', [AccountController::class, 'register'])->name('register');
+    Route::post('/account/register', [AccountController::class, 'registerSubmit'])->name('register.submit');
+    Route::get('/account/forgot-password', [AccountController::class, 'forgotPassword'])->name('password.request');
+    Route::post('/account/forgot-password', [AccountController::class, 'forgotPasswordSubmit'])->name('password.email');
+});
+
+Route::middleware('auth:web')->group(function () {
+    Route::get('/account', [AccountController::class, 'index'])->name('account');
+    Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
+    Route::get('/account/orders/{id}', [AccountController::class, 'showOrder'])->name('account.order.details');
+    Route::get('/account/addresses', [AccountController::class, 'addresses'])->name('account.addresses');
+    Route::post('/account/addresses', [AccountController::class, 'storeAddress'])->name('account.addresses.store');
+    Route::put('/account/addresses/{address}', [AccountController::class, 'updateAddress'])->name('account.addresses.update');
+    Route::patch('/account/addresses/{address}/default', [AccountController::class, 'setDefaultAddress'])->name('account.addresses.default');
+    Route::delete('/account/addresses/{address}', [AccountController::class, 'destroyAddress'])->name('account.addresses.destroy');
+    Route::get('/account/profile', [AccountController::class, 'profile'])->name('account.profile');
+    Route::put('/account/profile', [AccountController::class, 'updateProfile'])->name('account.profile.update');
+    Route::put('/account/password', [AccountController::class, 'updatePassword'])->name('account.password.update');
+    Route::delete('/account', [AccountController::class, 'destroyAccount'])->name('account.destroy');
+    Route::post('/account/logout', [AccountController::class, 'logout'])->name('logout');
+});
 

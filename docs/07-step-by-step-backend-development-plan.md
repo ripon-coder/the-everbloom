@@ -7,7 +7,10 @@
 >   1. **Separate Admin & Customer Auth/Sessions**: `admins` table (`admin` guard, `everbloom_admin_session` cookie) vs `users` table (`web` guard, `everbloom_user_session` cookie).
 >   2. **Search Engine**: Laravel Scout + **TNTSearch** (`teamtnt/laravel-scout-tntsearch-driver`).
 >   3. **Third-Party Cloud Storage + `image_source` Column + WebP Conversion**: Every image column (`image`, `images`, `avatar`) has a companion source column (`image_source` or `avatar_source`, e.g., `'s3'`, `'r2'`, `'spaces'`, `'cloudinary'`, or `'local'`). All uploaded images are automatically converted to `.webp` via `ImageStorageService` before uploading to third-party storage.
->   4. **UI Preservation**: Do not break the existing Storefront (Tailwind + Alpine.js) or Admin (`/admin` Bootstrap 5.3.3 Larkon) markup.
+>   4. **Bangladesh Location Hierarchy (`Country = Bangladesh` -> `District` -> `Thana` -> `Area`)**: Country is always **Bangladesh**. All Bangladesh Districts, Thanas, and Areas are seeded into `districts`, `thanas`, and `areas` tables via `BangladeshLocationSeeder`. Storefront Checkout and Customer Addresses use cascading `District -> Thana -> Area` selects (filtering `is_active = true`), and Admins can **rename** and **enable/disable (`is_active`)** any District, Thana, or Area in `/admin/locations`.
+>   5. **Wholesale Purchase Batches, Available-Stock Weighted Average Cost & Order Profit**: Admin buys products wholesale by **Vendor Name** (`vendors`) and **Batch** (`purchase_batches`, `purchase_batch_items`). When a new batch is added for an existing product, `avg_buy_price` is recalculated using **only currently available stock (`stock_count`) + the new batch quantity**. When an order is placed/received, `order_items` and `orders` snapshot the product's `avg_buy_price` and display exact per-product and total order **Profit** in `/admin`.
+>   6. **Multi-Attribute Product Variants (`Brand`, `Size`, `Color`, etc.) + Optional Variant Image**: Variants support any combination of dynamic attributes (`Brand`, `Size`, `Color`, `Scent`, etc.) via `attributes`, `attribute_values`, `product_variants`, and `product_variant_values`. Each variant has its own price, SKU, stock, and an **optional variant image** (`image` + `image_source`, converted to `.webp` on third-party storage).
+>   7. **UI Preservation**: Do not break the existing Storefront (Tailwind + Alpine.js) or Admin (`/admin` Bootstrap 5.3.3 Larkon) markup.
 
 ---
 
@@ -21,6 +24,8 @@ flowchart TD
     P4 --> P5["Phase 5: Cart Sync, Coupons, Checkout & Order Engine"]
     P5 --> P6["Phase 6: Customer Account Area CRUD & Reviews/Contact"]
     P6 --> P7["Phase 7: Admin Console Full CRUD, Inventory & Settings"]
+    P7 --> P8["Phase 8: Wholesale Purchase Batches, Avg Buy Price & Order Profit"]
+    P8 --> P9["Phase 9: Multi-Attribute Variants (Brand/Size/Color) & Optional Variant Image"]
 ```
 
 ---
@@ -36,7 +41,7 @@ Create all database tables, Eloquent models with `config/demo/*`-compatible acce
    - `0001_01_01_000003_create_admins_table.php`: Create `admins` (`id`, `name`, `email` unique, `password`, `avatar`, `avatar_source` default `'local'`, `role` default `'super_admin'`, `is_active` default `true`, `last_login_at`, `remember_token`, `timestamps`) and `admin_password_reset_tokens`.
    - `0001_01_01_000004_create_categories_table.php`: Create `categories` (`id`, `slug` unique, `name`, `short_name`, `tagline`, `description`, `image`, `image_source` default `'local'`, `sort_order`, `is_active`, `timestamps`).
    - `0001_01_01_000005_create_products_and_variants_tables.php`: Create `products` (including `images` JSON and `image_source` default `'local'`), `product_images` (`id`, `product_id`, `image`, `image_source`, `is_primary`, `sort_order`), and `product_variants` tables as specified in [`06-database-and-domain-architecture.md`](./06-database-and-domain-architecture.md#34-products--product_images-tables-create_products_table).
-   - `0001_01_01_000006_create_addresses_table.php`: Create `addresses` table linked to `users`.
+   - `0001_01_01_000006_create_bangladesh_locations_and_addresses_tables.php`: Create `districts`, `thanas`, `areas`, and `addresses` tables (with `country` defaulting to `'Bangladesh'` and `district_id`, `thana_id`, `area_id`, `district_name`, `thana_name`, `area_name`).
    - `0001_01_01_000007_create_coupons_table.php`: Create `coupons` table (`code`, `type`, `value`, `label`, `min_order_amount`, `usage_limit`, `used_count`, `is_active`, `expires_at`).
    - `0001_01_01_000008_create_orders_items_invoices_tables.php`: Create `orders`, `order_items` (including `image` and `image_source`), and `invoices` tables.
    - `0001_01_01_000009_create_reviews_settings_inquiries_tables.php`: Create `reviews`, `settings`, `contact_inquiries`, and `newsletter_subscribers` tables.
@@ -61,19 +66,21 @@ Create all database tables, Eloquent models with `config/demo/*`-compatible acce
        - `getCategoryAttribute()`: `$this->categoryRelation?->name ?? 'Skincare'`
        - `getCategorySlugAttribute()`: `$this->categoryRelation?->slug ?? 'face-care'`
        - `getVariantsAttribute()`: maps `$this->productVariants` to `[['size' => ..., 'price' => (float)..., 'compare_at_price' => ..., 'stock_status' => ...]]`.
-   - `ProductVariant.php`, `Address.php`, `Coupon.php`, `Order.php`, `OrderItem.php`, `Invoice.php`, `Review.php`, `Setting.php`, `ContactInquiry.php`, `NewsletterSubscriber.php`.
+   - `ProductVariant.php`, `ProductImage.php`, `District.php`, `Thana.php`, `Area.php`, `Address.php`, `Coupon.php`, `Order.php`, `OrderItem.php`, `Invoice.php`, `Review.php`, `Setting.php`, `ContactInquiry.php`, `NewsletterSubscriber.php`.
+   - On `District.php`, `Thana.php`, `Area.php`: Add `scopeActive($query)` (`$query->where('is_active', true)->orderBy('sort_order')->orderBy('name')`) and relationships (`District::hasMany(Thana::class)`, `Thana::belongsTo(District::class)`, `Thana::hasMany(Area::class)`, `Area::belongsTo(Thana::class)`).
    - On `Order.php`: Override `toArray()` or add accessors so `$order['id']` returns `$this->order_number` when accessed in legacy views, or support lookup by both `id` and `order_number` (`EVB-9204`), plus `date` (`placed_at->format('F j, Y')`), `iso_date` (`placed_at->format('Y-m-d')`), and `shipping` (`(float) $this->shipping_cost`).
 
-3. **Build `DatabaseSeeder.php`**:
-   - Seed default Admin in `admins` table:
-     - Email: `admin@the-everbloom.com`, Password: `password`, Name: `Clara Vance (Apothecary Director)`, Role: `super_admin`.
-   - Seed demo Customers in `users` table:
-     - Primary demo user: `eleanor.vance@example.com`, Password: `password`, `first_name`: `Eleanor`, `last_name`: `Vance`, `phone`: `+1 (503) 555-0192`, plus the 3 additional customers from `AdminCustomerController` (`Sophia Laurent`, `Emma Chen`, `Lucas Wright`).
-   - Seed all 6 categories from `config('demo.categories')`.
-   - Seed all 16 products and their `variants` from `config('demo.products')`.
-   - Seed saved addresses and the 4 orders (`EVB-9204`, `EVB-9145`, `EVB-8921`, `EVB-7402`) + `order_items` + `invoices` (`INV-2026-1001`..`1004`) from `config('demo.account')`.
-   - Seed the 4 coupons (`WELCOME10`, `BLOOM10`, `FREESHIP`, `BOTANICAL20`) and site settings from `config('demo.site')`.
-   - Seed reviews and testimonials from `config('demo.reviews')` and `config('demo.testimonials')`.
+4. **Build `BangladeshLocationSeeder.php` & `DatabaseSeeder.php`**:
+   - **`BangladeshLocationSeeder`**: Seeds all 64 Districts of Bangladesh (`Dhaka`, `Chattogram`, `Sylhet`, `Gazipur`, `Narayanganj`, `Rajshahi`, `Khulna`, `Barishal`, `Rangpur`, `Mymensingh`, `Cumilla`, etc.), their Thanas/Upazilas (e.g., `Dhanmondi`, `Gulshan`, `Banani`, `Uttara`, `Mirpur`, `Mohammadpur`, `Motijheel`, `Tejgaon`, `Badda`, `Ramna`, `Savar`, `Panchlaish`, `Kotwali`, `Double Mooring`, etc.), and detailed Areas (`Gulshan 1`, `Gulshan 2`, `Banani DOHS`, `Dhanmondi Road 27`, `Uttara Sector 1`–`14`, `Mirpur DOHS`, etc.) with `is_active = true`.
+   - **`DatabaseSeeder`**:
+     - Calls `$this->call(BangladeshLocationSeeder::class);`.
+     - Seeds default Admin in `admins` table (`admin@the-everbloom.com`, password `password`).
+     - Seeds demo Customers in `users` table (`eleanor.vance@example.com`, password `password`, plus `Sophia Laurent`, `Emma Chen`, `Lucas Wright`).
+     - Seeds all 6 categories from `config('demo.categories')`.
+     - Seeds all 16 products and their `variants` from `config('demo.products')`.
+     - Seeds saved addresses (mapped to Bangladesh `Dhaka -> Gulshan -> Gulshan 2` and `Dhaka -> Dhanmondi -> Dhanmondi 27`) and the 4 orders (`EVB-9204`, `EVB-9145`, `EVB-8921`, `EVB-7402`) + `order_items` + `invoices` (`INV-2026-1001`..`1004`).
+     - Seeds the 4 coupons (`WELCOME10`, `BLOOM10`, `FREESHIP`, `BOTANICAL20`) and site settings from `config('demo.site')`.
+     - Seeds reviews and testimonials from `config('demo.reviews')` and `config('demo.testimonials')`.
 
 ### 1.3 Phase 1 Verification
 ```bash
@@ -211,17 +218,25 @@ Replace all static `config('demo.*')` reads on Storefront public pages (`/`, `/s
 Transform `/checkout` from a front-end simulation into a real transactional order placement workflow while keeping the Alpine.js cart and summary UX smooth.
 
 ### 5.2 Step-by-Step Tasks
-1. **Coupon Validation Endpoint (`POST /checkout/validate-coupon`)**:
+1. **Bangladesh Cascading Location Endpoints (`app/Http/Controllers/LocationController.php`)**:
+   - `GET /locations/districts`: Returns active districts `District::active()->get(['id', 'name', 'bn_name', 'delivery_charge'])`.
+   - `GET /locations/districts/{district}/thanas`: Returns active thanas `Thana::active()->where('district_id', $district->id)->get(['id', 'name', 'bn_name'])`.
+   - `GET /locations/thanas/{thana}/areas`: Returns active areas `Area::active()->where('thana_id', $thana->id)->get(['id', 'name', 'bn_name', 'postal_code'])`.
+
+2. **Coupon Validation Endpoint (`POST /checkout/validate-coupon`)**:
    - Validates promo codes against the `coupons` database table (`is_active = true`, not expired, under `usage_limit`, meets `min_order_amount`) and returns `{ valid: true, code, type, value, label }`.
    - Also inject active coupons into `#everbloom-discounts-data` so `$store.cart.applyDiscount()` works seamlessly.
 
-2. **Checkout Controller (`app/Http/Controllers/CheckoutController.php`)**:
+3. **Checkout Controller & Cascading Bangladesh Form (`app/Http/Controllers/CheckoutController.php` & `frontend/checkout/index.blade.php`)**:
    - `index()`:
-     - Renders `frontend.checkout.index`.
-     - If customer is logged in (`Auth::guard('web')->check()`), pre-fills `form` with user's `email`, `phone`, `first_name`, `last_name`, and default saved address!
+     - Passes `$districts = District::active()->get()` to `frontend.checkout.index`.
+     - In `frontend/checkout/index.blade.php`, set Country to fixed **Bangladesh** (`country: 'Bangladesh'`) and replace generic City/State inputs with cascading **District -> Thana -> Area** `<select>` fields in `checkoutComponent()`.
+     - If customer is logged in (`Auth::guard('web')->check()`), pre-fills `form` with user's `email`, `phone`, `first_name`, `last_name`, and default saved address (`district_id`, `thana_id`, `area_id`, `address_line1`, `address_line2`, `postal_code`).
    - `store(Request $request)` (`POST /checkout`):
      - Validates payload:
-       - `email`, `phone`, `firstName`, `lastName`, `country`, `address`, `apartment`, `city`, `state`, `zip`
+       - `email`, `phone`, `firstName`, `lastName`
+       - `district_id` (`required|exists:districts,id,is_active,1`), `thana_id` (`required|exists:thanas,id,is_active,1`), `area_id` (`required|exists:areas,id,is_active,1`)
+       - `address` (`required|string`), `apartment` (`nullable|string`), `zip` (`nullable|string`)
        - `shippingMethod` (`standard` | `express`)
        - `paymentMethod` (`card_demo` | `digital_wallet_demo`)
        - `discountCode` (`nullable|string`)
@@ -334,13 +349,162 @@ Connect all 10 controllers in `app/Http/Controllers/Admin/` to Eloquent models s
    - `index()`: Load `Setting::where('key', 'site')->first()?->value ?? config('demo.site')`.
    - `update(Request $request)`: Update brand identity (`name`, `tagline`, `currency`), announcement bar (`enabled`, `message`, `link`, `link_text`), shipping thresholds/rates (`free_shipping_threshold`, `standard_rate`, `express_rate`, `returns_window_days`), and contact details (`email`, `phone`, `hours`, `address`) in `settings` table and flush `Cache::forget('site_settings')`.
 
+10. **`AdminLocationController` (`/admin/locations` — Bangladesh District, Thana & Area Management)**:
+   - Add routes in `routes/admin.php` and a **"Locations (BD)"** link in `resources/views/components/admin/sidebar.blade.php`:
+     - `GET /admin/locations` (`admin.locations.index`): Tabbed/filterable management screen for **Districts (64)**, **Thanas**, and **Areas**.
+     - `POST /admin/locations/districts`, `PUT /admin/locations/districts/{district}`, `POST /admin/locations/districts/{district}/toggle`: Create, **rename** (`name`, `bn_name`, `delivery_charge`), or **enable/disable (`is_active`)** a District.
+     - `POST /admin/locations/thanas`, `PUT /admin/locations/thanas/{thana}`, `POST /admin/locations/thanas/{thana}/toggle`: Create, **rename** (`name`, `bn_name`), or **enable/disable (`is_active`)** a Thana under a District.
+     - `POST /admin/locations/areas`, `PUT /admin/locations/areas/{area}`, `POST /admin/locations/areas/{area}/toggle`: Create, **rename** (`name`, `bn_name`, `postal_code`), or **enable/disable (`is_active`)** an Area under a Thana.
+   - Whenever an Admin renames or disables a District, Thana, or Area, Storefront Checkout (`/checkout`) and Customer Addresses (`/account/addresses`) immediately reflect the updated name or hide disabled locations.
+
 ### 7.3 Phase 7 Verification
 ```bash
 php artisan test
 ```
-- Verify full end-to-end flow:
-  1. Admin updates announcement bar message and creates a new product in `/admin/products/create`.
-  2. Storefront homepage immediately shows the new announcement bar and the new product appears in TNTSearch results (`/search?q=...`) and `/shop`.
-  3. Customer adds the product to bag, applies a coupon created in `/admin/coupons`, and places an order at `/checkout`.
-  4. Order appears in both Customer's `/account/orders` and Admin's `/admin/orders` & `/admin/invoices`.
+
+---
+
+## Phase 8: Wholesale Purchase Batches, Available-Stock Weighted Average Price & Order Profit Tracking
+
+### 8.1 Objective
+Implement the **Admin Wholesale Buy / Purchase Batch Module (`/admin/purchases`)** with **Vendor Name** tracking, **Available-Stock-Only Weighted Average Buy Price** calculation, and **Per-Product & Per-Order Profit Display** when orders are received.
+
+### 8.2 Step-by-Step Tasks
+
+1. **Create Wholesale & Profit Migration (`database/migrations/0001_01_01_000010_create_wholesale_purchases_and_profit_columns.php`)**:
+   - Create `vendors` table (`id`, `name`, `company_name`, `phone`, `email`, `address`, `is_active`, `timestamps`).
+   - Create `purchase_batches` table (`id`, `batch_code` unique, `vendor_id` FK, `vendor_name`, `reference_no`, `purchased_at`, `total_qty`, `total_cost`, `notes`, `created_by`, `timestamps`).
+   - Create `purchase_batch_items` table (`id`, `purchase_batch_id` FK, `vendor_id` FK, `product_id` FK, `product_variant_id` nullable FK, `batch_lot`, `purchased_qty`, `remaining_qty`, `unit_buy_price`, `line_total_cost`, `timestamps`).
+   - Add `avg_buy_price` (`decimal(10,2)`, `default(0)`) and `last_buy_price` (`decimal(10,2)`, `default(0)`) to `products` and `product_variants`.
+   - Add `unit_buy_price` (`decimal(10,2)`, `default(0)`), `line_cost_total` (`decimal(10,2)`, `default(0)`), `unit_profit` (`decimal(10,2)`, `default(0)`), and `line_profit` (`decimal(10,2)`, `default(0)`) to `order_items`.
+   - Add `total_cost` (`decimal(10,2)`, `default(0)`) and `total_profit` (`decimal(10,2)`, `default(0)`) to `orders`.
+
+2. **Create Models & `PurchaseBatchService` (`app/Models/Vendor.php`, `PurchaseBatch.php`, `PurchaseBatchItem.php`, `app/Services/PurchaseBatchService.php`)**:
+   - Implement `PurchaseBatchService::calculateWeightedAveragePrice($availableStock, $currentAvgBuyPrice, $newBatchQty, $newBatchUnitBuyPrice)`:
+     - Uses **only currently available stock (`$product->stock_count`)**:
+       $$\text{New Avg Buy Price} = \frac{(\text{Available Stock} \times \text{Current Avg Price}) + (\text{New Batch Qty} \times \text{New Batch Unit Buy Price})}{\text{Available Stock} + \text{New Batch Qty}}$$
+   - Implement `PurchaseBatchService::createBatch(array $data)`:
+     - Finds or creates `Vendor` by `vendor_name` / `vendor_id`.
+     - Generates unique `batch_code` (e.g., `BATCH-2026-0001`).
+     - For each item in the batch:
+       - Locks the `Product` row (`lockForUpdate()`).
+       - Reads current available stock (`$availableQty = max(0, (int) $product->stock_count)`) and current average buy price (`$currentAvg = (float) $product->avg_buy_price`).
+       - Computes `$newAvgBuyPrice = PurchaseBatchService::calculateWeightedAveragePrice($availableQty, $currentAvg, $purchasedQty, $unitBuyPrice)`.
+       - Creates `PurchaseBatchItem` with `purchased_qty = $purchasedQty` and `remaining_qty = $purchasedQty`.
+       - Updates `Product`:
+         - `avg_buy_price = $newAvgBuyPrice`
+         - `last_buy_price = $unitBuyPrice`
+         - `stock_count = $availableQty + $purchasedQty`
+         - `batch_lot = $batchLot`
+         - `last_restocked_at = $purchasedAt`
+         - `stock_status = 'in_stock'`
+
+3. **Update `DatabaseSeeder.php` with Initial Wholesale Batches & Order Profit Data**:
+   - Seed demo Vendors (e.g., `Pacific Botanical Labs`, `Alpine Herbal Extracts`, `Oregon Cold-Press Collective`).
+   - Seed initial `PurchaseBatch` and `PurchaseBatchItem` records for all 16 products (setting initial `avg_buy_price` at ~40% of retail price, e.g., `$25.60` for a `$64.00` serum) and populate `unit_buy_price`, `line_cost_total`, `unit_profit`, `line_profit`, `total_cost`, and `total_profit` on the seeded demo orders.
+
+4. **Update `CheckoutController@store` for Live Order Profit & Batch Deduction**:
+   - When a customer places an order at `/checkout`:
+     - Snapshot `$unitBuyPrice = (float) ($variant?->avg_buy_price ?: $product->avg_buy_price)` on each `OrderItem`.
+     - Compute `$lineCostTotal = round($unitBuyPrice * $qty, 2)`, `$unitProfit = round($unitPrice - $unitBuyPrice, 2)`, and `$lineProfit = round($lineTotal - $lineCostTotal, 2)`.
+     - Deduct `$qty` from `PurchaseBatchItem::where('product_id', $product->id)->where('remaining_qty', '>', 0)` in FIFO order (`PurchaseBatchService::deductFromAvailableBatches($product->id, $qty)`).
+     - On `Order`, save `total_cost = round($sumLineCosts, 2)` and `total_profit = round(($subtotal - $discountAmount) - $sumLineCosts, 2)`.
+
+5. **Create `AdminPurchaseController` & Views (`/admin/purchases`)**:
+   - Routes in `routes/admin.php`:
+     - `GET /admin/purchases` (`admin.purchases.index`): Lists all Wholesale Purchase Batches and a Product Wholesale Cost & Profit table showing `Product`, `Vendor Name`, `Batch Code / Lot`, `Available Stock`, `Last Buy Price`, `Weighted Avg Buy Price (Available Stock)`, `Retail Selling Price`, and `Unit Profit ($ & %)`.
+     - `GET /admin/purchases/create` (`admin.purchases.create`): Form to select/enter **Vendor Name**, **Reference / Invoice No**, **Purchase Date**, and one or more **Product Batch Rows** (`Product`, `Batch Lot`, `Buy Qty`, `Unit Buy Price`), with a live calculator previewing the new Weighted Average Buy Price and Expected Unit Profit.
+     - `POST /admin/purchases` (`admin.purchases.store`): Validates and executes `PurchaseBatchService::createBatch()`.
+   - Add **"Wholesale Purchases"** navigation item under Inventory/Products in `resources/views/components/admin/sidebar.blade.php`.
+
+6. **Update Admin Order & Inventory Views to Show Profit (`/admin/orders`, `/admin/orders/{id}`, `/admin/inventory`, `/admin`)**:
+   - `resources/views/admin/orders/index.blade.php`: Add `Total Profit` KPI card at the top, and add **Wholesale Cost** and **Profit (`+$XX.XX`)** columns to the Orders table.
+   - `resources/views/admin/orders/show.blade.php`: In the Order Items table, display **`Avg Buy Price`**, **`Sell Price`**, **`Qty`**, **`Line Total`**, and **`Profit` (`+$XX.XX`)** for each product, plus **`Total Wholesale Cost`** and **`Net Order Profit`** in the Order Summary card.
+   - `resources/views/admin/inventory/index.blade.php`: Display **`Avg Buy Price`**, **`Selling Price`**, and **`Unit Profit`** alongside `Stock` and `Batch Lot`.
+
+### 8.3 Phase 8 Verification
+```bash
+php artisan test --filter=WholesalePurchaseAndOrderProfitTest
+```
+- Verify:
+  1. Product with `20` available units at `$25.00` avg buy price + new wholesale batch of `30` units from Vendor `"Pacific Botanicals"` at `$35.00` updates `stock_count` to `50` and `avg_buy_price` to **`$31.00`** (`(20*25 + 30*35) / 50 = 31.00`), ignoring any previously sold units.
+  2. Placing a new order for `2` units at `$64.00` selling price records `unit_buy_price = $31.00`, `unit_profit = $33.00`, `line_profit = $66.00`, and `total_profit = $66.00` (adjusted for any coupon discount).
+  3. `/admin/purchases`, `/admin/orders`, and `/admin/orders/{id}` render the Vendor Name, Batch Code, Weighted Average Buy Price, and Order Profit accurately.
+
+---
+
+## Phase 9: Multi-Attribute Product Variants (`Brand`, `Size`, `Color`, etc.) & Optional Variant Image Builder
+
+### 9.1 Objective
+Upgrade the Product Variant system from simple bottle-size checkboxes to a full **Multi-Attribute Variant System** (`Brand`, `Size`, `Color`, `Scent`, `Vessel`, etc.) where **each variant has its own attributes, SKU, retail price, compare-at price, stock count, and an optional variant-specific image** (converted to `.webp` and stored in third-party cloud storage with its own `image_source`).
+
+### 9.2 Step-by-Step Tasks
+
+1. **Create Attributes & Variant Image Migration (`database/migrations/0001_01_01_000011_create_attributes_and_variant_images_tables.php`)**:
+   - Create `attributes` table (`id`, `name`, `slug` unique, `display_type` default `'button'`, `sort_order`, `is_active`, `timestamps`).
+   - Create `attribute_values` table (`id`, `attribute_id` FK, `value`, `slug`, `color_code` nullable, `sort_order`, `is_active`, `timestamps`).
+   - Add multi-attribute & optional image columns to `product_variants`:
+     - `title` (`string(180)`, nullable — composite label e.g. `'50ml / Amber Glass / The Everbloom'`)
+     - `attributes_json` (`json`, nullable — e.g. `{"Brand": "The Everbloom", "Size": "50ml / 1.7 fl oz", "Color": "Amber Glass"}`)
+     - `image` (`string`, nullable — optional `.webp` image path for this variant)
+     - `image_source` (`string(40)`, default `'local'` — third-party storage disk identifier e.g. `'s3'`, `'r2'`, `'spaces'`, `'cloudinary'`, `'local'`)
+     - `is_active` (`boolean`, default `true`)
+   - Create `product_variant_values` pivot table (`id`, `product_variant_id` FK, `attribute_id` FK, `attribute_value_id` FK).
+
+2. **Create Eloquent Models & Seed Default Attributes (`Attribute.php`, `AttributeValue.php`, `ProductVariant.php`, `DatabaseSeeder.php`)**:
+   - `App\Models\Attribute`: `hasMany(AttributeValue::class)`.
+   - `App\Models\AttributeValue`: `belongsTo(Attribute::class)`.
+   - Update `App\Models\ProductVariant`:
+     - Add `title`, `attributes_json`, `image`, `image_source`, `is_active` to `$fillable` and `'attributes_json' => 'array'`, `'is_active' => 'boolean'` to `casts()`.
+     - Add `resolvedImage(): ?string` method using `ImageStorageService::resolveUrl($this->image, $this->image_source)` when `$this->image` is non-empty, or returning `null` if no variant image was uploaded.
+     - Update `Product::getVariantsAttribute()` so each variant serialized to the Storefront & Admin includes:
+       - `id`, `title` (`$v->title ?: $v->size`), `size` (`$v->title ?: $v->size`), `attributes` (`$v->attributes_json ?? []`), `sku`, `price`, `compare_at_price`, `stock_count`, `stock_status`, `image` (`$v->resolvedImage()`), `raw_image` (`$v->image`), and `image_source` (`$v->image_source`).
+   - Seed default Attributes in `DatabaseSeeder`:
+     - **Brand**: `The Everbloom`, `Apothecary Reserve`, `Botanical Lab`
+     - **Size**: `15ml / 0.5 fl oz`, `30ml / 1.0 fl oz`, `50ml / 1.7 fl oz`, `100ml / 3.4 fl oz`, `200ml / 6.8 fl oz`
+     - **Color / Vessel**: `Amber Glass`, `Frosted Ivory`, `Botanical Green`, `Rose Tint`
+     - **Skin Type / Formula**: `All Skin Types`, `Dry & Sensitive`, `Combination / Oily`
+
+3. **Create `AdminAttributeController` & Views (`/admin/attributes`)**:
+   - Routes in `routes/admin.php`:
+     - `GET /admin/attributes` (`admin.attributes.index`): Lists all Attributes (`Brand`, `Size`, `Color`, etc.) and their values, with forms to create new Attributes, add Attribute Values, rename, or toggle `is_active`.
+     - `POST /admin/attributes` (`admin.attributes.store`)
+     - `PUT /admin/attributes/{attribute}` (`admin.attributes.update`)
+     - `POST /admin/attributes/{attribute}/values` (`admin.attributes.values.store`)
+     - `DELETE /admin/attributes/values/{value}` (`admin.attributes.values.destroy`)
+   - Add **"Attributes"** link under Products in `resources/views/components/admin/sidebar.blade.php`.
+
+4. **Upgrade Admin Product Create/Edit Form (`resources/views/admin/products/create.blade.php` & `AdminProductController`)**:
+   - Replace the static "Available Bottle Sizes" checkboxes with a **Dynamic Product Variants Card**:
+     - Allows adding multiple Variant rows (`variants[index]`).
+     - In each Variant row, the Admin can specify:
+       1. **Variant Attributes** (select values for `Brand`, `Size`, `Color`, or custom attribute key-value pairs; auto-builds the composite variant `title` such as `50ml / Amber Glass`, or allows custom title override).
+       2. **Variant SKU** (`variants[i][sku]`).
+       3. **Variant Price (`variants[i][price]`)** & **Compare-at Price (`variants[i][compare_at_price]`)**.
+       4. **Variant Stock (`variants[i][stock_count]`)** & **Stock Status (`variants[i][stock_status]`)**.
+       5. **Optional Variant Image (`variant_images[i]`)**: File upload input (`accept="image/*"`) + preview thumbnail of existing variant image + checkbox to remove/keep existing variant image.
+   - In `AdminProductController@store` and `AdminProductController@update`:
+     - Iterate through submitted `variants` array.
+     - If `$request->hasFile("variant_images.$idx")`, convert the uploaded variant image to `.webp` via `ImageStorageService::uploadAsWebp($file, 'products/variants', $product->slug . '-v' . ($idx + 1))` and save `image` + `image_source` on that `ProductVariant` record.
+     - Sync `product_variant_values` if attribute value IDs are selected.
+     - Automatically sync `$product->sizes` to the list of variant `title`s so legacy views reading `$product['sizes']` remain 100% compatible.
+
+5. **Update Storefront Product Page, Cart & Checkout for Variant Attributes & Optional Variant Image**:
+   - **`resources/views/frontend/shop/product.blade.php`**:
+     - Display variant attribute badges/pills (`Brand`, `Size`, `Color`) on the Product Detail page.
+     - When a customer selects a variant that has a custom `variant.image`, automatically display that variant's image in the main product image stage!
+   - **`resources/js/app.js` (`createDerivedCartItem`)**:
+     - Update the `image` getter on `createDerivedCartItem` to return `this.variant.image` when the selected variant has an optional image, falling back to `this.product.images[0]` when `this.variant.image` is null.
+   - **`app/Http/Controllers/CheckoutController.php`**:
+     - When creating `OrderItem` rows in `CheckoutController@store`, use `$variant?->image ?: ($product->images[0] ?? null)` and `$variant?->image ? ($variant->image_source ?: 'local') : ($product->image_source ?: 'local')` so the order confirmation, customer order history, and admin order detail display the exact variant image!
+
+### 9.3 Phase 9 Verification
+```bash
+php artisan test --filter=MultiAttributeProductVariantTest
+```
+- Verify:
+  1. Admin can create attributes (`Brand`, `Size`, `Color`) and values in `/admin/attributes`.
+  2. Admin can create/update a product in `/admin/products` with multiple variants combining `Brand`, `Size`, and `Color`, uploading an optional image for one variant and leaving another variant without an image.
+  3. The uploaded variant image is converted to `.webp` with its `image_source` recorded, while the variant without an image falls back to the main product image.
+  4. Selecting the variant on `/shop/product/{slug}` and placing an order at `/checkout` preserves the variant's composite title, attributes, price, and optional variant image.
 

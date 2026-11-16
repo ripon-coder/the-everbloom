@@ -3,78 +3,66 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Order;
+use App\Models\User;
 
 class AdminCustomerController extends Controller
 {
-    private function getDemoCustomers()
-    {
-        return [
-            [
-                'id' => 1,
-                'name' => 'Eleanor Vance',
-                'email' => 'eleanor.vance@example.com',
-                'phone' => '+1 (503) 555-0192',
-                'avatar' => 'admin/assets/images/users/avatar-2.jpg',
-                'orders_count' => 4,
-                'total_spent' => 284.00,
-                'city' => 'Portland, OR',
-                'status' => 'Active',
-                'join_date' => 'October 14, 2025',
-            ],
-            [
-                'id' => 2,
-                'name' => 'Sophia Laurent',
-                'email' => 'sophia.laurent@example.com',
-                'phone' => '+1 (415) 555-0811',
-                'avatar' => 'admin/assets/images/users/avatar-3.jpg',
-                'orders_count' => 7,
-                'total_spent' => 540.00,
-                'city' => 'San Francisco, CA',
-                'status' => 'Active',
-                'join_date' => 'July 22, 2025',
-            ],
-            [
-                'id' => 3,
-                'name' => 'Emma Chen',
-                'email' => 'emma.chen@example.com',
-                'phone' => '+1 (206) 555-0348',
-                'avatar' => 'admin/assets/images/users/avatar-4.jpg',
-                'orders_count' => 3,
-                'total_spent' => 192.00,
-                'city' => 'Seattle, WA',
-                'status' => 'Active',
-                'join_date' => 'January 09, 2026',
-            ],
-            [
-                'id' => 4,
-                'name' => 'Lucas Wright',
-                'email' => 'lucas.wright@example.com',
-                'phone' => '+1 (312) 555-0729',
-                'avatar' => 'admin/assets/images/users/avatar-5.jpg',
-                'orders_count' => 2,
-                'total_spent' => 128.00,
-                'city' => 'Chicago, IL',
-                'status' => 'Inactive',
-                'join_date' => 'August 30, 2025',
-            ],
-        ];
-    }
-
     public function index()
     {
-        // BACKEND: User::where('role', 'customer')->withCount('orders')->paginate(15)
-        $customers = $this->getDemoCustomers();
+        $customers = User::withCount('orders')
+            ->withSum('orders as total_spent', 'total')
+            ->with('addresses')
+            ->latest()
+            ->get()
+            ->map(function (User $user) {
+                $defaultAddr = $user->addresses->firstWhere('is_default', true) ?? $user->addresses->first();
+                $city = $defaultAddr ? trim("{$defaultAddr->city}, {$defaultAddr->state}", ', ') : 'Portland, OR';
+
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone ?? '—',
+                    'avatar' => $user->avatar ?? 'admin/assets/images/users/avatar-2.jpg',
+                    'orders_count' => (int) $user->orders_count,
+                    'total_spent' => (float) ($user->total_spent ?? 0),
+                    'city' => $city,
+                    'status' => $user->status,
+                    'join_date' => $user->join_date,
+                ];
+            })
+            ->all();
+
         return view('admin.customers.index', compact('customers'));
     }
 
     public function show($id)
     {
-        // BACKEND: User::with(['orders', 'addresses'])->findOrFail($id)
-        $customers = $this->getDemoCustomers();
-        $customer = collect($customers)->firstWhere('id', (int) $id) ?? $customers[0];
-        $orders = config('demo.account.orders') ?? [];
-        $addresses = config('demo.account.addresses') ?? [];
+        $user = User::with(['orders.items', 'addresses'])
+            ->withCount('orders')
+            ->withSum('orders as total_spent', 'total')
+            ->findOrFail($id);
+
+        $defaultAddr = $user->addresses->firstWhere('is_default', true) ?? $user->addresses->first();
+
+        $customer = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'phone' => $user->phone ?? '—',
+            'avatar' => $user->avatar ?? 'admin/assets/images/users/avatar-2.jpg',
+            'orders_count' => (int) $user->orders_count,
+            'total_spent' => (float) ($user->total_spent ?? 0),
+            'city' => $defaultAddr ? trim("{$defaultAddr->city}, {$defaultAddr->state}", ', ') : 'Portland, OR',
+            'status' => $user->status,
+            'join_date' => $user->join_date,
+        ];
+
+        $orders = $user->orders->map(fn (Order $o) => $o->toViewArray())->all();
+        $addresses = $user->addresses->toArray();
 
         return view('admin.customers.show', compact('customer', 'orders', 'addresses'));
     }

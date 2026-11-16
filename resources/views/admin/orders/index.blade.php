@@ -128,6 +128,8 @@
                                 <th>Customer</th>
                                 <th>Items</th>
                                 <th>Total</th>
+                                <th>Wholesale Cost</th>
+                                <th>Profit</th>
                                 <th>Payment Method</th>
                                 <th>Fulfillment Status</th>
                                 <th class="text-end">Actions</th>
@@ -177,6 +179,14 @@
                                 </td>
                                 <td class="fw-bold text-dark">
                                     ${{ number_format($order['total'], 2) }}
+                                </td>
+                                <td class="text-muted">
+                                    ${{ number_format($order['total_cost'] ?? 0, 2) }}
+                                </td>
+                                <td>
+                                    <span class="badge {{ ($order['total_profit'] ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">
+                                        +${{ number_format($order['total_profit'] ?? 0, 2) }}
+                                    </span>
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-muted fs-12 border">

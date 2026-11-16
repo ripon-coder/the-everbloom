@@ -27,7 +27,7 @@
 @section('container_class', 'container-xxl')
 
 @section('content')
-<form action="{{ $isEdit ? route('admin.products.update', $product['id']) : route('admin.products.store') }}" method="POST">
+<form action="{{ $isEdit ? route('admin.products.update', $product['id']) : route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
     @if($isEdit)
         @method('PUT')
@@ -178,22 +178,85 @@
                             </select>
                         </div>
 
-                        <!-- Sizes Checkboxes -->
+                        <!-- Dynamic Multi-Attribute Variants & Optional Variant Image Builder -->
                         <div class="col-12">
-                            <label class="form-label d-block">Available Bottle Sizes</label>
-                            <div class="d-flex flex-wrap gap-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0 fw-semibold">Product Variants (Brand, Size, Color, Optional Image)</label>
+                                <button type="button" class="btn btn-sm btn-soft-primary" onclick="addVariantRow()">+ Add Variant</button>
+                            </div>
+                            <div id="variants-builder" class="d-flex flex-column gap-3">
                                 @php
-                                    $allSizes = ['30ml / 1.0 fl oz', '50ml / 1.7 fl oz', '100ml / 3.4 oz', '120ml / 4.0 fl oz', '200ml / 6.7 fl oz', '250ml / 8.5 fl oz'];
-                                    $currentSizes = $product['sizes'] ?? [];
+                                    $existingVariants = $product['variants'] ?? [
+                                        ['id' => null, 'title' => '30ml / 1.0 fl oz', 'attributes' => [], 'sku' => '', 'price' => $product['price'] ?? 64.00, 'compare_at_price' => $product['compare_at_price'] ?? '', 'stock_count' => 25, 'stock_status' => 'in_stock', 'image' => null],
+                                    ];
+                                    $attrList = $attributes ?? collect();
                                 @endphp
-                                @foreach($allSizes as $sizeOpt)
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="sizes[]" value="{{ $sizeOpt }}" id="size_{{ md5($sizeOpt) }}" {{ in_array($sizeOpt, $currentSizes) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="size_{{ md5($sizeOpt) }}">{{ $sizeOpt }}</label>
+                                @foreach($existingVariants as $vIdx => $vRow)
+                                    <div class="border rounded p-3 bg-light-subtle variant-row">
+                                        @if(!empty($vRow['id']))
+                                            <input type="hidden" name="variants[{{ $vIdx }}][id]" value="{{ $vRow['id'] }}">
+                                        @endif
+                                        <div class="row g-2 mb-2">
+                                            @foreach($attrList as $attr)
+                                                <div class="col-md-3">
+                                                    <label class="form-label fs-12 mb-1">{{ $attr->name }}</label>
+                                                    <select name="variants[{{ $vIdx }}][attributes][{{ $attr->name }}]" class="form-select form-select-sm">
+                                                        <option value="">— {{ $attr->name }} —</option>
+                                                        @foreach($attr->values as $val)
+                                                            <option value="{{ $val->value }}" {{ (($vRow['attributes'][$attr->name] ?? '') === $val->value) ? 'selected' : '' }}>{{ $val->value }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-md-3">
+                                                <label class="form-label fs-12 mb-1">Variant Title</label>
+                                                <input type="text" name="variants[{{ $vIdx }}][title]" class="form-control form-control-sm" value="{{ $vRow['title'] ?? ($vRow['size'] ?? '') }}" placeholder="Auto or custom">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label fs-12 mb-1">SKU</label>
+                                                <input type="text" name="variants[{{ $vIdx }}][sku]" class="form-control form-control-sm" value="{{ $vRow['sku'] ?? '' }}">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label fs-12 mb-1">Price ($)</label>
+                                                <input type="number" step="0.01" name="variants[{{ $vIdx }}][price]" class="form-control form-control-sm" value="{{ $vRow['price'] ?? ($product['price'] ?? 0) }}">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label fs-12 mb-1">Stock</label>
+                                                <input type="number" name="variants[{{ $vIdx }}][stock_count]" class="form-control form-control-sm" value="{{ $vRow['stock_count'] ?? 25 }}">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label fs-12 mb-1">Variant Image (Optional)</label>
+                                                <input type="file" name="variant_images[{{ $vIdx }}]" accept="image/*" class="form-control form-control-sm">
+                                                @if(!empty($vRow['image']))
+                                                    <div class="form-check mt-1">
+                                                        <input class="form-check-input" type="checkbox" name="variants[{{ $vIdx }}][remove_image]" value="1">
+                                                        <label class="form-check-label fs-11 text-danger">Remove existing image</label>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
+                        <script>
+                            let variantRowIndex = {{ count($existingVariants) }};
+                            function addVariantRow() {
+                                const container = document.getElementById('variants-builder');
+                                const first = container.querySelector('.variant-row');
+                                if (!first) return;
+                                const clone = first.cloneNode(true);
+                                clone.querySelectorAll('input[type="hidden"]').forEach(el => el.remove());
+                                clone.querySelectorAll('select, input').forEach(el => {
+                                    el.name = el.name.replace(/\[\d+\]/, `[${variantRowIndex}]`);
+                                    if (el.type === 'file') el.value = '';
+                                });
+                                container.appendChild(clone);
+                                variantRowIndex++;
+                            }
+                        </script>
 
                         <!-- Featured Toggle -->
                         <div class="col-12">

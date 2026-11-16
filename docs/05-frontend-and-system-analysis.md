@@ -35,7 +35,7 @@ All storefront routes currently reside in `routes/web.php`. Closure routes rende
 | `GET /shop/category/{slug}` | `shop.category` | Closure (`routes/web.php`) | `frontend.shop.category` | Looks up category by `slug` in `config('demo.categories')` (404 if missing) and filters `config('demo.products')` where `category_slug === $slug`. |
 | `GET /shop/product/{slug}` | `shop.product` | Closure (`routes/web.php`) | `frontend.shop.product` | Looks up product by `slug` in `config('demo.products')` (404 if missing). Computes 4 related products (same category first, fallback to others). Loads reviews from `config('demo.reviews')` and rating breakdown from `config('demo.site.rating_breakdown')`. |
 | `GET /cart` | `cart.index` | Closure (`routes/web.php`) | `frontend.cart.index` | Driven by Alpine `$store.cart` (`localStorage['everbloom_cart']`). Shows empty state with 4 bestsellers, or cart table + order summary + free shipping progress bar + 4 "Pairs Thoughtfully With" products. |
-| `GET /checkout` | `checkout.index` | Closure (`routes/web.php`) | `frontend.checkout.index` | Uses `layouts.checkout`. Driven by `checkoutComponent()` Alpine component + `$store.cart`. Validates contact & shipping address fields client-side, calculates shipping (`standard` vs `express`) and promo discounts, and shows demo order confirmation on submit. |
+| `GET /checkout` | `checkout.index` | Closure (`routes/web.php`) | `frontend.checkout.index` | Uses `layouts.checkout`. Driven by `checkoutComponent()` Alpine component + `$store.cart`. **Must be updated** so Country is fixed to **Bangladesh**, with cascading **District -> Thana -> Area** selects populated from seeded database tables (`districts`, `thanas`, `areas` where `is_active = true`). |
 | `GET /wishlist` | `wishlist` | Closure (`routes/web.php`) | `frontend.pages.wishlist` | Uses `layouts.account`. Driven by Alpine `$store.wishlist` (`localStorage['everbloom_wishlist']`). Displays saved product cards with "Add to Bag" and "Remove". |
 | `GET /about` | `about` | Closure (`routes/web.php`) | `frontend.pages.about` | Static brand story, sourcing philosophy, and editorial imagery. |
 | `GET /contact` | `contact` | Closure (`routes/web.php`) | `frontend.pages.contact` | Displays contact info from `config('demo.site.contact')` and an Alpine-driven inquiry form (`name`, `email`, `message`) that currently toggles `sent = true` client-side. |
@@ -49,7 +49,7 @@ All storefront routes currently reside in `routes/web.php`. Closure routes rende
 | `GET /account` | `account` | `AccountController@index` | `frontend.account.index` | Uses `layouts.account`. Displays customer welcome, recent 3 orders (`config('demo.account.orders')`), and default shipping address (`config('demo.account.addresses')`). |
 | `GET /account/orders` | `account.orders` | `AccountController@orders` | `frontend.account.orders` | Lists customer orders from `config('demo.account.orders')`. Supports `?empty=1` query param to preview empty state. |
 | `GET /account/orders/{id}` | `account.order.details` | `AccountController@showOrder` | `frontend.account.order-details` | Displays single order (`#EVB-*`), 4-step progress tracker (`Placed` -> `Processing` -> `Shipped` -> `Delivered`), line items, shipping address, payment method, and summary. |
-| `GET /account/addresses` | `account.addresses` | `AccountController@addresses` | `frontend.account.addresses` | Interactive Alpine CRUD UI for customer addresses (Add, Edit, Set Default, Inline Remove Confirmation, country-aware postal code validation). Currently mutates local Alpine array only. |
+| `GET /account/addresses` | `account.addresses` | `AccountController@addresses` | `frontend.account.addresses` | Interactive Alpine CRUD UI for customer addresses (Add, Edit, Set Default, Inline Remove Confirmation). **Must be updated** to use **Bangladesh** as fixed country and cascading **District -> Thana -> Area** selects from active database records. |
 | `GET /account/profile` | `account.profile` | `AccountController@profile` | `frontend.account.profile` | Personal Info form (`first_name`, `last_name`, `email`, `phone`), Security & Password form (`current_password`, `new_password`, `confirm_password` with live strength checklist), and Delete Account confirmation dialog. |
 
 ---
@@ -122,10 +122,13 @@ The `/admin` console is already built with 10 controllers and 15 Blade views usi
 | :--- | :--- | :--- | :--- |
 | `AdminAuthController` | `GET /admin/login` (`admin.login`)<br>`POST /admin/login`<br>`POST /admin/logout` (`admin.logout`) | `admin.auth.login` | **Mock Auth**: `login()` immediately redirects to `admin.dashboard` without checking credentials; `routes/admin.php` has no `auth` middleware yet. |
 | `AdminDashboardController` | `GET /admin` (`admin.dashboard`) | `admin.dashboard.index` | Aggregates demo arrays (`$totalRevenue`, `$totalOrders`, `$totalProducts`, hardcoded `$totalCustomers = 428`, `$recentOrders`, `$topProducts`). |
-| `AdminProductController` | `Route::resource('products')` (`index`, `create`, `store`, `edit`, `update`, `destroy`) | `admin.products.index`<br>`admin.products.create` | `index` filters `config('demo.products')` by `category` and `search`. `create`/`edit` share `admin.products.create` via `$isEdit`. `store`/`update`/`destroy` redirect with flash message without DB persistence or image upload handling. |
+| `AdminProductController` | `Route::resource('products')` (`index`, `create`, `store`, `edit`, `update`, `destroy`) | `admin.products.index`<br>`admin.products.create` | `index` filters `config('demo.products')` by `category` and `search`. `create`/`edit` share `admin.products.create` via `$isEdit`. **Must be upgraded** from static bottle-size checkboxes to a **Multi-Attribute Variant Builder** supporting any attributes (`Brand`, `Size`, `Color`, etc.) where **each variant has its own price, SKU, stock, and an optional variant image** (converted to `.webp` on third-party storage). |
+| `AdminAttributeController` *(New Requirement)* | `Route::resource('attributes')` (`/admin/attributes`) | `admin.attributes.index`<br>`admin.attributes.create` | Manages reusable product attributes (`Brand`, `Size`, `Color`, `Scent`, `Finish`, etc.) and their option values (`attribute_values`) for the Product Variant Builder. |
 | `AdminCategoryController` | `Route::resource('categories')` (`index`, `create`, `store`, `edit`, `update`, `destroy`) | `admin.categories.index`<br>`admin.categories.create` | Uses `slug` as route parameter in demo (`edit($slug)`). `store`/`update`/`destroy` redirect with flash message only. |
 | `AdminOrderController` | `GET /admin/orders` (`orders.index`)<br>`GET /admin/orders/{id}` (`orders.show`)<br>`POST /admin/orders/{id}/status` (`orders.updateStatus`) | `admin.orders.index`<br>`admin.orders.show` | Reads `config('demo.account.orders')`. Filters by status (`Processing`, `Shipped`, `Delivered`). `updateStatus` redirects back with flash message only. |
-| `AdminInventoryController` | `GET /admin/inventory` (`inventory.index`) | `admin.inventory.index` | Maps `config('demo.products')` into inventory rows with `sku`, `stock`, `min_threshold`, `batch_lot`, and `last_restocked`. |
+| `AdminInventoryController` | `GET /admin/inventory` (`inventory.index`) | `admin.inventory.index` | Maps `config('demo.products')` into inventory rows with `sku`, `stock`, `min_threshold`, `batch_lot`, `avg_buy_price`, `selling_price`, `unit_profit`, and `last_restocked`. |
+| `AdminPurchaseController` *(New Requirement)* | `GET /admin/purchases` (`purchases.index`)<br>`GET /admin/purchases/create` (`purchases.create`)<br>`POST /admin/purchases` (`purchases.store`) | `admin.purchases.index`<br>`admin.purchases.create` | **Wholesale Product Buy & Batch Management**: Tracks wholesale purchases by **Vendor Name** and **Batch Code**, calculates **Weighted Average Buy Price using ONLY currently available stock**, increments product stock, and previews per-unit profit margin. |
+| `AdminOrderController` *(Profit Requirement)* | `GET /admin/orders` (`orders.index`)<br>`GET /admin/orders/{id}` (`orders.show`) | `admin.orders.index`<br>`admin.orders.show` | When an order is received, displays each item's **Avg Buy Price**, **Selling Price**, and **Line Profit**, plus the order's **Total Wholesale Cost** and **Net Order Profit**. |
 | `AdminInvoiceController` | `GET /admin/invoices` (`invoices.index`)<br>`GET /admin/invoices/{id}` (`invoices.show`) | `admin.invoices.index`<br>`admin.invoices.show` | Generates invoice list (`INV-2026-1001+`) from demo orders and renders printable invoice detail view. |
 | `AdminCustomerController` | `GET /admin/customers` (`customers.index`)<br>`GET /admin/customers/{id}` (`customers.show`) | `admin.customers.index`<br>`admin.customers.show` | Uses private `getDemoCustomers()` array + demo orders/addresses. |
 | `AdminCouponController` | `GET /admin/coupons` (`coupons.index`)<br>`GET /admin/coupons/create` (`coupons.create`)<br>`POST /admin/coupons` (`coupons.store`) | `admin.coupons.index`<br>`admin.coupons.create` | Maps `config('demo.site.demo_discounts')` into table rows. `store()` redirects with flash message only. |
@@ -160,13 +163,24 @@ Currently 16 botanical skincare products.
     'benefits' => ['Softens skin texture', ...],    // array|null (Optional bullet points)
     'skin_types' => ['Dry', 'Sensitive'],           // array|null (Optional skin type tags)
     'how_to_use' => 'Apply 3 to 4 drops...',        // text (Daily ritual instructions)
-    'sizes' => ['30ml / 1.0 fl oz', '50ml / 1.7 fl oz'], // array of size strings
-    'variants' => [                                 // array of variant objects
+    'sizes' => ['30ml / 1.0 fl oz', '50ml / 1.7 fl oz'], // array of variant labels (kept for backward compatibility)
+    'variants' => [                                 // array of multi-attribute variant objects
         [
-            'size' => '30ml / 1.0 fl oz',
+            'id' => 101,
+            'title' => '30ml / 1.0 fl oz — Amber Glass',
+            'size' => '30ml / 1.0 fl oz — Amber Glass', // alias of title for storefront compatibility
+            'attributes' => [                       // dynamic attribute key-value map (Brand, Size, Color, etc.)
+                'Brand' => 'The Everbloom',
+                'Size' => '30ml / 1.0 fl oz',
+                'Color' => 'Amber Glass',
+            ],
+            'sku' => 'EB-001-30ML-AMB',
             'price' => 64.00,
             'compare_at_price' => 78.00,
+            'stock_count' => 25,
             'stock_status' => 'in_stock',           // 'in_stock' | 'low_stock' | 'out_of_stock'
+            'image' => 'products/variants/radiance-30ml-amber.webp', // OPTIONAL per-variant WebP image (null if using main product image)
+            'image_source' => 's3',                 // 'local' | 's3' | 'r2' | 'spaces' | 'cloudinary'
         ],
     ],
     'stock_count' => 50,                            // int (Used by Admin Inventory/Product form)
@@ -208,20 +222,24 @@ Currently 6 categories (`face-care`, `body-care`, `serums`, `moisturizers`, `cle
     'member_since' => 'March 2024',
 ]
 
-// Saved Address
+// Saved Address (Updated for Bangladesh Location Hierarchy)
 [
-    'id' => 'addr_1', // or integer ID
+    'id' => 1,
     'is_default' => true,
     'first_name' => 'Eleanor',
     'last_name' => 'Vance',
     'company' => '',
-    'address_line1' => '740 Botanical Way',
-    'address_line2' => 'Suite 400',
-    'city' => 'Portland',
-    'state' => 'OR',
-    'postal_code' => '97201',
-    'country' => 'United States',
-    'phone' => '+1 (503) 555-0192',
+    'country' => 'Bangladesh',       // Always Bangladesh
+    'district_id' => 1,              // FK -> districts.id (e.g. Dhaka)
+    'district_name' => 'Dhaka',
+    'thana_id' => 12,                // FK -> thanas.id (e.g. Gulshan)
+    'thana_name' => 'Gulshan',
+    'area_id' => 45,                 // FK -> areas.id (e.g. Gulshan 2)
+    'area_name' => 'Gulshan 2',
+    'address_line1' => 'House 14, Road 71',
+    'address_line2' => 'Apt 4B',
+    'postal_code' => '1212',
+    'phone' => '+880 1711-000000',
 ]
 
 // Order Record
@@ -268,8 +286,13 @@ Currently 6 categories (`face-care`, `body-care`, `serums`, `moisturizers`, `cle
 
 ## 5. Summary of Missing Backend Functionality (What Needs to Be Built)
 
-1. **Database Migrations & Eloquent Models**: Currently only default Laravel migrations (`users`, `cache`, `jobs`) exist. All domain tables (`admins`, `users`, `categories`, `products`, `product_variants`, `addresses`, `coupons`, `orders`, `order_items`, `invoices`, `reviews`, `settings`, `contact_inquiries`, `newsletter_subscribers`) must be created.
-2. **Database Seeder**: A comprehensive seeder (`DatabaseSeeder`) that imports all current `config/demo/*.php` records (including default `Admin` and `User` accounts) and builds the initial **TNTSearch** index (`php artisan scout:import "App\Models\Product"`).
+1. **Database Migrations & Eloquent Models**: Currently only default Laravel migrations (`users`, `cache`, `jobs`) exist. All domain tables (`admins`, `users`, `districts`, `thanas`, `areas`, `categories`, `products`, `product_images`, `product_variants`, `addresses`, `coupons`, `orders`, `order_items`, `invoices`, `reviews`, `settings`, `contact_inquiries`, `newsletter_subscribers`) must be created.
+2. **Database Seeder (`DatabaseSeeder` + `BangladeshLocationSeeder`)**:
+   - Seed all **Bangladesh Districts, Thanas, and Areas** into `districts`, `thanas`, and `areas` tables.
+   - Import all current `config/demo/*.php` records (including default `Admin` and `User` accounts) and build the initial **TNTSearch** index (`php artisan scout:import "App\Models\Product"`).
+3. **Bangladesh Location Hierarchy (`Country = Bangladesh` -> `District` -> `Thana` -> `Area`)**:
+   - Storefront Checkout (`/checkout`) and Customer Addresses (`/account/addresses`) always use **Bangladesh** as the country and provide cascading selects: **Select District -> Select Thana -> Select Area** (loading only `is_active = true` locations).
+   - Admin Console (`/admin/locations`) provides full management for **Districts, Thanas, and Areas** so the admin can **rename** any location, **enable/disable (`is_active` toggle)** delivery coverage for specific Districts/Thanas/Areas, and add new Thanas/Areas.
 3. **Dual-Table & Dual-Session Authentication (`users` vs `admins`)**:
    - **Separate Tables & Models**: Storefront customers use the `users` table (`App\Models\User`) with the `web` guard; administrators use a dedicated `admins` table (`App\Models\Admin`) with the `admin` guard.
    - **Separate Browser & Server Sessions**: Admin routes (`/admin*`) and Storefront routes (`/`) must use completely separate session cookies (`everbloom_admin_session` vs `everbloom_session`) via middleware before `StartSession` so logging in or logging out of `/admin` never affects the customer storefront session (and vice versa).
@@ -282,5 +305,13 @@ Currently 6 categories (`face-care`, `body-care`, `serums`, `moisturizers`, `cle
    - Connect `/checkout` order placement (`POST /checkout`) to persist `orders`, `order_items`, decrement variant/product stock, record coupon usage, generate an `invoice`, and clear `$store.cart`.
    - Connect Customer Account CRUD (`POST/PUT/DELETE /account/addresses`, `PUT /account/profile`, `PUT /account/password`, `DELETE /account`).
 6. **Admin Console Full CRUD & Third-Party WebP Media Pipeline**:
-   - Connect all 10 `Admin*Controller` classes to real Eloquent models, FormRequest validation, order status transitions, inventory stock adjustments, review moderation toggles, and persistent store settings.
-   - **WebP Conversion & Third-Party Storage**: Convert all uploaded images (`products`, `categories`, `avatars`) to `.webp` format automatically, upload them to the configured third-party cloud storage disk (`s3`, `r2`, `spaces`, etc.), and record the storage provider name in the companion `*_source` (`image_source` / `avatar_source`) database column.
+   - Connect all `Admin*Controller` classes to real Eloquent models, FormRequest validation, order status transitions, inventory stock adjustments, review moderation toggles, and persistent store settings.
+   - **WebP Conversion & Third-Party Storage**: Convert all uploaded images (`products`, `product_variants`, `categories`, `avatars`) to `.webp` format automatically, upload them to the configured third-party cloud storage disk (`s3`, `r2`, `spaces`, etc.), and record the storage provider name in the companion `*_source` (`image_source` / `avatar_source`) database column.
+7. **Wholesale Purchase Batches, Available-Stock Weighted Average Cost & Order Profit Tracking**:
+   - **Wholesale Buy List & Batch Creation (`/admin/purchases`)**: Admin records wholesale product purchases with **Vendor Name** (`vendors` table), **Batch Code** (`purchase_batches`), and per-product/variant **Buy Quantity & Unit Buy Price** (`purchase_batch_items`).
+   - **Available-Stock-Only Average Price Rule**: When a new batch is purchased for an existing product, the product's `avg_buy_price` is recalculated using **only the currently available (`stock_count > 0`) units** plus the newly purchased batch units (already-sold units from past batches do not affect the average price).
+   - **Order Received Profit Display (`/admin/orders` & `/admin/orders/{id}`)**: Every order snapshots each product's `unit_buy_price` (`avg_buy_price` at time of sale) and calculates `unit_profit`, `line_profit`, `total_cost`, and `total_profit` (`(subtotal - discount_amount) - total_cost`), displaying exact profit per product and per order in the Admin panel.
+8. **Multi-Attribute Product Variants (`Brand`, `Size`, `Color`, etc.) with Optional Variant Image**:
+   - Replace the static "Available Bottle Sizes" checkboxes in `/admin/products/create` with a **Dynamic Multi-Attribute Variant Builder** backed by `attributes`, `attribute_values`, `product_variants`, and `product_variant_values`.
+   - Every product variant can combine multiple attributes (e.g., `Brand`, `Size`, `Color`, `Scent`) and optionally upload its own **Variant Image** (`image` + `image_source`, converted to `.webp` and stored in third-party storage).
+   - On the Storefront Product Detail Page and in the Cart/Checkout, selecting a variant that has an optional image automatically displays that variant's image; if no variant image is set, it gracefully falls back to the parent product's primary image.

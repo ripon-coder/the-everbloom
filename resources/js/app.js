@@ -167,6 +167,10 @@ function createDerivedCartItem(itemData) {
         },
         image: {
             get() {
+                const v = this.variant;
+                if (v && v.image) {
+                    return v.image;
+                }
                 const p = this.product;
                 return (p && Array.isArray(p.images) && p.images.length > 0) ? p.images[0] : null;
             },
@@ -764,6 +768,9 @@ Alpine.data('searchModal', () => ({
     open: false,
     query: '',
     products: [],
+    loading: false,
+    remoteResults: null,
+    _searchTimer: null,
 
     init() {
         const el = document.getElementById('everbloom-search-data') || document.getElementById('everbloom-products-data');
@@ -774,11 +781,42 @@ Alpine.data('searchModal', () => ({
                 console.warn('Failed to parse search products JSON:', e);
             }
         }
+        this.$watch('query', (value) => {
+            clearTimeout(this._searchTimer);
+            const trimmed = (value || '').trim();
+            if (!trimmed) {
+                this.remoteResults = null;
+                this.loading = false;
+                return;
+            }
+            this._searchTimer = setTimeout(() => {
+                this.fetchRemoteResults(trimmed);
+            }, 200);
+        });
         window.addEventListener('everbloom-overlay-opened', (e) => {
             if (e.detail && e.detail.overlay !== 'search' && this.open) {
                 this.closeModal();
             }
         });
+    },
+
+    async fetchRemoteResults(q) {
+        this.loading = true;
+        try {
+            const res = await fetch('/search?q=' + encodeURIComponent(q), {
+                headers: { 'Accept': 'application/json' }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (this.query.trim() === q && Array.isArray(data.results)) {
+                    this.remoteResults = data.results.slice(0, 6);
+                }
+            }
+        } catch (e) {
+            this.remoteResults = null;
+        } finally {
+            this.loading = false;
+        }
     },
 
     openModal() {
@@ -793,10 +831,15 @@ Alpine.data('searchModal', () => ({
     closeModal() {
         this.open = false;
         this.query = '';
+        this.remoteResults = null;
+        this.loading = false;
     },
 
     get results() {
         if (!this.query.trim()) return [];
+        if (Array.isArray(this.remoteResults)) {
+            return this.remoteResults;
+        }
         const q = this.query.toLowerCase().trim();
         return this.products.filter(p => 
             (p.name && p.name.toLowerCase().includes(q)) || 

@@ -111,6 +111,9 @@
                                 <th>Batch / Lot No.</th>
                                 <th>Category</th>
                                 <th>Available Stock</th>
+                                <th>Avg Buy Price</th>
+                                <th>Selling Price</th>
+                                <th>Unit Profit</th>
                                 <th>Alert Threshold</th>
                                 <th>Status</th>
                                 <th>Last Harvest/Restock</th>
@@ -140,6 +143,15 @@
                                 </td>
                                 <td>
                                     <span class="fw-bold fs-14 text-dark">{{ $item['stock'] }} units</span>
+                                </td>
+                                <td>
+                                    <span class="fs-13 text-muted">${{ number_format($item['avg_buy_price'] ?? 0, 2) }}</span>
+                                </td>
+                                <td>
+                                    <span class="fs-13 text-dark">${{ number_format($item['sell_price'] ?? 0, 2) }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success-subtle text-success">+${{ number_format($item['unit_profit'] ?? 0, 2) }}</span>
                                 </td>
                                 <td>
                                     <span class="text-muted fs-13">{{ $item['min_threshold'] }} units</span>

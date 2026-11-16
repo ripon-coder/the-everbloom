@@ -135,8 +135,10 @@
                             <tr>
                                 <th>Formulation</th>
                                 <th>Size Variant</th>
-                                <th>Unit Price</th>
+                                <th>Avg Buy Price</th>
+                                <th>Sell Price</th>
                                 <th>Qty</th>
+                                <th>Profit</th>
                                 <th class="text-end">Total</th>
                             </tr>
                         </thead>
@@ -157,8 +159,12 @@
                                 <td>
                                     <span class="badge bg-light text-dark border">{{ $item['variant'] ?? '30ml / 1.0 fl oz' }}</span>
                                 </td>
+                                <td>${{ number_format($item['unit_buy_price'] ?? 0, 2) }}</td>
                                 <td>${{ number_format($item['price'], 2) }}</td>
                                 <td>{{ $item['qty'] }}</td>
+                                <td>
+                                    <span class="badge bg-success-subtle text-success">+${{ number_format($item['line_profit'] ?? 0, 2) }}</span>
+                                </td>
                                 <td class="text-end fw-bold text-dark">
                                     ${{ number_format($item['price'] * $item['qty'], 2) }}
                                 </td>
@@ -219,9 +225,17 @@
                     <span class="fw-medium">${{ number_format($order['tax'], 2) }}</span>
                 </div>
                 <hr>
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between mb-2">
                     <span class="fw-bold text-dark fs-16">Total Booked</span>
                     <span class="fw-bold text-primary fs-18">${{ number_format($order['total'], 2) }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1 fs-13">
+                    <span class="text-muted">Total Wholesale Cost</span>
+                    <span class="text-dark">${{ number_format($order['total_cost'] ?? 0, 2) }}</span>
+                </div>
+                <div class="d-flex justify-content-between fs-13">
+                    <span class="text-muted">Net Order Profit</span>
+                    <span class="fw-bold text-success">+${{ number_format($order['total_profit'] ?? 0, 2) }}</span>
                 </div>
             </div>
         </div>

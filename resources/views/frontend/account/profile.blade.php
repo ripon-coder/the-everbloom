@@ -49,10 +49,33 @@
             }
             return true;
         },
-        submitProfile() {
+        async submitProfile() {
             if (!this.validateProfile()) return;
-            this.profileFeedback = 'Demo only. Nothing was saved.';
-            setTimeout(() => { this.profileFeedback = ''; }, 6000);
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            try {
+                const res = await fetch(@js(route('account.profile.update')), {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: JSON.stringify(this.profileForm),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    if (data.errors) {
+                        Object.entries(data.errors).forEach(([k, v]) => {
+                            this.profileErrors[k] = Array.isArray(v) ? v[0] : v;
+                        });
+                    }
+                    return;
+                }
+                this.profileFeedback = data.message || 'Profile updated successfully.';
+                setTimeout(() => { this.profileFeedback = ''; }, 6000);
+            } catch (e) {
+                this.profileFeedback = 'Unable to update profile.';
+            }
         },
 
         securityForm: {
@@ -104,12 +127,38 @@
             }
             return true;
         },
-        submitSecurity() {
+        async submitSecurity() {
             if (!this.validateSecurity()) return;
-            this.securityFeedback = 'Demo only. Nothing was saved.';
-            this.securityForm = { current_password: '', new_password: '', confirm_password: '' };
-            this.confirmTouched = false;
-            setTimeout(() => { this.securityFeedback = ''; }, 6000);
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            try {
+                const res = await fetch(@js(route('account.password.update')), {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: JSON.stringify({
+                        current_password: this.securityForm.current_password,
+                        password: this.securityForm.new_password,
+                        password_confirmation: this.securityForm.confirm_password,
+                    }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    if (data.errors) {
+                        if (data.errors.current_password) this.securityErrors.current_password = data.errors.current_password[0];
+                        if (data.errors.password) this.securityErrors.new_password = data.errors.password[0];
+                    }
+                    return;
+                }
+                this.securityFeedback = data.message || 'Password updated successfully.';
+                this.securityForm = { current_password: '', new_password: '', confirm_password: '' };
+                this.confirmTouched = false;
+                setTimeout(() => { this.securityFeedback = ''; }, 6000);
+            } catch (e) {
+                this.securityFeedback = 'Unable to update password.';
+            }
         },
         openDeleteConfirm() {
             this.confirmingDelete = true;
@@ -123,10 +172,23 @@
                 this.$refs.deleteTriggerBtn?.focus();
             });
         },
-        confirmDeleteAccount() {
-            this.confirmingDelete = false;
-            this.deleteFeedback = 'Demo only. Nothing was saved.';
-            setTimeout(() => { this.deleteFeedback = ''; }, 6000);
+        async confirmDeleteAccount() {
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            try {
+                const res = await fetch(@js(route('account.destroy')), {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    window.location.href = data.redirect_url || '/';
+                }
+            } catch (e) {
+                this.confirmingDelete = false;
+            }
         }
     }" 
     @keydown.escape.window="if (confirmingDelete) { closeDeleteConfirm(); }"

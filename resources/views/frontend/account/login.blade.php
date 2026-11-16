@@ -18,12 +18,15 @@
     <div class="mx-auto w-full max-w-md">
         <div 
             x-data="{
-                email: '',
+                email: @js(old('email', '')),
                 password: '',
                 showPassword: false,
                 rememberMe: false,
-                errors: {},
-                demoNotice: '',
+                errors: {
+                    @error('email') email: @js($message), @enderror
+                    @error('password') password: @js($message), @enderror
+                },
+                demoNotice: @js(session('status', '')),
                 clearError(field) {
                     if (this.errors[field]) delete this.errors[field];
                 },
@@ -50,7 +53,7 @@
                 },
                 submit() {
                     if (!this.validate()) return;
-                    this.demoNotice = 'Demo only. No one was signed in.';
+                    this.$refs.loginForm.submit();
                 }
             }" 
             class="bg-white border border-[#E3E6DD] p-6 sm:p-8 space-y-6"
@@ -96,7 +99,8 @@
             <x-storefront.social-login-buttons :providers="config('demo.auth.enabled_providers')" mode="signin" />
 
             <!-- Email & Password Form -->
-            <form @submit.prevent="submit()" class="space-y-5" novalidate>
+            <form x-ref="loginForm" method="POST" action="{{ route('login.submit') }}" @submit.prevent="submit()" class="space-y-5" novalidate>
+                @csrf
                 <!-- Email Address -->
                 <div>
                     <label for="login-email" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
@@ -105,6 +109,7 @@
                     <input 
                         type="email" 
                         id="login-email" 
+                        name="email"
                         x-model="email" 
                         @input="clearError('email')"
                         autocomplete="username" 
@@ -136,6 +141,7 @@
                         <input 
                             :type="showPassword ? 'text' : 'password'" 
                             id="login-password" 
+                            name="password"
                             x-model="password" 
                             @input="clearError('password')"
                             autocomplete="current-password" 
@@ -174,6 +180,8 @@
                     <input 
                         type="checkbox" 
                         id="remember-me" 
+                        name="remember"
+                        value="1"
                         x-model="rememberMe"
                         class="w-4 h-4 rounded-none accent-[#304C3D] border-[#D5DBCF] cursor-pointer"
                     />

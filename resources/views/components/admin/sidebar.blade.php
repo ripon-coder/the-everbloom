@@ -47,6 +47,9 @@
                         <li class="sub-nav-item">
                             <a class="sub-nav-link {{ request()->routeIs('admin.products.create') ? 'active' : '' }}" href="{{ route('admin.products.create') }}">Create Product</a>
                         </li>
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link {{ request()->routeIs('admin.attributes.*') ? 'active' : '' }}" href="{{ route('admin.attributes.index') }}">Attributes</a>
+                        </li>
                     </ul>
                 </div>
             </li>
@@ -78,6 +81,16 @@
                         <iconify-icon icon="solar:box-broken"></iconify-icon>
                     </span>
                     <span class="nav-text"> Inventory </span>
+                </a>
+            </li>
+
+            <!-- Wholesale Purchases -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.purchases.*') ? 'active' : '' }}" href="{{ route('admin.purchases.index') }}">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:cart-large-minimalistic-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Wholesale Purchases </span>
                 </a>
             </li>
 
@@ -118,6 +131,16 @@
                         <iconify-icon icon="solar:settings-bold-duotone"></iconify-icon>
                     </span>
                     <span class="nav-text"> Settings </span>
+                </a>
+            </li>
+
+            <!-- Bangladesh Locations -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.locations.*') ? 'active' : '' }}" href="{{ route('admin.locations.index') }}">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:map-point-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Locations (BD) </span>
                 </a>
             </li>
 

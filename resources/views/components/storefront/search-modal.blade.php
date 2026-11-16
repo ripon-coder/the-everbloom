@@ -1,5 +1,5 @@
 @php
-    $allProducts = config('demo.products', []);
+    $allProducts = $storefrontProductsJson ?? config('demo.products', []);
     $currencySymbol = config('demo.site.currency.symbol', '$');
 @endphp
 

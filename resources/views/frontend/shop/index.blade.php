@@ -9,13 +9,23 @@
         filterDrawerOpen: false,
         sortSheetOpen: false,
         sortDropdownOpen: false,
-        sortBy: 'featured',
-        sortLabel: 'Featured Formulations',
+        sortBy: @js(request('sort', 'featured')),
+        sortLabel: @js(match(request('sort', 'featured')) {
+            'price-asc' => 'Price: Low to High',
+            'price-desc' => 'Price: High to Low',
+            'rating' => 'Highest Rated',
+            'newest' => 'Newest Arrivals',
+            'best_selling' => 'Best Selling',
+            default => 'Featured Formulations',
+        }),
         setSort(val, label) {
             this.sortBy = val;
             this.sortLabel = label;
             this.sortSheetOpen = false;
             this.sortDropdownOpen = false;
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', val);
+            window.location.href = url.toString();
         }
     }"
     @keydown.escape.window="filterDrawerOpen = false; sortSheetOpen = false; sortDropdownOpen = false"

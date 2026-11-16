@@ -6,10 +6,10 @@
 
 <!-- Single Global Catalog, Discount & Shipping Data Payloads for Store Synchronization -->
 <script id="everbloom-products-data" type="application/json">
-{!! json_encode(config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+{!! json_encode($storefrontProductsJson ?? config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 </script>
 <script id="everbloom-discounts-data" type="application/json">
-{!! json_encode(config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+{!! json_encode($storefrontDiscountsJson ?? config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 </script>
 <script id="everbloom-shipping-data" type="application/json">
 {!! json_encode(['free_threshold' => $freeShippingThreshold, 'standard_cost' => $standardShippingCost], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}

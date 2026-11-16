@@ -21,6 +21,9 @@
 <div 
     x-data="{
         addresses: {{ Js::from($initialAddresses) }},
+        districts: @js($districts ?? []),
+        thanas: [],
+        areas: [],
         showForm: false,
         editingId: null,
         editingIsDefault: false,
@@ -32,11 +35,12 @@
             first_name: '',
             last_name: '',
             company: '',
-            country: 'United States',
+            country: 'Bangladesh',
+            district_id: '',
+            thana_id: '',
+            area_id: '',
             address_line1: '',
             address_line2: '',
-            city: '',
-            state: '',
             postal_code: '',
             phone: '',
             is_default: false,
@@ -45,19 +49,57 @@
         sortedAddresses() {
             return [...this.addresses].sort((a, b) => (b.is_default ? 1 : 0) - (a.is_default ? 1 : 0));
         },
+        async loadThanas(districtId) {
+            if (!districtId) { this.thanas = []; return; }
+            try {
+                const res = await fetch(`/locations/districts/${districtId}/thanas`);
+                const data = await res.json();
+                this.thanas = data.thanas || [];
+            } catch (e) { this.thanas = []; }
+        },
+        async loadAreas(thanaId) {
+            if (!thanaId) { this.areas = []; return; }
+            try {
+                const res = await fetch(`/locations/thanas/${thanaId}/areas`);
+                const data = await res.json();
+                this.areas = data.areas || [];
+            } catch (e) { this.areas = []; }
+        },
+        async onDistrictChange() {
+            this.clearError('district_id');
+            this.form.thana_id = '';
+            this.form.area_id = '';
+            this.areas = [];
+            await this.loadThanas(this.form.district_id);
+        },
+        async onThanaChange() {
+            this.clearError('thana_id');
+            this.form.area_id = '';
+            await this.loadAreas(this.form.thana_id);
+        },
+        onAreaChange() {
+            this.clearError('area_id');
+            const selected = this.areas.find(a => String(a.id) === String(this.form.area_id));
+            if (selected && selected.postal_code) {
+                this.form.postal_code = selected.postal_code;
+            }
+        },
         resetForm() {
             this.editingId = null;
             this.editingIsDefault = false;
             this.editingContextLabel = '';
+            this.thanas = [];
+            this.areas = [];
             this.form = {
                 first_name: '',
                 last_name: '',
                 company: '',
-                country: 'United States',
+                country: 'Bangladesh',
+                district_id: '',
+                thana_id: '',
+                area_id: '',
                 address_line1: '',
                 address_line2: '',
-                city: '',
-                state: '',
                 postal_code: '',
                 phone: '',
                 is_default: false,
@@ -107,28 +149,10 @@
             this.errors = {};
             if (!this.form.first_name.trim()) this.errors.first_name = 'Please enter a first name.';
             if (!this.form.last_name.trim()) this.errors.last_name = 'Please enter a last name.';
-            if (!this.form.country.trim()) this.errors.country = 'Please select a country.';
-            if (!this.form.address_line1.trim()) this.errors.address_line1 = 'Please enter a street address.';
-            if (!this.form.city.trim()) this.errors.city = 'Please enter a city.';
-            if (!this.form.state.trim()) this.errors.state = 'Please enter a state or province.';
-
-            const postal = this.form.postal_code.trim();
-            if (!postal) {
-                this.errors.postal_code = 'Please enter a postal or ZIP code.';
-            } else {
-                const country = this.form.country;
-                if (country === 'United States' && !/^\d{5}(-\d{4})?$/.test(postal)) {
-                    this.errors.postal_code = 'Please enter a valid 5-digit US ZIP code.';
-                } else if (country === 'Canada' && !/^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(postal)) {
-                    this.errors.postal_code = 'Please enter a valid Canadian postal code.';
-                } else if (country === 'United Kingdom' && !/^[A-Za-z]{1,2}\d[A-Za-z\d]?\s?\d[A-Za-z]{2}$/.test(postal)) {
-                    this.errors.postal_code = 'Please enter a valid UK postcode.';
-                } else if (country === 'Australia' && !/^\d{4}$/.test(postal)) {
-                    this.errors.postal_code = 'Please enter a valid 4-digit postcode.';
-                } else if ((country === 'France' || country === 'Germany') && !/^\d{5}$/.test(postal)) {
-                    this.errors.postal_code = 'Please enter a valid 5-digit postal code.';
-                }
-            }
+            if (!this.form.district_id) this.errors.district_id = 'Please select a district.';
+            if (!this.form.thana_id) this.errors.thana_id = 'Please select a thana.';
+            if (!this.form.area_id) this.errors.area_id = 'Please select an area.';
+            if (!this.form.address_line1.trim()) this.errors.address_line1 = 'Please enter a house, road, or block address.';
 
             const phone = this.form.phone.trim();
             if (phone) {
@@ -149,42 +173,100 @@
             }
             return true;
         },
-        submit() {
+        async submit() {
             if (!this.validate()) return;
-            this.demoFeedback = 'Demo only. Nothing was saved.';
-            this.closeForm();
-            setTimeout(() => { this.demoFeedback = ''; }, 6000);
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const isEdit = Boolean(this.editingId);
+            const url = isEdit
+                ? @js(url('/account/addresses')) + '/' + this.editingId
+                : @js(route('account.addresses.store'));
+
+            try {
+                const res = await fetch(url, {
+                    method: isEdit ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: JSON.stringify(this.form),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    if (data.errors) {
+                        Object.entries(data.errors).forEach(([k, v]) => {
+                            this.errors[k] = Array.isArray(v) ? v[0] : v;
+                        });
+                    }
+                    return;
+                }
+                if (data.address) {
+                    if (data.address.is_default) {
+                        this.addresses = this.addresses.map(a => ({ ...a, is_default: false }));
+                    }
+                    if (isEdit) {
+                        this.addresses = this.addresses.map(a => String(a.id) === String(this.editingId) ? data.address : a);
+                    } else {
+                        this.addresses = [data.address, ...this.addresses];
+                    }
+                }
+                this.demoFeedback = data.message || 'Address saved.';
+                this.closeForm();
+                setTimeout(() => { this.demoFeedback = ''; }, 6000);
+            } catch (e) {
+                this.demoFeedback = 'Unable to save address. Please try again.';
+            }
         },
-        editAddress(addr, triggerEl = null) {
+        async editAddress(addr, triggerEl = null) {
             this.lastTriggerEl = triggerEl;
             this.editingId = addr.id;
             this.editingIsDefault = Boolean(addr.is_default);
             const labelName = (addr.company && addr.company.trim()) ? addr.company.trim() : (addr.first_name + ' ' + addr.last_name).trim();
-            this.editingContextLabel = addr.city ? `${labelName}, ${addr.city}` : labelName;
+            this.editingContextLabel = addr.district_name ? `${labelName}, ${addr.district_name}` : labelName;
             this.form = {
                 first_name: addr.first_name || '',
                 last_name: addr.last_name || '',
                 company: addr.company || '',
-                country: addr.country || 'United States',
+                country: 'Bangladesh',
+                district_id: addr.district_id ? String(addr.district_id) : '',
+                thana_id: addr.thana_id ? String(addr.thana_id) : '',
+                area_id: addr.area_id ? String(addr.area_id) : '',
                 address_line1: addr.address_line1 || '',
                 address_line2: addr.address_line2 || '',
-                city: addr.city || '',
-                state: addr.state || '',
                 postal_code: addr.postal_code || '',
                 phone: addr.phone || '',
                 is_default: Boolean(addr.is_default),
             };
             this.errors = {};
             this.showForm = true;
+            if (this.form.district_id) {
+                await this.loadThanas(this.form.district_id);
+                if (this.form.thana_id) {
+                    await this.loadAreas(this.form.thana_id);
+                }
+            }
             this.scrollAndFocusForm();
         },
-        setAsDefault(id) {
-            this.addresses = this.addresses.map(a => ({
-                ...a,
-                is_default: String(a.id) === String(id),
-            }));
-            this.demoFeedback = 'Demo only. Nothing was saved.';
-            setTimeout(() => { this.demoFeedback = ''; }, 5000);
+        async setAsDefault(id) {
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            try {
+                const res = await fetch(@js(url('/account/addresses')) + '/' + id + '/default', {
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    this.addresses = this.addresses.map(a => ({
+                        ...a,
+                        is_default: String(a.id) === String(id),
+                    }));
+                    this.demoFeedback = data.message || 'Default address updated.';
+                    setTimeout(() => { this.demoFeedback = ''; }, 5000);
+                }
+            } catch (e) {}
         },
         startRemove(id) {
             this.confirmingRemoveId = id;
@@ -195,11 +277,24 @@
         cancelRemove() {
             this.confirmingRemoveId = null;
         },
-        confirmRemove(id) {
-            this.addresses = this.addresses.filter(a => String(a.id) !== String(id));
-            this.confirmingRemoveId = null;
-            this.demoFeedback = 'Demo only. Nothing was saved.';
-            setTimeout(() => { this.demoFeedback = ''; }, 5000);
+        async confirmRemove(id) {
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            try {
+                const res = await fetch(@js(url('/account/addresses')) + '/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    this.addresses = this.addresses.filter(a => String(a.id) !== String(id));
+                    this.confirmingRemoveId = null;
+                    this.demoFeedback = data.message || 'Address removed.';
+                    setTimeout(() => { this.demoFeedback = ''; }, 5000);
+                }
+            } catch (e) {}
         }
     }"
     @keydown.escape.window="if (confirmingRemoveId !== null) { cancelRemove(); } else if (showForm) { closeForm(); }"
@@ -328,42 +423,107 @@
                 />
             </div>
 
-            <!-- Country Selection -->
+            <!-- Country (Fixed: Bangladesh) -->
             <div>
                 <label for="field-country" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
                     Country / Region <span class="text-forest" aria-hidden="true">*</span>
                 </label>
-                <div class="relative">
-                    <select 
-                        id="field-country" 
-                        x-model="form.country" 
-                        @change="clearError('country'); clearError('postal_code')"
-                        autocomplete="country-name" 
-                        class="input-field pr-10 appearance-none cursor-pointer bg-white" 
-                        :class="errors.country ? 'input-error !border-[#B3453A]' : ''"
-                        :aria-invalid="errors.country ? 'true' : 'false'"
-                        :aria-describedby="errors.country ? 'err-country' : null"
-                    >
-                        <option value="United States">United States</option>
-                        <option value="Canada">Canada</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                        <option value="Australia">Australia</option>
-                        <option value="France">France</option>
-                        <option value="Germany">Germany</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-forest">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
+                <input 
+                    type="text" 
+                    id="field-country" 
+                    x-model="form.country" 
+                    readonly 
+                    class="input-field bg-ivory/60 cursor-not-allowed"
+                />
+            </div>
+
+            <!-- District, Thana, Area (Bangladesh Cascading Selects) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label for="field-district_id" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                        District <span class="text-forest" aria-hidden="true">*</span>
+                    </label>
+                    <div class="relative">
+                        <select 
+                            id="field-district_id" 
+                            x-model="form.district_id" 
+                            @change="onDistrictChange()"
+                            class="input-field pr-10 appearance-none cursor-pointer bg-white" 
+                            :class="errors.district_id ? 'input-error !border-[#B3453A]' : ''"
+                        >
+                            <option value="">Select District</option>
+                            <template x-for="d in districts" :key="d.id">
+                                <option :value="String(d.id)" x-text="d.name"></option>
+                            </template>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-forest">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
                     </div>
+                    <p id="err-district_id" x-show="errors.district_id" x-text="errors.district_id" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                 </div>
-                <p id="err-country" x-show="errors.country" x-text="errors.country" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
+
+                <div>
+                    <label for="field-thana_id" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                        Thana / Upazila <span class="text-forest" aria-hidden="true">*</span>
+                    </label>
+                    <div class="relative">
+                        <select 
+                            id="field-thana_id" 
+                            x-model="form.thana_id" 
+                            @change="onThanaChange()"
+                            :disabled="!form.district_id"
+                            class="input-field pr-10 appearance-none cursor-pointer bg-white disabled:bg-ivory/60 disabled:cursor-not-allowed" 
+                            :class="errors.thana_id ? 'input-error !border-[#B3453A]' : ''"
+                        >
+                            <option value="">Select Thana</option>
+                            <template x-for="t in thanas" :key="t.id">
+                                <option :value="String(t.id)" x-text="t.name"></option>
+                            </template>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-forest">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p id="err-thana_id" x-show="errors.thana_id" x-text="errors.thana_id" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
+                </div>
+
+                <div>
+                    <label for="field-area_id" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                        Area / Locality <span class="text-forest" aria-hidden="true">*</span>
+                    </label>
+                    <div class="relative">
+                        <select 
+                            id="field-area_id" 
+                            x-model="form.area_id" 
+                            @change="onAreaChange()"
+                            :disabled="!form.thana_id"
+                            class="input-field pr-10 appearance-none cursor-pointer bg-white disabled:bg-ivory/60 disabled:cursor-not-allowed" 
+                            :class="errors.area_id ? 'input-error !border-[#B3453A]' : ''"
+                        >
+                            <option value="">Select Area</option>
+                            <template x-for="a in areas" :key="a.id">
+                                <option :value="String(a.id)" x-text="a.name"></option>
+                            </template>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-forest">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p id="err-area_id" x-show="errors.area_id" x-text="errors.area_id" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
+                </div>
             </div>
 
             <!-- Address Line 1 -->
             <div>
                 <label for="field-address_line1" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
-                    Street Address <span class="text-forest" aria-hidden="true">*</span>
+                    House / Road / Block <span class="text-forest" aria-hidden="true">*</span>
                 </label>
                 <input 
                     type="text" 
@@ -371,7 +531,7 @@
                     x-model="form.address_line1" 
                     @input="clearError('address_line1')"
                     autocomplete="address-line1" 
-                    placeholder="Street address"
+                    placeholder="House, road, block"
                     class="input-field" 
                     :class="errors.address_line1 ? 'input-error !border-[#B3453A]' : ''"
                     :aria-invalid="errors.address_line1 ? 'true' : 'false'"
@@ -380,64 +540,25 @@
                 <p id="err-address_line1" x-show="errors.address_line1" x-text="errors.address_line1" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
             </div>
 
-            <!-- Address Line 2 (Optional) -->
-            <div>
-                <label for="field-address_line2" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
-                    Apartment, Suite, Unit, etc. <span class="text-muted font-normal lowercase">(optional)</span>
-                </label>
-                <input 
-                    type="text" 
-                    id="field-address_line2" 
-                    x-model="form.address_line2" 
-                    autocomplete="address-line2" 
-                    placeholder="Apartment, suite, unit (optional)"
-                    class="input-field" 
-                />
-            </div>
-
-            <!-- City, State, Postal Code (3-column row) -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Address Line 2 & Postal Code -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="field-city" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
-                        City <span class="text-forest" aria-hidden="true">*</span>
+                    <label for="field-address_line2" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                        Apartment, Suite, Floor <span class="text-muted font-normal lowercase">(optional)</span>
                     </label>
                     <input 
                         type="text" 
-                        id="field-city" 
-                        x-model="form.city" 
-                        @input="clearError('city')"
-                        autocomplete="address-level2" 
-                        placeholder="City"
+                        id="field-address_line2" 
+                        x-model="form.address_line2" 
+                        autocomplete="address-line2" 
+                        placeholder="Apartment, suite, floor (optional)"
                         class="input-field" 
-                        :class="errors.city ? 'input-error !border-[#B3453A]' : ''"
-                        :aria-invalid="errors.city ? 'true' : 'false'"
-                        :aria-describedby="errors.city ? 'err-city' : null"
                     />
-                    <p id="err-city" x-show="errors.city" x-text="errors.city" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
-                </div>
-
-                <div>
-                    <label for="field-state" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
-                        State / Province <span class="text-forest" aria-hidden="true">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="field-state" 
-                        x-model="form.state" 
-                        @input="clearError('state')"
-                        autocomplete="address-level1" 
-                        placeholder="State / Province"
-                        class="input-field" 
-                        :class="errors.state ? 'input-error !border-[#B3453A]' : ''"
-                        :aria-invalid="errors.state ? 'true' : 'false'"
-                        :aria-describedby="errors.state ? 'err-state' : null"
-                    />
-                    <p id="err-state" x-show="errors.state" x-text="errors.state" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                 </div>
 
                 <div>
                     <label for="field-postal_code" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
-                        Postal Code <span class="text-forest" aria-hidden="true">*</span>
+                        Postal Code <span class="text-muted font-normal lowercase">(optional)</span>
                     </label>
                     <input 
                         type="text" 
@@ -447,11 +568,7 @@
                         autocomplete="postal-code" 
                         placeholder="Postal code"
                         class="input-field" 
-                        :class="errors.postal_code ? 'input-error !border-[#B3453A]' : ''"
-                        :aria-invalid="errors.postal_code ? 'true' : 'false'"
-                        :aria-describedby="errors.postal_code ? 'err-postal_code' : null"
                     />
-                    <p id="err-postal_code" x-show="errors.postal_code" x-text="errors.postal_code" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                 </div>
             </div>
 

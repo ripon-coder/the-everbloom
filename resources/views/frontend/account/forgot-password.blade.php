@@ -18,9 +18,11 @@
     <div class="mx-auto w-full max-w-md">
         <div 
             x-data="{
-                email: '',
-                errors: {},
-                demoNotice: '',
+                email: @js(old('email', '')),
+                errors: {
+                    @error('email') email: @js($message), @enderror
+                },
+                demoNotice: @js(session('status', '')),
                 clearError(field) {
                     if (this.errors[field]) delete this.errors[field];
                 },
@@ -41,7 +43,7 @@
                 },
                 submit() {
                     if (!this.validate()) return;
-                    this.demoNotice = 'Demo only. No email was sent.';
+                    this.$refs.forgotForm.submit();
                 }
             }" 
             class="bg-white border border-[#E3E6DD] p-6 sm:p-8 space-y-6"
@@ -73,7 +75,8 @@
             </div>
 
             <!-- Email Form -->
-            <form @submit.prevent="submit()" class="space-y-5" novalidate>
+            <form x-ref="forgotForm" method="POST" action="{{ route('password.email') }}" @submit.prevent="submit()" class="space-y-5" novalidate>
+                @csrf
                 <div>
                     <label for="forgot-email" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
                         Email Address <span class="text-forest" aria-hidden="true">*</span>
@@ -81,6 +84,7 @@
                     <input 
                         type="email" 
                         id="forgot-email" 
+                        name="email"
                         x-model="email" 
                         @input="clearError('email')"
                         autocomplete="email" 
