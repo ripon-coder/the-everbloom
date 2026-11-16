@@ -6,19 +6,19 @@
 <footer class="mt-auto" role="contentinfo">
     @if(!View::hasSection('hide_newsletter') && !request()->is('cart*') && !request()->is('checkout*') && !request()->is('account*') && !request()->is('wishlist*'))
     <!-- Top Newsletter Band: Separated on Warm Beige with Forest Green CTA -->
-    <section class="bg-beige text-ink border-t border-b border-[#E3E6DD] py-12 md:py-16" aria-label="Newsletter Subscription">
+    <section class="bg-beige text-ink border-t border-b border-[#E3E6DD] py-10 md:py-16" aria-label="Newsletter Subscription">
         <div class="site-container">
             <div class="max-w-2xl mx-auto text-center space-y-3">
                 <span class="text-xs uppercase tracking-[0.2em] text-forest font-semibold block">
                     Botanical Correspondence
                 </span>
-                <h2 class="font-serif text-3xl sm:text-4xl text-ink font-normal tracking-tight">
+                <h2 class="font-serif text-2xl sm:text-4xl text-ink font-normal tracking-tight">
                     Join The Everbloom Archive
                 </h2>
                 <p class="text-[13px] sm:text-sm text-ink/85 leading-relaxed max-w-lg mx-auto font-sans">
                     Receive seasonal botanical notes, private product previews, and thoughtful skincare rituals directly in your inbox.
                 </p>
-                <div class="mt-6 max-w-md mx-auto pt-1">
+                <div class="mt-4 sm:mt-6 max-w-md mx-auto pt-1">
                     <x-storefront.newsletter-form :dark="false" />
                 </div>
             </div>
@@ -28,8 +28,8 @@
 
     <!-- Main Footer: Forest Background (#304C3D) with High-Contrast Ivory (#F8F6F0) & Sage Accents -->
     <div class="bg-forest text-ivory">
-        <div class="site-container py-12 md:py-16">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12">
+        <div class="site-container py-10 md:py-16">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
                 
                 <!-- Brand & Heritage Column: Identical Lockup + Same Tagline (4 cols on lg) -->
                 <div class="lg:col-span-4 space-y-4">

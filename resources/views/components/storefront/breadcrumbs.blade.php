@@ -18,21 +18,21 @@
     }
 @endphp
 
-<nav aria-label="Breadcrumb" {{ $attributes->merge(['class' => 'py-3 text-xs']) }}>
-    <ol class="flex flex-wrap items-center gap-2 text-muted">
+<nav aria-label="Breadcrumb" {{ $attributes->merge(['class' => 'py-2.5 lg:py-3 text-[13px]']) }}>
+    <ol class="flex flex-nowrap sm:flex-wrap items-center gap-1.5 sm:gap-2 text-muted overflow-hidden">
         @foreach($allItems as $index => $item)
             @php $isLast = $loop->last; @endphp
-            <li class="inline-flex items-center gap-2">
+            <li class="inline-flex items-center gap-1.5 sm:gap-2 {{ $isLast ? 'min-w-0 flex-1 sm:flex-initial' : 'shrink-0' }}">
                 @if(!$loop->first)
                     <span class="text-beige-dark select-none" aria-hidden="true">/</span>
                 @endif
 
                 @if($isLast || empty($item['url']))
-                    <span class="text-ink font-medium truncate max-w-[200px] sm:max-w-none" aria-current="page">
+                    <span class="text-ink font-medium truncate block" aria-current="page">
                         {{ $item['label'] }}
                     </span>
                 @else
-                    <a href="{{ $item['url'] }}" class="hover:text-forest transition-colors font-normal">
+                    <a href="{{ $item['url'] }}" class="hover:text-forest transition-colors font-normal whitespace-nowrap">
                         {{ $item['label'] }}
                     </a>
                 @endif

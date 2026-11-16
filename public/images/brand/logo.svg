@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" width="280" height="64" fill="none">
+  <rect width="280" height="64" fill="#F8F6F1"/>
+  <g stroke="#2C3E2D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="34" cy="32" r="16"/>
+    <path d="M34 20v24M22 32h24M25.5 23.5l17 17M25.5 40.5l17-17"/>
+    <circle cx="34" cy="32" r="4" fill="#F8F6F1"/>
+  </g>
+  <text x="64" y="38" font-family="Georgia, 'Times New Roman', serif" font-size="22" letter-spacing="2.5" fill="#2C3E2D">THE EVERBLOOM</text>
+</svg>
+

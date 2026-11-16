@@ -28,6 +28,13 @@ return [
     'returns' => [
         'window_days' => 30, // DEMO PLACEHOLDER: replace before launch
     ],
+    'rating_breakdown' => [ // DEMO PLACEHOLDER: replace before launch
+        5 => 78,
+        4 => 16,
+        3 => 4,
+        2 => 1,
+        1 => 1,
+    ],
     // DEMO PLACEHOLDER: replace before launch
     'contact' => [
         'email' => 'concierge@the-everbloom.com', // DEMO PLACEHOLDER: replace before launch
