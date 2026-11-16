@@ -8,8 +8,14 @@
 >   3. **Third-Party Cloud Image Storage + Source Column + WebP Conversion**: Every table that stores an image path also has a companion source column (`image_source` or `avatar_source`, e.g., `'s3'`, `'r2'`, `'spaces'`, `'cloudinary'`, or `'local'` for demo seed assets). All uploaded images are automatically converted to **`.webp`** before being pushed to third-party storage.
 >   4. **Bangladesh Location Hierarchy (`Country = Bangladesh` -> `District` -> `Thana` -> `Area`)**: Country is always **Bangladesh**. Districts, Thanas, and Areas are stored in database tables (`districts`, `thanas`, `areas`) populated via `BangladeshLocationSeeder`. Customers select District -> Thana -> Area sequentially on Checkout and Address pages, and Admins can **rename** or **enable/disable (`is_active`)** any District, Thana, or Area in `/admin/locations`.
 >   5. **Wholesale Purchase Batches, Available-Stock Weighted Average Price & Order Profit Tracking**: Admin buys products wholesale by **Vendor Name** (`vendors`) and **Batch** (`purchase_batches` & `purchase_batch_items`). When a new batch is added for an existing product, `avg_buy_price` is calculated **strictly from currently available stock (`stock_count`) + new batch quantity** (already-sold units never dilute or skew the current average cost). When an order is received, `order_items` and `orders` snapshot the buy cost and display exact per-item and per-order **Profit** in `/admin`.
->   6. **Multi-Attribute Product Variants (`Brand`, `Size`, `Color`, etc.) + Optional Variant Image**: Variants are not restricted to bottle size alone. Admin can define reusable attributes (`Brand`, `Size`, `Color`, `Scent`, `Finish`, etc.) in `attributes` & `attribute_values`, assign any combination of attributes to each `ProductVariant`, and **optionally attach a variant-specific image** (`image` + `image_source`, converted to `.webp` on third-party storage).
->   7. **Zero-Breakage View Compatibility**: Eloquent models implement `ArrayAccess` (native in Laravel Eloquent) and define computed accessors matching the keys in `config/demo/*.php` so existing Storefront and `/admin` Blade views require minimal or zero structural changes.
+>   6. **3-Step Category Hierarchy & Category-Driven Multi-Attribute Product Variants + Optional Variant Image**:
+>      - Categories support a **maximum 3-step hierarchy** (`level = 1` Main Category -> `level = 2` Subcategory -> `level = 3` Child Category via `parent_id`).
+>      - Attributes (`Brand`, `Size`, `Color`, `SPF`, `Scent`, etc.) are assigned to Categories via `category_attribute` (with inheritance from parent categories). When a Category is selected on `/admin/products/create`, only that Category's attributes are displayed in the Variant Builder, and each variant can optionally attach a `.webp` image (`image` + `image_source`).
+>   7. **Separated Operational Dashboard (`/admin`) & Dedicated Financial Menu (`/admin/financial`)**:
+>      - `/admin` displays common store operational metrics (`Orders`, `Customers`, `Active SKUs`, `Low Stock`, `Recent Orders`).
+>      - `/admin/financial` provides a dedicated Financial Analytics & Profit Ledger view with Date Range, Category, Vendor, and Order Status filters built with Larkon components from `docs/admin-dashboard/`.
+>   8. **Dynamic Website Currency (`Taka ৳ / BDT`, `Dollar $ / USD`, `Pound £ / GBP`, `Euro € / EUR`, etc.)**: Currency is never hardcoded to `$` or `USD`. Admin selects or customizes the store currency (`code`, `symbol`, `name`, `position`) in `/admin/settings`, and `AppServiceProvider` shares `$currencySymbol` and `$currencyCode` globally across all Storefront, Alpine.js, JSON-LD, and Admin Panel views.
+>   9. **Zero-Breakage View Compatibility**: Eloquent models implement `ArrayAccess` (native in Laravel Eloquent) and define computed accessors matching the keys in `config/demo/*.php` so existing Storefront and `/admin` Blade views require minimal or zero structural changes.
 
 ---
 
@@ -45,6 +51,8 @@ erDiagram
 
     CATEGORIES {
         bigint id PK
+        bigint parent_id FK
+        tinyint level
         string slug UK
         string name
         string short_name
@@ -54,6 +62,12 @@ erDiagram
         string image_source
         int sort_order
         boolean is_active
+    }
+
+    CATEGORY_ATTRIBUTE {
+        bigint id PK
+        bigint category_id FK
+        bigint attribute_id FK
     }
 
     PRODUCTS {
@@ -328,6 +342,9 @@ erDiagram
     AREAS ||--o{ ADDRESSES : "located in"
     USERS ||--o{ ORDERS : "places"
     USERS ||--o{ REVIEWS : "writes"
+    CATEGORIES ||--o{ CATEGORIES : "parent of (max 3 steps)"
+    CATEGORIES ||--o{ CATEGORY_ATTRIBUTE : "uses attributes"
+    ATTRIBUTES ||--o{ CATEGORY_ATTRIBUTE : "assigned to categories"
     CATEGORIES ||--o{ PRODUCTS : "contains"
     PRODUCTS ||--o{ PRODUCT_IMAGES : "has gallery"
     PRODUCTS ||--o{ PRODUCT_VARIANTS : "has variants"
@@ -472,10 +489,12 @@ Update the default `users` migration to match customer fields used in `AccountCo
 | `remember_token` | `rememberToken` | `nullable()` | Remember me token |
 | `timestamps` | `timestamps` | — | Used for `member_since` & `join_date` accessors |
 
-### 3.3 `categories` Table (`create_categories_table`)
+### 3.3 `categories` & `category_attribute` Tables (3-Step Hierarchy & Category-Scoped Attributes)
 | Column | Type | Modifiers | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | `bigIncrements` | PK | Category ID |
+| `parent_id` | `foreignId` | `nullable()->constrained('categories')->nullOnDelete()` | Parent Category ID (`null` for Step 1 Root Category) |
+| `level` | `unsignedTinyInteger` | `default(1)` | **Hierarchy Depth (`1`, `2`, or `3` max)**: `1 = Main Category`, `2 = Subcategory`, `3 = Child Category` |
 | `slug` | `string(120)` | `unique()` | URL slug (e.g., `'face-care'`, `'serums'`) |
 | `name` | `string(120)` | required | Display name (e.g., `'Face Care'`) |
 | `short_name` | `string(60)` | `nullable()` | Short label (e.g., `'Face'`) |
@@ -486,6 +505,17 @@ Update the default `users` migration to match customer fields used in `AccountCo
 | `sort_order` | `integer` | `default(0)` | Display order |
 | `is_active` | `boolean` | `default(true)` | Visibility toggle |
 | `timestamps` | `timestamps` | — | `created_at`, `updated_at` |
+
+#### `category_attribute` Pivot Table (`create_category_attribute_table`)
+Links `Category` records to the `Attribute` records (`Brand`, `Size`, `Color`, `SPF`, `Skin Type`, etc.) that should appear when creating or editing a product in that category:
+| Column | Type | Modifiers | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | `bigIncrements` | PK | Pivot ID |
+| `category_id` | `foreignId` | `constrained('categories')->cascadeOnDelete()` | Category (`level` 1, 2, or 3) |
+| `attribute_id` | `foreignId` | `constrained('attributes')->cascadeOnDelete()` | Attribute assigned to this Category |
+| `timestamps` | `timestamps` | — | `created_at`, `updated_at` |
+> [!NOTE]
+> **Attribute Inheritance Across 3 Category Steps**: When a user selects a Level 3 Child Category (or Level 2 Subcategory) on the Create Product page, `Category::effectiveAttributes()` returns the union of attributes assigned to the selected category **plus** any attributes assigned to its parent/root category (or attributes with no specific category restriction).
 
 ### 3.4 `products` & `product_images` Tables (`create_products_table`)
 | Column | Type | Modifiers | Description |
@@ -1002,12 +1032,21 @@ When an order is received:
 
 ---
 
-## 8. Multi-Attribute Product Variants (`Brand`, `Size`, `Color`, etc.) & Optional Variant Image Architecture
+## 8. 3-Step Category Hierarchy, Category-Scoped Attributes & Optional Variant Image Architecture
 
-### 8.1 Why Multi-Attribute Variants Instead of Fixed Sizes?
-In the initial prototype (`admin/products/create.blade.php`), variants were limited to a hardcoded list of bottle size checkboxes (`30ml`, `50ml`, `100ml`). In production:
-1. **Flexible Attributes**: A product variant can be defined by **any combination of attributes** (`Brand`, `Size`, `Color`, `Scent`, `Vessel Type`, `Pack Size`, etc.).
-2. **Per-Variant Pricing, SKU & Stock**: Each variant row has its own `sku`, `price`, `compare_at_price`, `stock_count`, `stock_status`, and `avg_buy_price`.
+### 8.1 3-Step Category Hierarchy Rule (`Main Category -> Subcategory -> Child Category`)
+- **Level 1 (Main / Root Category)**: `parent_id = null`, `level = 1` (e.g., `Face Care`, `Body Care`, `Sunscreens`).
+- **Level 2 (Subcategory)**: `parent_id = Level 1 ID`, `level = 2` (e.g., `Face Care > Treatments & Serums`, `Face Care > Cleansers & Toners`).
+- **Level 3 (Child Category)**: `parent_id = Level 2 ID`, `level = 3` (e.g., `Face Care > Treatments & Serums > Vitamin C & Brightening Serums`).
+- **Enforcement**: `AdminCategoryController@store` and `update` verify `$parent->level < 3` before assigning `parent_id`, setting `$category->level = $parent ? ($parent->level + 1) : 1`. Level 3 categories cannot be selected as a parent.
+
+### 8.2 Category-Driven Attribute Selection on Create/Edit Product (`/admin/products/create`)
+1. **Assigning Attributes to Categories (`/admin/attributes` & `/admin/categories/create`)**:
+   - Each Attribute (`Brand`, `Size`, `Color / Vessel`, `Skin Type`, `SPF Rating`, etc.) can be linked to one or more Categories via the `category_attribute` pivot table (`$attribute->categories()->sync($categoryIds)`).
+   - If an Attribute has **zero** categories linked in `category_attribute`, it is treated as a **Global Attribute** (available to all categories); if it has linked categories, it is shown **only** when one of those categories (or their descendant sub/child categories) is selected!
+2. **Dynamic Category -> Attribute Filtering on `/admin/products/create`**:
+   - On `/admin/products/create`, each `<option>` in the Category selector (or 3-step cascading Main -> Sub -> Child Category selector) embeds `data-attributes='@json($cat->effectiveAttributeIds())'`.
+   - When the Admin selects or changes the Category on the Create/Edit Product page, JavaScript immediately filters the Variant Builder attribute columns (`.variant-attr-col[data-attribute-id="..."]`), showing **only the attributes belonging to the selected Category** and disabling/hiding unrelated attributes!
 3. **Optional Variant Image (`image` + `image_source`)**:
    - Every variant row in `/admin/products/create` (and `/admin/products/{id}/edit`) includes an **optional image file input** (`variant_images[i]`).
    - When an admin uploads an image for a variant, `ImageStorageService::uploadAsWebp($file, 'products/variants', ...)` converts the image to `.webp`, stores it on the configured third-party cloud disk (`s3`, `r2`, `spaces`, etc.), and saves both `image` (`.webp` path) and `image_source` (disk name) on the `product_variants` row.
@@ -1033,6 +1072,82 @@ In the initial prototype (`admin/products/create.blade.php`), variants were limi
      }
      ```
    - When an order is placed (`POST /checkout`), `OrderItem` stores the variant's `image` and `image_source` if present, or falls back to `$product->images[0]` and `$product->image_source`.
+
+---
+
+## 9. Dynamic Website Currency Architecture (`Taka ৳`, `Dollar $`, `Pound £`, `Euro €`)
+
+### 9.1 Supported Currency Presets & Custom Configuration
+The store's active currency is stored inside the `settings` table under `key = 'site'` -> `value['currency']`:
+```php
+'currency' => [
+    'name'     => 'Bangladeshi Taka', // or 'US Dollar', 'British Pound', 'Euro'
+    'code'     => 'BDT',              // ISO 4217 code: 'BDT', 'USD', 'GBP', 'EUR', 'CAD', 'AUD', 'INR'
+    'symbol'   => '৳',                // Symbol: '৳', '$', '£', '€', '₹'
+    'position' => 'before',           // 'before' (৳1,200.00 / $64.00) or 'after' (1,200.00 ৳)
+    'decimals' => 2,
+]
+```
+
+Built-in presets available in `/admin/settings` (`AdminSettingController`):
+| Currency Name | ISO Code (`currency_code`) | Symbol (`currency_symbol`) |
+| :--- | :--- | :--- |
+| **Bangladeshi Taka** | `BDT` | `৳` |
+| **US Dollar** | `USD` | `$` |
+| **British Pound** | `GBP` | `£` |
+| **Euro** | `EUR` | `€` |
+| **Indian Rupee** | `INR` | `₹` |
+| **Canadian Dollar** | `CAD` | `CA$` |
+| **Australian Dollar** | `AUD` | `A$` |
+
+### 9.2 Global View Sharing & Formatting (`AppServiceProvider`)
+In `AppServiceProvider::boot()`:
+1. After merging `Setting::where('key', 'site')->first()?->value` into `config('demo.site')`, share `$currencySymbol` and `$currencyCode` with **all views (`View::share`)**:
+   ```php
+   $currencySymbol = config('demo.site.currency.symbol', '$');
+   $currencyCode   = config('demo.site.currency.code', 'USD');
+   View::share('currencySymbol', $currencySymbol);
+   View::share('currencyCode', $currencyCode);
+   ```
+2. Expose `window.__everbloomCurrency = { code: @js($currencyCode), symbol: @js($currencySymbol) }` (or via `#everbloom-shipping-data`) so all Alpine.js components (`product.blade.php`, `cart/index.blade.php`, `checkout/index.blade.php`, `wishlist.blade.php`, `cart-drawer.blade.php`, `search-modal.blade.php`) format prices using `$currencySymbol` instead of hardcoded `'$'`.
+3. Update all Admin Panel views (`dashboard`, `products`, `orders`, `inventory`, `purchases`, `invoices`, `customers`, `coupons`, `settings`) to render `{{ $currencySymbol }}` and `{{ $currencyCode }}` instead of hardcoded `$` and `USD`.
+
+---
+
+## 10. Separated Operational Dashboard (`/admin`) vs. Dedicated Financial Menu (`/admin/financial`)
+
+### 10.1 Operational Dashboard (`/admin` — `AdminDashboardController@index`)
+The main `/admin` dashboard is dedicated to **day-to-day store operations and common activity stats**:
+- **4 Operational KPI Cards (`Variant A` from `docs/admin-dashboard/index.html`)**:
+  1. **Total Orders** (with Pending / Processing count badge)
+  2. **Registered Customers** (with Active profiles count)
+  3. **Active Formulations / SKUs** (with Categories count)
+  4. **Low Stock / Restock Alerts** (count of products at or below `min_threshold`)
+- **Operational Charts & Tables**:
+  - Order Fulfillment Breakdown (`Placed`, `Processing`, `Shipped`, `Delivered`, `Cancelled`)
+  - Top Rated / Best Selling Formulations Table
+  - Recent Customer Orders Operational Queue (`Order ID`, `Date`, `Customer`, `Items`, `Status`, `Quick View`)
+
+### 10.2 Dedicated Financial Menu (`/admin/financial` — `AdminFinancialController@index`)
+All accounting, wholesale cost, revenue, profit margin, and inventory valuation analytics live under a dedicated **"Financial"** menu item in `components/admin/sidebar.blade.php`, constructed with Larkon Bootstrap 5.3.3 components from `docs/admin-dashboard/` (`index.html`, `orders-list.html`, `charts-apex-column.html`, `forms-flatepicker.html`):
+- **Multi-Dimensional Filter Bar (`GET /admin/financial`)**:
+  - **Date Period Preset (`period`)**: `all` (All Time), `today` (Today), `7d` (Last 7 Days), `this_month` (This Month), `last_month` (Last Month), `this_year` (This Year), or `custom` (`date_from` & `date_to`).
+  - **Category Filter (`category_id`)**: Filters order items and inventory valuation by Category (automatically including its Level 2 Subcategories and Level 3 Child Categories!).
+  - **Vendor Filter (`vendor_id`)**: Filters wholesale batch outflow and product profit margins by Supplier/Vendor.
+  - **Order Status Filter (`status`)**: `all_valid` (All non-cancelled orders), `Delivered` (Realized delivered orders only), `Processing`, `Shipped`.
+- **Financial KPI Cards (`Variant A` & `Variant C` from `docs/03-ui-components-and-patterns.md`)**:
+  1. **Net Booked Revenue** (`Subtotal - Discounts`)
+  2. **Total Wholesale COGS** (`Sum of sold items' unit_buy_price * qty`)
+  3. **Net Realized Profit & Margin %** (`Net Revenue - COGS`, plus profit margin badge)
+  4. **Wholesale Batch Outflow** (`Sum of purchase_batches.total_cost` in selected period/vendor)
+  5. **Available Inventory Cost Value** (`Sum of available stock_count * avg_buy_price`)
+  6. **Projected Retail Stock Value & Unrealized Profit** (`Sum of stock_count * price` and projected profit)
+- **Financial Charts & Ledgers**:
+  - **Revenue vs. Wholesale Cost vs. Net Profit Chart** (ApexCharts grouped column/area chart).
+  - **Product Profitability & Margin Table** (`Product`, `Category`, `Vendor`, `Available Stock`, `Avg Buy Price`, `Sell Price`, `Units Sold in Period`, `Revenue`, `COGS`, `Net Profit`, `Margin %`).
+  - **Filtered Order Profit Ledger** (`Order #`, `Date`, `Customer`, `Status`, `Subtotal`, `Discount`, `Wholesale Cost`, `Net Profit`).
+
+
 
 
 

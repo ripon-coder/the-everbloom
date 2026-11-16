@@ -48,6 +48,20 @@
                             <input type="text" id="category-slug" name="slug" class="form-control" placeholder="e.g. cleansers" value="{{ old('slug', $category['slug']) }}">
                         </div>
 
+                        <!-- Parent Category (3-Step Hierarchy) -->
+                        <div class="col-md-6">
+                            <label class="form-label" for="parent-category">Parent Category (Max 3 Steps)</label>
+                            <select id="parent-category" name="parent_id" class="form-select">
+                                <option value="">None (Step 1: Main Category)</option>
+                                @foreach($parentCategories ?? [] as $pCat)
+                                    <option value="{{ $pCat->id }}" {{ (string) old('parent_id', $category['parent_id'] ?? '') === (string) $pCat->id ? 'selected' : '' }}>
+                                        Step {{ $pCat->level }}: {{ $pCat->hierarchy_path }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">Level 1 = Main, Level 2 = Subcategory, Level 3 = Child Category.</small>
+                        </div>
+
                         <!-- Tagline -->
                         <div class="col-md-6">
                             <label class="form-label" for="category-tagline">Header Tagline</label>
@@ -58,6 +72,21 @@
                         <div class="col-12">
                             <label class="form-label" for="category-description">Category Editorial Description</label>
                             <textarea id="category-description" name="description" class="form-control" rows="3">{{ old('description', $category['description'] ?? '') }}</textarea>
+                        </div>
+
+                        <!-- Assigned Variant Attributes -->
+                        <div class="col-12">
+                            <label class="form-label d-block">Assigned Variant Attributes</label>
+                            <div class="d-flex flex-wrap gap-3">
+                                @php $assignedAttrIds = old('attribute_ids', $category['attribute_ids'] ?? []); @endphp
+                                @foreach($attributes ?? [] as $attr)
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="attribute_ids[]" value="{{ $attr->id }}" id="cat_attr_{{ $attr->id }}" {{ in_array($attr->id, $assignedAttrIds) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="cat_attr_{{ $attr->id }}">{{ $attr->name }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <small class="text-muted">Only selected attributes (plus parent inherited attributes) appear when creating products in this category.</small>
                         </div>
 
                         <!-- Image path / upload -->

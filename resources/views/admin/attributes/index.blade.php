@@ -29,6 +29,15 @@
                             <option value="select">Dropdown</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assign Categories (Optional)</label>
+                        <select name="category_ids[]" class="form-select" multiple size="5">
+                            @foreach($categories ?? [] as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->hierarchy_path }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Leave empty for global availability.</small>
+                    </div>
                     <button type="submit" class="btn btn-primary w-100">Create Attribute</button>
                 </form>
             </div>

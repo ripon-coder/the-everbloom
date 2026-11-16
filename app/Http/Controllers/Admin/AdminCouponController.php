@@ -11,7 +11,9 @@ class AdminCouponController extends Controller
 {
     public function index()
     {
-        $coupons = Coupon::latest()->get()->map(function (Coupon $c) {
+        $currencySymbol = config('demo.site.currency.symbol', '$');
+
+        $coupons = Coupon::latest()->get()->map(function (Coupon $c) use ($currencySymbol) {
             return [
                 'id' => $c->id,
                 'code' => $c->code,
@@ -22,7 +24,7 @@ class AdminCouponController extends Controller
                 },
                 'discount' => match ($c->type) {
                     'percentage' => ((float) $c->value . '% OFF'),
-                    'fixed' => ('$' . number_format((float) $c->value, 2) . ' OFF'),
+                    'fixed' => ($currencySymbol . number_format((float) $c->value, 2) . ' OFF'),
                     default => 'FREE SHIP',
                 },
                 'label' => $c->label,

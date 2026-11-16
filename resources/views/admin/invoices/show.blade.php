@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Invoice #' . $order['id'])
 @section('container_class', 'container-xxl')
@@ -68,9 +68,9 @@
                                     <p class="text-muted mb-0 fs-12">Amber Glass Vessel &bull; Cold-Pressed Botanical Extract</p>
                                 </td>
                                 <td>{{ $item['variant'] ?? '30ml / 1.0 fl oz' }}</td>
-                                <td class="text-end">${{ number_format($item['price'], 2) }}</td>
+                                <td class="text-end">{{ $currencySymbol }}{{ number_format($item['price'], 2) }}</td>
                                 <td class="text-center">{{ $item['qty'] }}</td>
-                                <td class="text-end fw-semibold">${{ number_format($item['price'] * $item['qty'], 2) }}</td>
+                                <td class="text-end fw-semibold">{{ $currencySymbol }}{{ number_format($item['price'] * $item['qty'], 2) }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -84,27 +84,27 @@
                             <tbody>
                                 <tr>
                                     <td class="text-muted">Subtotal:</td>
-                                    <td class="text-end fw-medium">${{ number_format($order['subtotal'], 2) }}</td>
+                                    <td class="text-end fw-medium">{{ $currencySymbol }}{{ number_format($order['subtotal'], 2) }}</td>
                                 </tr>
                                 @if(($order['discount_amount'] ?? 0) > 0)
                                 <tr>
                                     <td class="text-muted">Discount ({{ $order['discount_code'] ?? 'Promo' }}):</td>
-                                    <td class="text-end text-danger fw-medium">-${{ number_format($order['discount_amount'], 2) }}</td>
+                                    <td class="text-end text-danger fw-medium">-{{ $currencySymbol }}{{ number_format($order['discount_amount'], 2) }}</td>
                                 </tr>
                                 @endif
                                 <tr>
                                     <td class="text-muted">Botanical Ground Shipping:</td>
                                     <td class="text-end text-success fw-medium">
-                                        {{ $order['shipping'] > 0 ? ('$' . number_format($order['shipping'], 2)) : 'Complimentary' }}
+                                        {{ $order['shipping'] > 0 ? ($currencySymbol . number_format($order['shipping'], 2)) : 'Complimentary' }}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted">Estimated Sales Tax:</td>
-                                    <td class="text-end fw-medium">${{ number_format($order['tax'], 2) }}</td>
+                                    <td class="text-end fw-medium">{{ $currencySymbol }}{{ number_format($order['tax'], 2) }}</td>
                                 </tr>
                                 <tr class="border-top">
-                                    <td class="fw-bold text-dark fs-15">Grand Total (USD):</td>
-                                    <td class="text-end fw-bold text-primary fs-18">${{ number_format($order['total'], 2) }}</td>
+                                    <td class="fw-bold text-dark fs-15">Grand Total ({{ $currencyCode }}):</td>
+                                    <td class="text-end fw-bold text-primary fs-18">{{ $currencySymbol }}{{ number_format($order['total'], 2) }}</td>
                                 </tr>
                             </tbody>
                         </table>

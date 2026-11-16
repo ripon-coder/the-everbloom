@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Attribute extends Model
@@ -26,6 +27,11 @@ class Attribute extends Model
     public function values(): HasMany
     {
         return $this->hasMany(AttributeValue::class)->orderBy('sort_order')->orderBy('value');
+    }
+
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, 'category_attribute')->withTimestamps();
     }
 }
 

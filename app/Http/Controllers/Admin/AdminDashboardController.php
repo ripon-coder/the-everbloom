@@ -26,6 +26,8 @@ class AdminDashboardController extends Controller
         $totalOrders = Order::count();
         $totalProducts = Product::count();
         $totalCustomers = User::count();
+        $pendingOrdersCount = Order::whereIn('status', ['Placed', 'Processing'])->count();
+        $lowStockCount = Product::whereColumn('stock_count', '<=', 'min_threshold')->count();
 
         $recentOrders = Order::with('items')->latest('placed_at')->take(5)->get()
             ->map(fn (Order $o) => $o->toViewArray())
@@ -43,6 +45,8 @@ class AdminDashboardController extends Controller
             'totalOrders',
             'totalProducts',
             'totalCustomers',
+            'pendingOrdersCount',
+            'lowStockCount',
             'recentOrders',
             'topProducts'
         ));

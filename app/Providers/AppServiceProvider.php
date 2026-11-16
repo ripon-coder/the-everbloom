@@ -33,6 +33,11 @@ class AppServiceProvider extends ServiceProvider
             // Safe fallback before database/migrations are initialized
         }
 
+        $currencySymbol = config('demo.site.currency.symbol', '$');
+        $currencyCode = config('demo.site.currency.code', 'USD');
+        View::share('currencySymbol', $currencySymbol);
+        View::share('currencyCode', $currencyCode);
+
         View::composer(['components.storefront.cart-drawer', 'components.storefront.search-modal'], function ($view) {
             try {
                 if (Schema::hasTable('products')) {

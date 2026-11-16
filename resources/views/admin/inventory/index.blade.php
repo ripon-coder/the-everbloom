@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Warehouse Inventory')
 @section('container_class', 'container-xxl')
@@ -154,13 +154,13 @@
                                     <span class="fw-bold fs-14 text-dark">{{ $item['stock'] }} units</span>
                                 </td>
                                 <td>
-                                    <span class="fs-13 text-muted">${{ number_format($item['avg_buy_price'] ?? 0, 2) }}</span>
+                                    <span class="fs-13 text-muted">{{ $currencySymbol }}{{ number_format($item['avg_buy_price'] ?? 0, 2) }}</span>
                                 </td>
                                 <td>
-                                    <span class="fs-13 text-dark">${{ number_format($item['sell_price'] ?? 0, 2) }}</span>
+                                    <span class="fs-13 text-dark">{{ $currencySymbol }}{{ number_format($item['sell_price'] ?? 0, 2) }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-success-subtle text-success">+${{ number_format($item['unit_profit'] ?? 0, 2) }}</span>
+                                    <span class="badge bg-success-subtle text-success">+{{ $currencySymbol }}{{ number_format($item['unit_profit'] ?? 0, 2) }}</span>
                                 </td>
                                 <td>
                                     <span class="text-muted fs-13">{{ $item['min_threshold'] }} units</span>

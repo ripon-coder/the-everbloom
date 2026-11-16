@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Wholesale Purchases & Profit Margins')
 
@@ -45,12 +45,12 @@
                             <td>{{ $item['vendor_name'] }}</td>
                             <td><span class="badge bg-light text-dark font-monospace">{{ $item['batch_lot'] }}</span></td>
                             <td>{{ $item['stock_count'] }}</td>
-                            <td>${{ number_format($item['last_buy_price'], 2) }}</td>
-                            <td class="fw-semibold text-primary">${{ number_format($item['avg_buy_price'], 2) }}</td>
-                            <td>${{ number_format($item['sell_price'], 2) }}</td>
+                            <td>{{ $currencySymbol }}{{ number_format($item['last_buy_price'], 2) }}</td>
+                            <td class="fw-semibold text-primary">{{ $currencySymbol }}{{ number_format($item['avg_buy_price'], 2) }}</td>
+                            <td>{{ $currencySymbol }}{{ number_format($item['sell_price'], 2) }}</td>
                             <td>
                                 <span class="badge {{ $item['unit_profit'] >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">
-                                    +${{ number_format($item['unit_profit'], 2) }} ({{ $item['margin_pct'] }}%)
+                                    +{{ $currencySymbol }}{{ number_format($item['unit_profit'], 2) }} ({{ $item['margin_pct'] }}%)
                                 </span>
                             </td>
                         </tr>
@@ -87,7 +87,7 @@
                             <td>{{ $batch->reference_no ?? '—' }}</td>
                             <td>{{ $batch->purchased_at?->format('M d, Y') }}</td>
                             <td>{{ $batch->total_qty }} units</td>
-                            <td class="fw-semibold">${{ number_format((float) $batch->total_cost, 2) }}</td>
+                            <td class="fw-semibold">{{ $currencySymbol }}{{ number_format((float) $batch->total_cost, 2) }}</td>
                         </tr>
                     @empty
                         <tr>

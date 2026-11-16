@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Client Profile: ' . $customer['name'])
 @section('container_class', 'container-xxl')
@@ -77,7 +77,7 @@
                 <div class="card">
                     <div class="card-body text-center">
                         <p class="text-muted mb-1 fs-13">Lifetime Spend</p>
-                        <h3 class="fw-bold text-primary mb-0">${{ number_format($customer['total_spent'], 2) }}</h3>
+                        <h3 class="fw-bold text-primary mb-0">{{ $currencySymbol }}{{ number_format($customer['total_spent'], 2) }}</h3>
                     </div>
                 </div>
             </div>
@@ -117,7 +117,7 @@
                                 </td>
                                 <td>{{ $o['date'] }}</td>
                                 <td>{{ $o['items_count'] }} item(s)</td>
-                                <td class="fw-bold text-dark">${{ number_format($o['total'], 2) }}</td>
+                                <td class="fw-bold text-dark">{{ $currencySymbol }}{{ number_format($o['total'], 2) }}</td>
                                 <td>
                                     @php
                                         $badgeClass = match($o['status']) {

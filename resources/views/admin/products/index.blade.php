@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Product List')
 @section('container_class', 'container-fluid')
@@ -97,9 +97,9 @@
                                     <span class="text-muted fs-13 font-monospace">{{ $product['sku'] ?? ('EB-' . str_pad($product['id'], 4, '0', STR_PAD_LEFT)) }}</span>
                                 </td>
                                 <td>
-                                    <div class="fw-bold text-dark">${{ number_format($product['price'], 2) }}</div>
+                                    <div class="fw-bold text-dark">{{ $currencySymbol }}{{ number_format($product['price'], 2) }}</div>
                                     @if(!empty($product['compare_at_price']) && $product['compare_at_price'] > $product['price'])
-                                        <small class="text-muted text-decoration-line-through">${{ number_format($product['compare_at_price'], 2) }}</small>
+                                        <small class="text-muted text-decoration-line-through">{{ $currencySymbol }}{{ number_format($product['compare_at_price'], 2) }}</small>
                                     @endif
                                 </td>
                                 <td>

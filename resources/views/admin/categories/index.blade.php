@@ -70,9 +70,16 @@
                                         </div>
                                         <div>
                                             <a href="{{ route('admin.categories.edit', $category['slug']) }}" class="text-dark fw-bold fs-14">
-                                                {{ $category['name'] }}
+                                                {{ $category['hierarchy_path'] ?? $category['name'] }}
                                             </a>
-                                            <p class="text-muted mb-0 fs-12">{{ $category['short_name'] ?? $category['name'] }}</p>
+                                            <p class="text-muted mb-0 fs-12">
+                                                @php
+                                                    $lvl = (int) ($category['level'] ?? 1);
+                                                    $lvlLabel = $lvl === 1 ? 'Step 1: Main' : ($lvl === 2 ? 'Step 2: Subcategory' : 'Step 3: Child');
+                                                @endphp
+                                                <span class="badge bg-primary-subtle text-primary me-1">{{ $lvlLabel }}</span>
+                                                {{ $category['short_name'] ?? $category['name'] }}
+                                            </p>
                                         </div>
                                     </div>
                                 </td>

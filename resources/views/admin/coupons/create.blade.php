@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Create Coupon')
 @section('container_class', 'container-xxl')
@@ -32,7 +32,7 @@
                             <label class="form-label" for="coupon-type">Discount Type</label>
                             <select id="coupon-type" name="type" class="form-select">
                                 <option value="percentage">Percentage Discount (% OFF)</option>
-                                <option value="fixed">Fixed Cart Discount ($ USD)</option>
+                                <option value="fixed">Fixed Cart Discount ({{ $currencySymbol }} {{ $currencyCode }})</option>
                                 <option value="shipping">Complimentary Standard Shipping</option>
                             </select>
                         </div>
@@ -51,7 +51,7 @@
 
                         <!-- Minimum Order Value -->
                         <div class="col-md-6">
-                            <label class="form-label" for="min-order">Minimum Order Amount ($ USD)</label>
+                            <label class="form-label" for="min-order">Minimum Order Amount ({{ $currencySymbol }} {{ $currencyCode }})</label>
                             <input type="number" id="min-order" name="min_order" class="form-control" value="50.00">
                         </div>
 

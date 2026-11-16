@@ -1,4 +1,4 @@
-@extends('layouts.account')
+﻿@extends('layouts.account')
 
 @section('title', 'Order History — ' . config('demo.site.name'))
 
@@ -109,7 +109,7 @@
                                 {{ $order['items_count'] ?? count($order['items'] ?? []) }} {{ ($order['items_count'] ?? count($order['items'] ?? [])) === 1 ? 'item' : 'items' }}
                             </td>
                             <td class="py-4 px-4 text-right price text-ink whitespace-nowrap">
-                                ${{ number_format($order['total'], 2) }}
+                                {{ $currencySymbol }}{{ number_format($order['total'], 2) }}
                             </td>
                             <td class="py-4 pl-4 text-right whitespace-nowrap">
                                 <a 
@@ -147,7 +147,7 @@
                         <div class="text-right shrink-0 space-y-1.5">
                             <x-storefront.status-badge :status="$order['status']" />
                             <p class="price text-sm text-ink block">
-                                ${{ number_format($order['total'], 2) }}
+                                {{ $currencySymbol }}{{ number_format($order['total'], 2) }}
                             </p>
                         </div>
                     </div>

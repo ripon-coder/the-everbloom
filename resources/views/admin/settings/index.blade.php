@@ -25,13 +25,30 @@
                             <label class="form-label" for="store-tagline">Brand Tagline</label>
                             <input type="text" id="store-tagline" name="tagline" class="form-control" value="{{ old('tagline', $site['tagline'] ?? '') }}">
                         </div>
+                        <div class="col-12">
+                            <label class="form-label" for="currency-preset">Currency Preset</label>
+                            @php
+                                $curCode = old('currency_code', $site['currency']['code'] ?? 'USD');
+                                $curSym = old('currency_symbol', $site['currency']['symbol'] ?? '$');
+                            @endphp
+                            <select id="currency-preset" class="form-select" onchange="if(this.value){const [c,s]=this.value.split('|');document.getElementById('curr-code').value=c;document.getElementById('curr-symbol').value=s;}">
+                                <option value="">Custom Currency</option>
+                                <option value="BDT|৳" {{ $curCode === 'BDT' ? 'selected' : '' }}>Bangladeshi Taka — BDT (৳)</option>
+                                <option value="USD|$" {{ $curCode === 'USD' ? 'selected' : '' }}>US Dollar — USD ($)</option>
+                                <option value="GBP|£" {{ $curCode === 'GBP' ? 'selected' : '' }}>British Pound — GBP (£)</option>
+                                <option value="EUR|€" {{ $curCode === 'EUR' ? 'selected' : '' }}>Euro — EUR (€)</option>
+                                <option value="INR|₹" {{ $curCode === 'INR' ? 'selected' : '' }}>Indian Rupee — INR (₹)</option>
+                                <option value="CAD|CA$" {{ $curCode === 'CAD' ? 'selected' : '' }}>Canadian Dollar — CAD (CA$)</option>
+                                <option value="AUD|A$" {{ $curCode === 'AUD' ? 'selected' : '' }}>Australian Dollar — AUD (A$)</option>
+                            </select>
+                        </div>
                         <div class="col-md-6">
                             <label class="form-label" for="curr-code">Currency Code</label>
-                            <input type="text" id="curr-code" name="currency_code" class="form-control text-uppercase" value="{{ old('currency_code', $site['currency']['code'] ?? 'USD') }}">
+                            <input type="text" id="curr-code" name="currency_code" class="form-control text-uppercase" value="{{ $curCode }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="curr-symbol">Currency Symbol</label>
-                            <input type="text" id="curr-symbol" name="currency_symbol" class="form-control" value="{{ old('currency_symbol', $site['currency']['symbol'] ?? '$') }}">
+                            <input type="text" id="curr-symbol" name="currency_symbol" class="form-control" value="{{ $curSym }}">
                         </div>
                     </div>
                 </div>
@@ -77,23 +94,23 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label" for="free-ship-thresh">Free Shipping Threshold ($ USD)</label>
+                            <label class="form-label" for="free-ship-thresh">Free Shipping Threshold ({{ $currencySymbol }} {{ $currencyCode }})</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">{{ $currencySymbol }}</span>
                                 <input type="number" step="0.01" id="free-ship-thresh" name="free_shipping_threshold" class="form-control" value="{{ old('free_shipping_threshold', $site['shipping']['free_shipping_threshold'] ?? 75.00) }}">
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" for="std-rate">Standard Ground Rate ($ USD)</label>
+                            <label class="form-label" for="std-rate">Standard Ground Rate ({{ $currencySymbol }} {{ $currencyCode }})</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">{{ $currencySymbol }}</span>
                                 <input type="number" step="0.01" id="std-rate" name="standard_rate" class="form-control" value="{{ old('standard_rate', $site['shipping']['standard_rate'] ?? 6.00) }}">
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" for="exp-rate">Express Courier Rate ($ USD)</label>
+                            <label class="form-label" for="exp-rate">Express Courier Rate ({{ $currencySymbol }} {{ $currencyCode }})</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">{{ $currencySymbol }}</span>
                                 <input type="number" step="0.01" id="exp-rate" name="express_rate" class="form-control" value="{{ old('express_rate', $site['shipping']['express_rate'] ?? 15.00) }}">
                             </div>
                         </div>

@@ -57,11 +57,11 @@
                     <!-- Price -->
                     <div class="d-flex align-items-baseline gap-2 my-2">
                         <h4 id="preview-price" class="text-primary fw-bold mb-0">
-                            ${{ number_format((float)($product['price'] ?: 64), 2) }}
+                            {{ $currencySymbol }}{{ number_format((float)($product['price'] ?: 64), 2) }}
                         </h4>
                         @if(!empty($product['compare_at_price']))
                             <span class="text-muted text-decoration-line-through fs-13">
-                                ${{ number_format((float)$product['compare_at_price'], 2) }}
+                                {{ $currencySymbol }}{{ number_format((float)$product['compare_at_price'], 2) }}
                             </span>
                         @endif
                     </div>
@@ -141,10 +141,10 @@
                         <!-- Category -->
                         <div class="col-lg-6">
                             <label class="form-label" for="category-slug">Category <span class="text-danger">*</span></label>
-                            <select id="category-slug" name="category_slug" class="form-select" required>
+                            <select id="category-slug" name="category_slug" class="form-select" onchange="filterAttributesByCategory()" required>
                                 @foreach($categories as $cat)
-                                    <option value="{{ $cat['slug'] }}" {{ ($product['category_slug'] ?? '') === $cat['slug'] ? 'selected' : '' }}>
-                                        {{ $cat['name'] }}
+                                    <option value="{{ $cat['slug'] }}" data-attribute-ids='@json($cat['effective_attribute_ids'] ?? [])' {{ old('category_slug', $product['category_slug'] ?? '') === $cat['slug'] ? 'selected' : '' }}>
+                                        {{ $cat['hierarchy_path'] ?? $cat['name'] }}
                                     </option>
                                 @endforeach
                             </select>
@@ -198,7 +198,7 @@
                                         @endif
                                         <div class="row g-2 mb-2">
                                             @foreach($attrList as $attr)
-                                                <div class="col-md-3">
+                                                <div class="col-md-3 variant-attr-col" data-attribute-id="{{ $attr->id }}">
                                                     <label class="form-label fs-12 mb-1">{{ $attr->name }}</label>
                                                     <select name="variants[{{ $vIdx }}][attributes][{{ $attr->name }}]" class="form-select form-select-sm">
                                                         <option value="">— {{ $attr->name }} —</option>
@@ -262,12 +262,27 @@
                                 });
                                 container.appendChild(clone);
                                 variantRowIndex++;
+                                filterAttributesByCategory();
                             }
                             function removeVariantRow(btn) {
                                 const rows = document.querySelectorAll('#variants-builder .variant-row');
                                 if (rows.length <= 1) return;
                                 btn.closest('.variant-row').remove();
                             }
+                            function filterAttributesByCategory() {
+                                const catSelect = document.getElementById('category-slug');
+                                if (!catSelect) return;
+                                const opt = catSelect.options[catSelect.selectedIndex];
+                                const allowedIds = JSON.parse(opt?.dataset?.attributeIds || '[]').map(Number);
+                                document.querySelectorAll('.variant-attr-col').forEach(col => {
+                                    const attrId = Number(col.dataset.attributeId);
+                                    const visible = allowedIds.length === 0 || allowedIds.includes(attrId);
+                                    col.style.display = visible ? '' : 'none';
+                                    const sel = col.querySelector('select');
+                                    if (sel) sel.disabled = !visible;
+                                });
+                            }
+                            document.addEventListener('DOMContentLoaded', filterAttributesByCategory);
                         </script>
 
                         <!-- Featured Toggle -->
@@ -315,18 +330,18 @@
                     <div class="row g-3">
                         <!-- Price -->
                         <div class="col-lg-4">
-                            <label class="form-label" for="product-price">Retail Price ($ USD) <span class="text-danger">*</span></label>
+                            <label class="form-label" for="product-price">Retail Price ({{ $currencySymbol }} {{ $currencyCode }}) <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">{{ $currencySymbol }}</span>
                                 <input type="number" step="0.01" id="product-price" name="price" class="form-control" value="{{ old('price', $product['price']) }}" required>
                             </div>
                         </div>
 
                         <!-- Compare-at Price -->
                         <div class="col-lg-4">
-                            <label class="form-label" for="compare-price">Original / Compare Price ($ USD)</label>
+                            <label class="form-label" for="compare-price">Original / Compare Price ({{ $currencySymbol }} {{ $currencyCode }})</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">{{ $currencySymbol }}</span>
                                 <input type="number" step="0.01" id="compare-price" name="compare_at_price" class="form-control" value="{{ old('compare_at_price', $product['compare_at_price'] ?? '') }}">
                             </div>
                         </div>

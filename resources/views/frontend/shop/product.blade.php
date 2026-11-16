@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', ($product['name'] ?? 'Product') . ' | The Everbloom')
 @section('meta_description', $product['short_description'] ?? 'Botanical skincare formulation from The Everbloom.')
@@ -93,7 +93,7 @@
         'offers' => [
             '@type' => 'Offer',
             'url' => url()->current(),
-            'priceCurrency' => 'USD',
+            'priceCurrency' => $currencyCode,
             'price' => number_format($basePrice, 2, '.', ''),
             'availability' => ($defaultVariant['stock_status'] ?? 'in_stock') === 'in_stock'
                 ? 'https://schema.org/InStock'
@@ -363,19 +363,19 @@
 
                 <!-- Price & Compare-At Row -->
                 <div class="flex flex-wrap items-baseline gap-3 pb-4 lg:pb-5 border-b border-[#ECEEE6]">
-                    <span class="price text-2xl text-ink" x-text="'$' + currentPrice.toFixed(2)">
-                        ${{ number_format($basePrice, 2) }}
+                    <span class="price text-2xl text-ink" x-text="'{{ $currencySymbol }}' + currentPrice.toFixed(2)">
+                        {{ $currencySymbol }}{{ number_format($basePrice, 2) }}
                     </span>
 
                     <template x-if="currentCompareAtPrice">
                         <span class="inline-flex items-baseline gap-2.5">
-                            <span class="price text-sm text-muted line-through" x-text="'$' + currentCompareAtPrice.toFixed(2)"></span>
+                            <span class="price text-sm text-muted line-through" x-text="'{{ $currencySymbol }}' + currentCompareAtPrice.toFixed(2)"></span>
                             <span class="text-xs uppercase tracking-[0.15em] font-medium px-2 py-0.5 bg-sage-light text-forest border border-forest/30" x-show="savePercent > 0" x-text="'Save ' + savePercent + '%'"></span>
                         </span>
                     </template>
                     @if($isOnSale && $defaultSavePercent > 0)
                         <noscript>
-                            <span class="price text-sm text-muted line-through">${{ number_format($comparePrice, 2) }}</span>
+                            <span class="price text-sm text-muted line-through">{{ $currencySymbol }}{{ number_format($comparePrice, 2) }}</span>
                             <span class="text-xs uppercase tracking-[0.15em] font-medium px-2 py-0.5 bg-sage-light text-forest border border-forest/30">Save {{ $defaultSavePercent }}%</span>
                         </noscript>
                     @endif
@@ -424,7 +424,7 @@
                             >
                                 <span x-text="variant.label" class="truncate"></span>
                                 <span class="opacity-70" aria-hidden="true">&mdash;</span>
-                                <span class="price shrink-0" x-text="'$' + Number(variant.price).toFixed(2)"></span>
+                                <span class="price shrink-0" x-text="'{{ $currencySymbol }}' + Number(variant.price).toFixed(2)"></span>
                             </button>
                         </template>
                     </div>
@@ -456,7 +456,7 @@
                                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                 </svg>
-                                <span>Add to Bag &mdash; <span class="price" x-text="'$' + (currentPrice * quantity).toFixed(2)">${{ number_format($basePrice, 2) }}</span></span>
+                                <span>Add to Bag &mdash; <span class="price" x-text="'{{ $currencySymbol }}' + (currentPrice * quantity).toFixed(2)">{{ $currencySymbol }}{{ number_format($basePrice, 2) }}</span></span>
                             </span>
 
                             <span x-show="adding" x-cloak class="inline-flex items-center justify-center gap-2" aria-live="polite">
@@ -491,7 +491,7 @@
                         </svg>
                         <p class="text-sm text-ink">
                             <span class="font-medium">Free shipping</span>
-                            <span class="text-[13px] text-muted"> over ${{ number_format($freeShippingThreshold, 0) }}</span>
+                            <span class="text-[13px] text-muted"> over {{ $currencySymbol }}{{ number_format($freeShippingThreshold, 0) }}</span>
                         </p>
                     </div>
                     <div class="py-2.5 px-3 flex items-center gap-2.5">
@@ -516,7 +516,7 @@
                 <!-- Desktop (md+): 3-column layout -->
                 <div class="hidden md:grid grid-cols-3 gap-2 text-center border-y border-[#ECEEE6] bg-beige/20 py-3">
                     <div class="px-2">
-                        <span class="block text-xs font-medium text-ink">Free shipping over ${{ number_format($freeShippingThreshold, 0) }}</span>
+                        <span class="block text-xs font-medium text-ink">Free shipping over {{ $currencySymbol }}{{ number_format($freeShippingThreshold, 0) }}</span>
                         <span class="block text-xs text-muted mt-0.5">{{ $standardDays }}</span>
                     </div>
                     <div class="px-2 border-x border-[#ECEEE6]">
@@ -764,7 +764,7 @@
                         >
                             {{-- // DEMO PLACEHOLDER: replace before launch --}}
                             <p>
-                                <strong class="text-ink">Standard Shipping:</strong> Free shipping on orders over ${{ number_format($freeShippingThreshold, 0) }}. Estimated delivery: {{ $standardDays }}.
+                                <strong class="text-ink">Standard Shipping:</strong> Free shipping on orders over {{ $currencySymbol }}{{ number_format($freeShippingThreshold, 0) }}. Estimated delivery: {{ $standardDays }}.
                             </p>
                             <p>
                                 <strong class="text-ink">{{ $returnWindowDays }}-Day Returns:</strong> Returns accepted on unopened items within {{ $returnWindowDays }} days of delivery.

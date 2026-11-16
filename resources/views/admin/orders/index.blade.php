@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Orders List')
 @section('container_class', 'container-xxl')
@@ -24,7 +24,7 @@
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50 d-flex justify-content-between">
                 <a href="{{ route('admin.orders.index') }}" class="text-reset fw-semibold fs-12">View All &rarr;</a>
-                <span class="text-success fw-semibold fs-12">Profit: {{ (($totalProfit ?? 0) >= 0 ? '+$' : '-$') . number_format(abs($totalProfit ?? 0), 2) }}</span>
+                <span class="text-success fw-semibold fs-12">Profit: {{ (($totalProfit ?? 0) >= 0 ? '+' . $currencySymbol : '-' . $currencySymbol) . number_format(abs($totalProfit ?? 0), 2) }}</span>
             </div>
         </div>
     </div>
@@ -179,15 +179,15 @@
                                     </div>
                                 </td>
                                 <td class="fw-bold text-dark">
-                                    ${{ number_format($order['total'], 2) }}
+                                    {{ $currencySymbol }}{{ number_format($order['total'], 2) }}
                                 </td>
                                 <td class="text-muted">
-                                    ${{ number_format($order['total_cost'] ?? 0, 2) }}
+                                    {{ $currencySymbol }}{{ number_format($order['total_cost'] ?? 0, 2) }}
                                 </td>
                                 <td>
                                     @php $orderProfit = (float) ($order['total_profit'] ?? 0); @endphp
                                     <span class="badge {{ $orderProfit >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">
-                                        {{ ($orderProfit >= 0 ? '+$' : '-$') . number_format(abs($orderProfit), 2) }}
+                                        {{ ($orderProfit >= 0 ? '+' . $currencySymbol : '-' . $currencySymbol) . number_format(abs($orderProfit), 2) }}
                                     </span>
                                 </td>
                                 <td>

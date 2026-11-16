@@ -31,15 +31,25 @@
                 </a>
             </li>
 
+            <!-- Financial -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.financial.*') ? 'active' : '' }}" href="{{ route('admin.financial.index') }}">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:chart-square-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Financial </span>
+                </a>
+            </li>
+
             <!-- Products -->
             <li class="nav-item">
-                <a class="nav-link menu-arrow {{ request()->routeIs('admin.products.*') ? 'active' : '' }}" href="#sidebarProducts" data-bs-toggle="collapse" role="button" aria-expanded="{{ request()->routeIs('admin.products.*') ? 'true' : 'false' }}" aria-controls="sidebarProducts">
+                <a class="nav-link menu-arrow {{ request()->routeIs('admin.products.*', 'admin.attributes.*') ? 'active' : '' }}" href="#sidebarProducts" data-bs-toggle="collapse" role="button" aria-expanded="{{ request()->routeIs('admin.products.*', 'admin.attributes.*') ? 'true' : 'false' }}" aria-controls="sidebarProducts">
                     <span class="nav-icon">
                         <iconify-icon icon="solar:box-bold-duotone"></iconify-icon>
                     </span>
                     <span class="nav-text"> Products </span>
                 </a>
-                <div class="collapse {{ request()->routeIs('admin.products.*') ? 'show' : '' }}" id="sidebarProducts">
+                <div class="collapse {{ request()->routeIs('admin.products.*', 'admin.attributes.*') ? 'show' : '' }}" id="sidebarProducts">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
                             <a class="sub-nav-link {{ request()->routeIs('admin.products.index') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">Product List</a>

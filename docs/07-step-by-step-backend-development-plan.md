@@ -10,7 +10,12 @@
 >   4. **Bangladesh Location Hierarchy (`Country = Bangladesh` -> `District` -> `Thana` -> `Area`)**: Country is always **Bangladesh**. All Bangladesh Districts, Thanas, and Areas are seeded into `districts`, `thanas`, and `areas` tables via `BangladeshLocationSeeder`. Storefront Checkout and Customer Addresses use cascading `District -> Thana -> Area` selects (filtering `is_active = true`), and Admins can **rename** and **enable/disable (`is_active`)** any District, Thana, or Area in `/admin/locations`.
 >   5. **Wholesale Purchase Batches, Available-Stock Weighted Average Cost & Order Profit**: Admin buys products wholesale by **Vendor Name** (`vendors`) and **Batch** (`purchase_batches`, `purchase_batch_items`). When a new batch is added for an existing product, `avg_buy_price` is recalculated using **only currently available stock (`stock_count`) + the new batch quantity**. When an order is placed/received, `order_items` and `orders` snapshot the product's `avg_buy_price` and display exact per-product and total order **Profit** in `/admin`.
 >   6. **Multi-Attribute Product Variants (`Brand`, `Size`, `Color`, etc.) + Optional Variant Image**: Variants support any combination of dynamic attributes (`Brand`, `Size`, `Color`, `Scent`, etc.) via `attributes`, `attribute_values`, `product_variants`, and `product_variant_values`. Each variant has its own price, SKU, stock, and an **optional variant image** (`image` + `image_source`, converted to `.webp` on third-party storage).
->   7. **UI Preservation**: Do not break the existing Storefront (Tailwind + Alpine.js) or Admin (`/admin` Bootstrap 5.3.3 Larkon) markup.
+>   7. **Dynamic Website Currency (`Taka ৳ / BDT`, `Dollar $ / USD`, `Pound £ / GBP`, `Euro € / EUR`, etc.)**: Currency is configured dynamically in `/admin/settings` and shared globally via `AppServiceProvider` (`$currencySymbol`, `$currencyCode`) across every Storefront, Alpine.js, and Admin view.
+>   8. **3-Step Category Hierarchy, Category-Scoped Attributes & Dedicated Financial Menu (`/admin/financial`)**:
+>      - Categories support a **maximum 3-step hierarchy** (`level` 1 Main -> `level` 2 Sub -> `level` 3 Child via `parent_id`).
+>      - Attributes are linked to Categories (`category_attribute` pivot); selecting a Category on `/admin/products/create` dynamically displays only that Category's attributes in the Variant Builder.
+>      - `/admin` displays common operational store statistics, while a dedicated **Financial** menu (`/admin/financial`) displays all financial, COGS, profit, and inventory valuation analytics with Date Range, Category, Vendor, and Status filters using Larkon UI components from `docs/admin-dashboard/`.
+>   9. **UI Preservation**: Do not break the existing Storefront (Tailwind + Alpine.js) or Admin (`/admin` Bootstrap 5.3.3 Larkon) markup.
 
 ---
 
@@ -26,6 +31,8 @@ flowchart TD
     P6 --> P7["Phase 7: Admin Console Full CRUD, Inventory & Settings"]
     P7 --> P8["Phase 8: Wholesale Purchase Batches, Avg Buy Price & Order Profit"]
     P8 --> P9["Phase 9: Multi-Attribute Variants (Brand/Size/Color) & Optional Variant Image"]
+    P9 --> P10["Phase 10: Dynamic Website Currency (Taka/Dollar/Pound/Euro) Everywhere"]
+    P10 --> P11["Phase 11: 3-Step Categories, Category-Scoped Attributes & Financial Menu"]
 ```
 
 ---
@@ -507,4 +514,135 @@ php artisan test --filter=MultiAttributeProductVariantTest
   2. Admin can create/update a product in `/admin/products` with multiple variants combining `Brand`, `Size`, and `Color`, uploading an optional image for one variant and leaving another variant without an image.
   3. The uploaded variant image is converted to `.webp` with its `image_source` recorded, while the variant without an image falls back to the main product image.
   4. Selecting the variant on `/shop/product/{slug}` and placing an order at `/checkout` preserves the variant's composite title, attributes, price, and optional variant image.
+
+---
+
+## Phase 10: Dynamic Website Currency (`Taka ৳`, `Dollar $`, `Pound £`, `Euro €`) Across Storefront & Admin
+
+### 10.1 Objective
+Eliminate all hardcoded `$` and `USD` strings across both the **Storefront** and the **`/admin` Console** so that changing the currency in `/admin/settings` (e.g., to **Bangladeshi Taka `BDT` / `৳`**, **US Dollar `USD` / `$`**, **British Pound `GBP` / `£`**, **Euro `EUR` / `€`**, etc.) dynamically updates every price display, cart drawer, checkout total, invoice, and admin report.
+
+### 10.2 Step-by-Step Tasks
+
+1. **Share `$currencySymbol` & `$currencyCode` Globally in `AppServiceProvider::boot()`**:
+   - In `app/Providers/AppServiceProvider.php`:
+     ```php
+     $currencySymbol = config('demo.site.currency.symbol', '$');
+     $currencyCode   = config('demo.site.currency.code', 'USD');
+     View::share('currencySymbol', $currencySymbol);
+     View::share('currencyCode', $currencyCode);
+     ```
+
+2. **Upgrade Admin Settings Currency Selector (`resources/views/admin/settings/index.blade.php` & `AdminSettingController`)**:
+   - Add a **Currency Preset Selector** dropdown in `admin/settings/index.blade.php` (`Bangladeshi Taka — BDT (৳)`, `US Dollar — USD ($)`, `British Pound — GBP (£)`, `Euro — EUR (€)`, `Indian Rupee — INR (₹)`, `Canadian Dollar — CAD (CA$)`, `Australian Dollar — AUD (A$)`) that auto-populates `currency_code` and `currency_symbol` when changed, while still allowing custom edits.
+   - Replace hardcoded `($ USD)` and `<span class="input-group-text">$</span>` in `admin/settings/index.blade.php` with `({{ $currencySymbol }} {{ $currencyCode }})` and `<span class="input-group-text">{{ $currencySymbol }}</span>`.
+
+3. **Replace Hardcoded `$` in Storefront Views & Alpine.js Templates**:
+   - `resources/views/frontend/shop/product.blade.php`:
+     - Use `'priceCurrency' => $currencyCode` in Schema.org JSON-LD.
+     - Replace `'$'` and `$` in Alpine price bindings (`x-text="'{{ $currencySymbol }}' + ..."`) and Blade server-rendered prices (`{{ $currencySymbol }}{{ number_format(...) }}`).
+   - `resources/views/frontend/cart/index.blade.php`:
+     - Replace all `'$' + ...` and `${{ ... }}` with `'{{ $currencySymbol }}' + ...` and `{{ $currencySymbol }}{{ ... }}`.
+   - `resources/views/frontend/checkout/index.blade.php`:
+     - Replace all `'$' + ...` and `${{ ... }}` with `'{{ $currencySymbol }}' + ...` and `{{ $currencySymbol }}{{ ... }}` (including `getShippingRatePrice()`).
+   - `resources/views/frontend/pages/wishlist.blade.php`:
+     - Replace `'$' + parseFloat(item.price || 0).toFixed(2)` with `'{{ $currencySymbol }}' + parseFloat(item.price || 0).toFixed(2)`.
+   - `resources/views/frontend/account/index.blade.php`, `orders.blade.php`, `order-details.blade.php`:
+     - Replace `${{ number_format(...) }}` with `{{ $currencySymbol }}{{ number_format(...) }}`.
+
+4. **Replace Hardcoded `$` & `USD` in All Admin Views & Controllers**:
+   - `app/Http/Controllers/Admin/AdminCouponController.php`: Use `config('demo.site.currency.symbol', '$')` when formatting fixed-amount discounts.
+   - Replace hardcoded `$` and `USD` with `{{ $currencySymbol }}` and `{{ $currencyCode }}` in:
+     - `resources/views/admin/dashboard/index.blade.php`
+     - `resources/views/admin/products/index.blade.php` & `create.blade.php`
+     - `resources/views/admin/orders/index.blade.php` & `show.blade.php`
+     - `resources/views/admin/inventory/index.blade.php`
+     - `resources/views/admin/purchases/index.blade.php` & `create.blade.php`
+     - `resources/views/admin/invoices/index.blade.php` & `show.blade.php`
+     - `resources/views/admin/customers/index.blade.php` & `show.blade.php`
+     - `resources/views/admin/coupons/create.blade.php`
+
+### 10.3 Phase 10 Verification
+```bash
+php artisan test --filter=DynamicCurrencyTest
+```
+- Verify:
+  1. Admin updates currency in `/admin/settings` to `BDT` and `৳` (Bangladeshi Taka) or `GBP` and `£` (British Pound).
+  2. Storefront homepage, `/shop`, `/shop/product/{slug}`, `/cart`, `/checkout`, `/wishlist`, and `/account/orders` render `৳` (or `£`) and `BDT` (or `GBP`).
+  3. Admin Dashboard, Products, Inventory, Wholesale Purchases, Orders, Invoices, Customers, and Coupons render `৳` (or `£`) and `BDT` (or `GBP`) everywhere.
+
+---
+
+## Phase 11: 3-Step Category Hierarchy, Category-Scoped Attributes & Dedicated Financial Menu (`/admin/financial`)
+
+### 11.1 Objective
+1. Upgrade Categories to a **3-Step Hierarchy (`Main Category -> Subcategory -> Child Category`, max 3 levels)**.
+2. Link **Attributes to Categories (`category_attribute`)** so selecting a Category on `/admin/products/create` dynamically displays only that Category's attributes in the Variant Builder.
+3. Keep `/admin` (`AdminDashboardController`) focused on **common operational statistics**, and add a dedicated **Financial** menu (`/admin/financial` — `AdminFinancialController`) with multi-dimensional filters (**Date Period / Custom Range, Category, Vendor, Order Status**) using Larkon UI components from `docs/admin-dashboard/`.
+
+### 11.2 Step-by-Step Tasks
+
+1. **Create Migration (`database/migrations/0001_01_01_000012_add_category_hierarchy_and_category_attributes.php`)**:
+   - Add `parent_id` (`nullable()->constrained('categories')->nullOnDelete()`) and `level` (`unsignedTinyInteger`, `default(1)`) to `categories`.
+   - Create `category_attribute` pivot table (`id`, `category_id` FK -> `categories`, `attribute_id` FK -> `attributes`, `timestamps`, unique `['category_id', 'attribute_id']`).
+
+2. **Update `Category` & `Attribute` Models (`app/Models/Category.php`, `app/Models/Attribute.php`)**:
+   - On `Category`:
+     - Add `parent_id`, `level` to `$fillable`.
+     - Relationships:
+       - `parent(): BelongsTo` (`belongsTo(Category::class, 'parent_id')`)
+       - `children(): HasMany` (`hasMany(Category::class, 'parent_id')->orderBy('sort_order')`)
+       - `attributes(): BelongsToMany` (`belongsToMany(Attribute::class, 'category_attribute')->withTimestamps()`)
+     - Helper `getHierarchyPathAttribute()`: Returns `"Main > Sub > Child"` breadcrumb label.
+     - Helper `effectiveAttributeIds(): array`: Collects attribute IDs assigned to `$this`, `$this->parent`, and `$this->parent?->parent`. If that set is empty, falls back to global attributes (attributes with no specific category restriction) or all active attributes.
+     - Helper `descendantAndSelfIds(): array`: Returns `[$this->id]` plus all child and grandchild category IDs so filtering by a Level 1 or Level 2 category includes products in its child categories.
+   - On `Attribute`:
+     - Relationship `categories(): BelongsToMany` (`belongsToMany(Category::class, 'category_attribute')->withTimestamps()`).
+
+3. **Upgrade `AdminCategoryController` & Views for 3-Step Category Hierarchy (`/admin/categories`)**:
+   - In `AdminCategoryController@create` and `edit`:
+     - Pass `$parentCategories = Category::where('level', '<', 3)->orderBy('level')->orderBy('sort_order')->get()` and `$attributes = Attribute::where('is_active', true)->orderBy('sort_order')->get()`.
+   - In `AdminCategoryController@store` and `update`:
+     - Validate `'parent_id' => ['nullable', 'integer', 'exists:categories,id']` and `'attribute_ids' => ['nullable', 'array']`, `'attribute_ids.*' => ['integer', 'exists:attributes,id']`.
+     - Enforce **3-Step Maximum Depth**: If `parent_id` is provided, load `$parent = Category::findOrFail($validated['parent_id'])`; if `$parent->level >= 3` (or `$parent->id === $category->id`), return a validation error (`Maximum category depth is 3 steps (Main -> Subcategory -> Child Category).`).
+     - Set `$level = $parent ? ($parent->level + 1) : 1`.
+     - Sync `$category->attributes()->sync($request->input('attribute_ids', []))`.
+   - In `resources/views/admin/categories/create.blade.php` and `index.blade.php`:
+     - Add **Parent Category (Step 1 or Step 2)** selector and **Assigned Variant Attributes** checkboxes to `create.blade.php`.
+     - Display the 3-step hierarchy badge (`Step 1: Main`, `Step 2: Subcategory`, `Step 3: Child`) and full path (`Parent > Child`) in `categories/index.blade.php`.
+
+4. **Upgrade `AdminAttributeController` (`/admin/attributes`) & `admin/products/create.blade.php` for Category-Driven Attributes**:
+   - In `resources/views/admin/attributes/index.blade.php` and `AdminAttributeController@store` / `update`:
+     - Allow assigning Categories (`category_ids[]`) when creating or updating an Attribute in `/admin/attributes`.
+   - In `resources/views/admin/products/create.blade.php`:
+     - Add a **3-Step Cascading Category Selector** (Step 1: Main Category -> Step 2: Subcategory -> Step 3: Child Category, or hierarchical category select where each option includes `data-attribute-ids='@json($cat->effectiveAttributeIds())'`).
+     - In the Variant Builder, wrap each attribute `<select>` in `.variant-attr-col[data-attribute-id="{{ $attr->id }}"]`.
+     - Add JavaScript `filterAttributesByCategory()` triggered on page load and whenever the Category selection changes:
+       - Reads `data-attribute-ids` from the selected Category option.
+       - Shows and enables only `.variant-attr-col` elements whose `data-attribute-id` is in the selected category's `effectiveAttributeIds()` (hiding and disabling unselected category attributes so only relevant attributes appear and submit!).
+
+5. **Refine `/admin` Operational Dashboard & Create Dedicated `/admin/financial` Menu (`AdminFinancialController`)**:
+   - **Operational Dashboard (`/admin` — `AdminDashboardController@index` & `admin/dashboard/index.blade.php`)**:
+     - Display common operational store stats: `Total Orders`, `Processing / Pending Orders`, `Registered Customers`, `Active SKUs`, `Low Stock Alerts`, `Recent Orders`, and `Top Formulations`.
+   - **Dedicated Financial Menu (`/admin/financial` — `AdminFinancialController@index` & `admin/financial/index.blade.php`)**:
+     - Route: `GET /admin/financial` (`name('admin.financial.index')`) in `routes/admin.php`.
+     - Sidebar link: Add **"Financial"** (`solar:chart-square-bold-duotone` icon) in `resources/views/components/admin/sidebar.blade.php`.
+     - Filter bar supporting:
+       - `period` (`all`, `today`, `7d`, `this_month`, `last_month`, `this_year`, `custom`) + `date_from` & `date_to`
+       - `category_id` (includes 3-step child categories via `descendantAndSelfIds()`)
+       - `vendor_id` (filters by wholesale supplier)
+       - `status` (`all_valid`, `Delivered`, `Shipped`, `Processing`, `Placed`)
+     - Financial KPIs & Ledgers (using Larkon card/chart/table patterns from `docs/admin-dashboard/`):
+       - **Net Booked Revenue**, **Discounts Given**, **Total Wholesale COGS**, **Net Realized Profit & Profit Margin %**, **Wholesale Purchase Outflow**, **Available Inventory Cost Valuation (`stock_count * avg_buy_price`)**, **Projected Retail Stock Value (`stock_count * price`)**, and **Unrealized Stock Profit**.
+       - **ApexCharts Revenue vs. Wholesale Cost vs. Net Profit Chart**.
+       - **Product Profitability Breakdown Table** & **Filtered Order Profit Ledger**.
+
+### 11.3 Phase 11 Verification
+```bash
+php artisan test --filter=CategoryHierarchyAndFinancialMenuTest
+```
+- Verify:
+  1. Admin can create a 3-step category chain (`Level 1 Main` -> `Level 2 Subcategory` -> `Level 3 Child Category`), and attempting to create a 4th level under a Level 3 category is rejected by validation.
+  2. Assigning specific attributes (e.g., `SPF Rating` to `Sunscreens`, `Bottle Size` to `Serums`) causes `/admin/products/create` to dynamically show/filter those attributes when the corresponding category is selected.
+  3. `/admin` displays common operational stats, while `/admin/financial` displays full financial metrics (Revenue, COGS, Net Profit, Margin %, Batch Outflow, Inventory Valuation) and filters accurately by Date Range, Category (including child categories), Vendor, and Order Status.
 

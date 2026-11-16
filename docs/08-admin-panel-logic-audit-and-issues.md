@@ -7,24 +7,29 @@
 
 ---
 
-## 1. Executive Summary of Audit Findings
+## 1. Executive Summary of Audit Findings (Re-Checked)
 
-We audited all **12 Admin Controllers** and **19 Admin Blade Templates**. While the core routing, database models, authentication guard (`auth:admin`), and services exist, **12 concrete issues** were identified across the Admin Panel that either break form submissions in the browser, cause validation failures, or display stale/hardcoded numbers.
+We re-audited all **12 Admin Controllers**, **Services**, and **19 Admin Blade Templates** (plus Storefront price bindings):
+- **Issues `ISS-01` through `ISS-12`**: **RESOLVED & VERIFIED** in the codebase.
+- **New Issue `ISS-13` (Dynamic Currency Audit)**: While `/admin/settings` (`AdminSettingController`) saves `currency_code` and `currency_symbol` into the `settings` table, **`$` and `USD` remain hardcoded** across Admin views and several Storefront Alpine.js views instead of dynamically rendering the configured currency (e.g., **Taka `৳` / `BDT`**, **Dollar `$` / `USD`**, **Pound `£` / `GBP`**, **Euro `€` / `EUR`**).
 
-| ID | Severity | Module | File(s) Affected | Issue Summary |
-| :--- | :--- | :--- | :--- | :--- |
-| **ISS-01** | **Critical** | Orders Detail | `resources/views/admin/orders/show.blade.php` | "Update Status" form has no `status` select or `tracking_number` input; always fails validation. |
-| **ISS-02** | **Critical** | Locations (BD) | `resources/views/admin/locations/index.blade.php` | Invalid HTML `<form>` opened inside one `<td>` and closed in another `<td>`; browsers auto-close the form so "Save" button does nothing. |
-| **ISS-03** | **Critical** | Categories | `resources/views/admin/categories/create.blade.php` | Missing `enctype="multipart/form-data"` on category form; uploading an image fails validation. |
-| **ISS-04** | **Critical** | Admin Auth / Topbar | `resources/views/components/admin/topbar.blade.php` | Topbar "Logout" link is `<a href="{{ route('admin.login') }}">` (`GET`) instead of `POST /admin/logout`; admin cannot log out. |
-| **ISS-05** | **High** | Coupons | `resources/views/admin/coupons/index.blade.php` | Delete/Deactivate button is a dead `<button type="button">` with no `<form>` action, plus potential division-by-zero on usage bar. |
-| **ISS-06** | **High** | Cloud Images | Multiple `resources/views/admin/**/*.blade.php` | Views wrap resolved URLs in `asset('images/' . $img)`, breaking third-party cloud (`s3`/`r2`) `.webp` URLs (`http://.../images/https://...`). |
-| **ISS-07** | **High** | Wholesale Purchases | `AdminPurchaseController.php`<br>`PurchaseBatchService.php`<br>`admin/purchases/create.blade.php` | Batch form cannot select `product_variant_id`; when no variant is passed, variant `stock_count` is not incremented, and live avg price preview is missing. |
-| **ISS-08** | **High** | Orders / Inventory | `AdminOrderController.php`<br>`admin/orders/show.blade.php`<br>`admin/orders/index.blade.php` | Cancelling an order does not restore product/variant/batch stock; discount row is missing on Order Detail & Invoice; `$totalProfit` KPI card is not rendered; negative profit formats as `+$ -X.XX`. |
-| **ISS-09** | **Medium** | Products Create/Edit | `AdminProductController.php`<br>`admin/products/create.blade.php` | No "Remove Variant" button on variant rows; parent `$product->stock_count` is not summed from variants; `destroy()` does not delete variant images from cloud storage. |
-| **ISS-10** | **Medium** | Products List | `resources/views/admin/products/index.blade.php` | Pagination links in footer are hardcoded static HTML instead of `$products->links()`, and header uses `count($products)` instead of `$products->total()`. |
-| **ISS-11** | **Medium** | Inventory | `resources/views/admin/inventory/index.blade.php` | Top 4 KPI cards (`384` units, `9` healthy, `3` low, `0` out) are hardcoded; "Receive New Batch" links to `products.create` instead of `purchases.create`; no UI form for `admin.inventory.adjust`. |
-| **ISS-12** | **Low** | Customers & Sidebar | `resources/views/admin/customers/index.blade.php`<br>`AdminCustomerController.php`<br>`components/admin/sidebar.blade.php` | Top 4 customer KPI cards (`428`, `389`, `$186.40`, `65.2%`) are hardcoded; fallback city is `'Portland, OR'` instead of `'Dhaka, Bangladesh'`; sidebar hardcodes `EVB-9204` and customer `1` links. |
+| ID | Status | Severity | Module | File(s) Affected | Issue Summary |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **ISS-01** | **Resolved** | Critical | Orders Detail | `resources/views/admin/orders/show.blade.php` | Added `status` select & `tracking_number` input to status update form. |
+| **ISS-02** | **Resolved** | Critical | Locations (BD) | `resources/views/admin/locations/index.blade.php` | Fixed invalid `<form>` nesting across `<td>` cells using HTML5 `form="..."` attributes and added search bars. |
+| **ISS-03** | **Resolved** | Critical | Categories | `resources/views/admin/categories/create.blade.php` | Added `enctype="multipart/form-data"` to category form. |
+| **ISS-04** | **Resolved** | Critical | Admin Auth / Topbar | `resources/views/components/admin/topbar.blade.php` | Replaced `GET` login link with `POST /admin/logout` form and dynamic admin name. |
+| **ISS-05** | **Resolved** | High | Coupons | `resources/views/admin/coupons/index.blade.php` | Wired `DELETE` form to `admin.coupons.destroy` and guarded usage bar against division by zero. |
+| **ISS-06** | **Resolved** | High | Cloud Images | Multiple `resources/views/admin/**/*.blade.php` | Replaced `asset('images/' . ...)` with `ImageStorageService::resolveUrl(...)` + `Category::resolvedImage()`. |
+| **ISS-07** | **Resolved** | High | Wholesale Purchases | `AdminPurchaseController.php`<br>`PurchaseBatchService.php`<br>`admin/purchases/create.blade.php` | Synced primary variant `stock_count` when `product_variant_id` is omitted; added variant selector, remove-row button, and live avg-price calculator. |
+| **ISS-08** | **Resolved** | High | Orders / Inventory | `AdminOrderController.php`<br>`admin/orders/show.blade.php`<br>`admin/orders/index.blade.php` | Added stock & batch rollback when cancelling an order; added discount row to Order Summary & Invoice; rendered `$totalProfit` KPI card and proper `+$`/`-$` formatting. |
+| **ISS-09** | **Resolved** | Medium | Products Create/Edit | `AdminProductController.php`<br>`admin/products/create.blade.php` | Added "Remove Variant" button, variant image thumbnail preview, parent `stock_count` sum sync, and variant cloud image cleanup on delete. |
+| **ISS-10** | **Resolved** | Medium | Products List | `resources/views/admin/products/index.blade.php` | Replaced dummy pagination with `$products->links('pagination::bootstrap-5')` and `$products->total()`. |
+| **ISS-11** | **Resolved** | Medium | Inventory | `resources/views/admin/inventory/index.blade.php` | Computed dynamic stock health KPIs, linked "Receive New Batch" to `purchases.create`, and added inline stock adjustment form. |
+| **ISS-12** | **Resolved** | Low | Customers & Sidebar | `resources/views/admin/customers/index.blade.php`<br>`AdminCustomerController.php`<br>`components/admin/sidebar.blade.php` | Computed dynamic customer KPIs, changed default fallback city to `'Dhaka, Bangladesh'`, and removed hardcoded demo order/customer IDs from sidebar. |
+| **ISS-13** | **OPEN** | **High** | **Dynamic Currency (Storefront & Admin)** | `AppServiceProvider.php`<br>`AdminSettingController.php`<br>All Admin & Storefront Price Views | **Hardcoded `$` and `USD`** across Admin views (`dashboard`, `products`, `orders`, `inventory`, `purchases`, `invoices`, `customers`, `coupons`, `settings`) and Storefront views (`product`, `cart`, `checkout`, `wishlist`, `account`) instead of dynamic currency (`৳ BDT`, `$ USD`, `£ GBP`, `€ EUR`). |
+| **ISS-14** | **OPEN** | **High** | **3-Step Category Hierarchy & Category-Scoped Attributes** | `categories` & `category_attribute` tables<br>`AdminCategoryController.php`<br>`AdminAttributeController.php`<br>`admin/products/create.blade.php` | Categories are currently flat (1-level) instead of a **3-step hierarchy (`Main -> Subcategory -> Child Category`)**, and `/admin/products/create` shows all attributes globally instead of **filtering attributes dynamically by the selected Category**. |
+| **ISS-15** | **OPEN** | **High** | **Operational Dashboard (`/admin`) vs. Financial Menu (`/admin/financial`)** | `AdminDashboardController.php`<br>`AdminFinancialController.php`<br>`admin/dashboard/index.blade.php`<br>`admin/financial/index.blade.php` | `/admin` should focus on common operational store stats (`Orders`, `Processing`, `Customers`, `SKUs`, `Low Stock`), while a dedicated **Financial** sidebar menu (`/admin/financial`) displays all financial metrics (`Revenue`, `COGS`, `Net Profit`, `Margin %`, `Batch Outflow`, `Inventory Valuation`) with **Date Range, Category, Vendor, and Order Status filters** using Larkon components from `docs/admin-dashboard/`. |
 
 ---
 
@@ -217,4 +222,68 @@ We audited all **12 Admin Controllers** and **19 Admin Blade Templates**. While 
   1. `admin/customers/index.blade.php` hardcodes `428` All Clients, `389` Active Profiles, `$186.40` Average LTV, and `65.2%` Repeat Rate instead of dynamic values from `AdminCustomerController@index`.
   2. `AdminCustomerController` falls back to `'Portland, OR'` instead of `'Dhaka, Bangladesh'` when a customer has no saved address.
   3. `components/admin/sidebar.blade.php` (line 111) hardcodes `route('admin.orders.show', 'EVB-9204')` and (line 163) `route('admin.customers.show', 1)`, which will 404 if order `EVB-9204` or user `1` does not exist in a fresh database.
+
+---
+
+### ISS-13 (OPEN — High): Hardcoded `$` & `USD` Currency Across Admin & Storefront Views Instead of Dynamic Website Currency (`Taka ৳`, `Dollar $`, `Pound £`, `Euro €`)
+- **Locations**:
+  1. **Global View Sharing (`app/Providers/AppServiceProvider.php`)**:
+     - Currently merges `Setting::where('key', 'site')` into `config('demo.site')`, but does **not** call `View::share('currencySymbol', ...)` or `View::share('currencyCode', ...)`.
+  2. **Admin Settings View (`resources/views/admin/settings/index.blade.php`)**:
+     - Lines 28–35 only have plain text inputs for `currency_code` and `currency_symbol` (no quick preset selector for `Bangladeshi Taka (BDT — ৳)`, `US Dollar (USD — $)`, `British Pound (GBP — £)`, `Euro (EUR — €)`).
+     - Lines 80, 82, 87, 89, 94, 96 hardcode `($ USD)` and `<span class="input-group-text">$</span>`.
+  3. **Admin Panel Views & Controllers Hardcoding `$` / `USD`**:
+     - `app/Http/Controllers/Admin/AdminCouponController.php` (line 25): Hardcodes `'$' . number_format((float) $c->value, 2) . ' OFF'`.
+     - `resources/views/admin/dashboard/index.blade.php` (lines 12, 111, 219, 278)
+     - `resources/views/admin/products/index.blade.php` (lines 100, 102)
+     - `resources/views/admin/products/create.blade.php` (lines 60, 64, 222, 318, 320, 327, 329)
+     - `resources/views/admin/orders/index.blade.php` (lines 20, 189, 192, 197)
+     - `resources/views/admin/orders/show.blade.php` (lines 168–176, 222–252)
+     - `resources/views/admin/inventory/index.blade.php` (lines 157–163)
+     - `resources/views/admin/purchases/index.blade.php` (lines 48–53, 90) & `create.blade.php` (lines 80, 126)
+     - `resources/views/admin/invoices/index.blade.php` (line 49) & `show.blade.php` (lines 71, 73, 87, 92, 97, 100, 101)
+     - `resources/views/admin/customers/index.blade.php` (lines 66, 155) & `show.blade.php` (lines 80, 120)
+     - `resources/views/admin/coupons/create.blade.php` (lines 35, 54)
+  4. **Storefront Views Hardcoding `$` / `USD`**:
+     - `resources/views/frontend/shop/product.blade.php` (lines 93, 356, 357, 362, 368, 417, 449, 484, 509)
+     - `resources/views/frontend/cart/index.blade.php` (lines 107, 117, 179, 208, 243, 259, 268, 273, 278)
+     - `resources/views/frontend/checkout/index.blade.php` (lines 125, 154, 203, 208, 214, 219, 493, 609, 658, 663, 670, 676, and JS `getShippingRatePrice()`)
+     - `resources/views/frontend/pages/wishlist.blade.php` (line 64)
+     - `resources/views/frontend/account/index.blade.php`, `orders.blade.php`, `order-details.blade.php`
+- **Required Fix**:
+  Follow **Phase 10** in [`07-step-by-step-backend-development-plan.md`](./07-step-by-step-backend-development-plan.md#phase-10-dynamic-website-currency-taka--dollar--pound--euro--across-storefront--admin):
+  1. Share `$currencySymbol` (`config('demo.site.currency.symbol', '$')`) and `$currencyCode` (`config('demo.site.currency.code', 'USD')`) globally in `AppServiceProvider::boot()`.
+  2. Add a Currency Preset selector (`BDT / ৳`, `USD / $`, `GBP / £`, `EUR / €`, etc.) to `resources/views/admin/settings/index.blade.php`.
+  3. Replace all hardcoded `$` and `USD` occurrences across the Admin and Storefront views listed above with `{{ $currencySymbol }}` and `{{ $currencyCode }}`.
+
+---
+
+### ISS-14 (OPEN — High): Flat Categories Instead of 3-Step Hierarchy (`Main -> Subcategory -> Child`) & Global Attributes Instead of Category-Scoped Attributes on Product Create
+- **Locations**:
+  - `database/migrations/0001_01_01_000004_create_categories_table.php`
+  - `app/Models/Category.php` & `app/Models/Attribute.php`
+  - `app/Http/Controllers/Admin/AdminCategoryController.php` & `resources/views/admin/categories/create.blade.php`
+  - `app/Http/Controllers/Admin/AdminAttributeController.php` & `resources/views/admin/attributes/index.blade.php`
+  - `resources/views/admin/products/create.blade.php`
+- **What Is Wrong**:
+  1. **No 3-Step Category Hierarchy**: `categories` currently has no `parent_id` or `level` column. The business requirement specifies up to **3 category steps only** (`Step 1: Main Category -> Step 2: Subcategory -> Step 3: Child Category`, where `level` $\in \{1, 2, 3\}$ and a Level 3 category cannot have further child categories).
+  2. **Attributes Not Scoped by Category**: In `admin/products/create.blade.php` (lines 200–210), every active `Attribute` is rendered for every product regardless of category. Instead, Attributes should be linked to Categories (`category_attribute` pivot table, with parent-to-child inheritance) so that when an Admin selects a Category on `/admin/products/create`, **only the Attributes assigned to that Category** dynamically appear in the Variant Builder.
+- **Required Fix**:
+  Implement **Phase 11 (Steps 1–4)** in [`07-step-by-step-backend-development-plan.md`](./07-step-by-step-backend-development-plan.md#phase-11-3-step-category-hierarchy-category-scoped-attributes--dedicated-financial-menu-adminfinancial).
+
+---
+
+### ISS-15 (OPEN — High): Missing Dedicated Financial Menu (`/admin/financial`) with Filters & Operational Dashboard Separation (`/admin`)
+- **Locations**:
+  - `routes/admin.php`
+  - `resources/views/components/admin/sidebar.blade.php`
+  - `app/Http/Controllers/Admin/AdminDashboardController.php` & `resources/views/admin/dashboard/index.blade.php`
+  - New: `app/Http/Controllers/Admin/AdminFinancialController.php` & `resources/views/admin/financial/index.blade.php`
+- **What Is Wrong**:
+  1. `/admin` (`AdminDashboardController@index`) currently mixes booked revenue with general operational counts and has no dedicated **Financial** section.
+  2. There is no **"Financial"** menu item (`/admin/financial`) where the admin can filter financial performance by **Date Period / Custom Date Range**, **Category (including 3-step child categories)**, **Vendor**, and **Order Status** to inspect Gross Revenue, Discounts, Net Revenue, Wholesale COGS (`total_cost`), Net Realized Profit (`total_profit`), Profit Margin %, Wholesale Batch Outflow, Available Inventory Cost Valuation (`stock_count * avg_buy_price`), and Projected Retail Stock Value.
+- **Required Fix**:
+  Implement **Phase 11 (Step 5)** in [`07-step-by-step-backend-development-plan.md`](./07-step-by-step-backend-development-plan.md#phase-11-3-step-category-hierarchy-category-scoped-attributes--dedicated-financial-menu-adminfinancial) using the Larkon Bootstrap 5.3.3 KPI cards, filter bars, ApexCharts, and ledger table patterns documented in [`03-ui-components-and-patterns.md`](./03-ui-components-and-patterns.md) and `docs/admin-dashboard/`.
+
+
 

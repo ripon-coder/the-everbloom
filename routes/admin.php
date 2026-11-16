@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminCouponController;
 use App\Http\Controllers\Admin\AdminCustomerController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminFinancialController;
 use App\Http\Controllers\Admin\AdminInventoryController;
 use App\Http\Controllers\Admin\AdminInvoiceController;
 use App\Http\Controllers\Admin\AdminLocationController;
@@ -33,6 +34,9 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
 
     // Dashboard
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Financial Reports & Ledger
+    Route::get('financial', [AdminFinancialController::class, 'index'])->name('financial.index');
 
     // Products Management
     Route::resource('products', AdminProductController::class);

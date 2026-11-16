@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\View;
 
 class AdminSettingController extends Controller
 {
@@ -83,6 +84,9 @@ class AdminSettingController extends Controller
         );
 
         Cache::forget('site_settings');
+        config(['demo.site' => $updated]);
+        View::share('currencySymbol', $updated['currency']['symbol']);
+        View::share('currencyCode', $updated['currency']['code']);
 
         return redirect()->back()->with('success', 'Store settings updated successfully.');
     }

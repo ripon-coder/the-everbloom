@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Welcome!')
 @section('container_class', 'container-fluid')
@@ -108,7 +108,7 @@
                             </div>
                             <div class="col-6 text-end">
                                 <p class="text-muted mb-0 text-truncate">Booked Revenue</p>
-                                <h3 class="text-dark mt-1 mb-0">${{ number_format($totalRevenue, 2) }}</h3>
+                                <h3 class="text-dark mt-1 mb-0">{{ $currencySymbol }}{{ number_format($totalRevenue, 2) }}</h3>
                             </div>
                         </div>
                     </div>
@@ -216,7 +216,7 @@
                                     </div>
                                 </td>
                                 <td><span class="badge bg-light text-dark fs-11">{{ $topP['category'] }}</span></td>
-                                <td class="fw-medium">${{ number_format($topP['price'], 2) }}</td>
+                                <td class="fw-medium">{{ $currencySymbol }}{{ number_format($topP['price'], 2) }}</td>
                                 <td><i class="bx bxs-star text-warning"></i> {{ $topP['rating'] }}</td>
                             </tr>
                             @endforeach
@@ -275,7 +275,7 @@
                                     <span class="fw-medium text-dark">{{ $order['shipping_address']['first_name'] }} {{ $order['shipping_address']['last_name'] }}</span>
                                     <p class="text-muted mb-0 fs-12">{{ $order['shipping_address']['city'] }}, {{ $order['shipping_address']['state'] }}</p>
                                 </td>
-                                <td class="fw-bold">${{ number_format($order['total'], 2) }}</td>
+                                <td class="fw-bold">{{ $currencySymbol }}{{ number_format($order['total'], 2) }}</td>
                                 <td><span class="badge bg-light text-muted fs-12">{{ $order['payment_method'] }}</span></td>
                                 <td>
                                     @php

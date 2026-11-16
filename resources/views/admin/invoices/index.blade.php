@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Invoices List')
 @section('container_class', 'container-xxl')
@@ -46,7 +46,7 @@
                                     <span class="fs-13">{{ $inv['date'] }}</span>
                                 </td>
                                 <td>
-                                    <span class="fw-bold text-dark fs-14">${{ number_format($inv['amount'], 2) }}</span>
+                                    <span class="fw-bold text-dark fs-14">{{ $currencySymbol }}{{ number_format($inv['amount'], 2) }}</span>
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-muted border fs-12">{{ $inv['payment_method'] }}</span>

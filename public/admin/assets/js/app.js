@@ -728,7 +728,7 @@ class ThemeLayout {
                     const parent = event.target.closest('.collapse.show');
                     document.querySelectorAll('.navbar-nav .collapse.show').forEach(element => {
                          if (element !== event.target && element !== parent) {
-                              const collapseInstance = new bootstrap.Collapse(element);
+                              const collapseInstance = bootstrap.Collapse.getOrCreateInstance(element, { toggle: false });
                               collapseInstance.hide();
                          }
                     });
@@ -900,20 +900,10 @@ class ThemeLayout {
                     var configSize = self.config.menu.size;
                     var size = self.html.getAttribute('data-menu-size', configSize);
 
-                    if (configSize === 'sm-hover-active') {
-                         if (size === 'sm-hover-active') {
-                              self.changeMenuSize('sm-hover', true);
-                         } else {
-                              self.changeMenuSize('sm-hover-active', true);
-                         }
-                    }
-
-                    if (configSize === 'sm-hover') {
-                         if (size === 'sm-hover') {
-                              self.changeMenuSize('sm-hover-active', true);
-                         } else {
-                              self.changeMenuSize('sm-hover', true);
-                         }
+                    if (size === 'sm-hover-active') {
+                         self.changeMenuSize('sm-hover', true);
+                    } else {
+                         self.changeMenuSize('sm-hover-active', true);
                     }
                });
           })
@@ -946,11 +936,17 @@ class ThemeLayout {
      _adjustLayout() {
           var self = this;
 
-          if (window.innerWidth <= 1140) {
+          if (window.innerWidth < 992) {
                self.changeMenuSize('hidden', false);
           } else {
-               self.changeMenuSize(self.config.menu.size);
-               // self.changeLayoutMode(self.config.layout.mode);
+               self.html.classList.remove('sidebar-enable');
+               document.querySelectorAll('.offcanvas-backdrop').forEach(el => el.remove());
+               document.body.style.overflow = '';
+               document.body.style.paddingRight = '';
+               var targetSize = (self.config && self.config.menu && self.config.menu.size && self.config.menu.size !== 'hidden')
+                    ? self.config.menu.size
+                    : 'sm-hover-active';
+               self.changeMenuSize(targetSize);
           }
      }
 

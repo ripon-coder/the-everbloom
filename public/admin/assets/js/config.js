@@ -37,6 +37,9 @@
 
      if (savedConfig !== null) {
           config = JSON.parse(savedConfig);
+          if (config && config.menu && config.menu.size === "hidden") {
+               config.menu.size = "sm-hover-active";
+          }
      }
 
      window.config = config;
@@ -46,10 +49,10 @@
           html.setAttribute("data-topbar-color", config.topbar.color);
           html.setAttribute("data-menu-color", config.menu.color);
 
-          if (window.innerWidth <= 1140) {
+          if (window.innerWidth < 992) {
                html.setAttribute("data-menu-size", "hidden");
           } else {
-               html.setAttribute("data-menu-size", config.menu.size);
+               html.setAttribute("data-menu-size", config.menu.size || "sm-hover-active");
           }
      }
 })();

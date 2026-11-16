@@ -1,4 +1,4 @@
-@extends('layouts.checkout')
+﻿@extends('layouts.checkout')
 
 @section('title', 'Demo Checkout — ' . config('demo.site.name'))
 @section('hide_newsletter', true)
@@ -124,7 +124,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </div>
-                <span class="price text-base text-ink" x-text="'$' + calculatedTotal.toFixed(2)"></span>
+                <span class="price text-base text-ink" x-text="'{{ $currencySymbol }}' + calculatedTotal.toFixed(2)"></span>
             </button>
 
             <!-- Collapsible Summary Content on Mobile -->
@@ -153,7 +153,7 @@
                                     <p class="text-xs text-muted mt-0.5 truncate" x-show="item.size || (item.variant && item.variant.size)" x-text="item.size || (item.variant ? item.variant.size : '')"></p>
                                 </div>
                                 <div class="shrink-0 text-right pl-3">
-                                    <span class="price text-sm font-medium text-ink" x-text="'$' + (item.lineTotal !== undefined ? item.lineTotal : (item.price * item.qty)).toFixed(2)"></span>
+                                    <span class="price text-sm font-medium text-ink" x-text="'{{ $currencySymbol }}' + (item.lineTotal !== undefined ? item.lineTotal : (item.price * item.qty)).toFixed(2)"></span>
                                 </div>
                             </div>
                         </template>
@@ -202,7 +202,7 @@
                 <div class="pt-3 border-t border-[#ECEEE6] space-y-2 text-sm">
                     <div class="flex justify-between text-muted">
                         <span>Subtotal</span>
-                        <span class="price font-medium text-ink" x-text="'$' + ($store.cart.subtotal || 0).toFixed(2)"></span>
+                        <span class="price font-medium text-ink" x-text="'{{ $currencySymbol }}' + ($store.cart.subtotal || 0).toFixed(2)"></span>
                     </div>
 
                     <div x-show="$store.cart.discountAmount > 0" x-cloak class="flex justify-between text-forest font-medium">
@@ -213,12 +213,12 @@
                     <div class="flex justify-between text-muted">
                         <span x-text="'Shipping (' + (selectedShippingRate ? selectedShippingRate.name : 'Standard') + ')'"></span>
                         <span :class="calculatedShippingCost === 0 ? 'text-forest font-medium' : 'price text-ink font-medium'" 
-                              x-text="calculatedShippingCost === 0 ? 'Complimentary' : '$' + calculatedShippingCost.toFixed(2)"></span>
+                              x-text="calculatedShippingCost === 0 ? 'Complimentary' : '{{ $currencySymbol }}' + calculatedShippingCost.toFixed(2)"></span>
                     </div>
 
                     <div class="border-t border-[#ECEEE6] pt-3 flex justify-between text-base font-medium text-ink">
                         <span class="font-serif">Total Due</span>
-                        <span class="price text-base text-ink" x-text="'$' + calculatedTotal.toFixed(2)"></span>
+                        <span class="price text-base text-ink" x-text="'{{ $currencySymbol }}' + calculatedTotal.toFixed(2)"></span>
                     </div>
                 </div>
             </div>
@@ -524,7 +524,7 @@
                                 </div>
                             </div>
                             <span class="price text-sm font-medium text-ink shrink-0 ml-3" x-text="getShippingRatePrice('{{ $rateKey }}')">
-                                ${{ number_format($rate['cost'], 2) }}
+                                {{ $currencySymbol }}{{ number_format($rate['cost'], 2) }}
                             </span>
                         </label>
                         @endforeach
@@ -640,7 +640,7 @@
                                     </div>
 
                                     <div class="shrink-0 text-right pl-3">
-                                        <span class="price text-sm font-medium text-ink" x-text="'$' + (item.lineTotal !== undefined ? item.lineTotal : (item.price * item.qty)).toFixed(2)"></span>
+                                        <span class="price text-sm font-medium text-ink" x-text="'{{ $currencySymbol }}' + (item.lineTotal !== undefined ? item.lineTotal : (item.price * item.qty)).toFixed(2)"></span>
                                     </div>
                                 </div>
                             </template>
@@ -688,7 +688,7 @@
                     <div class="pt-4 border-t border-[#ECEEE6] space-y-2.5 text-sm">
                         <div class="flex justify-between text-muted">
                             <span>Subtotal</span>
-                            <span class="price font-medium text-ink" x-text="'$' + ($store.cart.subtotal || 0).toFixed(2)"></span>
+                            <span class="price font-medium text-ink" x-text="'{{ $currencySymbol }}' + ($store.cart.subtotal || 0).toFixed(2)"></span>
                         </div>
 
                         <!-- Discount (only when applied) -->
@@ -701,13 +701,13 @@
                         <div class="flex justify-between text-muted">
                             <span x-text="'Shipping (' + (selectedShippingRate ? selectedShippingRate.name : 'Standard') + ')'"></span>
                             <span :class="calculatedShippingCost === 0 ? 'text-forest font-medium' : 'price text-ink font-medium'" 
-                                  x-text="calculatedShippingCost === 0 ? 'Complimentary' : '$' + calculatedShippingCost.toFixed(2)"></span>
+                                  x-text="calculatedShippingCost === 0 ? 'Complimentary' : '{{ $currencySymbol }}' + calculatedShippingCost.toFixed(2)"></span>
                         </div>
 
                         <!-- Total -->
                         <div class="border-t border-[#ECEEE6] pt-3.5 flex justify-between text-lg font-medium text-ink">
                             <span class="font-serif">Total Due</span>
-                            <span class="price text-lg" x-text="'$' + calculatedTotal.toFixed(2)"></span>
+                            <span class="price text-lg" x-text="'{{ $currencySymbol }}' + calculatedTotal.toFixed(2)"></span>
                         </div>
                     </div>
 
@@ -876,7 +876,7 @@ function checkoutComponent() {
             if (rate.free_threshold && subtotal >= rate.free_threshold) {
                 return 'Complimentary';
             }
-            return '$' + parseFloat(rate.cost).toFixed(2);
+            return '{{ $currencySymbol }}' + parseFloat(rate.cost).toFixed(2);
         },
 
         applyDiscountCode() {

@@ -46,7 +46,17 @@ class AdminProductController extends Controller
 
     public function create()
     {
-        $categories = Category::orderBy('sort_order')->get()->toArray();
+        $categories = Category::with(['parent.parent', 'assignedAttributes'])
+            ->orderBy('level')
+            ->orderBy('sort_order')
+            ->get()
+            ->map(function (Category $c) {
+                $arr = $c->toArray();
+                $arr['hierarchy_path'] = $c->hierarchy_path;
+                $arr['effective_attribute_ids'] = $c->effectiveAttributeIds();
+                return $arr;
+            })
+            ->all();
         $attributes = Attribute::with('values')->where('is_active', true)->orderBy('sort_order')->get();
 
         return view('admin.products.create', compact('categories', 'attributes'));
@@ -55,7 +65,17 @@ class AdminProductController extends Controller
     public function edit($id)
     {
         $product = Product::with(['categoryRelation', 'productVariants'])->findOrFail($id);
-        $categories = Category::orderBy('sort_order')->get()->toArray();
+        $categories = Category::with(['parent.parent', 'assignedAttributes'])
+            ->orderBy('level')
+            ->orderBy('sort_order')
+            ->get()
+            ->map(function (Category $c) {
+                $arr = $c->toArray();
+                $arr['hierarchy_path'] = $c->hierarchy_path;
+                $arr['effective_attribute_ids'] = $c->effectiveAttributeIds();
+                return $arr;
+            })
+            ->all();
         $attributes = Attribute::with('values')->where('is_active', true)->orderBy('sort_order')->get();
 
         return view('admin.products.create', [

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Customer List')
 @section('container_class', 'container-xxl')
@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between">
-                    <p class="text-muted fw-medium fs-22 mb-0">${{ number_format($averageLtv ?? 0, 2) }}</p>
+                    <p class="text-muted fw-medium fs-22 mb-0">{{ $currencySymbol }}{{ number_format($averageLtv ?? 0, 2) }}</p>
                     <div>
                         <span class="badge text-success bg-success-subtle fs-12">LTV</span>
                     </div>
@@ -152,7 +152,7 @@
                                     <span class="badge bg-light text-dark border fs-12">{{ $c['orders_count'] }} orders</span>
                                 </td>
                                 <td>
-                                    <span class="fw-bold text-dark fs-14">${{ number_format($c['total_spent'], 2) }}</span>
+                                    <span class="fw-bold text-dark fs-14">{{ $currencySymbol }}{{ number_format($c['total_spent'], 2) }}</span>
                                 </td>
                                 <td>
                                     <span class="fs-13 text-muted">{{ $c['join_date'] }}</span>

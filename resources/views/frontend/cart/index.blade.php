@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Shopping Bag — The Everbloom')
 @section('meta_description', 'Review your selected botanical skincare formulations in your shopping bag.')
@@ -104,7 +104,7 @@
                                         <div class="flex items-start justify-between gap-2">
                                             <span class="text-xs uppercase tracking-[0.2em] text-muted block truncate" x-text="item.category"></span>
                                             <!-- Line Total at top-right on narrow mobile so stepper + Remove fit cleanly at 320px -->
-                                            <span class="price text-sm font-medium text-ink text-right shrink-0" x-text="'$' + (item.price * item.qty).toFixed(2)"></span>
+                                            <span class="price text-sm font-medium text-ink text-right shrink-0" x-text="'{{ $currencySymbol }}' + (item.price * item.qty).toFixed(2)"></span>
                                         </div>
                                         <a 
                                             :href="'/shop/product/' + item.slug" 
@@ -114,7 +114,7 @@
                                         <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted">
                                             <span x-show="item.size" x-text="item.size"></span>
                                             <span x-show="item.size" aria-hidden="true">·</span>
-                                            <span class="price" x-text="'$' + parseFloat(item.price).toFixed(2) + ' each'"></span>
+                                            <span class="price" x-text="'{{ $currencySymbol }}' + parseFloat(item.price).toFixed(2) + ' each'"></span>
                                         </div>
                                     </div>
 
@@ -176,7 +176,7 @@
                                         x-text="item.name"
                                     ></a>
                                     <p class="text-xs text-muted" x-show="item.size" x-text="item.size"></p>
-                                    <p class="text-xs text-muted price" x-text="'$' + parseFloat(item.price).toFixed(2) + ' each'"></p>
+                                    <p class="text-xs text-muted price" x-text="'{{ $currencySymbol }}' + parseFloat(item.price).toFixed(2) + ' each'"></p>
                                 </div>
 
                                 <div class="inline-flex items-center border border-[#D5DBCF] bg-ivory shrink-0">
@@ -205,7 +205,7 @@
                                 </div>
 
                                 <div class="text-right sm:w-28 shrink-0 flex sm:flex-col items-center sm:items-end justify-between sm:justify-center">
-                                    <span class="price text-sm font-medium text-ink block" x-text="'$' + (item.price * item.qty).toFixed(2)"></span>
+                                    <span class="price text-sm font-medium text-ink block" x-text="'{{ $currencySymbol }}' + (item.price * item.qty).toFixed(2)"></span>
                                     <button 
                                         type="button" 
                                         @click="$store.cart.remove(item.key)" 
@@ -240,7 +240,7 @@
                         <template x-if="$store.cart.subtotal < {{ $freeShippingThreshold }}">
                             <div class="flex flex-col gap-2">
                                 <p class="text-xs text-muted">
-                                    Add <span class="price font-semibold text-ink" x-text="'$' + ({{ $freeShippingThreshold }} - $store.cart.subtotal).toFixed(2)"></span> more for free standard shipping
+                                    Add <span class="price font-semibold text-ink" x-text="'{{ $currencySymbol }}' + ({{ $freeShippingThreshold }} - $store.cart.subtotal).toFixed(2)"></span> more for free standard shipping
                                 </p>
                                 <div class="w-full bg-beige/80 h-1 rounded-full overflow-hidden">
                                     <div 
@@ -256,7 +256,7 @@
                     <div class="space-y-3 text-sm">
                         <div class="flex justify-between text-muted">
                             <span>Subtotal</span>
-                            <span class="price font-medium text-ink" x-text="'$' + $store.cart.subtotal.toFixed(2)"></span>
+                            <span class="price font-medium text-ink" x-text="'{{ $currencySymbol }}' + $store.cart.subtotal.toFixed(2)"></span>
                         </div>
 
                         <!-- Show active discount if one was applied on Checkout -->
@@ -270,12 +270,12 @@
 
                         <div class="flex justify-between text-muted">
                             <span>Standard Shipping</span>
-                            <span :class="$store.cart.shippingCost === 0 ? 'text-forest font-medium' : 'price text-ink font-medium'" x-text="$store.cart.shippingCost === 0 ? 'Complimentary' : '${{ number_format($standardShippingCost, 2) }}'"></span>
+                            <span :class="$store.cart.shippingCost === 0 ? 'text-forest font-medium' : 'price text-ink font-medium'" x-text="$store.cart.shippingCost === 0 ? 'Complimentary' : '{{ $currencySymbol }}{{ number_format($standardShippingCost, 2) }}'"></span>
                         </div>
 
                         <div class="border-t border-[#ECEEE6] pt-3 flex justify-between text-base font-medium text-ink">
                             <span class="font-serif text-lg">Estimated Total</span>
-                            <span class="price text-lg" x-text="'$' + $store.cart.total.toFixed(2)"></span>
+                            <span class="price text-lg" x-text="'{{ $currencySymbol }}' + $store.cart.total.toFixed(2)"></span>
                         </div>
                     </div>
 

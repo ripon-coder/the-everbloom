@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Record Wholesale Purchase Batch')
 
@@ -123,7 +123,7 @@ function updateRowPreview(el) {
     const totalQty = avail + qty;
     const newAvg = totalQty > 0 ? ((avail * curAvg) + (qty * unitBuy)) / totalQty : unitBuy;
     const unitProfit = sellPrice - newAvg;
-    row.querySelector('.preview-text').textContent = `Avg: $${newAvg.toFixed(2)} | Profit: ${unitProfit >= 0 ? '+$' : '-$'}${Math.abs(unitProfit).toFixed(2)}`;
+    row.querySelector('.preview-text').textContent = `Avg: {{ $currencySymbol }}${newAvg.toFixed(2)} | Profit: ${unitProfit >= 0 ? '+' . $currencySymbol : '-' . $currencySymbol}${Math.abs(unitProfit).toFixed(2)}`;
 }
 function addBatchRow() {
     const container = document.getElementById('batch-rows');

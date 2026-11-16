@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Order #' . $order['id'])
 @section('container_class', 'container-xxl')
@@ -165,15 +165,15 @@
                                 <td>
                                     <span class="badge bg-light text-dark border">{{ $item['variant'] ?? '30ml / 1.0 fl oz' }}</span>
                                 </td>
-                                <td>${{ number_format($item['unit_buy_price'] ?? 0, 2) }}</td>
-                                <td>${{ number_format($item['price'], 2) }}</td>
+                                <td>{{ $currencySymbol }}{{ number_format($item['unit_buy_price'] ?? 0, 2) }}</td>
+                                <td>{{ $currencySymbol }}{{ number_format($item['price'], 2) }}</td>
                                 <td>{{ $item['qty'] }}</td>
                                 <td>
                                     @php $lineProfit = (float) ($item['line_profit'] ?? 0); @endphp
-                                    <span class="badge {{ $lineProfit >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">{{ ($lineProfit >= 0 ? '+$' : '-$') . number_format(abs($lineProfit), 2) }}</span>
+                                    <span class="badge {{ $lineProfit >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">{{ ($lineProfit >= 0 ? '+' . $currencySymbol : '-' . $currencySymbol) . number_format(abs($lineProfit), 2) }}</span>
                                 </td>
                                 <td class="text-end fw-bold text-dark">
-                                    ${{ number_format($item['price'] * $item['qty'], 2) }}
+                                    {{ $currencySymbol }}{{ number_format($item['price'] * $item['qty'], 2) }}
                                 </td>
                             </tr>
                             @endforeach
@@ -219,37 +219,37 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Subtotal</span>
-                    <span class="fw-medium">${{ number_format($order['subtotal'], 2) }}</span>
+                    <span class="fw-medium">{{ $currencySymbol }}{{ number_format($order['subtotal'], 2) }}</span>
                 </div>
                 @if(($order['discount_amount'] ?? 0) > 0)
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Discount ({{ $order['discount_code'] ?? 'Promo' }})</span>
-                    <span class="text-danger fw-medium">-${{ number_format($order['discount_amount'], 2) }}</span>
+                    <span class="text-danger fw-medium">-{{ $currencySymbol }}{{ number_format($order['discount_amount'], 2) }}</span>
                 </div>
                 @endif
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Botanical Shipping</span>
                     <span class="text-success fw-medium">
-                        {{ $order['shipping'] > 0 ? ('$' . number_format($order['shipping'], 2)) : 'Complimentary' }}
+                        {{ $order['shipping'] > 0 ? ($currencySymbol . number_format($order['shipping'], 2)) : 'Complimentary' }}
                     </span>
                 </div>
                 <div class="d-flex justify-content-between mb-3">
                     <span class="text-muted">Estimated Tax</span>
-                    <span class="fw-medium">${{ number_format($order['tax'], 2) }}</span>
+                    <span class="fw-medium">{{ $currencySymbol }}{{ number_format($order['tax'], 2) }}</span>
                 </div>
                 <hr>
                 <div class="d-flex justify-content-between mb-2">
                     <span class="fw-bold text-dark fs-16">Total Booked</span>
-                    <span class="fw-bold text-primary fs-18">${{ number_format($order['total'], 2) }}</span>
+                    <span class="fw-bold text-primary fs-18">{{ $currencySymbol }}{{ number_format($order['total'], 2) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-1 fs-13">
                     <span class="text-muted">Total Wholesale Cost</span>
-                    <span class="text-dark">${{ number_format($order['total_cost'] ?? 0, 2) }}</span>
+                    <span class="text-dark">{{ $currencySymbol }}{{ number_format($order['total_cost'] ?? 0, 2) }}</span>
                 </div>
                 <div class="d-flex justify-content-between fs-13">
                     <span class="text-muted">Net Order Profit</span>
                     @php $netProfit = (float) ($order['total_profit'] ?? 0); @endphp
-                    <span class="fw-bold {{ $netProfit >= 0 ? 'text-success' : 'text-danger' }}">{{ ($netProfit >= 0 ? '+$' : '-$') . number_format(abs($netProfit), 2) }}</span>
+                    <span class="fw-bold {{ $netProfit >= 0 ? 'text-success' : 'text-danger' }}">{{ ($netProfit >= 0 ? '+' . $currencySymbol : '-' . $currencySymbol) . number_format(abs($netProfit), 2) }}</span>
                 </div>
             </div>
         </div>

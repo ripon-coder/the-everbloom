@@ -1,4 +1,4 @@
-@extends('layouts.account')
+﻿@extends('layouts.account')
 
 @section('title', 'Order #' . $order['id'] . ' — ' . config('demo.site.name'))
 
@@ -217,11 +217,11 @@
 
                         <div class="text-right shrink-0">
                             <p class="price text-sm font-medium text-ink">
-                                ${{ number_format($item['price'] * $item['qty'], 2) }}
+                                {{ $currencySymbol }}{{ number_format($item['price'] * $item['qty'], 2) }}
                             </p>
                             @if($item['qty'] > 1)
                                 <p class="price text-xs text-muted mt-0.5">
-                                    ${{ number_format($item['price'], 2) }} each
+                                    {{ $currencySymbol }}{{ number_format($item['price'], 2) }} each
                                 </p>
                             @endif
                         </div>
@@ -259,7 +259,7 @@
                 <dl class="space-y-2.5 text-sm">
                     <div class="flex justify-between text-muted">
                         <dt>Subtotal</dt>
-                        <dd class="price text-ink font-medium">${{ number_format($order['subtotal'], 2) }}</dd>
+                        <dd class="price text-ink font-medium">{{ $currencySymbol }}{{ number_format($order['subtotal'], 2) }}</dd>
                     </div>
 
                     <div class="flex justify-between text-muted">
@@ -268,7 +268,7 @@
                             @if(($order['shipping'] ?? 0) == 0)
                                 Complimentary
                             @else
-                                <span class="price text-ink">${{ number_format($order['shipping'], 2) }}</span>
+                                <span class="price text-ink">{{ $currencySymbol }}{{ number_format($order['shipping'], 2) }}</span>
                             @endif
                         </dd>
                     </div>
@@ -276,13 +276,13 @@
                     @if(!empty($order['tax']) && $order['tax'] > 0)
                         <div class="flex justify-between text-muted">
                             <dt>Estimated Tax</dt>
-                            <dd class="price text-ink font-medium">${{ number_format($order['tax'], 2) }}</dd>
+                            <dd class="price text-ink font-medium">{{ $currencySymbol }}{{ number_format($order['tax'], 2) }}</dd>
                         </div>
                     @endif
 
                     <div class="flex justify-between items-baseline pt-3 border-t border-[#ECEEE6] text-ink text-base font-medium">
                         <dt class="font-serif text-lg">Total</dt>
-                        <dd class="price text-lg">${{ number_format($order['total'], 2) }}</dd>
+                        <dd class="price text-lg">{{ $currencySymbol }}{{ number_format($order['total'], 2) }}</dd>
                     </div>
                 </dl>
             </div>
