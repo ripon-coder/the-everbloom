@@ -208,7 +208,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="avatar-sm bg-light rounded d-flex align-items-center justify-content-center overflow-hidden">
-                                            <img src="{{ asset('images/' . ($topP['images'][0] ?? 'products/botanical-radiance-serum-01.jpg')) }}" alt="" class="avatar-sm object-fit-cover">
+                                            <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($topP['images'][0] ?? 'products/botanical-radiance-serum-01.jpg') }}" alt="" class="avatar-sm object-fit-cover">
                                         </div>
                                         <div>
                                             <a href="{{ route('admin.products.edit', $topP['id']) }}" class="text-dark fw-medium fs-13 text-truncate d-inline-block" style="max-width: 130px;">{{ $topP['name'] }}</a>
@@ -263,7 +263,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="avatar-sm bg-light rounded d-flex align-items-center justify-content-center overflow-hidden">
-                                            <img src="{{ asset('images/' . ($order['items'][0]['image'] ?? 'products/botanical-radiance-serum-01.jpg')) }}" alt="" class="avatar-sm object-fit-cover">
+                                            <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($order['items'][0]['image'] ?? 'products/botanical-radiance-serum-01.jpg') }}" alt="" class="avatar-sm object-fit-cover">
                                         </div>
                                         <span class="fs-13 text-dark fw-medium">{{ $order['items'][0]['name'] ?? 'Botanical Treatment' }}</span>
                                         @if(($order['items_count'] ?? 1) > 1)

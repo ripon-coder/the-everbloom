@@ -11,7 +11,7 @@
         <div class="card text-center overflow-hidden">
             <div class="card-body">
                 <div class="rounded bg-light-subtle p-3 mb-3 d-inline-block">
-                    <img src="{{ asset('images/' . ($cat['image'] ?? 'categories/face-care.jpg')) }}" alt="{{ $cat['name'] }}" class="avatar-xl rounded object-fit-cover shadow-sm">
+                    <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($cat['image'] ?? 'categories/face-care.jpg') }}" alt="{{ $cat['name'] }}" class="avatar-xl rounded object-fit-cover shadow-sm">
                 </div>
                 <h4 class="mb-1 fw-bold fs-16">{{ $cat['name'] }}</h4>
                 <p class="text-muted fs-12 mb-2">{{ $cat['tagline'] ?? 'Botanical Collection' }}</p>
@@ -66,7 +66,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="avatar-md bg-light rounded d-flex align-items-center justify-content-center overflow-hidden border">
-                                            <img src="{{ asset('images/' . ($category['image'] ?? 'categories/face-care.jpg')) }}" alt="{{ $category['name'] }}" class="avatar-md object-fit-cover">
+                                            <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($category['image'] ?? 'categories/face-care.jpg') }}" alt="{{ $category['name'] }}" class="avatar-md object-fit-cover">
                                         </div>
                                         <div>
                                             <a href="{{ route('admin.categories.edit', $category['slug']) }}" class="text-dark fw-bold fs-14">

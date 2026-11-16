@@ -373,7 +373,12 @@ class AdminProductController extends Controller
             }
 
             $product->productVariants()->whereNotIn('id', $keptIds)->delete();
-            $product->update(['sizes' => $syncedTitles]);
+            $totalVariantStock = (int) $product->productVariants()->sum('stock_count');
+            $product->update([
+                'sizes' => $syncedTitles,
+                'stock_count' => $totalVariantStock,
+                'stock_status' => $totalVariantStock > $product->min_threshold ? 'in_stock' : ($totalVariantStock > 0 ? 'low_stock' : 'out_of_stock'),
+            ]);
 
             return;
         }
@@ -399,10 +404,16 @@ class AdminProductController extends Controller
 
     public function destroy($id, ImageStorageService $imageStorage)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::with('productVariants')->findOrFail($id);
 
         foreach ($product->images ?? [] as $path) {
             $imageStorage->delete($path, $product->image_source);
+        }
+
+        foreach ($product->productVariants as $variant) {
+            if (!empty($variant->image)) {
+                $imageStorage->delete($variant->image, $variant->image_source);
+            }
         }
 
         $product->unsearchable();

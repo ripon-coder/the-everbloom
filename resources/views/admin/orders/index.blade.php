@@ -22,8 +22,9 @@
                     </div>
                 </div>
             </div>
-            <div class="card-footer py-2 bg-light bg-opacity-50">
+            <div class="card-footer py-2 bg-light bg-opacity-50 d-flex justify-content-between">
                 <a href="{{ route('admin.orders.index') }}" class="text-reset fw-semibold fs-12">View All &rarr;</a>
+                <span class="text-success fw-semibold fs-12">Profit: {{ (($totalProfit ?? 0) >= 0 ? '+$' : '-$') . number_format(abs($totalProfit ?? 0), 2) }}</span>
             </div>
         </div>
     </div>
@@ -167,7 +168,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="avatar-sm bg-light rounded d-flex align-items-center justify-content-center overflow-hidden border">
-                                            <img src="{{ asset('images/' . ($order['items'][0]['image'] ?? 'products/botanical-radiance-serum-01.jpg')) }}" alt="" class="avatar-sm object-fit-cover">
+                                            <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($order['items'][0]['image'] ?? 'products/botanical-radiance-serum-01.jpg') }}" alt="" class="avatar-sm object-fit-cover">
                                         </div>
                                         <div>
                                             <span class="fs-13 fw-medium text-dark">{{ $order['items'][0]['name'] ?? 'Botanical Treatment' }}</span>
@@ -184,8 +185,9 @@
                                     ${{ number_format($order['total_cost'] ?? 0, 2) }}
                                 </td>
                                 <td>
-                                    <span class="badge {{ ($order['total_profit'] ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">
-                                        +${{ number_format($order['total_profit'] ?? 0, 2) }}
+                                    @php $orderProfit = (float) ($order['total_profit'] ?? 0); @endphp
+                                    <span class="badge {{ $orderProfit >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">
+                                        {{ ($orderProfit >= 0 ? '+$' : '-$') . number_format(abs($orderProfit), 2) }}
                                     </span>
                                 </td>
                                 <td>

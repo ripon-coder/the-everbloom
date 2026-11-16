@@ -17,7 +17,7 @@ class AdminCustomerController extends Controller
             ->get()
             ->map(function (User $user) {
                 $defaultAddr = $user->addresses->firstWhere('is_default', true) ?? $user->addresses->first();
-                $city = $defaultAddr ? trim("{$defaultAddr->city}, {$defaultAddr->state}", ', ') : 'Portland, OR';
+                $city = $defaultAddr ? trim("{$defaultAddr->city}, {$defaultAddr->state}", ', ') : 'Dhaka, Bangladesh';
 
                 return [
                     'id' => $user->id,
@@ -34,7 +34,19 @@ class AdminCustomerController extends Controller
             })
             ->all();
 
-        return view('admin.customers.index', compact('customers'));
+        $allClientsCount = count($customers);
+        $activeProfilesCount = collect($customers)->where('status', 'Active')->count();
+        $averageLtv = $allClientsCount > 0 ? round(collect($customers)->avg('total_spent'), 2) : 0;
+        $repeatCount = collect($customers)->where('orders_count', '>', 1)->count();
+        $repeatRate = $allClientsCount > 0 ? round(($repeatCount / $allClientsCount) * 100, 1) : 0;
+
+        return view('admin.customers.index', compact(
+            'customers',
+            'allClientsCount',
+            'activeProfilesCount',
+            'averageLtv',
+            'repeatRate'
+        ));
     }
 
     public function show($id)
@@ -56,7 +68,7 @@ class AdminCustomerController extends Controller
             'avatar' => $user->avatar ?? 'admin/assets/images/users/avatar-2.jpg',
             'orders_count' => (int) $user->orders_count,
             'total_spent' => (float) ($user->total_spent ?? 0),
-            'city' => $defaultAddr ? trim("{$defaultAddr->city}, {$defaultAddr->state}", ', ') : 'Portland, OR',
+            'city' => $defaultAddr ? trim("{$defaultAddr->city}, {$defaultAddr->state}", ', ') : 'Dhaka, Bangladesh',
             'status' => $user->status,
             'join_date' => $user->join_date,
         ];

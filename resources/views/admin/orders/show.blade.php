@@ -29,12 +29,18 @@
                         <p class="text-muted mb-0 fs-13">Placed on {{ $order['date'] }} via {{ $order['delivery_method'] }}</p>
                     </div>
 
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
                         <a href="{{ route('admin.invoices.show', $order['id']) }}" class="btn btn-sm btn-outline-secondary">
                             <iconify-icon icon="solar:printer-bold" class="me-1"></iconify-icon> Print Invoice
                         </a>
-                        <form action="{{ route('admin.orders.updateStatus', $order['id']) }}" method="POST">
+                        <form action="{{ route('admin.orders.updateStatus', $order['id']) }}" method="POST" class="d-flex flex-wrap align-items-center gap-2">
                             @csrf
+                            <select name="status" class="form-select form-select-sm" style="width:auto;" aria-label="Order status">
+                                @foreach(['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] as $st)
+                                    <option value="{{ $st }}" {{ ($order['status'] ?? '') === $st ? 'selected' : '' }}>{{ $st }}</option>
+                                @endforeach
+                            </select>
+                            <input type="text" name="tracking_number" value="{{ $order['tracking_number'] ?? '' }}" class="form-control form-control-sm" style="width:160px;" placeholder="Tracking #">
                             <button type="submit" class="btn btn-sm btn-primary">
                                 <iconify-icon icon="solar:check-read-bold" class="me-1"></iconify-icon> Update Status
                             </button>
@@ -148,7 +154,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="avatar-md bg-light rounded d-flex align-items-center justify-content-center overflow-hidden border">
-                                            <img src="{{ asset('images/' . ($item['image'] ?? 'products/botanical-radiance-serum-01.jpg')) }}" alt="" class="avatar-md object-fit-cover">
+                                            <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($item['image'] ?? 'products/botanical-radiance-serum-01.jpg') }}" alt="" class="avatar-md object-fit-cover">
                                         </div>
                                         <div>
                                             <h5 class="fs-14 fw-semibold text-dark mb-1">{{ $item['name'] }}</h5>
@@ -163,7 +169,8 @@
                                 <td>${{ number_format($item['price'], 2) }}</td>
                                 <td>{{ $item['qty'] }}</td>
                                 <td>
-                                    <span class="badge bg-success-subtle text-success">+${{ number_format($item['line_profit'] ?? 0, 2) }}</span>
+                                    @php $lineProfit = (float) ($item['line_profit'] ?? 0); @endphp
+                                    <span class="badge {{ $lineProfit >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">{{ ($lineProfit >= 0 ? '+$' : '-$') . number_format(abs($lineProfit), 2) }}</span>
                                 </td>
                                 <td class="text-end fw-bold text-dark">
                                     ${{ number_format($item['price'] * $item['qty'], 2) }}
@@ -214,6 +221,12 @@
                     <span class="text-muted">Subtotal</span>
                     <span class="fw-medium">${{ number_format($order['subtotal'], 2) }}</span>
                 </div>
+                @if(($order['discount_amount'] ?? 0) > 0)
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Discount ({{ $order['discount_code'] ?? 'Promo' }})</span>
+                    <span class="text-danger fw-medium">-${{ number_format($order['discount_amount'], 2) }}</span>
+                </div>
+                @endif
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Botanical Shipping</span>
                     <span class="text-success fw-medium">
@@ -235,7 +248,8 @@
                 </div>
                 <div class="d-flex justify-content-between fs-13">
                     <span class="text-muted">Net Order Profit</span>
-                    <span class="fw-bold text-success">+${{ number_format($order['total_profit'] ?? 0, 2) }}</span>
+                    @php $netProfit = (float) ($order['total_profit'] ?? 0); @endphp
+                    <span class="fw-bold {{ $netProfit >= 0 ? 'text-success' : 'text-danger' }}">{{ ($netProfit >= 0 ? '+$' : '-$') . number_format(abs($netProfit), 2) }}</span>
                 </div>
             </div>
         </div>

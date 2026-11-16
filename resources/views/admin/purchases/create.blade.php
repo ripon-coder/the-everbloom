@@ -51,26 +51,38 @@
         </div>
         <div class="card-body">
             <div id="batch-rows">
-                <div class="row g-3 align-items-end batch-row mb-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Product *</label>
-                        <select name="items[0][product_id]" class="form-select" required>
+                <div class="row g-2 align-items-end batch-row mb-3 border-bottom pb-3">
+                    <div class="col-md-3">
+                        <label class="form-label fs-12">Product *</label>
+                        <select name="items[0][product_id]" class="form-select form-select-sm product-select" onchange="updateRowPreview(this)" required>
                             @foreach($products as $p)
-                                <option value="{{ $p->id }}">{{ $p->name }} (Avail: {{ $p->stock_count }}, Avg Buy: ${{ number_format((float)$p->avg_buy_price, 2) }})</option>
+                                <option value="{{ $p->id }}" data-stock="{{ $p->stock_count }}" data-avg="{{ $p->avg_buy_price }}" data-price="{{ $p->price }}" data-variants='@json($p->productVariants->map(fn($v) => ["id" => $v->id, "label" => $v->title ?: $v->size]))'>
+                                    {{ $p->name }} (Avail: {{ $p->stock_count }})
+                                </option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Batch Lot</label>
-                        <input type="text" name="items[0][batch_lot]" class="form-control" placeholder="LOT-2026-NEW">
+                    <div class="col-md-2">
+                        <label class="form-label fs-12">Variant (Optional)</label>
+                        <select name="items[0][product_variant_id]" class="form-select form-select-sm variant-select">
+                            <option value="">All / Primary</option>
+                        </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Buy Qty *</label>
-                        <input type="number" name="items[0][qty]" class="form-control" min="1" value="10" required>
+                        <label class="form-label fs-12">Batch Lot</label>
+                        <input type="text" name="items[0][batch_lot]" class="form-control form-control-sm" placeholder="LOT-2026-NEW">
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Unit Buy Price ($) *</label>
-                        <input type="number" step="0.01" min="0" name="items[0][unit_buy_price]" class="form-control" value="25.00" required>
+                    <div class="col-md-1">
+                        <label class="form-label fs-12">Qty *</label>
+                        <input type="number" name="items[0][qty]" class="form-control form-control-sm qty-input" min="1" value="10" oninput="updateRowPreview(this)" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fs-12">Unit Buy ($) *</label>
+                        <input type="number" step="0.01" min="0" name="items[0][unit_buy_price]" class="form-control form-control-sm price-input" value="25.00" oninput="updateRowPreview(this)" required>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-center justify-content-between gap-2">
+                        <small class="text-muted fs-11 preview-text">New Avg: —</small>
+                        <button type="button" class="btn btn-sm btn-soft-danger" onclick="removeBatchRow(this)" title="Remove Row">&times;</button>
                     </div>
                 </div>
             </div>
@@ -83,6 +95,36 @@
 
 <script>
 let batchIdx = 1;
+function populateVariants(row) {
+    const prodSelect = row.querySelector('.product-select');
+    const varSelect = row.querySelector('.variant-select');
+    const opt = prodSelect.options[prodSelect.selectedIndex];
+    const variants = JSON.parse(opt.dataset.variants || '[]');
+    varSelect.innerHTML = '<option value="">All / Primary</option>';
+    variants.forEach(v => {
+        const o = document.createElement('option');
+        o.value = v.id;
+        o.textContent = v.label;
+        varSelect.appendChild(o);
+    });
+}
+function updateRowPreview(el) {
+    const row = el.closest('.batch-row');
+    if (el.classList.contains('product-select')) {
+        populateVariants(row);
+    }
+    const prodSelect = row.querySelector('.product-select');
+    const opt = prodSelect.options[prodSelect.selectedIndex];
+    const avail = parseInt(opt.dataset.stock || '0', 10);
+    const curAvg = parseFloat(opt.dataset.avg || '0');
+    const sellPrice = parseFloat(opt.dataset.price || '0');
+    const qty = parseInt(row.querySelector('.qty-input').value || '0', 10);
+    const unitBuy = parseFloat(row.querySelector('.price-input').value || '0');
+    const totalQty = avail + qty;
+    const newAvg = totalQty > 0 ? ((avail * curAvg) + (qty * unitBuy)) / totalQty : unitBuy;
+    const unitProfit = sellPrice - newAvg;
+    row.querySelector('.preview-text').textContent = `Avg: $${newAvg.toFixed(2)} | Profit: ${unitProfit >= 0 ? '+$' : '-$'}${Math.abs(unitProfit).toFixed(2)}`;
+}
 function addBatchRow() {
     const container = document.getElementById('batch-rows');
     const first = container.querySelector('.batch-row');
@@ -92,8 +134,18 @@ function addBatchRow() {
         if (el.tagName === 'INPUT' && el.type === 'text') el.value = '';
     });
     container.appendChild(clone);
+    updateRowPreview(clone.querySelector('.product-select'));
     batchIdx++;
 }
+function removeBatchRow(btn) {
+    const rows = document.querySelectorAll('#batch-rows .batch-row');
+    if (rows.length <= 1) return;
+    btn.closest('.batch-row').remove();
+}
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#batch-rows .batch-row').forEach(row => {
+        updateRowPreview(row.querySelector('.product-select'));
+    });
+});
 </script>
 @endsection
-

@@ -107,9 +107,6 @@
                         <li class="sub-nav-item">
                             <a class="sub-nav-link {{ request()->routeIs('admin.orders.index') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}">Order List</a>
                         </li>
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link {{ request()->routeIs('admin.orders.show') ? 'active' : '' }}" href="{{ route('admin.orders.show', 'EVB-9204') }}">Order Details</a>
-                        </li>
                     </ul>
                 </div>
             </li>
@@ -158,9 +155,6 @@
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
                             <a class="sub-nav-link {{ request()->routeIs('admin.customers.index') ? 'active' : '' }}" href="{{ route('admin.customers.index') }}">Customer List</a>
-                        </li>
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link {{ request()->routeIs('admin.customers.show') ? 'active' : '' }}" href="{{ route('admin.customers.show', 1) }}">Customer Detail</a>
                         </li>
                     </ul>
                 </div>

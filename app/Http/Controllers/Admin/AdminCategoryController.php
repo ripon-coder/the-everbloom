@@ -18,6 +18,7 @@ class AdminCategoryController extends Controller
             ->get()
             ->map(function (Category $cat) {
                 $arr = $cat->toArray();
+                $arr['image'] = $cat->resolvedImage();
                 $arr['count'] = $cat->products_count;
                 return $arr;
             })
@@ -37,8 +38,11 @@ class AdminCategoryController extends Controller
             ->orWhere('id', is_numeric($slug) ? (int) $slug : 0)
             ->firstOrFail();
 
+        $arr = $category->toArray();
+        $arr['image'] = $category->resolvedImage();
+
         return view('admin.categories.create', [
-            'category' => $category->toArray(),
+            'category' => $arr,
             'isEdit' => true,
         ]);
     }

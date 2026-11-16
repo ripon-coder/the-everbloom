@@ -18,7 +18,7 @@
 @section('content')
 <div class="row justify-content-center">
     <div class="col-lg-8">
-        <form action="{{ $isEdit ? route('admin.categories.update', $category['slug']) : route('admin.categories.store') }}" method="POST">
+        <form action="{{ $isEdit ? route('admin.categories.update', $category['slug']) : route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @if($isEdit)
                 @method('PUT')
@@ -65,7 +65,7 @@
                             <label class="form-label">Category Hero Artwork</label>
                             <div class="d-flex align-items-center gap-3">
                                 <div class="avatar-xl rounded bg-light border overflow-hidden">
-                                    <img src="{{ asset('images/' . ($category['image'] ?? 'categories/face-care.jpg')) }}" alt="" class="avatar-xl object-fit-cover">
+                                    <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($category['image'] ?? 'categories/face-care.jpg') }}" alt="" class="avatar-xl object-fit-cover">
                                 </div>
                                 <div class="flex-grow-1">
                                     <input type="file" name="image" class="form-control mb-1">

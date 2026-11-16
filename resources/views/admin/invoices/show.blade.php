@@ -86,6 +86,12 @@
                                     <td class="text-muted">Subtotal:</td>
                                     <td class="text-end fw-medium">${{ number_format($order['subtotal'], 2) }}</td>
                                 </tr>
+                                @if(($order['discount_amount'] ?? 0) > 0)
+                                <tr>
+                                    <td class="text-muted">Discount ({{ $order['discount_code'] ?? 'Promo' }}):</td>
+                                    <td class="text-end text-danger fw-medium">-${{ number_format($order['discount_amount'], 2) }}</td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td class="text-muted">Botanical Ground Shipping:</td>
                                     <td class="text-end text-success fw-medium">

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ImageStorageService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -45,5 +46,19 @@ class Category extends Model
         }
 
         return (int) $this->products()->where('is_active', true)->count();
+    }
+
+    public function resolvedImage(): string
+    {
+        if (empty($this->image)) {
+            return '';
+        }
+
+        $source = $this->image_source ?: 'local';
+        if ($source === 'local') {
+            return $this->image;
+        }
+
+        return app(ImageStorageService::class)->resolveUrl($this->image, $source);
     }
 }

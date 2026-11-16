@@ -130,6 +130,13 @@ class PurchaseBatchService
                         'avg_buy_price' => $newAvgBuyPrice,
                         'last_buy_price' => $unitBuyPrice,
                     ]);
+                    $primaryVariant = $product->productVariants()->orderBy('sort_order')->first();
+                    if ($primaryVariant) {
+                        $primaryVariant->update([
+                            'stock_count' => max(0, (int) $primaryVariant->stock_count) + $purchasedQty,
+                            'stock_status' => 'in_stock',
+                        ]);
+                    }
                 }
 
                 $totalQty += $purchasedQty;

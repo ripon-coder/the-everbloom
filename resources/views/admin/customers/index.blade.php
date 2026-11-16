@@ -19,9 +19,9 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between">
-                    <p class="text-muted fw-medium fs-22 mb-0">428</p>
+                    <p class="text-muted fw-medium fs-22 mb-0">{{ $allClientsCount ?? count($customers) }}</p>
                     <div>
-                        <span class="badge text-success bg-success-subtle fs-12"><i class="bx bx-up-arrow-alt"></i> 14.8%</span>
+                        <span class="badge text-success bg-success-subtle fs-12"><i class="bx bx-up-arrow-alt"></i> Live</span>
                     </div>
                 </div>
             </div>
@@ -41,9 +41,9 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between">
-                    <p class="text-muted fw-medium fs-22 mb-0">389</p>
+                    <p class="text-muted fw-medium fs-22 mb-0">{{ $activeProfilesCount ?? 0 }}</p>
                     <div>
-                        <span class="badge text-success bg-success-subtle fs-12"><i class="bx bx-up-arrow-alt"></i> 90.8%</span>
+                        <span class="badge text-success bg-success-subtle fs-12">Active</span>
                     </div>
                 </div>
             </div>
@@ -63,9 +63,9 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between">
-                    <p class="text-muted fw-medium fs-22 mb-0">$186.40</p>
+                    <p class="text-muted fw-medium fs-22 mb-0">${{ number_format($averageLtv ?? 0, 2) }}</p>
                     <div>
-                        <span class="badge text-success bg-success-subtle fs-12"><i class="bx bx-up-arrow-alt"></i> 8.2%</span>
+                        <span class="badge text-success bg-success-subtle fs-12">LTV</span>
                     </div>
                 </div>
             </div>
@@ -85,9 +85,9 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between">
-                    <p class="text-muted fw-medium fs-22 mb-0">65.2%</p>
+                    <p class="text-muted fw-medium fs-22 mb-0">{{ number_format($repeatRate ?? 0, 1) }}%</p>
                     <div>
-                        <span class="badge text-success bg-success-subtle fs-12"><i class="bx bx-up-arrow-alt"></i> 5.4%</span>
+                        <span class="badge text-success bg-success-subtle fs-12">Repeat</span>
                     </div>
                 </div>
             </div>

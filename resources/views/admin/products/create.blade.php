@@ -43,7 +43,7 @@
                 <div class="card-body">
                     <!-- Preview Image -->
                     <div class="bg-light text-center rounded p-2 mb-3">
-                        <img id="preview-image" src="{{ asset('images/' . ($product['images'][0] ?? 'products/botanical-radiance-serum-01.jpg')) }}" alt="" class="img-fluid rounded" style="max-height: 220px; object-fit: cover;">
+                        <img id="preview-image" src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($product['images'][0] ?? 'products/botanical-radiance-serum-01.jpg') }}" alt="" class="img-fluid rounded" style="max-height: 220px; object-fit: cover;">
                     </div>
 
                     <!-- Title & Category -->
@@ -118,7 +118,7 @@
                     <div class="d-flex gap-2 mt-3">
                         @foreach($product['images'] ?? [] as $img)
                             <div class="position-relative rounded border p-1" style="width: 70px; height: 70px;">
-                                <img src="{{ asset('images/' . $img) }}" class="w-100 h-100 object-fit-cover rounded" alt="">
+                                <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($img) }}" class="w-100 h-100 object-fit-cover rounded" alt="">
                             </div>
                         @endforeach
                     </div>
@@ -228,11 +228,17 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label fs-12 mb-1">Variant Image (Optional)</label>
-                                                <input type="file" name="variant_images[{{ $vIdx }}]" accept="image/*" class="form-control form-control-sm">
+                                                <div class="d-flex gap-1 align-items-center">
+                                                    <input type="file" name="variant_images[{{ $vIdx }}]" accept="image/*" class="form-control form-control-sm">
+                                                    <button type="button" class="btn btn-sm btn-soft-danger" onclick="removeVariantRow(this)" title="Remove Variant">&times;</button>
+                                                </div>
                                                 @if(!empty($vRow['image']))
-                                                    <div class="form-check mt-1">
-                                                        <input class="form-check-input" type="checkbox" name="variants[{{ $vIdx }}][remove_image]" value="1">
-                                                        <label class="form-check-label fs-11 text-danger">Remove existing image</label>
+                                                    <div class="variant-existing-image-wrap mt-1 d-flex align-items-center gap-2">
+                                                        <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($vRow['image']) }}" alt="" class="rounded border" style="width:32px;height:32px;object-fit:cover;">
+                                                        <div class="form-check mb-0">
+                                                            <input class="form-check-input" type="checkbox" name="variants[{{ $vIdx }}][remove_image]" value="1">
+                                                            <label class="form-check-label fs-11 text-danger">Remove</label>
+                                                        </div>
                                                     </div>
                                                 @endif
                                             </div>
@@ -248,13 +254,19 @@
                                 const first = container.querySelector('.variant-row');
                                 if (!first) return;
                                 const clone = first.cloneNode(true);
-                                clone.querySelectorAll('input[type="hidden"]').forEach(el => el.remove());
+                                clone.querySelectorAll('input[type="hidden"], .variant-existing-image-wrap').forEach(el => el.remove());
                                 clone.querySelectorAll('select, input').forEach(el => {
                                     el.name = el.name.replace(/\[\d+\]/, `[${variantRowIndex}]`);
                                     if (el.type === 'file') el.value = '';
+                                    if (el.type === 'text') el.value = '';
                                 });
                                 container.appendChild(clone);
                                 variantRowIndex++;
+                            }
+                            function removeVariantRow(btn) {
+                                const rows = document.querySelectorAll('#variants-builder .variant-row');
+                                if (rows.length <= 1) return;
+                                btn.closest('.variant-row').remove();
                             }
                         </script>
 

@@ -51,7 +51,7 @@ class ImageStorageService
             return '';
         }
 
-        if (Str::startsWith($path, ['http://', 'https://'])) {
+        if (Str::startsWith($path, ['http://', 'https://', '/'])) {
             return $path;
         }
 

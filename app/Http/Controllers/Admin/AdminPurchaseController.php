@@ -55,7 +55,7 @@ class AdminPurchaseController extends Controller
     public function create()
     {
         $vendors = Vendor::where('is_active', true)->orderBy('name')->get();
-        $products = Product::orderBy('name')->get(['id', 'name', 'sku', 'price', 'stock_count', 'avg_buy_price', 'batch_lot']);
+        $products = Product::with('productVariants')->orderBy('name')->get(['id', 'name', 'sku', 'price', 'stock_count', 'avg_buy_price', 'batch_lot']);
 
         return view('admin.purchases.create', compact('vendors', 'products'));
     }
@@ -69,6 +69,7 @@ class AdminPurchaseController extends Controller
             'notes' => ['nullable', 'string', 'max:1000'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
+            'items.*.product_variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
             'items.*.batch_lot' => ['nullable', 'string', 'max:60'],
             'items.*.qty' => ['required', 'integer', 'min:1'],
             'items.*.unit_buy_price' => ['required', 'numeric', 'min:0'],

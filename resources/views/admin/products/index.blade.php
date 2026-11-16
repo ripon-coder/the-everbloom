@@ -9,7 +9,7 @@
         <div class="card">
             <!-- Card Header with Search, Filter & Add Product -->
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <h4 class="card-title mb-0">All Botanical Formulations ({{ count($products) }})</h4>
+                <h4 class="card-title mb-0">All Botanical Formulations ({{ $products->total() }})</h4>
 
                 <div class="d-flex flex-wrap align-items-center gap-2">
                     <!-- Category Filter -->
@@ -76,7 +76,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="rounded bg-light avatar-md d-flex align-items-center justify-content-center overflow-hidden border">
-                                            <img src="{{ asset('images/' . ($product['images'][0] ?? 'products/botanical-radiance-serum-01.jpg')) }}" alt="{{ $product['name'] }}" class="avatar-md object-fit-cover">
+                                            <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($product['images'][0] ?? 'products/botanical-radiance-serum-01.jpg') }}" alt="{{ $product['name'] }}" class="avatar-md object-fit-cover">
                                         </div>
                                         <div>
                                             <div class="d-flex align-items-center gap-2">
@@ -167,15 +167,11 @@
 
             <!-- Card Footer -->
             <div class="card-footer py-2 bg-light bg-opacity-50">
-                <div class="d-flex align-items-center justify-content-between">
-                    <p class="mb-0 text-muted fs-12">Showing 1 to {{ count($products) }} of {{ count($products) }} formulations</p>
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item disabled"><a class="page-link" href="#">&raquo;</a></li>
-                        </ul>
-                    </nav>
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <p class="mb-0 text-muted fs-12">Showing {{ $products->firstItem() ?? 0 }} to {{ $products->lastItem() ?? 0 }} of {{ $products->total() }} formulations</p>
+                    <div>
+                        {{ $products->links('pagination::bootstrap-5') }}
+                    </div>
                 </div>
             </div>
         </div>

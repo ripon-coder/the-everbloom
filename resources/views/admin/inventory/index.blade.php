@@ -4,6 +4,14 @@
 @section('container_class', 'container-xxl')
 
 @section('content')
+@php
+    $invCollection = collect($inventory);
+    $totalUnits = $invCollection->sum('stock');
+    $totalSkus = $invCollection->count();
+    $healthyCount = $invCollection->filter(fn($i) => $i['stock'] > $i['min_threshold'])->count();
+    $lowStockCount = $invCollection->filter(fn($i) => $i['stock'] > 0 && $i['stock'] <= $i['min_threshold'])->count();
+    $outOfStockCount = $invCollection->filter(fn($i) => $i['stock'] <= 0)->count();
+@endphp
 <!-- Row 1: Stock Health Cards -->
 <div class="row">
     <div class="col-md-6 col-xl-3">
@@ -12,7 +20,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h4 class="card-title mb-2">Total Units</h4>
-                        <p class="text-muted fw-medium fs-22 mb-0">384</p>
+                        <p class="text-muted fw-medium fs-22 mb-0">{{ $totalUnits }}</p>
                     </div>
                     <div>
                         <div class="avatar-md bg-primary bg-opacity-10 rounded">
@@ -22,7 +30,7 @@
                 </div>
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50">
-                <span class="text-muted fs-12">Across 12 Active SKUs</span>
+                <span class="text-muted fs-12">Across {{ $totalSkus }} Active SKUs</span>
             </div>
         </div>
     </div>
@@ -33,7 +41,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h4 class="card-title mb-2">In Healthy Stock</h4>
-                        <p class="text-muted fw-medium fs-22 mb-0">9 Formulations</p>
+                        <p class="text-muted fw-medium fs-22 mb-0">{{ $healthyCount }} Formulations</p>
                     </div>
                     <div>
                         <div class="avatar-md bg-success bg-opacity-10 rounded">
@@ -43,7 +51,7 @@
                 </div>
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50">
-                <span class="text-success fs-12">&gt; 15 units available</span>
+                <span class="text-success fs-12">Above reorder threshold</span>
             </div>
         </div>
     </div>
@@ -54,7 +62,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h4 class="card-title mb-2">Low Stock Alert</h4>
-                        <p class="text-muted fw-medium fs-22 mb-0">3 Batches</p>
+                        <p class="text-muted fw-medium fs-22 mb-0">{{ $lowStockCount }} Batches</p>
                     </div>
                     <div>
                         <div class="avatar-md bg-warning bg-opacity-10 rounded">
@@ -64,7 +72,7 @@
                 </div>
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50">
-                <span class="text-warning fs-12">Below 10 unit reorder threshold</span>
+                <span class="text-warning fs-12">At or below reorder threshold</span>
             </div>
         </div>
     </div>
@@ -75,7 +83,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <h4 class="card-title mb-2">Out of Stock</h4>
-                        <p class="text-muted fw-medium fs-22 mb-0">0 Batches</p>
+                        <p class="text-muted fw-medium fs-22 mb-0">{{ $outOfStockCount }} Batches</p>
                     </div>
                     <div>
                         <div class="avatar-md bg-secondary bg-opacity-10 rounded">
@@ -85,7 +93,7 @@
                 </div>
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50">
-                <span class="text-muted fs-12">All SKUs available</span>
+                <span class="text-muted fs-12">{{ $outOfStockCount === 0 ? 'All SKUs available' : 'Restock required' }}</span>
             </div>
         </div>
     </div>
@@ -97,7 +105,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title mb-0">Batch Stock & Laboratory Inventory</h4>
-                <a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-primary">
+                <a href="{{ route('admin.purchases.create') }}" class="btn btn-sm btn-primary">
                     <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon> Receive New Batch
                 </a>
             </div>
@@ -117,6 +125,7 @@
                                 <th>Alert Threshold</th>
                                 <th>Status</th>
                                 <th>Last Harvest/Restock</th>
+                                <th class="text-end">Adjust Stock</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -125,7 +134,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="avatar-sm bg-light rounded d-flex align-items-center justify-content-center overflow-hidden border">
-                                            <img src="{{ asset('images/' . $item['image']) }}" alt="" class="avatar-sm object-fit-cover">
+                                            <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($item['image'] ?? 'products/botanical-radiance-serum-01.jpg') }}" alt="" class="avatar-sm object-fit-cover">
                                         </div>
                                         <a href="{{ route('admin.products.edit', $item['id']) }}" class="text-dark fw-semibold fs-14">
                                             {{ $item['name'] }}
@@ -163,6 +172,14 @@
                                 </td>
                                 <td>
                                     <span class="text-muted fs-13">{{ $item['last_restocked'] }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <form action="{{ route('admin.inventory.adjust', $item['id']) }}" method="POST" class="d-inline-flex gap-1 align-items-center">
+                                        @csrf
+                                        <input type="number" name="stock_count" value="{{ $item['stock'] }}" min="0" class="form-control form-control-sm" style="width:72px;" title="Stock count">
+                                        <input type="number" name="min_threshold" value="{{ $item['min_threshold'] }}" min="0" class="form-control form-control-sm" style="width:62px;" title="Alert threshold">
+                                        <button type="submit" class="btn btn-sm btn-soft-primary">Save</button>
+                                    </form>
                                 </td>
                             </tr>
                             @empty

@@ -114,7 +114,7 @@
                         </span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <h6 class="dropdown-header">Everbloom Concierge</h6>
+                        <h6 class="dropdown-header">{{ Auth::guard('admin')->user()?->name ?? 'Everbloom Admin' }}</h6>
                         <a class="dropdown-item" href="{{ route('admin.settings.index') }}">
                             <i class="bx bx-cog text-muted fs-18 align-middle me-1"></i><span class="align-middle">Store Settings</span>
                         </a>
@@ -122,9 +122,12 @@
                             <i class="bx bx-store-alt text-muted fs-18 align-middle me-1"></i><span class="align-middle">Storefront</span>
                         </a>
                         <div class="dropdown-divider my-1"></div>
-                        <a class="dropdown-item text-danger" href="{{ route('admin.login') }}">
-                            <i class="bx bx-log-out fs-18 align-middle me-1"></i><span class="align-middle">Logout</span>
-                        </a>
+                        <form action="{{ route('admin.logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="bx bx-log-out fs-18 align-middle me-1"></i><span class="align-middle">Logout</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
 

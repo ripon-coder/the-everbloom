@@ -47,23 +47,31 @@
                                     <span class="badge bg-light text-muted border">{{ $c['type'] }}</span>
                                 </td>
                                 <td>
+                                    @php
+                                        $limit = (int) ($c['usage_limit'] ?? 0);
+                                        $pct = $limit > 0 ? min(100, round(($c['used_count'] / $limit) * 100)) : 0;
+                                    @endphp
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px; width: 80px;">
-                                            <div class="progress-bar bg-primary" style="width: {{ ($c['used_count'] / $c['usage_limit']) * 100 }}%"></div>
+                                            <div class="progress-bar bg-primary" style="width: {{ $pct }}%"></div>
                                         </div>
-                                        <span class="text-muted fs-12">{{ $c['used_count'] }}/{{ $c['usage_limit'] }}</span>
+                                        <span class="text-muted fs-12">{{ $c['used_count'] }}/{{ $limit > 0 ? $limit : '∞' }}</span>
                                     </div>
                                 </td>
                                 <td>
                                     <span class="fs-13 text-muted">{{ $c['expires_at'] }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-success-subtle text-success px-2 py-1 fs-12">{{ $c['status'] }}</span>
+                                    <span class="badge bg-{{ $c['status_badge'] }}-subtle text-{{ $c['status_badge'] }} px-2 py-1 fs-12">{{ $c['status'] }}</span>
                                 </td>
                                 <td class="text-end">
-                                    <button type="button" class="btn btn-sm btn-soft-danger" title="Deactivate Coupon">
-                                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="fs-16"></iconify-icon>
-                                    </button>
+                                    <form action="{{ route('admin.coupons.destroy', $c['id']) }}" method="POST" onsubmit="return confirm('Delete this coupon?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-soft-danger" title="Delete Coupon">
+                                            <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="fs-16"></iconify-icon>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             @empty
@@ -76,7 +84,7 @@
                 </div>
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50">
-                <p class="mb-0 text-muted fs-12">Discounts configured in <code>config/demo/site.php</code></p>
+                <p class="mb-0 text-muted fs-12">Promotional coupons managed in database.</p>
             </div>
         </div>
     </div>
