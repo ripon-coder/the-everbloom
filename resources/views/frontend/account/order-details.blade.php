@@ -1,8 +1,6 @@
-﻿@extends('layouts.account')
+@extends('layouts.account')
 
 @section('title', 'Order #' . $order['id'] . ' — ' . config('demo.site.name'))
-
-@section('demo_notice', 'Demo order — sample data for preview only.')
 
 @section('breadcrumbs')
     <x-storefront.breadcrumbs :items="[
@@ -19,9 +17,6 @@
         <span class="lining-nums">Placed on {{ $order['date'] }}</span>
         <span aria-hidden="true">·</span>
         <x-storefront.status-badge :status="$order['status']" />
-        <span class="inline-flex items-center text-xs uppercase tracking-[0.2em] text-muted border border-[#E3E6DD] bg-white px-2.5 py-0.5">
-            Sample Order
-        </span>
     </div>
 @endsection
 
@@ -324,7 +319,7 @@
             <!-- Payment Method -->
             <div class="space-y-1 pt-6 border-t border-[#ECEEE6]">
                 <h3 class="text-xs uppercase tracking-[0.2em] text-muted font-medium">
-                    Payment Method (Demo)
+                    Payment Method
                 </h3>
                 <p class="text-sm text-ink leading-relaxed">
                     {{ $order['payment_method'] }}

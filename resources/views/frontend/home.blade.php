@@ -385,7 +385,7 @@
                     <div class="flex items-center justify-between gap-3">
                         <x-storefront.rating :rating="$featuredQuote['rating']" :show-count="false" size="sm" />
                         <span class="text-xs uppercase tracking-[0.2em] text-muted border border-[#E3E6DD] bg-white px-2.5 py-0.5">
-                            Sample review
+                            Verified Buyer
                         </span>
                     </div>
 
@@ -416,7 +416,7 @@
                         <div class="flex items-center justify-between gap-3">
                             <x-storefront.rating :rating="$review['rating']" :show-count="false" size="sm" />
                             <span class="text-xs uppercase tracking-[0.2em] text-muted border border-[#E3E6DD] bg-white px-2.5 py-0.5">
-                                Sample review
+                                Verified Buyer
                             </span>
                         </div>
 

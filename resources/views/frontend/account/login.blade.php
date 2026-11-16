@@ -69,17 +69,6 @@
                 <p class="text-sm text-muted mt-1.5 leading-relaxed">
                     Sign in to view your orders, saved items and addresses.
                 </p>
-                <div class="mt-3 flex items-center gap-2">
-                    <span class="inline-flex items-center px-2 py-0.5 text-[11px] uppercase tracking-wider font-medium border border-[#D5DBCF] bg-[#F8F6F0] text-muted">
-                        Demo
-                    </span>
-                    <a 
-                        href="{{ route('account') }}" 
-                        class="text-sm text-[#304C3D] hover:text-ink font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 transition-colors"
-                    >
-                        View the demo account
-                    </a>
-                </div>
             </div>
 
             <!-- Demo Notification Banner -->
@@ -190,17 +179,14 @@
                     </label>
                 </div>
 
-                <!-- Primary Submit + Demo Note -->
-                <div class="pt-1 space-y-2.5">
+                <!-- Primary Submit -->
+                <div class="pt-1">
                     <button 
                         type="submit" 
                         class="btn-primary w-full min-h-[48px] cursor-pointer"
                     >
                         Sign In
                     </button>
-                    <p class="text-[13px] text-muted text-center">
-                        Demo only. No one will be signed in.
-                    </p>
                 </div>
             </form>
 

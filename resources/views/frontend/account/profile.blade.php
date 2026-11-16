@@ -204,7 +204,7 @@
                         Personal Information
                     </h2>
                     <p class="text-xs text-muted mt-1">
-                        Sample customer profile loaded for demonstration. Update fields to preview validation.
+                        Manage your personal contact details for orders and deliveries.
                     </p>
                 </div>
 
@@ -282,7 +282,7 @@
                             :aria-describedby="profileErrors.email ? 'err-profile-email helper-profile-email' : 'helper-profile-email'"
                         />
                         <p id="helper-profile-email" class="mt-1.5 text-[13px] text-muted">
-                            Changing your email sends a confirmation to the new address (demo only).
+                            Changing your email updates your primary contact address.
                         </p>
                         <p id="err-profile-email" x-show="profileErrors.email" x-text="profileErrors.email" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                     </div>
@@ -309,9 +309,6 @@
                         >
                             Update Profile
                         </button>
-                        <p class="text-[13px] text-muted">
-                            Demo only. Changes are not saved.
-                        </p>
                     </div>
                 </form>
             </section>
@@ -529,9 +526,6 @@
                         >
                             Change Password
                         </button>
-                        <p class="text-[13px] text-muted">
-                            Demo only. Changes are not saved.
-                        </p>
                     </div>
                 </form>
             </section>
@@ -588,7 +582,7 @@
                     aria-label="Confirm account deletion"
                 >
                     <p class="text-sm text-ink leading-relaxed">
-                        Delete your account? This is a demo and nothing will be deleted.
+                        Are you sure you want to permanently delete your account?
                     </p>
                     <div class="flex flex-wrap items-center gap-4">
                         <button 

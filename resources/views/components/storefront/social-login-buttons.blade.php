@@ -23,7 +23,7 @@
                     {{-- BACKEND: replace with Laravel Socialite redirect (google, apple) --}}
                     <button
                         type="button"
-                        @click="socialNotice = 'Demo only. Social sign-in is not connected.'"
+                        @click="socialNotice = 'Social sign-in is currently unavailable. Please continue with email.'"
                         class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F4F6F1] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#304C3D] focus-visible:outline-offset-2 cursor-pointer rounded-none"
                         aria-label="{{ $googleLabel }}"
                     >
@@ -42,7 +42,7 @@
                     {{-- BACKEND: replace with Laravel Socialite redirect (google, apple) --}}
                     <button
                         type="button"
-                        @click="socialNotice = 'Demo only. Social sign-in is not connected.'"
+                        @click="socialNotice = 'Social sign-in is currently unavailable. Please continue with email.'"
                         class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F4F6F1] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#304C3D] focus-visible:outline-offset-2 cursor-pointer rounded-none"
                         aria-label="{{ $appleLabel }}"
                     >

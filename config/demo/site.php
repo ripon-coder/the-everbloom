@@ -64,7 +64,7 @@ return [
             'title' => 'Free Shipping $75+', // DEMO PLACEHOLDER: verify before launch
             'description' => 'Complimentary standard delivery on orders over $75.',
         ],
-        'secure_checkout' => 'Secure Checkout (Demo)', // DEMO PLACEHOLDER: replace before launch
+        'secure_checkout' => 'Secure Checkout',
         'returns_policy' => '30-Day Returns on Unopened Items', // DEMO PLACEHOLDER: replace before launch
         'support_contact' => 'Client Care: concierge@the-everbloom.com', // DEMO PLACEHOLDER: replace before launch
     ],

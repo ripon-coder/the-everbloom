@@ -26,9 +26,6 @@
                         @yield('page_subtitle')
                     </div>
                 @endif
-                <p class="text-xs text-muted font-normal mt-1.5 block">
-                    @yield('demo_notice', 'Demo account — sample data for preview only.')
-                </p>
             </div>
             @yield('header_actions')
         </div>

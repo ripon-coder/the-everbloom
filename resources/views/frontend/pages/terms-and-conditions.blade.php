@@ -13,18 +13,14 @@
     </div>
 
     <div class="prose max-w-none text-sm text-ink/80 space-y-6 leading-relaxed font-sans">
-        <div class="p-4 bg-amber-50 border border-amber-200 text-xs text-amber-900 rounded-sm">
-            <strong>Notice to Website Purchaser:</strong> [Replace with your legal text] where indicated prior to commercial operation.
-        </div>
-
         <section class="space-y-3">
             <h2 class="font-serif text-xl text-ink">1. Acceptance of Terms</h2>
-            <p>[Replace with your legal text: State conditions regarding website access, intellectual property, product ordering, and compliance with local retail regulations.]</p>
+            <p>By accessing and placing orders through The Everbloom storefront, you agree to abide by these terms of service, all applicable commercial regulations, and our published shipping, returns, and privacy policies. All brand imagery, formulation copy, and site design elements remain the intellectual property of The Everbloom.</p>
         </section>
 
         <section class="space-y-3">
             <h2 class="font-serif text-xl text-ink">2. Commercial Purchases & Pricing</h2>
-            <p>[Replace with your legal text: Outline currency denomination (USD), sales tax collection, cancellation policies, and inventory availability adjustments.]</p>
+            <p>All product prices, promotional offers, and shipping charges are displayed in the store's active currency prior to order confirmation. Product availability is subject to current apothecary inventory, and we reserve the right to update product pricing or discontinue formulations without prior notice.</p>
         </section>
 
         <section class="space-y-3" id="accessibility">
@@ -34,7 +30,7 @@
 
         <section class="space-y-3">
             <h2 class="font-serif text-xl text-ink">4. Limitation of Liability</h2>
-            <p>[Replace with your legal text: Standard limitation of liability clauses, topical cosmetics usage disclaimers, and patch-testing recommendations.]</p>
+            <p>Our botanical skincare products are formulated for external cosmetic use only. We encourage reviewing the full ingredient list for known sensitivities and performing a patch test before initial use. To the fullest extent permitted by law, The Everbloom shall not be liable for indirect or consequential damages arising from product misuse.</p>
         </section>
     </div>
 </div>

@@ -232,7 +232,7 @@ class CheckoutController extends Controller
 
             $paymentLabel = $validated['paymentMethod'] === 'digital_wallet_demo'
                 ? 'Apple Pay / Digital Wallet'
-                : 'Credit Card (Demo)';
+                : 'Credit / Debit Card';
 
             $order = Order::create([
                 'order_number' => $orderNumber,

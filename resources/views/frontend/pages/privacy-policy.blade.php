@@ -13,28 +13,24 @@
     </div>
 
     <div class="prose max-w-none text-sm text-ink/80 space-y-6 leading-relaxed font-sans">
-        <div class="p-4 bg-amber-50 border border-amber-200 text-xs text-amber-900 rounded-sm">
-            <strong>Notice to Website Purchaser:</strong> The sections below provide a compliant legal template structure. [Replace with your legal text] where indicated prior to commercial publication.
-        </div>
-
         <section class="space-y-3">
             <h2 class="font-serif text-xl text-ink">1. Data We Collect</h2>
-            <p>[Replace with your legal text: Detail your collection of personal details including shipping address, email contact, order logs, and cookie device identifiers.]</p>
+            <p>When you browse our storefront, create an account, or place an order with The Everbloom, we collect the information necessary to fulfill your requests, including your name, email address, phone number, delivery address, and order history, alongside essential technical session identifiers.</p>
         </section>
 
         <section class="space-y-3">
             <h2 class="font-serif text-xl text-ink">2. How Information is Utilized</h2>
-            <p>[Replace with your legal text: Explain order fulfillment, concierge client support, and marketing newsletter communications if opted in.]</p>
+            <p>Your personal details are used solely to process and deliver your botanical formulations, provide concierge client support, maintain your saved preferences, and deliver editorial journal updates when you choose to subscribe.</p>
         </section>
 
         <section class="space-y-3" id="cookies">
             <h2 class="font-serif text-xl text-ink">3. Cookie Practices</h2>
-            <p>[Replace with your legal text: Clarify necessary session cookies, cart state persistence, and anonymized traffic metrics.]</p>
+            <p>We use essential browser storage and session cookies to preserve your shopping bag, saved wishlist, and authenticated account session across visits, ensuring a seamless browsing and checkout experience.</p>
         </section>
 
         <section class="space-y-3">
             <h2 class="font-serif text-xl text-ink">4. Your Individual Rights</h2>
-            <p>[Replace with your legal text: Disclose customer rights to access, export, modify, or erase personal data upon request to {{ config('demo.site.contact.email') }} under GDPR / CCPA.]</p>
+            <p>You may review, update, export, or request deletion of your personal account details at any time through your account settings or by contacting our client care team at {{ config('demo.site.contact.email') }}.</p>
         </section>
     </div>
 </div>

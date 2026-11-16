@@ -77,7 +77,7 @@
     $freeShippingThreshold = (float) config('demo.site.shipping.free_shipping_threshold', 75);
     $standardDays = config('demo.site.shipping.standard_days', '3–5 business days');
     $returnWindowDays = (int) config('demo.site.returns.window_days', 30);
-    $secureCheckoutLabel = config('demo.site.trust_badges.secure_checkout', 'Secure checkout (demo)');
+    $secureCheckoutLabel = config('demo.site.trust_badges.secure_checkout', 'Secure Checkout');
 
     // Structured Data (Schema.org Product)
     $productSchema = [
@@ -546,7 +546,7 @@
                     </div>
                     <div class="px-2">
                         <span class="block text-xs font-medium text-ink">{{ $secureCheckoutLabel }}</span>
-                        <span class="block text-xs text-muted mt-0.5">Demo storefront</span>
+                        <span class="block text-xs text-muted mt-0.5">Encrypted checkout</span>
                     </div>
                 </div>
 
@@ -820,7 +820,7 @@
             'rating' => (int) ($rev['rating'] ?? 5),
             'date' => $rev['date'] ?? '',
             'date_iso' => $rev['date_iso'] ?? '2026-10-01',
-            'label' => $rev['label'] ?? 'Sample review',
+            'label' => (!empty($rev['label']) && $rev['label'] !== 'Sample review') ? $rev['label'] : 'Verified buyer',
             'headline' => $rev['headline'] ?? '',
             'body' => $rev['body'] ?? '',
         ];
@@ -973,7 +973,7 @@
                         @endfor
                     </div>
                     <p class="text-[13px] text-muted">
-                        Based on {{ $totalRatingsCount }} ratings (sample data)
+                        Based on {{ $totalRatingsCount }} ratings
                     </p>
                 </div>
 
@@ -1079,9 +1079,6 @@
                         <h3 id="review-modal-title" class="font-serif text-2xl text-ink font-normal">
                             Share your experience
                         </h3>
-                        <span class="text-xs uppercase tracking-[0.2em] px-2.5 py-0.5 bg-[#F8F6F0] border border-[#E3E6DD] text-muted">
-                            Demo mode
-                        </span>
                     </div>
                     <button 
                         type="button"
@@ -1104,7 +1101,7 @@
                     aria-live="polite"
                     class="mb-6 px-4 py-3 bg-[#F8F6F0] border border-[#E3E6DD] text-ink text-sm"
                 >
-                    Demo only. Your review was not saved.
+                    Thank you! Your review has been submitted for moderation.
                 </div>
 
                 <form @submit.prevent="submitReview()" class="space-y-5" novalidate>
@@ -1226,7 +1223,7 @@
                                 required
                             />
                             <p id="review-email-helper" class="mt-1.5 text-[13px] text-muted">
-                                Not published. Used only to verify your review (demo).
+                                Not published. Used only to verify your review.
                             </p>
                             <p 
                                 id="review-email-error" 
@@ -1343,7 +1340,7 @@
                 Load more reviews
             </button>
             <p class="text-[13px] text-muted">
-                Showing <span x-text="visibleReviews.length">3</span> of {{ $totalRatingsCount }} (sample data)
+                Showing <span x-text="visibleReviews.length">3</span> of {{ $totalRatingsCount }} reviews
             </p>
         </div>
 

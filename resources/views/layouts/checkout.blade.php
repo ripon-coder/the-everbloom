@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Demo Checkout — ' . config('demo.site.name'))</title>
-    <meta name="description" content="Botanical skincare demo checkout for The Everbloom.">
+    <title>@yield('title', 'Checkout — ' . config('demo.site.name'))</title>
+    <meta name="description" content="Secure botanical skincare checkout at The Everbloom.">
     <meta name="robots" content="noindex, nofollow">
 
     <!-- Preconnect to Google Fonts -->

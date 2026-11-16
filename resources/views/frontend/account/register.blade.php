@@ -366,17 +366,14 @@
                     <p id="err-reg-terms" x-show="errors.agreeTerms" x-text="errors.agreeTerms" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                 </div>
 
-                <!-- Primary Submit + Demo Note -->
-                <div class="pt-1 space-y-2.5">
+                <!-- Primary Submit -->
+                <div class="pt-1">
                     <button 
                         type="submit" 
                         class="btn-primary w-full min-h-[48px] cursor-pointer"
                     >
                         Create Account
                     </button>
-                    <p class="text-[13px] text-muted text-center">
-                        Demo only. No account will be created.
-                    </p>
                 </div>
             </form>
 

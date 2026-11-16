@@ -631,9 +631,6 @@
                 >
                     Cancel
                 </button>
-                <p class="text-[13px] text-muted sm:ml-auto">
-                    Demo only. Changes are not saved.
-                </p>
             </div>
         </form>
     </div>

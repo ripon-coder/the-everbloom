@@ -1,6 +1,6 @@
 @extends('layouts.checkout')
 
-@section('title', 'Demo Checkout — ' . config('demo.site.name'))
+@section('title', 'Checkout — ' . config('demo.site.name'))
 @section('hide_newsletter', true)
 
 @section('content')
@@ -35,16 +35,6 @@
 @endphp
 
 <div class="site-container py-8 md:py-12" x-data="checkoutComponent()">
-    
-    <!-- Demo Notice Banner (Single demo notice at top) -->
-    <div class="mb-6 p-4 bg-sage-light/70 border border-[#E3E6DD] text-xs sm:text-sm text-forest font-medium flex items-center gap-3">
-        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>
-            <strong>Demonstration Mode:</strong> This is a front-end checkout flow simulation. No monetary transactions or real orders are processed.
-        </span>
-    </div>
 
     <!-- EMPTY STATE: When bag has 0 items and no order completed -->
     <div x-show="cartIsEmpty && !orderPlaced" x-cloak class="py-16 px-6 bg-white border border-[#E3E6DD] text-center max-w-xl mx-auto space-y-5">
@@ -76,8 +66,8 @@
             </svg>
         </div>
         <div class="space-y-2">
-            <h1 class="font-serif text-2xl sm:text-3xl text-ink font-normal" x-text="placedOrderNumber ? 'Thank you. Order #' + placedOrderNumber + ' confirmed.' : 'Demo order. No payment was processed and no order was placed.'">
-                Demo order. No payment was processed and no order was placed.
+            <h1 class="font-serif text-2xl sm:text-3xl text-ink font-normal" x-text="placedOrderNumber ? 'Thank you. Order #' + placedOrderNumber + ' confirmed.' : 'Thank you. Your order has been confirmed.'">
+                Thank you. Your order has been confirmed.
             </h1>
             <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">
                 Thank you for your order with The Everbloom. Your botanical selections are being prepared for dispatch.
@@ -539,7 +529,7 @@
                         </h2>
                     </div>
 
-                    <div class="space-y-3" role="radiogroup" aria-label="Demo Payment Method">
+                    <div class="space-y-3" role="radiogroup" aria-label="Payment Method">
                         <label 
                             class="relative flex items-center justify-between p-4 rounded-none cursor-pointer transition-colors min-h-[48px] border"
                             :class="paymentMethod === 'card_demo' ? 'border-[#304C3D] bg-[#E8EEE5]' : 'border-[#D5DBCF] bg-white hover:border-[#A8B7A0]'"
@@ -553,8 +543,8 @@
                                     class="w-4 h-4 text-forest accent-[#304C3D] cursor-pointer"
                                 >
                                 <div>
-                                    <span class="block text-sm font-medium text-ink">Credit / Debit Card (demo)</span>
-                                    <span class="block text-xs text-muted mt-0.5">No card details needed in this demo.</span>
+                                    <span class="block text-sm font-medium text-ink">Credit / Debit Card</span>
+                                    <span class="block text-xs text-muted mt-0.5">Pay securely with your credit or debit card.</span>
                                 </div>
                             </div>
                         </label>
@@ -572,16 +562,12 @@
                                     class="w-4 h-4 text-forest accent-[#304C3D] cursor-pointer"
                                 >
                                 <div>
-                                    <span class="block text-sm font-medium text-ink">Digital wallet (demo)</span>
-                                    <span class="block text-xs text-muted mt-0.5">No card details needed in this demo.</span>
+                                    <span class="block text-sm font-medium text-ink">Digital Wallet / Cash on Delivery</span>
+                                    <span class="block text-xs text-muted mt-0.5">Fast, convenient payment upon confirmation.</span>
                                 </div>
                             </div>
                         </label>
                     </div>
-
-                    <p class="text-[13px] text-muted text-center font-sans">
-                        This is a demo. No payment is taken and no order is placed.
-                    </p>
 
                     <div class="pt-1">
                         <x-storefront.button 
@@ -591,7 +577,7 @@
                             size="lg" 
                             class="w-full !min-h-[48px]"
                         >
-                            Place Demo Order
+                            Place Order
                         </x-storefront.button>
                     </div>
 
