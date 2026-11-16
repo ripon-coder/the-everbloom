@@ -66,3 +66,4 @@ jobs:
             **/storage/framework/views/**
             **/.gitignore
             **/README.md
+            **/docs/**
