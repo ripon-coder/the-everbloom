@@ -109,6 +109,7 @@ return [
         ],
         'stock_status' => 'in_stock',
         'is_featured' => false,
+        'best_seller' => true,
         'badge' => null,
         'images' => [
             'products/elderberry-gentle-cleansing-milk-01.jpg',
@@ -223,6 +224,7 @@ return [
         ],
         'stock_status' => 'in_stock',
         'is_featured' => false,
+        'best_seller' => true,
         'badge' => null,
         'images' => [
             'products/hydrating-cloud-facial-cream-01.jpg',
@@ -261,6 +263,7 @@ return [
         ],
         'stock_status' => 'in_stock',
         'is_featured' => false,
+        'best_seller' => true,
         'badge' => null,
         'images' => [
             'products/chamomile-soothing-cleansing-balm-01.jpg',
@@ -337,6 +340,7 @@ return [
         ],
         'stock_status' => 'in_stock',
         'is_featured' => false,
+        'best_seller' => true,
         'badge' => null,
         'images' => [
             'products/botanical-barrier-defense-oil-01.jpg',
@@ -375,6 +379,7 @@ return [
         ],
         'stock_status' => 'in_stock',
         'is_featured' => false,
+        'best_seller' => true,
         'badge' => null,
         'images' => [
             'products/green-tea-purifying-jelly-wash-01.jpg',
@@ -413,6 +418,7 @@ return [
         ],
         'stock_status' => 'in_stock',
         'is_featured' => false,
+        'best_seller' => true,
         'badge' => null,
         'images' => [
             'products/wild-verbena-body-glow-oil-01.jpg',
@@ -483,6 +489,7 @@ return [
         ],
         'stock_status' => 'in_stock',
         'is_featured' => false,
+        'best_seller' => true,
         'badge' => null,
         'images' => [
             'products/peony-firming-eye-nectar-01.jpg',
@@ -521,6 +528,7 @@ return [
         ],
         'stock_status' => 'in_stock',
         'is_featured' => false,
+        'best_seller' => true,
         'badge' => null,
         'images' => [
             'products/aloe-cucumber-refreshing-essence-01.jpg',
@@ -559,6 +567,7 @@ return [
         ],
         'stock_status' => 'in_stock',
         'is_featured' => false,
+        'best_seller' => true,
         'badge' => null,
         'images' => [
             'products/sea-kelp-hydrating-moisture-gel-01.jpg',
@@ -597,6 +606,7 @@ return [
         ],
         'stock_status' => 'in_stock',
         'is_featured' => false,
+        'best_seller' => true,
         'badge' => null,
         'images' => [
             'products/calendula-calming-body-creme-01.jpg',

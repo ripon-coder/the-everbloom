@@ -42,26 +42,26 @@ return [
         'hours' => 'Mon – Fri: 9:00 AM – 6:00 PM EST', // DEMO PLACEHOLDER: replace before launch
         'address' => '740 Botanical Way, Suite 400, Portland, OR 97201', // DEMO PLACEHOLDER: replace before launch
     ],
-    // DEMO PLACEHOLDER: replace before launch
+    // DEMO PLACEHOLDER: verify before launch
     'trust_badges' => [
         [
             'icon' => 'leaf',
-            'title' => 'Plant-Derived Actives',
-            'description' => 'Pure botanical oils, hydrosols, and barrier-supportive extracts.',
+            'title' => 'Carefully Selected Ingredients', // DEMO PLACEHOLDER: verify before launch
+            'description' => 'Thoughtful botanical oils, hydrosols, and soothing extracts.',
         ],
         [
             'icon' => 'heart',
-            'title' => 'Cruelty-Free Always',
-            'description' => 'Leaping Bunny certified and 100% vegan formulations.',
+            'title' => 'Thoughtful Formulations', // DEMO PLACEHOLDER: verify before launch
+            'description' => 'Designed for gentle, everyday skincare rituals.',
         ],
         [
             'icon' => 'globe',
-            'title' => 'Amber Glass Vessels',
-            'description' => 'Recyclable UV-protective glass to preserve potency.',
+            'title' => 'Amber Glass Vessels', // DEMO PLACEHOLDER: verify before launch
+            'description' => 'UV-protective glass vessels to preserve freshness.',
         ],
         [
             'icon' => 'shield',
-            'title' => 'Free Shipping $75+',
+            'title' => 'Free Shipping $75+', // DEMO PLACEHOLDER: verify before launch
             'description' => 'Complimentary standard delivery on orders over $75.',
         ],
         'secure_checkout' => 'Secure Checkout (Demo)', // DEMO PLACEHOLDER: replace before launch
