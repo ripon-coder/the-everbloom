@@ -16,7 +16,9 @@ return [
     |
     */
 
-    'driver' => env('SCOUT_DRIVER', 'collection'),
+    'driver' => ($scoutDriver = env('SCOUT_DRIVER', 'collection')) === 'tntsearch' && !extension_loaded('pdo_sqlite')
+        ? 'collection'
+        : $scoutDriver,
 
     /*
     |--------------------------------------------------------------------------

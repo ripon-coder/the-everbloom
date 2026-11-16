@@ -63,14 +63,7 @@
                     <a :href="'/shop/product/' + item.slug" class="font-serif text-base text-ink hover:text-forest transition-colors line-clamp-2 mt-0.5 min-h-[2.5rem]" x-text="item.name"></a>
                     <p class="price text-sm font-medium text-ink mt-1.5" x-text="'{{ $currencySymbol }}' + parseFloat(item.price || 0).toFixed(2)"></p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-[#ECEEE6] space-y-2">
-                    <button 
-                        type="button" 
-                        @click="$store.cart.add(item.id, 1)" 
-                        class="btn-primary w-full !px-3 !py-2.5 !text-xs cursor-pointer"
-                    >
-                        Add to Bag
-                    </button>
+                <div class="mt-4 pt-3 border-t border-[#ECEEE6]">
                     <div class="flex items-center justify-between">
                         <button 
                             type="button" 

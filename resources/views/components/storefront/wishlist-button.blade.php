@@ -18,19 +18,12 @@
         'lg' => 'w-5 h-5',
         default => 'w-5 h-5',
     };
-    $productJson = $product ? htmlspecialchars(json_encode($product), ENT_QUOTES, 'UTF-8') : null;
 @endphp
 
 <button 
     type="button" 
     x-data
-    @click.stop.prevent="
-        @if($productJson)
-            $store.wishlist.toggle({{ $productJson }})
-        @else
-            $store.wishlist.toggle('{{ $id }}')
-        @endif
-    "
+    @click.stop.prevent="$store.wishlist.toggle(@js($id))"
     :aria-label="$store.wishlist.has('{{ $id }}') ? 'Remove {{ addslashes($productName) }} from wishlist' : 'Save {{ addslashes($productName) }} to wishlist'"
     :aria-pressed="$store.wishlist.has('{{ $id }}') ? 'true' : 'false'"
     :class="$store.wishlist.has('{{ $id }}') ? 'text-forest bg-ivory border-forest shadow-sm' : 'text-ink/80 hover:text-forest bg-ivory/90 hover:bg-ivory border-[#E3E6DD] hover:border-[#A8B7A0]'"

@@ -90,6 +90,26 @@ function closeOtherOverlays(exceptOverlay) {
 }
 
 /**
+ * Find a matching variant on a product by size, title, or id.
+ */
+function findProductVariant(product, variantId) {
+    if (!product || !Array.isArray(product.variants) || product.variants.length === 0) {
+        return null;
+    }
+    if (!variantId) {
+        return product.variants[0] || null;
+    }
+    const target = String(variantId);
+    return product.variants.find(v =>
+        v.size === variantId ||
+        v.title === variantId ||
+        v.id === variantId ||
+        String(v.size) === target ||
+        String(v.id) === target
+    ) || null;
+}
+
+/**
  * Creates a cart item storing only { productId, variantId, qty }.
  * Attaches non-enumerable getters to derive name, image, price, and compare-at price
  * from config/demo/products.php on every render.
@@ -112,10 +132,7 @@ function createDerivedCartItem(itemData) {
         },
         variant: {
             get() {
-                const prod = this.product;
-                if (!prod || !Array.isArray(prod.variants) || prod.variants.length === 0) return null;
-                if (!this.variantId) return prod.variants[0] || null;
-                return prod.variants.find(v => v.size === this.variantId || v.id === this.variantId || String(v.size) === String(this.variantId)) || null;
+                return findProductVariant(this.product, this.variantId);
             },
             enumerable: false
         },
@@ -345,13 +362,13 @@ Alpine.store('cart', {
 
                     if (Array.isArray(product.variants) && product.variants.length > 0) {
                         if (variantId) {
-                            const matchedVariant = product.variants.find(v => v.size === variantId || v.id === variantId || String(v.size) === String(variantId));
+                            const matchedVariant = findProductVariant(product, variantId);
                             if (!matchedVariant) {
                                 continue;
                             }
                             variantId = matchedVariant.size || matchedVariant.id || variantId;
                         } else {
-                            variantId = product.variants[0].size || null;
+                            variantId = product.variants[0].size || product.variants[0].id || null;
                         }
                     } else {
                         variantId = null;
@@ -396,14 +413,14 @@ Alpine.store('cart', {
             let variantId = item.variantId;
             if (Array.isArray(product.variants) && product.variants.length > 0) {
                 if (variantId) {
-                    const matchedVariant = product.variants.find(v => v.size === variantId || v.id === variantId || String(v.size) === String(variantId));
+                    const matchedVariant = findProductVariant(product, variantId);
                     if (!matchedVariant) {
                         changed = true;
                         continue;
                     }
                     variantId = matchedVariant.size || matchedVariant.id || variantId;
                 } else {
-                    variantId = product.variants[0].size || null;
+                    variantId = product.variants[0].size || product.variants[0].id || null;
                     changed = true;
                 }
             } else {
@@ -487,7 +504,18 @@ Alpine.store('cart', {
         productId = Number(productId) || productId;
         qty = Math.min(10, Math.max(1, parseInt(qty, 10) || 1));
 
-        const catalog = getProductsCatalog();
+        let catalog = getProductsCatalog();
+        if (typeof productOrId === 'object' && productOrId !== null && productOrId.id && productOrId.name) {
+            const existsInCatalog = catalog.some(p => p.id === productId || String(p.id) === String(productId));
+            if (!existsInCatalog) {
+                if (!Array.isArray(window.__everbloomProducts)) {
+                    window.__everbloomProducts = [...catalog];
+                }
+                window.__everbloomProducts.push(productOrId);
+                catalog = window.__everbloomProducts;
+            }
+        }
+
         const product = catalog.find(p => p.id === productId || String(p.id) === String(productId));
         if (!product) {
             return;
@@ -495,13 +523,12 @@ Alpine.store('cart', {
 
         if (Array.isArray(product.variants) && product.variants.length > 0) {
             if (variantId) {
-                const matched = product.variants.find(v => v.size === variantId || v.id === variantId || String(v.size) === String(variantId));
-                if (!matched) {
-                    return;
-                }
-                variantId = matched.size || matched.id || variantId;
+                const matched = findProductVariant(product, variantId);
+                variantId = matched
+                    ? (matched.size || matched.id || variantId)
+                    : (product.variants[0].size || product.variants[0].id || null);
             } else {
-                variantId = product.variants[0].size || null;
+                variantId = product.variants[0].size || product.variants[0].id || null;
             }
         } else {
             variantId = null;

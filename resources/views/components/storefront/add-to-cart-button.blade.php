@@ -7,16 +7,12 @@
     'class' => '',
 ])
 
-@php
-    $productJson = htmlspecialchars(json_encode($product), ENT_QUOTES, 'UTF-8');
-@endphp
-
 <button 
     type="button" 
     x-data="{ adding: false }"
     @click.stop.prevent="
         adding = true;
-        $store.cart.add({{ $productJson }}, {{ $quantity }}, '{{ $size }}', true);
+        $store.cart.add(@js($product['id'] ?? null), {{ (int) $quantity }}, @js($size), true);
         setTimeout(() => adding = false, 800);
     "
     :disabled="adding || '{{ $product['stock_status'] ?? 'in_stock' }}' === 'out_of_stock'"

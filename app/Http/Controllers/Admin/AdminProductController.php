@@ -154,7 +154,7 @@ class AdminProductController extends Controller
         $stockCount = (int) ($validated['stock_count'] ?? 25);
         $stockStatus = $validated['stock_status'] ?? ($stockCount > 10 ? 'in_stock' : ($stockCount > 0 ? 'low_stock' : 'out_of_stock'));
 
-        $product = Product::create([
+        $product = Product::withoutSyncingToSearch(fn () => Product::create([
             'category_id' => $category->id,
             'slug' => $slug,
             'sku' => $sku,
@@ -173,7 +173,7 @@ class AdminProductController extends Controller
             'is_featured' => $request->boolean('is_featured'),
             'badge' => $validated['badge'] ?? null,
             'is_active' => true,
-        ]);
+        ]));
 
         foreach ($storedImages as $idx => $path) {
             ProductImage::create([
@@ -188,7 +188,11 @@ class AdminProductController extends Controller
         $this->syncProductVariants($product, $request, $imageStorage, $validated, $sku, $stockCount, $stockStatus);
 
         Cache::forget('storefront_catalog_json');
-        $product->searchable();
+        try {
+            $product->searchable();
+        } catch (\Throwable $e) {
+            // Do not block product persistence if the search index driver is unavailable.
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
@@ -292,7 +296,11 @@ class AdminProductController extends Controller
         $this->syncProductVariants($product, $request, $imageStorage, $validated, $product->sku, $stockCount, $stockStatus);
 
         Cache::forget('storefront_catalog_json');
-        $product->searchable();
+        try {
+            $product->searchable();
+        } catch (\Throwable $e) {
+            // Do not block product update if the search index driver is unavailable.
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
@@ -441,9 +449,13 @@ class AdminProductController extends Controller
             }
         }
 
-        $product->unsearchable();
-        $product->delete();
         Cache::forget('storefront_catalog_json');
+        try {
+            $product->unsearchable();
+        } catch (\Throwable $e) {
+            // Do not block product deletion if the search index driver is unavailable.
+        }
+        $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }

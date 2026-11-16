@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', ($product['name'] ?? 'Product') . ' | The Everbloom')
 @section('meta_description', $product['short_description'] ?? 'Botanical skincare formulation from The Everbloom.')
@@ -95,7 +95,7 @@
             'url' => url()->current(),
             'priceCurrency' => $currencyCode,
             'price' => number_format($basePrice, 2, '.', ''),
-            'availability' => ($defaultVariant['stock_status'] ?? 'in_stock') === 'in_stock'
+            'availability' => ($defaultVariant['stock_status'] ?? 'in_stock') !== 'out_of_stock'
                 ? 'https://schema.org/InStock'
                 : 'https://schema.org/OutOfStock',
         ],
@@ -150,7 +150,7 @@
             return Math.round(((this.currentCompareAtPrice - this.currentPrice) / this.currentCompareAtPrice) * 100);
         },
         get isInStock() {
-            return (this.currentVariant?.stock_status ?? 'in_stock') === 'in_stock';
+            return (this.currentVariant?.stock_status ?? 'in_stock') !== 'out_of_stock';
         },
         nextImage() {
             if (!Array.isArray(this.images) || this.images.length === 0) return;
@@ -171,8 +171,28 @@
                 this.prevImage();
             }
         },
+        ensureInCatalog() {
+            const currentProduct = @js($product);
+            if (!Array.isArray(window.__everbloomProducts) || window.__everbloomProducts.length === 0) {
+                const el = document.getElementById('everbloom-products-data') || document.getElementById('everbloom-search-data');
+                if (el) {
+                    try {
+                        const parsed = JSON.parse(el.textContent);
+                        window.__everbloomProducts = Array.isArray(parsed) ? parsed : [];
+                    } catch (e) {
+                        window.__everbloomProducts = [];
+                    }
+                } else {
+                    window.__everbloomProducts = [];
+                }
+            }
+            if (!window.__everbloomProducts.some(p => String(p.id) === String(currentProduct.id))) {
+                window.__everbloomProducts.push(currentProduct);
+            }
+        },
         addToCart() {
             if (!this.isInStock) return;
+            this.ensureInCatalog();
             this.adding = true;
             $store.cart?.add({
                 id: '{{ $product['id'] ?? 1 }}',
@@ -182,6 +202,7 @@
         },
         buyNow() {
             if (!this.isInStock) return;
+            this.ensureInCatalog();
             this.buyingNow = true;
             $store.cart?.add({
                 id: '{{ $product['id'] ?? 1 }}',
@@ -406,7 +427,7 @@
                         </span>
                         <span class="text-[13px] flex items-center gap-1.5" :class="isInStock ? 'text-forest' : 'text-muted'">
                             <span class="w-1.5 h-1.5 rounded-full" :class="isInStock ? 'bg-forest' : 'bg-muted'"></span>
-                            <span x-text="isInStock ? 'In stock' : 'Out of stock'">In stock</span>
+                            <span x-text="!isInStock ? 'Out of stock' : ((currentVariant?.stock_status === 'low_stock') ? 'Low stock' : 'In stock')">In stock</span>
                         </span>
                     </div>
 
