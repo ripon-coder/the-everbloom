@@ -18,6 +18,9 @@ When developing or modifying the Admin Dashboard for **The Everbloom**, read the
 | [`02-layout-and-navigation-spec.md`](./02-layout-and-navigation-spec.md) | **Master Shell & Navigation**: Complete DOM hierarchy for `.wrapper`, `.topbar`, `.main-nav` sidebar, offcanvas drawers, `config.js` state persistence, and curated Everbloom navigation tree. |
 | [`03-ui-components-and-patterns.md`](./03-ui-components-and-patterns.md) | **Reusable UI Component Contracts**: Blade-ready HTML blueprints for KPI stat cards, data tables, status badges, 5-step order progress bars, Dropzone uploaders, Choices.js selects, timelines, and modals. |
 | [`04-page-by-page-specifications.md`](./04-page-by-page-specifications.md) | **Screen Specifications & Domain Mapping**: Page-by-page breakdown of every required admin view mapped directly to The Everbloom's data structures (`products`, `categories`, `orders`, `customers`, `coupons`, `settings`). |
+| [`05-frontend-and-system-analysis.md`](./05-frontend-and-system-analysis.md) | **Full Storefront & Admin System Analysis**: Complete inventory of Storefront routes, Blade components, Alpine.js state contracts (`$store.cart`, `$store.wishlist`, `searchModal`), `/admin` controllers, and `config/demo/*.php` data contracts. |
+| [`06-database-and-domain-architecture.md`](./06-database-and-domain-architecture.md) | **Database Schema, Dual-Auth & TNTSearch Spec**: ERD, migration schemas (`admins` vs `users` tables), isolated session middleware (`everbloom_admin_session` vs `everbloom_user_session`), Eloquent models, and Laravel Scout + TNTSearch architecture. |
+| [`07-step-by-step-backend-development-plan.md`](./07-step-by-step-backend-development-plan.md) | **AI Step-by-Step Backend Development Blueprint**: Sequential 7-phase execution plan (Migrations/Seeders -> Dual Auth/Sessions -> TNTSearch -> Storefront -> Checkout/Orders -> Customer Portal -> Admin CRUD) with verification commands. |
 
 ---
 
