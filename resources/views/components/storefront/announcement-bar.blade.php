@@ -1,5 +1,5 @@
 @props([
-    'message' => config('demo.site.announcement.message', 'Free shipping on orders over $' . (int)config('demo.site.shipping_rates.standard.free_threshold', 75)),
+    'message' => config('demo.site.announcement.message', 'Free shipping on orders over ' . config('demo.site.currency.symbol', '$') . (int) config('demo.site.shipping_rates.standard.free_threshold', 75)),
     'link' => config('demo.site.announcement.link', '/shop'),
     'linkText' => config('demo.site.announcement.link_text', 'Shop Now'),
 ])
@@ -20,7 +20,7 @@
 
             <!-- Single-line container preventing wrapping or truncation at 320px -->
             <div class="flex-1 flex items-center justify-center gap-1.5 text-xs whitespace-nowrap">
-                <span class="md:hidden">Free shipping over $75</span>
+                <span class="md:hidden">Free shipping over {{ $currencySymbol }}{{ number_format(config('demo.site.shipping_rates.standard.free_threshold', 75), 0) }}</span>
                 <span class="hidden md:inline">{{ $message }}</span>
                 @if($link && $linkText)
                     <a href="{{ $link }}" class="underline underline-offset-4 font-semibold hover:text-beige transition-colors shrink-0 ml-1">

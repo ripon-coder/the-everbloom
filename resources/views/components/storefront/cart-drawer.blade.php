@@ -122,7 +122,7 @@
                 <div class="py-4 first:pt-0 last:pb-0 flex gap-4">
                     <!-- Thumbnail with x-storefront.image, aspect-square, 80x80 fixed, wrapped in link -->
                     <a :href="'/shop/product/' + item.slug" class="w-20 h-20 min-w-[80px] min-h-[80px] shrink-0 block">
-                        <x-storefront.image ::src="'/images/' + item.image" ::alt="item.name" aspect-ratio="aspect-square" class="w-20 h-20 min-w-[80px] min-h-[80px] shrink-0 object-cover border border-[#E3E6DD]" />
+                        <x-storefront.image ::src="item.image ? ((item.image.startsWith('http') || item.image.startsWith('/')) ? item.image : '/images/' + item.image) : ''" ::alt="item.name" aspect-ratio="aspect-square" class="w-20 h-20 min-w-[80px] min-h-[80px] shrink-0 object-cover border border-[#E3E6DD]" />
                     </a>
 
                     <!-- Meta Details -->

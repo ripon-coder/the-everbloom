@@ -109,7 +109,7 @@
                             >
                                 <div class="w-14 h-14 shrink-0 border border-[#E3E6DD] overflow-hidden">
                                     <x-storefront.image 
-                                        ::src="item.images && item.images.length > 0 ? '/images/' + item.images[0] : ''" 
+                                        ::src="item.images && item.images.length > 0 ? ((item.images[0].startsWith('http') || item.images[0].startsWith('/')) ? item.images[0] : '/images/' + item.images[0]) : ''" 
                                         ::alt="item.name" 
                                         aspect-ratio="aspect-square" 
                                         class="w-14 h-14 object-cover" 

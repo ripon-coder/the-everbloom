@@ -47,14 +47,27 @@
     <div class="col-lg-8">
         @foreach($attributes as $attr)
             <div class="card mb-3">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <form action="{{ route('admin.attributes.update', $attr) }}" method="POST" class="d-flex gap-2 align-items-center">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <form action="{{ route('admin.attributes.update', $attr) }}" method="POST" class="d-flex flex-wrap gap-2 align-items-center">
                         @csrf
                         @method('PUT')
-                        <input type="text" name="name" value="{{ $attr->name }}" class="form-control form-control-sm fw-bold" style="width:200px;">
-                        <button type="submit" class="btn btn-sm btn-soft-primary">Rename</button>
+                        <input type="hidden" name="sync_categories" value="1">
+                        <input type="text" name="name" value="{{ $attr->name }}" class="form-control form-control-sm fw-bold" style="width:180px;">
+                        <select name="category_ids[]" class="form-select form-select-sm" multiple size="1" style="min-width:220px;" title="Assigned categories (hold Ctrl to multi-select)">
+                            @foreach($categories ?? [] as $cat)
+                                <option value="{{ $cat->id }}" {{ $attr->categories->contains('id', $cat->id) ? 'selected' : '' }}>{{ $cat->hierarchy_path }}</option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-soft-primary">Save</button>
                     </form>
-                    <span class="badge bg-light text-muted">{{ $attr->values->count() }} values</span>
+                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                        @forelse($attr->categories as $assignedCat)
+                            <span class="badge bg-primary-subtle text-primary fs-11">{{ $assignedCat->hierarchy_path }}</span>
+                        @empty
+                            <span class="badge bg-secondary-subtle text-secondary fs-11">Global (All Categories)</span>
+                        @endforelse
+                        <span class="badge bg-light text-muted">{{ $attr->values->count() }} values</span>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2 mb-3">

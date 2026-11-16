@@ -132,7 +132,10 @@
                                     <td>{{ $row['qty'] }}</td>
                                     <td>{{ $currencySymbol }}{{ number_format($row['revenue'], 2) }}</td>
                                     <td class="text-muted">{{ $currencySymbol }}{{ number_format($row['cost'], 2) }}</td>
-                                    <td><span class="badge bg-success-subtle text-success">+{{ $currencySymbol }}{{ number_format($row['profit'], 2) }} ({{ $row['margin'] }}%)</span></td>
+                                    <td>
+                                        @php $prodProfit = (float) $row['profit']; @endphp
+                                        <span class="badge {{ $prodProfit >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">{{ ($prodProfit >= 0 ? '+' : '-') . $currencySymbol }}{{ number_format(abs($prodProfit), 2) }} ({{ $row['margin'] }}%)</span>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr><td colspan="5" class="text-center text-muted py-3">No product sales in this filter range.</td></tr>
@@ -166,7 +169,10 @@
                                     <td class="fs-12 text-muted">{{ $o->date }}</td>
                                     <td>{{ $currencySymbol }}{{ number_format((float) $o->total, 2) }}</td>
                                     <td class="text-muted">{{ $currencySymbol }}{{ number_format((float) $o->total_cost, 2) }}</td>
-                                    <td><span class="badge bg-success-subtle text-success">+{{ $currencySymbol }}{{ number_format((float) $o->total_profit, 2) }}</span></td>
+                                    <td>
+                                        @php $ordProfit = (float) $o->total_profit; @endphp
+                                        <span class="badge {{ $ordProfit >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">{{ ($ordProfit >= 0 ? '+' : '-') . $currencySymbol }}{{ number_format(abs($ordProfit), 2) }}</span>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr><td colspan="5" class="text-center text-muted py-3">No orders match the selected filters.</td></tr>

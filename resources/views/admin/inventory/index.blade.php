@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Warehouse Inventory')
 @section('container_class', 'container-xxl')
@@ -160,7 +160,8 @@
                                     <span class="fs-13 text-dark">{{ $currencySymbol }}{{ number_format($item['sell_price'] ?? 0, 2) }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-success-subtle text-success">+{{ $currencySymbol }}{{ number_format($item['unit_profit'] ?? 0, 2) }}</span>
+                                    @php $invUnitProfit = (float) ($item['unit_profit'] ?? 0); @endphp
+                                    <span class="badge {{ $invUnitProfit >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">{{ ($invUnitProfit >= 0 ? '+' : '-') . $currencySymbol }}{{ number_format(abs($invUnitProfit), 2) }}</span>
                                 </td>
                                 <td>
                                     <span class="text-muted fs-13">{{ $item['min_threshold'] }} units</span>
@@ -184,7 +185,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="text-center py-4 text-muted">No inventory records found.</td>
+                                <td colspan="12" class="text-center py-4 text-muted">No inventory records found.</td>
                             </tr>
                             @endforelse
                         </tbody>

@@ -10,8 +10,7 @@
 ## 1. Executive Summary of Audit Findings (Re-Checked)
 
 We re-audited all **12 Admin Controllers**, **Services**, and **19 Admin Blade Templates** (plus Storefront price bindings):
-- **Issues `ISS-01` through `ISS-12`**: **RESOLVED & VERIFIED** in the codebase.
-- **New Issue `ISS-13` (Dynamic Currency Audit)**: While `/admin/settings` (`AdminSettingController`) saves `currency_code` and `currency_symbol` into the `settings` table, **`$` and `USD` remain hardcoded** across Admin views and several Storefront Alpine.js views instead of dynamically rendering the configured currency (e.g., **Taka `৳` / `BDT`**, **Dollar `$` / `USD`**, **Pound `£` / `GBP`**, **Euro `€` / `EUR`**).
+- **Issues `ISS-01` through `ISS-15`**: **ALL RESOLVED & VERIFIED** in the codebase.
 
 | ID | Status | Severity | Module | File(s) Affected | Issue Summary |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -27,9 +26,9 @@ We re-audited all **12 Admin Controllers**, **Services**, and **19 Admin Blade T
 | **ISS-10** | **Resolved** | Medium | Products List | `resources/views/admin/products/index.blade.php` | Replaced dummy pagination with `$products->links('pagination::bootstrap-5')` and `$products->total()`. |
 | **ISS-11** | **Resolved** | Medium | Inventory | `resources/views/admin/inventory/index.blade.php` | Computed dynamic stock health KPIs, linked "Receive New Batch" to `purchases.create`, and added inline stock adjustment form. |
 | **ISS-12** | **Resolved** | Low | Customers & Sidebar | `resources/views/admin/customers/index.blade.php`<br>`AdminCustomerController.php`<br>`components/admin/sidebar.blade.php` | Computed dynamic customer KPIs, changed default fallback city to `'Dhaka, Bangladesh'`, and removed hardcoded demo order/customer IDs from sidebar. |
-| **ISS-13** | **OPEN** | **High** | **Dynamic Currency (Storefront & Admin)** | `AppServiceProvider.php`<br>`AdminSettingController.php`<br>All Admin & Storefront Price Views | **Hardcoded `$` and `USD`** across Admin views (`dashboard`, `products`, `orders`, `inventory`, `purchases`, `invoices`, `customers`, `coupons`, `settings`) and Storefront views (`product`, `cart`, `checkout`, `wishlist`, `account`) instead of dynamic currency (`৳ BDT`, `$ USD`, `£ GBP`, `€ EUR`). |
-| **ISS-14** | **OPEN** | **High** | **3-Step Category Hierarchy & Category-Scoped Attributes** | `categories` & `category_attribute` tables<br>`AdminCategoryController.php`<br>`AdminAttributeController.php`<br>`admin/products/create.blade.php` | Categories are currently flat (1-level) instead of a **3-step hierarchy (`Main -> Subcategory -> Child Category`)**, and `/admin/products/create` shows all attributes globally instead of **filtering attributes dynamically by the selected Category**. |
-| **ISS-15** | **OPEN** | **High** | **Operational Dashboard (`/admin`) vs. Financial Menu (`/admin/financial`)** | `AdminDashboardController.php`<br>`AdminFinancialController.php`<br>`admin/dashboard/index.blade.php`<br>`admin/financial/index.blade.php` | `/admin` should focus on common operational store stats (`Orders`, `Processing`, `Customers`, `SKUs`, `Low Stock`), while a dedicated **Financial** sidebar menu (`/admin/financial`) displays all financial metrics (`Revenue`, `COGS`, `Net Profit`, `Margin %`, `Batch Outflow`, `Inventory Valuation`) with **Date Range, Category, Vendor, and Order Status filters** using Larkon components from `docs/admin-dashboard/`. |
+| **ISS-13** | **Resolved** | High | **Dynamic Currency (Storefront & Admin)** | `AppServiceProvider.php`<br>`AdminSettingController.php`<br>All Admin & Storefront Price Views | Shared `$currencySymbol` & `$currencyCode` globally, added Currency Preset selector in `/admin/settings`, and replaced all hardcoded `$` and `USD` across Admin & Storefront views and JS templates. |
+| **ISS-14** | **Resolved** | High | **3-Step Category Hierarchy & Category-Scoped Attributes** | `categories` & `category_attribute` tables<br>`AdminCategoryController.php`<br>`AdminAttributeController.php`<br>`admin/products/create.blade.php` | Implemented 3-step hierarchy (`Main -> Subcategory -> Child Category`) with depth enforcement, category-to-attribute assignments (`category_attribute`), descendant product filtering, and dynamic `filterAttributesByCategory()` on `/admin/products/create`. |
+| **ISS-15** | **Resolved** | High | **Operational Dashboard (`/admin`) vs. Financial Menu (`/admin/financial`)** | `AdminDashboardController.php`<br>`AdminFinancialController.php`<br>`admin/dashboard/index.blade.php`<br>`admin/financial/index.blade.php` | Focused `/admin` on live operational KPIs (`Total Orders`, `Pending/Processing`, `Customers`, `Active Profiles`, `Active SKUs`, `Low Stock Alerts`) and implemented `/admin/financial` with Date Range, Category, Vendor, and Order Status filters, ApexCharts, and profitability ledgers. |
 
 ---
 
@@ -225,7 +224,7 @@ We re-audited all **12 Admin Controllers**, **Services**, and **19 Admin Blade T
 
 ---
 
-### ISS-13 (OPEN — High): Hardcoded `$` & `USD` Currency Across Admin & Storefront Views Instead of Dynamic Website Currency (`Taka ৳`, `Dollar $`, `Pound £`, `Euro €`)
+### ISS-13 (Resolved — High): Hardcoded `$` & `USD` Currency Across Admin & Storefront Views Instead of Dynamic Website Currency (`Taka ৳`, `Dollar $`, `Pound £`, `Euro €`)
 - **Locations**:
   1. **Global View Sharing (`app/Providers/AppServiceProvider.php`)**:
      - Currently merges `Setting::where('key', 'site')` into `config('demo.site')`, but does **not** call `View::share('currencySymbol', ...)` or `View::share('currencyCode', ...)`.
@@ -258,7 +257,7 @@ We re-audited all **12 Admin Controllers**, **Services**, and **19 Admin Blade T
 
 ---
 
-### ISS-14 (OPEN — High): Flat Categories Instead of 3-Step Hierarchy (`Main -> Subcategory -> Child`) & Global Attributes Instead of Category-Scoped Attributes on Product Create
+### ISS-14 (Resolved — High): Flat Categories Instead of 3-Step Hierarchy (`Main -> Subcategory -> Child`) & Global Attributes Instead of Category-Scoped Attributes on Product Create
 - **Locations**:
   - `database/migrations/0001_01_01_000004_create_categories_table.php`
   - `app/Models/Category.php` & `app/Models/Attribute.php`
@@ -273,7 +272,7 @@ We re-audited all **12 Admin Controllers**, **Services**, and **19 Admin Blade T
 
 ---
 
-### ISS-15 (OPEN — High): Missing Dedicated Financial Menu (`/admin/financial`) with Filters & Operational Dashboard Separation (`/admin`)
+### ISS-15 (Resolved — High): Missing Dedicated Financial Menu (`/admin/financial`) with Filters & Operational Dashboard Separation (`/admin`)
 - **Locations**:
   - `routes/admin.php`
   - `resources/views/components/admin/sidebar.blade.php`

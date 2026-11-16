@@ -219,7 +219,7 @@
                                                 <input type="text" name="variants[{{ $vIdx }}][sku]" class="form-control form-control-sm" value="{{ $vRow['sku'] ?? '' }}">
                                             </div>
                                             <div class="col-md-2">
-                                                <label class="form-label fs-12 mb-1">Price ($)</label>
+                                                <label class="form-label fs-12 mb-1">Price ({{ $currencySymbol }})</label>
                                                 <input type="number" step="0.01" name="variants[{{ $vIdx }}][price]" class="form-control form-control-sm" value="{{ $vRow['price'] ?? ($product['price'] ?? 0) }}">
                                             </div>
                                             <div class="col-md-2">

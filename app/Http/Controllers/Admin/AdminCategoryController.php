@@ -52,8 +52,10 @@ class AdminCategoryController extends Controller
             ->orWhere('id', is_numeric($slug) ? (int) $slug : 0)
             ->firstOrFail();
 
+        $excludeIds = $category->descendantAndSelfIds();
+
         $parentCategories = Category::where('level', '<', 3)
-            ->where('id', '!=', $category->id)
+            ->whereNotIn('id', $excludeIds)
             ->with('parent')
             ->orderBy('level')
             ->orderBy('sort_order')
@@ -152,10 +154,16 @@ class AdminCategoryController extends Controller
 
         $level = 1;
         $parentId = $validated['parent_id'] ?? null;
+        $children = $category->children()->with('children')->get();
+        $subtreeOffset = 0;
+        if ($children->isNotEmpty()) {
+            $subtreeOffset = $children->contains(fn (Category $c) => $c->children->isNotEmpty()) ? 2 : 1;
+        }
+
         if ($parentId) {
-            if ((int) $parentId === $category->id) {
+            if (in_array((int) $parentId, $category->descendantAndSelfIds(), true)) {
                 throw ValidationException::withMessages([
-                    'parent_id' => 'A category cannot be its own parent.',
+                    'parent_id' => 'A category cannot be assigned to itself or one of its descendants.',
                 ]);
             }
             $parent = Category::findOrFail($parentId);
@@ -165,6 +173,12 @@ class AdminCategoryController extends Controller
                 ]);
             }
             $level = $parent->level + 1;
+        }
+
+        if ($level + $subtreeOffset > 3) {
+            throw ValidationException::withMessages([
+                'parent_id' => 'Moving this category would push child categories past the 3-step depth limit.',
+            ]);
         }
 
         $newSlug = !empty($validated['slug']) ? Str::slug($validated['slug']) : $category->slug;
@@ -189,6 +203,13 @@ class AdminCategoryController extends Controller
             'image' => $imagePath,
             'image_source' => $imageSource,
         ]);
+
+        foreach ($children as $child) {
+            $child->update(['level' => $level + 1]);
+            foreach ($child->children as $grandChild) {
+                $grandChild->update(['level' => $level + 2]);
+            }
+        }
 
         $category->assignedAttributes()->sync($request->input('attribute_ids', []));
         Cache::forget('storefront_catalog_json');

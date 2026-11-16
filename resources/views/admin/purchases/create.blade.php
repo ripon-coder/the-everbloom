@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Record Wholesale Purchase Batch')
 
@@ -77,7 +77,7 @@
                         <input type="number" name="items[0][qty]" class="form-control form-control-sm qty-input" min="1" value="10" oninput="updateRowPreview(this)" required>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label fs-12">Unit Buy ($) *</label>
+                        <label class="form-label fs-12">Unit Buy ({{ $currencySymbol }}) *</label>
                         <input type="number" step="0.01" min="0" name="items[0][unit_buy_price]" class="form-control form-control-sm price-input" value="25.00" oninput="updateRowPreview(this)" required>
                     </div>
                     <div class="col-md-2 d-flex align-items-center justify-content-between gap-2">
@@ -94,6 +94,7 @@
 </form>
 
 <script>
+const currencySymbol = @js($currencySymbol);
 let batchIdx = 1;
 function populateVariants(row) {
     const prodSelect = row.querySelector('.product-select');
@@ -123,7 +124,7 @@ function updateRowPreview(el) {
     const totalQty = avail + qty;
     const newAvg = totalQty > 0 ? ((avail * curAvg) + (qty * unitBuy)) / totalQty : unitBuy;
     const unitProfit = sellPrice - newAvg;
-    row.querySelector('.preview-text').textContent = `Avg: {{ $currencySymbol }}${newAvg.toFixed(2)} | Profit: ${unitProfit >= 0 ? '+' . $currencySymbol : '-' . $currencySymbol}${Math.abs(unitProfit).toFixed(2)}`;
+    row.querySelector('.preview-text').textContent = `Avg: ${currencySymbol}${newAvg.toFixed(2)} | Profit: ${unitProfit >= 0 ? '+' + currencySymbol : '-' + currencySymbol}${Math.abs(unitProfit).toFixed(2)}`;
 }
 function addBatchRow() {
     const container = document.getElementById('batch-rows');

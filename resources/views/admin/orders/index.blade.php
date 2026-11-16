@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Orders List')
 @section('container_class', 'container-xxl')
@@ -219,7 +219,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="9" class="text-center py-5 text-muted">No orders found matching this filter.</td>
+                                <td colspan="11" class="text-center py-5 text-muted">No orders found matching this filter.</td>
                             </tr>
                             @endforelse
                         </tbody>

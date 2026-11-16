@@ -31,7 +31,12 @@ class AdminProductController extends Controller
 
         if ($request->filled('category')) {
             $catSlug = (string) $request->category;
-            $query->whereHas('categoryRelation', fn ($q) => $q->where('slug', $catSlug));
+            $cat = Category::where('slug', $catSlug)->first();
+            if ($cat) {
+                $query->whereIn('category_id', $cat->descendantAndSelfIds());
+            } else {
+                $query->whereRaw('1 = 0');
+            }
         }
 
         $products = $query->latest('id')->paginate(12)->withQueryString();

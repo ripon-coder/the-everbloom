@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Shopping Bag — The Everbloom')
 @section('meta_description', 'Review your selected botanical skincare formulations in your shopping bag.')
@@ -8,7 +8,7 @@
 @php
     $freeShippingThreshold = config('demo.site.shipping_rates.standard.free_threshold', 75.00);
     $standardShippingCost = config('demo.site.shipping_rates.standard.cost', 6.00);
-    $allProducts = config('demo.products', []);
+    $allProducts = $storefrontProductsJson ?? config('demo.products', []);
 
     // 4 Best-selling products for empty state
     $bestSellers = array_values(array_filter($allProducts, fn($p) => ($p['badge'] ?? '') === 'Bestseller' || ($p['is_featured'] ?? false)));
@@ -91,7 +91,7 @@
                                 <!-- Fixed 80x80 thumbnail on the left (shrink-0, never collapses) -->
                                 <a :href="'/shop/product/' + item.slug" class="w-[80px] h-[80px] min-w-[80px] min-h-[80px] shrink-0 block aspect-square overflow-hidden">
                                     <x-storefront.image 
-                                        ::src="item.image ? '/images/' + item.image : ''" 
+                                        ::src="item.image ? ((item.image.startsWith('http') || item.image.startsWith('/')) ? item.image : '/images/' + item.image) : ''" 
                                         ::alt="item.name" 
                                         aspect-ratio="aspect-square" 
                                         class="w-[80px] h-[80px] min-w-[80px] min-h-[80px] shrink-0 aspect-square border border-[#E3E6DD]" 
@@ -161,7 +161,7 @@
                             <div class="hidden lg:flex py-6 gap-6 items-center">
                                 <a :href="'/shop/product/' + item.slug" class="w-24 h-24 shrink-0 block">
                                     <x-storefront.image 
-                                        ::src="'/images/' + item.image" 
+                                        ::src="item.image ? ((item.image.startsWith('http') || item.image.startsWith('/')) ? item.image : '/images/' + item.image) : ''" 
                                         ::alt="item.name" 
                                         aspect-ratio="aspect-square" 
                                         class="w-24 h-24 shrink-0 object-cover border border-[#E3E6DD]" 
@@ -265,7 +265,7 @@
                                 <span>Discount (<span x-text="$store.cart.discountCode"></span>)</span>
                                 <button type="button" @click="$store.cart.removeDiscount()" class="text-xs text-muted hover:text-ink underline">Remove</button>
                             </span>
-                            <span class="price" x-text="'-$' + $store.cart.discountAmount.toFixed(2)"></span>
+                            <span class="price" x-text="'-{{ $currencySymbol }}' + $store.cart.discountAmount.toFixed(2)"></span>
                         </div>
 
                         <div class="flex justify-between text-muted">

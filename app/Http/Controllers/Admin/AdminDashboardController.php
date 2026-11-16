@@ -26,6 +26,7 @@ class AdminDashboardController extends Controller
         $totalOrders = Order::count();
         $totalProducts = Product::count();
         $totalCustomers = User::count();
+        $activeCustomersCount = User::where('status', 'Active')->count();
         $pendingOrdersCount = Order::whereIn('status', ['Placed', 'Processing'])->count();
         $lowStockCount = Product::whereColumn('stock_count', '<=', 'min_threshold')->count();
 
@@ -45,6 +46,7 @@ class AdminDashboardController extends Controller
             'totalOrders',
             'totalProducts',
             'totalCustomers',
+            'activeCustomersCount',
             'pendingOrdersCount',
             'lowStockCount',
             'recentOrders',

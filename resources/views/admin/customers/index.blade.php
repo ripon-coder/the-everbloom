@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Customer List')
 @section('container_class', 'container-xxl')
@@ -178,7 +178,7 @@
                 </div>
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50">
-                <p class="mb-0 text-muted fs-12">Displaying {{ count($customers) }} of 428 registered Everbloom clients</p>
+                <p class="mb-0 text-muted fs-12">Displaying {{ count($customers) }} of {{ $allClientsCount ?? count($customers) }} registered Everbloom clients</p>
             </div>
         </div>
     </div>

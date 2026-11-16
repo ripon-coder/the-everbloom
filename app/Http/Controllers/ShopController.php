@@ -26,7 +26,12 @@ class ShopController extends Controller
 
         if ($request->filled('category')) {
             $catSlug = (string) $request->query('category');
-            $query->whereHas('categoryRelation', fn ($q) => $q->where('slug', $catSlug));
+            $cat = Category::where('slug', $catSlug)->first();
+            if ($cat) {
+                $query->whereIn('category_id', $cat->descendantAndSelfIds());
+            } else {
+                $query->whereRaw('1 = 0');
+            }
         }
 
         if ($request->boolean('in_stock')) {
@@ -82,7 +87,7 @@ class ShopController extends Controller
             ->firstOrFail();
 
         $query = Product::with(['categoryRelation', 'productVariants'])
-            ->where('category_id', $category->id)
+            ->whereIn('category_id', $category->descendantAndSelfIds())
             ->where('is_active', true);
 
         $sort = (string) $request->query('sort', 'featured');

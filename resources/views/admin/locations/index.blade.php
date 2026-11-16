@@ -65,7 +65,7 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Bangla Name</th>
-                                    <th>Delivery Charge</th>
+                                    <th>Delivery Charge ({{ $currencySymbol }})</th>
                                     <th>Status</th>
                                     <th class="text-end">Actions</th>
                                 </tr>
@@ -256,6 +256,7 @@
                                 <tr>
                                     <th>District / Thana</th>
                                     <th>Area Name</th>
+                                    <th>Bangla Name</th>
                                     <th>Postal Code</th>
                                     <th>Status</th>
                                     <th class="text-end">Actions</th>
@@ -267,6 +268,9 @@
                                         <td class="fs-12 text-muted">{{ $area->district?->name }} / {{ $area->thana?->name }}</td>
                                         <td>
                                             <input type="text" name="name" value="{{ $area->name }}" form="update-area-{{ $area->id }}" class="form-control form-control-sm">
+                                        </td>
+                                        <td>
+                                            <input type="text" name="bn_name" value="{{ $area->bn_name }}" form="update-area-{{ $area->id }}" class="form-control form-control-sm">
                                         </td>
                                         <td>
                                             <input type="text" name="postal_code" value="{{ $area->postal_code }}" form="update-area-{{ $area->id }}" class="form-control form-control-sm" style="width:90px;">

@@ -1,4 +1,4 @@
-﻿@extends('layouts.checkout')
+@extends('layouts.checkout')
 
 @section('title', 'Demo Checkout — ' . config('demo.site.name'))
 @section('hide_newsletter', true)
@@ -138,7 +138,7 @@
                                 <!-- Thumbnail: relative, 64x64, shrink-0 with 20px badge at -top-2 -right-2, overflow visible -->
                                 <div class="relative w-16 h-16 shrink-0 overflow-visible bg-white border border-[#E3E6DD]">
                                     <x-storefront.image 
-                                        ::src="'/images/' + (item.image || '')" 
+                                        ::src="item.image ? ((item.image.startsWith('http') || item.image.startsWith('/')) ? item.image : '/images/' + item.image) : ''" 
                                         ::alt="item.name || 'Botanical formulation'" 
                                         aspect-ratio="aspect-square" 
                                         class="w-full h-full object-cover" 
@@ -207,7 +207,7 @@
 
                     <div x-show="$store.cart.discountAmount > 0" x-cloak class="flex justify-between text-forest font-medium">
                         <span>Discount (<span x-text="$store.cart.discountCode"></span>)</span>
-                        <span class="price" x-text="'-$' + ($store.cart.discountAmount || 0).toFixed(2)"></span>
+                        <span class="price" x-text="'-{{ $currencySymbol }}' + ($store.cart.discountAmount || 0).toFixed(2)"></span>
                     </div>
 
                     <div class="flex justify-between text-muted">
@@ -623,7 +623,7 @@
                                     <!-- Thumbnail wrapper: relative, 64x64, shrink-0, badge at -top-2 -right-2 (20px forest circle, ivory text), overflow visible -->
                                     <div class="relative w-16 h-16 shrink-0 overflow-visible bg-white border border-[#E3E6DD]">
                                         <x-storefront.image 
-                                            ::src="'/images/' + (item.image || '')" 
+                                            ::src="item.image ? ((item.image.startsWith('http') || item.image.startsWith('/')) ? item.image : '/images/' + item.image) : ''" 
                                             ::alt="item.name || 'Botanical product'" 
                                             aspect-ratio="aspect-square" 
                                             class="w-full h-full object-cover" 
@@ -694,7 +694,7 @@
                         <!-- Discount (only when applied) -->
                         <div x-show="$store.cart.discountAmount > 0" x-cloak class="flex justify-between text-forest font-medium">
                             <span>Discount (<span x-text="$store.cart.discountCode"></span>)</span>
-                            <span class="price" x-text="'-$' + ($store.cart.discountAmount || 0).toFixed(2)"></span>
+                            <span class="price" x-text="'-{{ $currencySymbol }}' + ($store.cart.discountAmount || 0).toFixed(2)"></span>
                         </div>
 
                         <!-- Shipping Row -->

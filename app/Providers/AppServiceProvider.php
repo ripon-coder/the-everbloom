@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
         View::share('currencySymbol', $currencySymbol);
         View::share('currencyCode', $currencyCode);
 
-        View::composer(['components.storefront.cart-drawer', 'components.storefront.search-modal'], function ($view) {
+        View::composer(['components.storefront.cart-drawer', 'components.storefront.search-modal', 'frontend.cart.index'], function ($view) {
             try {
                 if (Schema::hasTable('products')) {
                     $products = Cache::remember('storefront_catalog_json', 3600, function () {

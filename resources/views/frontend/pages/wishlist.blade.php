@@ -1,4 +1,4 @@
-﻿@extends('layouts.account')
+@extends('layouts.account')
 
 @section('title', 'Saved Wishlist — ' . config('demo.site.name'))
 @section('meta_description', 'View and manage your saved wishlist of botanical skincare formulations at The Everbloom.')
@@ -53,7 +53,7 @@
                 <div>
                     <a :href="'/shop/product/' + item.slug" class="block aspect-[4/5] bg-sage-light/40 overflow-hidden mb-3 relative">
                         <x-storefront.image 
-                            ::src="item.image ? '/images/' + item.image : ''" 
+                            ::src="item.image ? ((item.image.startsWith('http') || item.image.startsWith('/')) ? item.image : '/images/' + item.image) : ''" 
                             ::alt="item.name || 'Botanical formulation'" 
                             aspect-ratio="aspect-[4/5]" 
                             class="w-full h-full object-cover" 

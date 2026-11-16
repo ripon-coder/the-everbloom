@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Wholesale Purchases & Profit Margins')
 
@@ -50,7 +50,7 @@
                             <td>{{ $currencySymbol }}{{ number_format($item['sell_price'], 2) }}</td>
                             <td>
                                 <span class="badge {{ $item['unit_profit'] >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">
-                                    +{{ $currencySymbol }}{{ number_format($item['unit_profit'], 2) }} ({{ $item['margin_pct'] }}%)
+                                    {{ ($item['unit_profit'] >= 0 ? '+' : '-') . $currencySymbol }}{{ number_format(abs($item['unit_profit']), 2) }} ({{ $item['margin_pct'] }}%)
                                 </span>
                             </td>
                         </tr>

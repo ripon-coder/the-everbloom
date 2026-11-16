@@ -18,7 +18,7 @@
                         </span>
                         <div class="ms-2">
                             <h5 class="mb-1 text-dark fw-semibold fs-15 lh-base">New Order Received</h5>
-                            <p class="text-muted mb-1 fs-13">Order <span class="fw-semibold text-primary">#EB-9042</span> placed by Sophia Laurent ($148.00)</p>
+                            <p class="text-muted mb-1 fs-13">Order <span class="fw-semibold text-primary">#EB-9042</span> placed by Sophia Laurent ({{ $currencySymbol }}148.00)</p>
                             <h6 class="mt-2 text-muted fs-12">12 minutes ago</h6>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Welcome!')
 @section('container_class', 'container-fluid')
@@ -9,7 +9,7 @@
     <!-- Left Column: Banner + 4 KPI Cards -->
     <div class="col-xxl-5">
         <div class="alert alert-primary text-truncate mb-3" role="alert">
-            <i class="bx bx-broadcast fs-16 align-middle me-1"></i> Storefront Active: <strong>Free standard ground shipping over $75</strong> promo is currently live.
+            <i class="bx bx-broadcast fs-16 align-middle me-1"></i> Storefront Active: <strong>Free standard ground shipping over {{ $currencySymbol }}{{ number_format(config('demo.site.shipping.free_shipping_threshold', 75), 0) }}</strong> promo is currently live.
         </div>
 
         <div class="row">
@@ -32,8 +32,7 @@
                     <div class="card-footer py-2 bg-light bg-opacity-50">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <span class="text-success"><i class="bx bxs-up-arrow fs-12"></i> 12.5%</span>
-                                <span class="text-muted ms-1 fs-12">vs last month</span>
+                                <span class="badge bg-warning-subtle text-warning fs-11">{{ $pendingOrdersCount }} Pending / Processing</span>
                             </div>
                             <a href="{{ route('admin.orders.index') }}" class="text-reset fw-semibold fs-12">View All</a>
                         </div>
@@ -60,8 +59,7 @@
                     <div class="card-footer py-2 bg-light bg-opacity-50">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <span class="text-success"><i class="bx bxs-up-arrow fs-12"></i> 18.2%</span>
-                                <span class="text-muted ms-1 fs-12">vs last month</span>
+                                <span class="badge bg-success-subtle text-success fs-11">{{ $activeCustomersCount ?? $totalCustomers }} Active Profiles</span>
                             </div>
                             <a href="{{ route('admin.customers.index') }}" class="text-reset fw-semibold fs-12">View All</a>
                         </div>
@@ -96,29 +94,28 @@
                 </div>
             </div>
 
-            <!-- Booked Revenue -->
+            <!-- Low Stock Alerts & Booked Revenue -->
             <div class="col-md-6">
                 <div class="card overflow-hidden">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-6">
                                 <div class="avatar-md bg-soft-primary rounded">
-                                    <iconify-icon icon="solar:wallet-bold-duotone" class="avatar-title fs-32 text-primary"></iconify-icon>
+                                    <iconify-icon icon="solar:danger-triangle-bold-duotone" class="avatar-title fs-32 text-primary"></iconify-icon>
                                 </div>
                             </div>
                             <div class="col-6 text-end">
-                                <p class="text-muted mb-0 text-truncate">Booked Revenue</p>
-                                <h3 class="text-dark mt-1 mb-0">{{ $currencySymbol }}{{ number_format($totalRevenue, 2) }}</h3>
+                                <p class="text-muted mb-0 text-truncate">Low Stock Alerts</p>
+                                <h3 class="text-dark mt-1 mb-0">{{ number_format($lowStockCount) }}</h3>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer py-2 bg-light bg-opacity-50">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <span class="text-success"><i class="bx bxs-up-arrow fs-12"></i> 23.4%</span>
-                                <span class="text-muted ms-1 fs-12">vs last month</span>
+                                <a href="{{ route('admin.financial.index') }}" class="text-muted fs-12 text-decoration-none">Booked: <strong class="text-dark">{{ $currencySymbol }}{{ number_format($totalRevenue, 2) }}</strong></a>
                             </div>
-                            <a href="{{ route('admin.invoices.index') }}" class="text-reset fw-semibold fs-12">Invoices</a>
+                            <a href="{{ route('admin.inventory.index') }}" class="text-reset fw-semibold fs-12">Inventory</a>
                         </div>
                     </div>
                 </div>
