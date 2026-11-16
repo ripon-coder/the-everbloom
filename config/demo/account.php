@@ -14,6 +14,7 @@ return [
         'last_name' => 'Vance', // DEMO DATA
         'email' => 'eleanor.vance@example.com', // DEMO DATA
         'phone' => '+1 (503) 555-0192', // DEMO DATA
+        'member_since' => 'March 2024', // DEMO DATA
     ],
 
     /*

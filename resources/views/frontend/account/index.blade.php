@@ -15,7 +15,7 @@
 @endsection
 
 @section('account_content')
-<div class="space-y-12">
+<div>
     <!-- Recent Orders Section -->
     <section aria-labelledby="recent-orders-heading">
         <div class="flex items-baseline justify-between pb-4 border-b border-[#ECEEE6]">
@@ -24,7 +24,7 @@
             </h2>
             <a 
                 href="{{ route('account.orders') }}" 
-                class="min-h-[44px] inline-flex items-center text-[13px] text-forest hover:text-ink font-medium underline underline-offset-4 transition-colors"
+                class="min-h-[44px] inline-flex items-center text-sm text-[#304C3D] font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 transition-colors"
             >
                 View all orders
             </a>
@@ -46,8 +46,8 @@
                     <tbody class="divide-y divide-[#ECEEE6] text-sm">
                         @foreach($recentOrders as $order)
                             <tr class="hover:bg-beige-light/30 transition-colors">
-                                <td class="py-4 pr-4 font-medium text-ink break-words">
-                                    <a href="{{ route('account.order.details', $order['id']) }}" class="hover:text-forest underline underline-offset-4 lining-nums">
+                                <td class="py-4 pr-4 font-bold text-ink break-words">
+                                    <a href="{{ route('account.order.details', $order['id']) }}" class="font-bold text-ink hover:text-forest no-underline hover:underline underline-offset-4 lining-nums">
                                         #{{ $order['id'] }}
                                     </a>
                                 </td>
@@ -82,7 +82,7 @@
                             <div class="space-y-1 min-w-0">
                                 <a 
                                     href="{{ route('account.order.details', $order['id']) }}" 
-                                    class="text-base font-medium text-ink hover:text-forest break-words block lining-nums"
+                                    class="text-base font-bold text-ink hover:text-forest no-underline hover:underline underline-offset-4 break-words block lining-nums"
                                 >
                                     Order #{{ $order['id'] }}
                                 </a>
@@ -116,25 +116,25 @@
     </section>
 
     <!-- Address & Wishlist Columns (Dividers, lists and whitespace, NOT three identical boxed cards) -->
-    <section aria-label="Account Shortcuts" class="pt-6 border-t border-[#ECEEE6]">
+    <section aria-label="Account Shortcuts" class="py-12 border-t border-[#ECEEE6]">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 md:divide-x md:divide-[#ECEEE6]">
             
             <!-- Default Address Column -->
             <div class="space-y-3">
-                <div class="flex items-baseline justify-between">
+                <div class="flex items-baseline justify-between gap-4">
                     <h2 class="font-serif text-lg sm:text-xl text-ink font-normal">
                         Default Address
                     </h2>
                     <a 
                         href="{{ route('account.addresses') }}" 
-                        class="min-h-[44px] inline-flex items-center text-[13px] text-forest hover:text-ink font-medium underline underline-offset-4 transition-colors"
+                        class="min-h-[44px] inline-flex items-center shrink-0 text-sm text-[#304C3D] font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 transition-colors"
                     >
                         Manage addresses
                     </a>
                 </div>
 
                 @if($defaultAddress)
-                    <div class="text-sm text-ink leading-relaxed break-words space-y-1">
+                    <div class="text-sm text-ink leading-[1.5] break-words">
                         <p class="font-medium text-ink">{{ $defaultAddress['first_name'] }} {{ $defaultAddress['last_name'] }}</p>
                         <p>{{ $defaultAddress['address_line1'] }}</p>
                         @if(!empty($defaultAddress['address_line2']))
@@ -143,41 +143,62 @@
                         <p class="lining-nums">{{ $defaultAddress['city'] }}, {{ $defaultAddress['state'] }} {{ $defaultAddress['postal_code'] }}</p>
                         <p>{{ $defaultAddress['country'] }}</p>
                         @if(!empty($defaultAddress['phone']))
-                            <p class="text-xs text-muted pt-1 lining-nums">{{ $defaultAddress['phone'] }}</p>
+                            <p class="text-xs text-muted mt-2 lining-nums">{{ $defaultAddress['phone'] }}</p>
                         @endif
                     </div>
                 @else
                     <p class="text-sm text-muted">No default address specified.</p>
-                    <a href="{{ route('account.addresses') }}" class="text-[13px] text-forest underline underline-offset-4">Add an address</a>
+                    <a href="{{ route('account.addresses') }}" class="inline-flex items-center text-sm text-[#304C3D] font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 transition-colors">Add an address</a>
                 @endif
             </div>
 
             <!-- Wishlist Summary Column -->
-            <div class="space-y-3 md:pl-8 lg:pl-12 pt-6 md:pt-0 border-t md:border-t-0 border-[#ECEEE6]">
-                <div class="flex items-baseline justify-between">
+            <div class="space-y-3 md:pl-8 lg:pl-12 pt-6 md:pt-0 border-t md:border-t-0 border-[#ECEEE6]" x-data>
+                <div class="flex items-baseline justify-between gap-4">
                     <h2 class="font-serif text-lg sm:text-xl text-ink font-normal">
                         Saved Wishlist
                     </h2>
                     <a 
                         href="{{ route('wishlist') }}" 
-                        class="min-h-[44px] inline-flex items-center text-[13px] text-forest hover:text-ink font-medium underline underline-offset-4 transition-colors"
+                        class="min-h-[44px] inline-flex items-center shrink-0 text-sm text-[#304C3D] font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 transition-colors"
                     >
                         View wishlist
                     </a>
                 </div>
 
-                <div class="text-sm text-muted space-y-2">
-                    <p class="leading-relaxed">
-                        Curate your personal skincare ritual and save botanical formulations for future orders.
+                <div x-show="$store.wishlist && $store.wishlist.count > 0" x-cloak class="space-y-3">
+                    <p class="text-sm text-ink font-medium lining-nums">
+                        <span class="price" x-text="$store.wishlist.count"></span>
+                        <span x-text="$store.wishlist.count === 1 ? 'saved item' : 'saved items'"></span>
                     </p>
-                    <p class="text-ink font-medium lining-nums" x-data>
-                        <span x-show="$store.wishlist && $store.wishlist.count > 0" x-cloak>
-                            <span class="price" x-text="$store.wishlist.count"></span> <span x-text="$store.wishlist.count === 1 ? 'saved formulation' : 'saved formulations'"></span>
-                        </span>
-                        <span x-show="!$store.wishlist || $store.wishlist.count === 0">
-                            Your saved collection is ready for new formulations.
-                        </span>
-                    </p>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <template x-for="item in $store.wishlist.items.slice(0, 3)" :key="item.id || item">
+                            <a 
+                                :href="'/shop/product/' + item.slug" 
+                                class="block w-14 h-14 shrink-0 border border-[#E3E6DD] bg-sage-light/40 overflow-hidden"
+                                :aria-label="item.name || 'Saved item'"
+                            >
+                                <x-storefront.image 
+                                    ::src="item.image ? '/images/' + item.image : ''" 
+                                    ::alt="item.name || 'Botanical formulation'" 
+                                    aspect-ratio="aspect-square" 
+                                    width="56" 
+                                    height="56" 
+                                    class="w-14 h-14 object-cover" 
+                                />
+                            </a>
+                        </template>
+                    </div>
+                </div>
+
+                <div x-show="!$store.wishlist || $store.wishlist.count === 0" class="space-y-2">
+                    <p class="text-sm text-muted">Nothing saved yet</p>
+                    <a 
+                        href="{{ route('shop.index') }}" 
+                        class="min-h-[44px] inline-flex items-center text-sm text-[#304C3D] font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 transition-colors"
+                    >
+                        Browse the shop
+                    </a>
                 </div>
             </div>
         </div>

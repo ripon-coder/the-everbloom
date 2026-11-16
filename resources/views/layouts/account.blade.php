@@ -5,7 +5,7 @@
 @section('hide_newsletter', true)
 
 @section('content')
-<div class="site-container max-w-6xl py-8 md:py-12">
+<div class="site-container py-8 md:py-12">
     <!-- Breadcrumbs -->
     <div class="mb-6">
         @yield('breadcrumbs')
@@ -89,62 +89,64 @@
 
     <!-- Main Account Grid (Desktop 240px sidebar + content area, gap-12) -->
     <div class="mt-8 md:mt-10 flex flex-col lg:flex-row lg:gap-12">
-        <!-- Desktop Sidebar (lg and up; 1px border only) -->
+        <!-- Desktop Sidebar (lg and up; 1px left rail ends after Profile) -->
         <aside class="hidden lg:block w-[240px] shrink-0" aria-label="Account sidebar">
-            <nav class="space-y-1">
-                @php
-                    $isOverview = request()->routeIs('account');
-                    $isOrders = request()->routeIs('account.orders*') || request()->routeIs('account.order.details');
-                    $isAddresses = request()->routeIs('account.addresses');
-                    $isWishlist = request()->routeIs('wishlist');
-                    $isProfile = request()->routeIs('account.profile');
-                @endphp
+            <nav>
+                <div class="border-l border-[#E3E6DD] space-y-1">
+                    @php
+                        $isOverview = request()->routeIs('account');
+                        $isOrders = request()->routeIs('account.orders*') || request()->routeIs('account.order.details');
+                        $isAddresses = request()->routeIs('account.addresses');
+                        $isWishlist = request()->routeIs('wishlist');
+                        $isProfile = request()->routeIs('account.profile');
+                    @endphp
 
-                <a 
-                    href="{{ route('account') }}" 
-                    class="min-h-[44px] flex items-center border-l pl-4 py-2 text-xs uppercase tracking-[0.2em] transition-colors {{ $isOverview ? 'border-forest bg-sage-light/40 text-forest font-semibold' : 'border-[#ECEEE6] text-muted hover:text-ink hover:border-sage' }}"
-                    @if($isOverview) aria-current="page" @endif
-                >
-                    Overview
-                </a>
+                    <a 
+                        href="{{ route('account') }}" 
+                        class="min-h-[44px] flex items-center -ml-px border-l-2 pl-4 py-2 text-xs uppercase tracking-[0.2em] transition-colors {{ $isOverview ? 'border-forest bg-sage-light/40 text-forest font-semibold' : 'border-transparent text-muted hover:text-ink hover:border-sage' }}"
+                        @if($isOverview) aria-current="page" @endif
+                    >
+                        Overview
+                    </a>
 
-                <a 
-                    href="{{ route('account.orders') }}" 
-                    class="min-h-[44px] flex items-center border-l pl-4 py-2 text-xs uppercase tracking-[0.2em] transition-colors {{ $isOrders ? 'border-forest bg-sage-light/40 text-forest font-semibold' : 'border-[#ECEEE6] text-muted hover:text-ink hover:border-sage' }}"
-                    @if($isOrders) aria-current="page" @endif
-                >
-                    Orders
-                </a>
+                    <a 
+                        href="{{ route('account.orders') }}" 
+                        class="min-h-[44px] flex items-center -ml-px border-l-2 pl-4 py-2 text-xs uppercase tracking-[0.2em] transition-colors {{ $isOrders ? 'border-forest bg-sage-light/40 text-forest font-semibold' : 'border-transparent text-muted hover:text-ink hover:border-sage' }}"
+                        @if($isOrders) aria-current="page" @endif
+                    >
+                        Orders
+                    </a>
 
-                <a 
-                    href="{{ route('account.addresses') }}" 
-                    class="min-h-[44px] flex items-center border-l pl-4 py-2 text-xs uppercase tracking-[0.2em] transition-colors {{ $isAddresses ? 'border-forest bg-sage-light/40 text-forest font-semibold' : 'border-[#ECEEE6] text-muted hover:text-ink hover:border-sage' }}"
-                    @if($isAddresses) aria-current="page" @endif
-                >
-                    Addresses
-                </a>
+                    <a 
+                        href="{{ route('account.addresses') }}" 
+                        class="min-h-[44px] flex items-center -ml-px border-l-2 pl-4 py-2 text-xs uppercase tracking-[0.2em] transition-colors {{ $isAddresses ? 'border-forest bg-sage-light/40 text-forest font-semibold' : 'border-transparent text-muted hover:text-ink hover:border-sage' }}"
+                        @if($isAddresses) aria-current="page" @endif
+                    >
+                        Addresses
+                    </a>
 
-                <a 
-                    href="{{ route('wishlist') }}" 
-                    class="min-h-[44px] flex items-center border-l pl-4 py-2 text-xs uppercase tracking-[0.2em] transition-colors {{ $isWishlist ? 'border-forest bg-sage-light/40 text-forest font-semibold' : 'border-[#ECEEE6] text-muted hover:text-ink hover:border-sage' }}"
-                    @if($isWishlist) aria-current="page" @endif
-                >
-                    Wishlist
-                </a>
+                    <a 
+                        href="{{ route('wishlist') }}" 
+                        class="min-h-[44px] flex items-center -ml-px border-l-2 pl-4 py-2 text-xs uppercase tracking-[0.2em] transition-colors {{ $isWishlist ? 'border-forest bg-sage-light/40 text-forest font-semibold' : 'border-transparent text-muted hover:text-ink hover:border-sage' }}"
+                        @if($isWishlist) aria-current="page" @endif
+                    >
+                        Wishlist
+                    </a>
 
-                <a 
-                    href="{{ route('account.profile') }}" 
-                    class="min-h-[44px] flex items-center border-l pl-4 py-2 text-xs uppercase tracking-[0.2em] transition-colors {{ $isProfile ? 'border-forest bg-sage-light/40 text-forest font-semibold' : 'border-[#ECEEE6] text-muted hover:text-ink hover:border-sage' }}"
-                    @if($isProfile) aria-current="page" @endif
-                >
-                    Profile
-                </a>
+                    <a 
+                        href="{{ route('account.profile') }}" 
+                        class="min-h-[44px] flex items-center -ml-px border-l-2 pl-4 py-2 text-xs uppercase tracking-[0.2em] transition-colors {{ $isProfile ? 'border-forest bg-sage-light/40 text-forest font-semibold' : 'border-transparent text-muted hover:text-ink hover:border-sage' }}"
+                        @if($isProfile) aria-current="page" @endif
+                    >
+                        Profile
+                    </a>
+                </div>
 
-                <!-- Sign out link -->
+                <!-- Sign out link (below left rail, 1px divider above) -->
                 <div class="pt-6 mt-6 border-t border-[#ECEEE6]">
                     <a 
                         href="{{ route('login') }}" 
-                        class="min-h-[44px] flex items-center pl-4 py-2 text-[13px] text-muted hover:text-forest transition-colors font-medium underline underline-offset-4"
+                        class="min-h-[44px] flex items-center pl-4 py-2 text-sm text-forest hover:text-ink transition-colors font-medium no-underline hover:underline underline-offset-4"
                     >
                         Sign Out
                     </a>

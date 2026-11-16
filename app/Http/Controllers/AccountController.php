@@ -139,4 +139,14 @@ class AccountController extends Controller
     {
         return view('frontend.account.register');
     }
+
+    /**
+     * Customer Forgot Password View
+     * 
+     * // BACKEND: replace with Laravel Fortify / Breeze / Auth password reset link request controller
+     */
+    public function forgotPassword(): View
+    {
+        return view('frontend.account.forgot-password');
+    }
 }

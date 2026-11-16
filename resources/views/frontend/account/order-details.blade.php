@@ -292,7 +292,7 @@
                 <h3 class="text-xs uppercase tracking-[0.2em] text-muted font-medium">
                     Shipping Address
                 </h3>
-                <div class="text-sm text-ink leading-relaxed break-words">
+                <div class="text-sm text-ink leading-[1.5] break-words">
                     <p class="font-medium text-ink">{{ $order['shipping_address']['first_name'] }} {{ $order['shipping_address']['last_name'] }}</p>
                     <p>{{ $order['shipping_address']['address_line1'] }}</p>
                     @if(!empty($order['shipping_address']['address_line2']))
@@ -301,7 +301,7 @@
                     <p class="lining-nums">{{ $order['shipping_address']['city'] }}, {{ $order['shipping_address']['state'] }} {{ $order['shipping_address']['postal_code'] }}</p>
                     <p>{{ $order['shipping_address']['country'] }}</p>
                     @if(!empty($order['shipping_address']['phone']))
-                        <p class="text-xs text-muted pt-1 lining-nums">{{ $order['shipping_address']['phone'] }}</p>
+                        <p class="text-xs text-muted mt-2 lining-nums">{{ $order['shipping_address']['phone'] }}</p>
                     @endif
                 </div>
             </div>

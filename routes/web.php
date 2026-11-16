@@ -124,6 +124,7 @@ Route::get('/shipping-and-returns', function () {
 // BACKEND: replace with auth middleware, Fortify / Breeze / Sanctum auth controllers
 Route::get('/account/login', [AccountController::class, 'login'])->name('login');
 Route::get('/account/register', [AccountController::class, 'register'])->name('register');
+Route::get('/account/forgot-password', [AccountController::class, 'forgotPassword'])->name('password.request');
 Route::get('/account', [AccountController::class, 'index'])->name('account');
 Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
 Route::get('/account/orders/{id}', [AccountController::class, 'showOrder'])->name('account.order.details');

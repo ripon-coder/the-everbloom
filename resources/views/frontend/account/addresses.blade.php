@@ -12,13 +12,26 @@
 @section('page_title', 'Addresses')
 
 @section('account_content')
+@php
+    $initialAddresses = collect($addresses ?? [])
+        ->sortByDesc(fn($a) => !empty($a['is_default']))
+        ->values()
+        ->all();
+@endphp
 <div 
     x-data="{
+        addresses: {{ Js::from($initialAddresses) }},
         showForm: false,
+        editingId: null,
+        editingIsDefault: false,
+        editingContextLabel: '',
+        lastTriggerEl: null,
+        confirmingRemoveId: null,
         demoFeedback: '',
         form: {
             first_name: '',
             last_name: '',
+            company: '',
             country: 'United States',
             address_line1: '',
             address_line2: '',
@@ -29,10 +42,17 @@
             is_default: false,
         },
         errors: {},
+        sortedAddresses() {
+            return [...this.addresses].sort((a, b) => (b.is_default ? 1 : 0) - (a.is_default ? 1 : 0));
+        },
         resetForm() {
+            this.editingId = null;
+            this.editingIsDefault = false;
+            this.editingContextLabel = '';
             this.form = {
                 first_name: '',
                 last_name: '',
+                company: '',
                 country: 'United States',
                 address_line1: '',
                 address_line2: '',
@@ -43,6 +63,40 @@
                 is_default: false,
             };
             this.errors = {};
+        },
+        scrollAndFocusForm() {
+            this.$nextTick(() => {
+                const panel = this.$refs.editPanel;
+                if (panel && typeof panel.scrollIntoView === 'function') {
+                    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                    panel.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+                }
+                const firstField = document.getElementById('field-first_name');
+                if (firstField) {
+                    firstField.focus({ preventScroll: true });
+                }
+            });
+        },
+        openAddForm(triggerEl = null) {
+            this.lastTriggerEl = triggerEl || this.$refs.addAddressBtn;
+            this.resetForm();
+            this.showForm = true;
+            this.scrollAndFocusForm();
+        },
+        closeForm() {
+            const trigger = this.lastTriggerEl;
+            this.showForm = false;
+            this.editingId = null;
+            this.editingIsDefault = false;
+            this.editingContextLabel = '';
+            this.errors = {};
+            this.$nextTick(() => {
+                if (trigger && typeof trigger.focus === 'function' && document.contains(trigger)) {
+                    trigger.focus();
+                } else {
+                    this.$refs.addAddressBtn?.focus();
+                }
+            });
         },
         clearError(field) {
             if (this.errors[field]) {
@@ -57,7 +111,32 @@
             if (!this.form.address_line1.trim()) this.errors.address_line1 = 'Please enter a street address.';
             if (!this.form.city.trim()) this.errors.city = 'Please enter a city.';
             if (!this.form.state.trim()) this.errors.state = 'Please enter a state or province.';
-            if (!this.form.postal_code.trim()) this.errors.postal_code = 'Please enter a postal or ZIP code.';
+
+            const postal = this.form.postal_code.trim();
+            if (!postal) {
+                this.errors.postal_code = 'Please enter a postal or ZIP code.';
+            } else {
+                const country = this.form.country;
+                if (country === 'United States' && !/^\d{5}(-\d{4})?$/.test(postal)) {
+                    this.errors.postal_code = 'Please enter a valid 5-digit US ZIP code.';
+                } else if (country === 'Canada' && !/^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(postal)) {
+                    this.errors.postal_code = 'Please enter a valid Canadian postal code.';
+                } else if (country === 'United Kingdom' && !/^[A-Za-z]{1,2}\d[A-Za-z\d]?\s?\d[A-Za-z]{2}$/.test(postal)) {
+                    this.errors.postal_code = 'Please enter a valid UK postcode.';
+                } else if (country === 'Australia' && !/^\d{4}$/.test(postal)) {
+                    this.errors.postal_code = 'Please enter a valid 4-digit postcode.';
+                } else if ((country === 'France' || country === 'Germany') && !/^\d{5}$/.test(postal)) {
+                    this.errors.postal_code = 'Please enter a valid 5-digit postal code.';
+                }
+            }
+
+            const phone = this.form.phone.trim();
+            if (phone) {
+                const digits = phone.replace(/\D/g, '');
+                if (!/^[+\d\s().-]{7,20}$/.test(phone) || digits.length < 7 || digits.length > 15) {
+                    this.errors.phone = 'Please enter a valid phone number.';
+                }
+            }
 
             const keys = Object.keys(this.errors);
             if (keys.length > 0) {
@@ -73,14 +152,19 @@
         submit() {
             if (!this.validate()) return;
             this.demoFeedback = 'Demo only. Nothing was saved.';
-            this.showForm = false;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.closeForm();
             setTimeout(() => { this.demoFeedback = ''; }, 6000);
         },
-        editAddress(addr) {
+        editAddress(addr, triggerEl = null) {
+            this.lastTriggerEl = triggerEl;
+            this.editingId = addr.id;
+            this.editingIsDefault = Boolean(addr.is_default);
+            const labelName = (addr.company && addr.company.trim()) ? addr.company.trim() : (addr.first_name + ' ' + addr.last_name).trim();
+            this.editingContextLabel = addr.city ? `${labelName}, ${addr.city}` : labelName;
             this.form = {
                 first_name: addr.first_name || '',
                 last_name: addr.last_name || '',
+                company: addr.company || '',
                 country: addr.country || 'United States',
                 address_line1: addr.address_line1 || '',
                 address_line2: addr.address_line2 || '',
@@ -92,21 +176,33 @@
             };
             this.errors = {};
             this.showForm = true;
+            this.scrollAndFocusForm();
+        },
+        setAsDefault(id) {
+            this.addresses = this.addresses.map(a => ({
+                ...a,
+                is_default: String(a.id) === String(id),
+            }));
+            this.demoFeedback = 'Demo only. Nothing was saved.';
+            setTimeout(() => { this.demoFeedback = ''; }, 5000);
+        },
+        startRemove(id) {
+            this.confirmingRemoveId = id;
             this.$nextTick(() => {
-                const el = document.getElementById('field-first_name');
-                if (el) {
-                    el.focus();
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
+                document.getElementById('confirm-remove-' + id)?.focus();
             });
         },
-        removeAddress(id) {
-            this.demoFeedback = 'Demo only. Address removal was not processed.';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        cancelRemove() {
+            this.confirmingRemoveId = null;
+        },
+        confirmRemove(id) {
+            this.addresses = this.addresses.filter(a => String(a.id) !== String(id));
+            this.confirmingRemoveId = null;
+            this.demoFeedback = 'Demo only. Nothing was saved.';
             setTimeout(() => { this.demoFeedback = ''; }, 5000);
         }
     }"
-    @keydown.escape.window="if(showForm) { showForm = false; }"
+    @keydown.escape.window="if (confirmingRemoveId !== null) { cancelRemove(); } else if (showForm) { closeForm(); }"
     class="space-y-8"
 >
     <!-- Demo Feedback Notification Banner -->
@@ -127,117 +223,56 @@
         <button type="button" @click="demoFeedback = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center cursor-pointer" aria-label="Close message">✕</button>
     </div>
 
-    <!-- Top Action Bar -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-[#ECEEE6]">
+    <!-- Top Action Bar (vertically centered with first sidebar item) -->
+    <div class="min-h-[44px] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-[#ECEEE6]">
         <p class="text-sm text-muted">
             Manage your saved shipping destinations for faster checkout.
         </p>
         <button 
             type="button" 
-            @click="resetForm(); showForm = true; $nextTick(() => document.getElementById('field-first_name')?.focus())"
+            x-ref="addAddressBtn"
+            @click="openAddForm($event.currentTarget)"
             class="btn-primary w-full sm:w-auto shrink-0 cursor-pointer"
         >
-            Add New Address
+            Add new address
         </button>
     </div>
 
-    <!-- Address Cards / List -->
-    <section aria-labelledby="saved-addresses-heading">
-        <h2 id="saved-addresses-heading" class="sr-only">Saved Delivery Addresses</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-            @forelse($addresses as $addr)
-                <div class="border border-[#E3E6DD] bg-white p-6 flex flex-col justify-between space-y-4">
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between gap-2">
-                            <h3 class="font-serif text-lg text-ink font-medium">
-                                {{ $addr['first_name'] }} {{ $addr['last_name'] }}
-                            </h3>
-                            @if(!empty($addr['is_default']))
-                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium uppercase tracking-[0.2em] border border-forest text-forest bg-sage-light/40">
-                                    Default
-                                </span>
-                            @endif
-                        </div>
-
-                        <div class="text-sm text-ink leading-relaxed break-words space-y-0.5">
-                            @if(!empty($addr['company']))
-                                <p class="text-muted text-xs">{{ $addr['company'] }}</p>
-                            @endif
-                            <p>{{ $addr['address_line1'] }}</p>
-                            @if(!empty($addr['address_line2']))
-                                <p>{{ $addr['address_line2'] }}</p>
-                            @endif
-                            <p class="lining-nums">{{ $addr['city'] }}, {{ $addr['state'] }} {{ $addr['postal_code'] }}</p>
-                            <p>{{ $addr['country'] }}</p>
-                            @if(!empty($addr['phone']))
-                                <p class="text-xs text-muted pt-1 lining-nums">{{ $addr['phone'] }}</p>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Actions: Edit and Remove (UI only) -->
-                    <div class="pt-4 border-t border-[#ECEEE6] flex items-center gap-4 text-[13px]">
-                        <button 
-                            type="button" 
-                            @click="editAddress({{ Js::from($addr) }})"
-                            class="min-h-[44px] inline-flex items-center text-forest hover:text-ink font-medium underline underline-offset-4 cursor-pointer"
-                            aria-label="Edit address for {{ $addr['first_name'] }} {{ $addr['last_name'] }} ({{ $addr['city'] }})"
-                        >
-                            Edit
-                        </button>
-                        <span class="text-[#D5DBCF]" aria-hidden="true">|</span>
-                        <button 
-                            type="button" 
-                            @click="removeAddress('{{ $addr['id'] }}')"
-                            class="min-h-[44px] inline-flex items-center text-muted hover:text-ink font-medium underline underline-offset-4 cursor-pointer"
-                            aria-label="Remove address for {{ $addr['first_name'] }} {{ $addr['last_name'] }} ({{ $addr['city'] }})"
-                        >
-                            Remove
-                        </button>
-                    </div>
-                </div>
-            @empty
-                <div class="col-span-full py-12 text-center border border-[#E3E6DD] bg-white p-8 text-muted text-sm">
-                    <p>No addresses recorded yet. Add your primary shipping details above.</p>
-                </div>
-            @endforelse
-        </div>
-    </section>
-
-    <!-- Inline Address Form -->
+    <!-- Inline Add / Edit Address Panel (below list header) -->
     <div 
+        x-ref="editPanel"
         x-show="showForm" 
+        x-collapse
         x-cloak 
-        x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 -translate-y-2"
-        x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 -translate-y-2"
         class="border border-[#E3E6DD] bg-white p-6 sm:p-8 space-y-6"
     >
-        <div class="flex items-baseline justify-between border-b border-[#ECEEE6] pb-4">
+        <div class="flex items-start justify-between gap-4 border-b border-[#ECEEE6] pb-4">
             <div>
-                <h2 class="font-serif text-xl sm:text-2xl text-ink font-normal">
+                <h2 class="font-serif text-xl sm:text-2xl text-ink font-normal" x-text="editingId ? 'Edit address' : 'Add new address'">
                     Address Details
                 </h2>
-                <p class="text-xs text-muted mt-0.5">
+                <p 
+                    x-show="editingId !== null" 
+                    x-cloak 
+                    class="text-xs text-muted mt-1" 
+                    x-text="'Editing: ' + editingContextLabel"
+                ></p>
+                <p x-show="editingId === null" class="text-xs text-muted mt-1">
                     Enter your shipping and delivery destination.
                 </p>
             </div>
             <button 
                 type="button" 
-                @click="showForm = false"
-                class="min-h-[44px] min-w-[44px] -mr-2 flex items-center justify-center text-muted hover:text-ink cursor-pointer"
-                aria-label="Close address form"
+                @click="closeForm()"
+                class="w-11 h-11 min-w-[44px] min-h-[44px] -mr-2 -mt-1 flex items-center justify-center text-muted hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2"
+                aria-label="Close edit form"
             >
                 ✕
             </button>
         </div>
 
         <form @submit.prevent="submit()" novalidate class="space-y-5">
-            <!-- First Name & Last Name -->
+            <!-- First Name & Last Name (2-column row) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label for="field-first_name" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
@@ -251,7 +286,7 @@
                         autocomplete="given-name" 
                         placeholder="First name"
                         class="input-field" 
-                        :class="errors.first_name ? 'input-error' : ''"
+                        :class="errors.first_name ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.first_name ? 'true' : 'false'"
                         :aria-describedby="errors.first_name ? 'err-first_name' : null"
                     />
@@ -270,12 +305,27 @@
                         autocomplete="family-name" 
                         placeholder="Last name"
                         class="input-field" 
-                        :class="errors.last_name ? 'input-error' : ''"
+                        :class="errors.last_name ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.last_name ? 'true' : 'false'"
                         :aria-describedby="errors.last_name ? 'err-last_name' : null"
                     />
                     <p id="err-last_name" x-show="errors.last_name" x-text="errors.last_name" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                 </div>
+            </div>
+
+            <!-- Company (Optional) -->
+            <div>
+                <label for="field-company" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                    Company <span class="text-muted font-normal lowercase">(optional)</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="field-company" 
+                    x-model="form.company" 
+                    autocomplete="organization" 
+                    placeholder="Company name (optional)"
+                    class="input-field" 
+                />
             </div>
 
             <!-- Country Selection -->
@@ -287,10 +337,10 @@
                     <select 
                         id="field-country" 
                         x-model="form.country" 
-                        @change="clearError('country')"
+                        @change="clearError('country'); clearError('postal_code')"
                         autocomplete="country-name" 
                         class="input-field pr-10 appearance-none cursor-pointer bg-white" 
-                        :class="errors.country ? 'input-error' : ''"
+                        :class="errors.country ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.country ? 'true' : 'false'"
                         :aria-describedby="errors.country ? 'err-country' : null"
                     >
@@ -323,7 +373,7 @@
                     autocomplete="address-line1" 
                     placeholder="Street address"
                     class="input-field" 
-                    :class="errors.address_line1 ? 'input-error' : ''"
+                    :class="errors.address_line1 ? 'input-error !border-[#B3453A]' : ''"
                     :aria-invalid="errors.address_line1 ? 'true' : 'false'"
                     :aria-describedby="errors.address_line1 ? 'err-address_line1' : null"
                 />
@@ -345,7 +395,7 @@
                 />
             </div>
 
-            <!-- City, State, Postal Code -->
+            <!-- City, State, Postal Code (3-column row) -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                     <label for="field-city" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
@@ -359,7 +409,7 @@
                         autocomplete="address-level2" 
                         placeholder="City"
                         class="input-field" 
-                        :class="errors.city ? 'input-error' : ''"
+                        :class="errors.city ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.city ? 'true' : 'false'"
                         :aria-describedby="errors.city ? 'err-city' : null"
                     />
@@ -378,7 +428,7 @@
                         autocomplete="address-level1" 
                         placeholder="State / Province"
                         class="input-field" 
-                        :class="errors.state ? 'input-error' : ''"
+                        :class="errors.state ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.state ? 'true' : 'false'"
                         :aria-describedby="errors.state ? 'err-state' : null"
                     />
@@ -397,7 +447,7 @@
                         autocomplete="postal-code" 
                         placeholder="Postal code"
                         class="input-field" 
-                        :class="errors.postal_code ? 'input-error' : ''"
+                        :class="errors.postal_code ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.postal_code ? 'true' : 'false'"
                         :aria-describedby="errors.postal_code ? 'err-postal_code' : null"
                     />
@@ -405,8 +455,8 @@
                 </div>
             </div>
 
-            <!-- Phone (Optional) -->
-            <div>
+            <!-- Phone (Optional, max-w-sm) -->
+            <div class="max-w-sm">
                 <label for="field-phone" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
                     Phone Number <span class="text-muted font-normal lowercase">(optional)</span>
                 </label>
@@ -414,27 +464,43 @@
                     type="tel" 
                     id="field-phone" 
                     x-model="form.phone" 
+                    @input="clearError('phone')"
                     autocomplete="tel" 
                     placeholder="Phone number"
                     class="input-field" 
+                    :class="errors.phone ? 'input-error !border-[#B3453A]' : ''"
+                    :aria-invalid="errors.phone ? 'true' : 'false'"
+                    :aria-describedby="errors.phone ? 'err-phone' : null"
                 />
+                <p id="err-phone" x-show="errors.phone" x-text="errors.phone" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
             </div>
 
             <!-- Set as Default Checkbox -->
-            <div class="pt-2 flex items-center gap-3">
-                <input 
-                    type="checkbox" 
-                    id="field-is_default" 
-                    x-model="form.is_default"
-                    class="w-4 h-4 rounded-none accent-[#304C3D] border-[#D5DBCF] cursor-pointer"
-                />
-                <label for="field-is_default" class="text-sm text-ink select-none cursor-pointer">
-                    Set as default delivery address
-                </label>
+            <div class="pt-2 space-y-1.5">
+                <div class="flex items-center gap-3">
+                    <input 
+                        type="checkbox" 
+                        id="field-is_default" 
+                        x-model="form.is_default"
+                        :disabled="editingIsDefault"
+                        :aria-disabled="editingIsDefault ? 'true' : 'false'"
+                        class="w-4 h-4 rounded-none accent-[#304C3D] border-[#D5DBCF] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                    />
+                    <label 
+                        for="field-is_default" 
+                        class="text-sm text-ink select-none"
+                        :class="editingIsDefault ? 'text-muted cursor-not-allowed' : 'cursor-pointer'"
+                    >
+                        Set as default
+                    </label>
+                </div>
+                <p x-show="editingIsDefault" x-cloak class="text-xs text-muted pl-7">
+                    This is your default address. Set another address as default to change it.
+                </p>
             </div>
 
-            <!-- Form Actions -->
-            <div class="pt-4 border-t border-[#ECEEE6] flex flex-col sm:flex-row items-center gap-3">
+            <!-- Form Actions + Demo Note -->
+            <div class="pt-4 border-t border-[#ECEEE6] flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                 <button 
                     type="submit" 
                     class="btn-primary w-full sm:w-auto min-h-[44px] cursor-pointer"
@@ -443,13 +509,138 @@
                 </button>
                 <button 
                     type="button" 
-                    @click="showForm = false"
+                    @click="closeForm()"
                     class="btn-secondary w-full sm:w-auto min-h-[44px] cursor-pointer"
                 >
                     Cancel
                 </button>
+                <p class="text-[13px] text-muted sm:ml-auto">
+                    Demo only. Changes are not saved.
+                </p>
             </div>
         </form>
     </div>
+
+    <!-- Address Cards / List -->
+    <section aria-labelledby="saved-addresses-heading">
+        <h2 id="saved-addresses-heading" class="sr-only">Saved Delivery Addresses</h2>
+
+        <div x-show="addresses.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+            <template x-for="addr in sortedAddresses()" :key="addr.id">
+                <article 
+                    class="border p-6 flex flex-col gap-6 h-full transition-colors"
+                    :style="addr.is_default ? 'border-color: #304C3D; background-color: rgba(232, 238, 229, 0.5);' : ''"
+                    :class="addr.is_default ? 'border-[#304C3D]' : 'border-[#E3E6DD] bg-white'"
+                >
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between gap-2">
+                            <h3 class="font-serif text-lg text-ink font-medium" x-text="addr.first_name + ' ' + addr.last_name"></h3>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span 
+                                    x-show="editingId === addr.id" 
+                                    x-cloak
+                                    class="inline-flex items-center px-2 py-0.5 text-xs font-medium uppercase tracking-wider border border-[#D5DBCF] text-muted bg-white"
+                                >
+                                    Editing
+                                </span>
+                                <span 
+                                    x-show="addr.is_default" 
+                                    class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium uppercase tracking-wider border border-[#304C3D] text-[#304C3D] bg-[#E8EEE5]"
+                                >
+                                    Default
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="text-sm text-ink leading-[1.5] break-words">
+                            <p x-show="addr.company" class="text-sm text-muted" x-text="addr.company"></p>
+                            <p x-text="addr.address_line1"></p>
+                            <p x-show="addr.address_line2" x-text="addr.address_line2"></p>
+                            <p class="lining-nums" x-text="addr.city + ', ' + addr.state + ' ' + addr.postal_code"></p>
+                            <p x-text="addr.country"></p>
+                            <p x-show="addr.phone" class="text-xs text-muted mt-2 lining-nums" x-text="addr.phone"></p>
+                        </div>
+                    </div>
+
+                    <!-- Actions Footer (pinned to bottom with mt-auto) -->
+                    <div class="pt-4 mt-auto border-t border-[#ECEEE6]">
+                        <div x-show="confirmingRemoveId !== addr.id" class="flex flex-wrap items-center gap-4">
+                            <template x-if="editingId === addr.id">
+                                <span class="min-h-[44px] inline-flex items-center text-sm text-muted">Editing</span>
+                            </template>
+                            <template x-if="editingId !== addr.id">
+                                <button 
+                                    type="button" 
+                                    @click="editAddress(addr, $event.currentTarget)"
+                                    class="min-h-[44px] inline-flex items-center text-sm text-[#304C3D] hover:text-ink font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 cursor-pointer"
+                                    :aria-label="'Edit address for ' + addr.first_name + ' ' + addr.last_name + ' (' + addr.city + ')'"
+                                >
+                                    Edit
+                                </button>
+                            </template>
+
+                            <button 
+                                x-show="!addr.is_default"
+                                type="button" 
+                                @click="setAsDefault(addr.id)"
+                                class="min-h-[44px] inline-flex items-center text-sm text-[#304C3D] hover:text-ink font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 cursor-pointer"
+                            >
+                                Set as default
+                            </button>
+
+                            <button 
+                                type="button" 
+                                @click="startRemove(addr.id)"
+                                class="min-h-[44px] inline-flex items-center text-sm text-[#304C3D] hover:text-ink font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 cursor-pointer"
+                                :aria-label="'Remove address for ' + addr.first_name + ' ' + addr.last_name + ' (' + addr.city + ')'"
+                            >
+                                Remove
+                            </button>
+                        </div>
+
+                        <!-- Inline Remove Confirmation -->
+                        <div 
+                            x-show="confirmingRemoveId === addr.id" 
+                            x-cloak 
+                            class="flex flex-wrap items-center justify-between gap-3"
+                            role="alertdialog"
+                            aria-label="Confirm address removal"
+                        >
+                            <span class="text-sm text-ink font-medium">Remove this address?</span>
+                            <div class="flex items-center gap-4">
+                                <button 
+                                    type="button" 
+                                    :id="'confirm-remove-' + addr.id"
+                                    @click="confirmRemove(addr.id)"
+                                    class="min-h-[44px] inline-flex items-center text-sm text-[#B3453A] hover:text-ink font-medium underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 cursor-pointer"
+                                >
+                                    Yes, remove
+                                </button>
+                                <button 
+                                    type="button" 
+                                    @click="cancelRemove()"
+                                    class="min-h-[44px] inline-flex items-center text-sm text-[#304C3D] hover:text-ink font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </template>
+        </div>
+
+        <!-- Empty State -->
+        <div x-show="addresses.length === 0" x-cloak class="py-12 text-center border border-[#E3E6DD] bg-white p-8 space-y-4">
+            <p class="font-serif text-xl text-ink font-normal">No saved addresses</p>
+            <button 
+                type="button" 
+                @click="openAddForm($event.currentTarget)"
+                class="btn-primary w-full sm:w-auto cursor-pointer"
+            >
+                Add new address
+            </button>
+        </div>
+    </section>
 </div>
 @endsection

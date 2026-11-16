@@ -39,19 +39,8 @@
         @yield('content')
     </main>
 
-    <!-- Minimal Checkout Footer: Copyright + Privacy, Terms, Returns only (No link columns, no newsletter) -->
-    <footer class="mt-auto bg-[#253B2F] text-ivory/80 border-t border-white/10 py-6 text-xs" role="contentinfo">
-        <div class="site-container flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p class="text-xs uppercase tracking-wider text-ivory/85">
-                © {{ date('Y') }} {{ config('demo.site.name', 'THE EVERBLOOM') }}. ALL RIGHTS RESERVED.
-            </p>
-            <nav class="flex flex-wrap items-center gap-6 text-[13px] text-ivory/90" aria-label="Checkout Legal Links">
-                <a href="/privacy-policy" class="hover:text-sage-light transition-colors">Privacy</a>
-                <a href="/terms-and-conditions" class="hover:text-sage-light transition-colors">Terms</a>
-                <a href="/shipping-and-returns" class="hover:text-sage-light transition-colors">Returns</a>
-            </nav>
-        </div>
-    </footer>
+    <!-- Site Footer (Shared component with identical 4 link columns) -->
+    <x-storefront.footer />
 
     <!-- Global Interactive Components for Header Functionality -->
     <x-storefront.mobile-navigation />

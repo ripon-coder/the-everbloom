@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
 @section('title', 'Sign In — ' . config('demo.site.name'))
-@section('meta_description', 'Sign in to your account at The Everbloom to view orders, saved formulations, and delivery addresses.')
+@section('meta_description', 'Sign in to your account at The Everbloom to view your orders, saved items, and delivery addresses.')
 @section('meta_robots', 'noindex, nofollow')
 @section('hide_newsletter', true)
 
 @section('content')
-<div class="site-container py-10 md:py-16">
-    <div class="max-w-md mx-auto">
-        <!-- Breadcrumbs -->
-        <div class="mb-6">
-            <x-storefront.breadcrumbs :items="[
-                ['label' => 'My Account', 'url' => route('account')],
-                ['label' => 'Sign In', 'url' => ''],
-            ]" />
-        </div>
+<div class="site-container max-sm:!px-4 py-12 lg:py-16">
+    <!-- Breadcrumbs -->
+    <div class="mb-6">
+        <x-storefront.breadcrumbs :items="[
+            ['label' => 'Sign In', 'url' => ''],
+        ]" />
+    </div>
 
+    <!-- Single Centered Column -->
+    <div class="mx-auto w-full max-w-md">
         <div 
             x-data="{
                 email: '',
@@ -24,8 +24,6 @@
                 rememberMe: false,
                 errors: {},
                 demoNotice: '',
-                socialNotice: '',
-                forgotNotice: '',
                 clearError(field) {
                     if (this.errors[field]) delete this.errors[field];
                 },
@@ -52,15 +50,7 @@
                 },
                 submit() {
                     if (!this.validate()) return;
-                    this.demoNotice = 'Demo only. No authentication was performed.';
-                },
-                socialLogin(provider) {
-                    this.socialNotice = 'Demo only. ' + provider + ' sign-in is not connected in demo mode.';
-                    setTimeout(() => { this.socialNotice = ''; }, 6000);
-                },
-                forgot() {
-                    this.forgotNotice = 'Demo only. Password recovery is unavailable in demo mode.';
-                    setTimeout(() => { this.forgotNotice = ''; }, 5000);
+                    this.demoNotice = 'Demo only. No one was signed in.';
                 }
             }" 
             class="bg-white border border-[#E3E6DD] p-6 sm:p-8 space-y-6"
@@ -68,115 +58,44 @@
             <!-- Header -->
             <div class="border-b border-[#ECEEE6] pb-5">
                 <span class="text-xs uppercase tracking-[0.2em] font-medium text-forest block mb-1">
-                    MY ACCOUNT
+                    WELCOME BACK
                 </span>
                 <h1 class="font-serif text-3xl sm:text-4xl text-ink font-normal tracking-tight">
                     Sign In
                 </h1>
-                <p class="text-sm text-muted mt-1 leading-relaxed">
-                    Sign in to access your order history, saved botanical formulations, and delivery addresses.
+                <p class="text-sm text-muted mt-1.5 leading-relaxed">
+                    Sign in to view your orders, saved items and addresses.
                 </p>
-                <p class="text-xs text-muted mt-1.5 font-normal">
-                    Demo account — sample data for preview only.
-                </p>
+                <div class="mt-3 flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-0.5 text-[11px] uppercase tracking-wider font-medium border border-[#D5DBCF] bg-[#F8F6F0] text-muted">
+                        Demo
+                    </span>
+                    <a 
+                        href="{{ route('account') }}" 
+                        class="text-sm text-[#304C3D] hover:text-ink font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 transition-colors"
+                    >
+                        View the demo account
+                    </a>
+                </div>
             </div>
 
-            <!-- Demo Notification Banners -->
+            <!-- Demo Notification Banner -->
             <div 
                 x-show="demoNotice" 
                 x-cloak 
                 x-transition 
-                class="p-4 bg-forest text-ivory text-xs space-y-2 border border-forest"
+                class="p-4 bg-forest text-ivory text-xs uppercase tracking-[0.2em] flex items-center justify-between gap-2 border border-forest"
                 role="status"
                 aria-live="polite"
             >
-                <div class="flex items-center justify-between gap-2">
-                    <span class="uppercase tracking-[0.2em] font-medium" x-text="demoNotice"></span>
-                    <button type="button" @click="demoNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
-                </div>
-                <div class="pt-1">
-                    <a href="{{ route('account') }}" class="underline underline-offset-4 font-medium hover:text-sage-light text-xs uppercase tracking-[0.2em] block">
-                        → View Sample Account Overview
-                    </a>
-                </div>
+                <span class="font-medium" x-text="demoNotice"></span>
+                <button type="button" @click="demoNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
             </div>
 
-            <div 
-                x-show="socialNotice" 
-                x-cloak 
-                x-transition 
-                class="p-4 bg-forest text-ivory text-xs space-y-2 border border-forest"
-                role="status"
-                aria-live="polite"
-            >
-                <div class="flex items-center justify-between gap-2">
-                    <span class="uppercase tracking-[0.2em] font-medium" x-text="socialNotice"></span>
-                    <button type="button" @click="socialNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
-                </div>
-                <div class="pt-1">
-                    <a href="{{ route('account') }}" class="underline underline-offset-4 font-medium hover:text-sage-light text-xs uppercase tracking-[0.2em] block">
-                        → View Sample Account Overview
-                    </a>
-                </div>
-            </div>
+            <!-- Social Sign-In (Demo Only) -->
+            <x-storefront.social-login-buttons :providers="config('demo.auth.enabled_providers')" mode="signin" />
 
-            <div 
-                x-show="forgotNotice" 
-                x-cloak 
-                x-transition 
-                class="p-4 bg-sage-light/60 border border-[#E3E6DD] text-ink text-xs uppercase tracking-[0.2em] flex items-center justify-between gap-2"
-                role="status"
-                aria-live="polite"
-            >
-                <span x-text="forgotNotice"></span>
-                <button type="button" @click="forgotNotice = ''" class="w-11 h-11 -mr-2 text-muted hover:text-ink flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
-            </div>
-
-            <!-- Social Authentication Section -->
-            <div class="space-y-3">
-                <!-- Google Button -->
-                <button 
-                    type="button" 
-                    @click="socialLogin('Google')" 
-                    class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F2F5F3] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors cursor-pointer rounded-none"
-                    aria-label="Continue with Google"
-                >
-                    <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                    </svg>
-                    <span>Continue with Google</span>
-                </button>
-
-                <!-- Apple Button -->
-                <button 
-                    type="button" 
-                    @click="socialLogin('Apple')" 
-                    class="w-full h-12 min-h-[48px] px-4 bg-white border border-[#D5DBCF] hover:border-[#A8B7A0] hover:bg-[#F2F5F3] text-ink text-sm font-medium flex items-center justify-center gap-3 transition-colors cursor-pointer rounded-none"
-                    aria-label="Continue with Apple"
-                >
-                    <svg class="w-5 h-5 shrink-0 fill-current text-ink" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.64 1.35-.56.65-.99 1.7-0.86 2.72.99.08 2-.48 2.58-1.22z" />
-                    </svg>
-                    <span>Continue with Apple</span>
-                </button>
-            </div>
-
-            <!-- Divider -->
-            <div class="relative flex items-center justify-center my-6">
-                <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div class="w-full border-t border-[#ECEEE6]"></div>
-                </div>
-                <div class="relative flex justify-center">
-                    <span class="bg-white px-4 text-muted uppercase tracking-[0.2em] text-xs font-medium">
-                        Or continue with email
-                    </span>
-                </div>
-            </div>
-
-            <!-- Email & Password Form (Neutral placeholders, no fake prefilled values) -->
+            <!-- Email & Password Form -->
             <form @submit.prevent="submit()" class="space-y-5" novalidate>
                 <!-- Email Address -->
                 <div>
@@ -188,11 +107,12 @@
                         id="login-email" 
                         x-model="email" 
                         @input="clearError('email')"
-                        autocomplete="email" 
+                        autocomplete="username" 
+                        inputmode="email"
                         required 
                         placeholder="name@example.com" 
                         class="input-field" 
-                        :class="errors.email ? 'input-error' : ''"
+                        :class="errors.email ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.email ? 'true' : 'false'"
                         :aria-describedby="errors.email ? 'err-login-email' : null"
                     />
@@ -205,13 +125,12 @@
                         <label for="login-password" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium">
                             Password <span class="text-forest" aria-hidden="true">*</span>
                         </label>
-                        <button 
-                            type="button" 
-                            @click="forgot()" 
-                            class="text-[13px] text-muted hover:text-forest underline underline-offset-4 min-h-[44px] flex items-center cursor-pointer"
+                        <a 
+                            href="{{ route('password.request') }}" 
+                            class="text-sm text-[#304C3D] hover:text-ink underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 min-h-[44px] inline-flex items-center transition-colors"
                         >
                             Forgot password?
-                        </button>
+                        </a>
                     </div>
                     <div class="relative">
                         <input 
@@ -223,15 +142,16 @@
                             required 
                             placeholder="Enter your password"
                             class="input-field pr-12" 
-                            :class="errors.password ? 'input-error' : ''"
+                            :class="errors.password ? 'input-error !border-[#B3453A]' : ''"
                             :aria-invalid="errors.password ? 'true' : 'false'"
                             :aria-describedby="errors.password ? 'err-login-password' : null"
                         />
                         <button 
                             type="button" 
                             @click="showPassword = !showPassword" 
-                            class="absolute right-0 top-0 h-12 w-12 flex items-center justify-center text-muted hover:text-ink cursor-pointer min-h-[44px] min-w-[44px]"
+                            class="absolute right-0.5 top-1/2 -translate-y-1/2 h-11 w-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-1 cursor-pointer"
                             :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                            :aria-pressed="showPassword ? 'true' : 'false'"
                         >
                             <template x-if="!showPassword">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -249,8 +169,8 @@
                     <p id="err-login-password" x-show="errors.password" x-text="errors.password" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                 </div>
 
-                <!-- Remember Me Checkbox -->
-                <div class="flex items-center gap-3">
+                <!-- Remember Me Checkbox (44px row height) -->
+                <div class="min-h-[44px] flex items-center gap-3">
                     <input 
                         type="checkbox" 
                         id="remember-me" 
@@ -258,34 +178,32 @@
                         class="w-4 h-4 rounded-none accent-[#304C3D] border-[#D5DBCF] cursor-pointer"
                     />
                     <label for="remember-me" class="text-sm text-ink select-none cursor-pointer">
-                        Keep me signed in on this device
+                        Keep me signed in
                     </label>
                 </div>
 
-                <!-- Primary Submit -->
-                <div class="pt-2">
+                <!-- Primary Submit + Demo Note -->
+                <div class="pt-1 space-y-2.5">
                     <button 
                         type="submit" 
                         class="btn-primary w-full min-h-[48px] cursor-pointer"
                     >
                         Sign In
                     </button>
+                    <p class="text-[13px] text-muted text-center">
+                        Demo only. No one will be signed in.
+                    </p>
                 </div>
             </form>
 
-            <!-- Bottom Cross-links -->
-            <div class="text-center pt-6 border-t border-[#ECEEE6] text-[13px] text-muted space-y-3">
+            <!-- Bottom Cross-link -->
+            <div class="text-center pt-6 border-t border-[#ECEEE6] text-[13px] text-muted">
                 <p>
                     Don't have an account? 
-                    <a href="{{ route('register') }}" class="text-forest font-medium underline underline-offset-4 hover:text-ink ml-1">
+                    <a href="{{ route('register') }}" class="text-[#304C3D] font-medium underline underline-offset-4 decoration-[#A8B7A0] hover:decoration-[#304C3D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2 ml-1">
                         Create an account
                     </a>
                 </p>
-                <div>
-                    <a href="{{ route('account') }}" class="min-h-[44px] inline-flex items-center text-xs uppercase tracking-[0.2em] text-muted hover:text-forest underline underline-offset-4">
-                        Explore Demo Account Overview →
-                    </a>
-                </div>
             </div>
         </div>
     </div>

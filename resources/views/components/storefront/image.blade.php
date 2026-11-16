@@ -72,7 +72,7 @@
                         <circle cx="12" cy="12" r="3" stroke-width="1.25" />
                     </svg>
                 </div>
-                <p class="font-serif text-xs md:text-sm text-forest/80 font-normal tracking-wide px-2 line-clamp-1">
+                <p class="font-serif text-xs md:text-sm text-forest/80 font-normal tracking-wide px-2 max-w-xs mx-auto text-center line-clamp-2">
                     {{ $alt }}
                 </p>
                 <span class="mt-1 font-mono text-xs text-muted tracking-tight px-2 py-0.5 bg-ivory/90 border border-[#E3E6DD] uppercase">
@@ -88,7 +88,7 @@
                         <circle cx="12" cy="12" r="3" stroke-width="1.25" />
                     </svg>
                 </div>
-                <p class="font-serif text-xs md:text-sm text-forest/80 font-normal tracking-wide px-2 line-clamp-1">
+                <p class="font-serif text-xs md:text-sm text-forest/80 font-normal tracking-wide px-2 max-w-xs mx-auto text-center line-clamp-2">
                     {{ $alt }}
                 </p>
                 <span class="mt-1 font-mono text-xs text-muted tracking-tight px-2 py-0.5 bg-ivory/90 border border-[#E3E6DD] uppercase">
