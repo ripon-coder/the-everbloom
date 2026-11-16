@@ -103,7 +103,8 @@ class AccountAreaTest extends TestCase
         $login->assertSee('input-field');
         $login->assertSee('Continue with Google');
         $login->assertSee('Continue with Apple');
-        $login->assertSee('Or continue with email');
+        $login->assertSee('Or continue with');
+        $login->assertSee('Mobile Number');
         $login->assertSee('Forgot password?');
 
         $register = $this->get('/account/register');
@@ -111,6 +112,7 @@ class AccountAreaTest extends TestCase
         $register->assertSee('Create Account');
         $register->assertSee('Sign up with Google');
         $register->assertSee('Sign up with Apple');
-        $register->assertSee('Or register with email');
+        $register->assertSee('Or register with');
+        $register->assertSee('Mobile Number');
     }
 }

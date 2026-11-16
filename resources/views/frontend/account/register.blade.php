@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Account — ' . config('demo.site.name'))
+@section('title', 'Create Account â€” ' . config('demo.site.name'))
 @section('meta_description', 'Create an account with The Everbloom to track orders and save your favorites.')
 @section('meta_robots', 'noindex, nofollow')
 @section('hide_newsletter', true)
@@ -16,10 +16,15 @@
 
     <!-- Single Centered Column -->
     <div class="mx-auto w-full max-w-md">
+        @php
+            $initialRegisterType = old('register_type') === 'email' || $errors->has('email') ? 'email' : 'phone';
+        @endphp
         <div 
             x-data="{
+                registerType: @js($initialRegisterType),
                 firstName: @js(old('first_name', '')),
                 lastName: @js(old('last_name', '')),
+                phone: @js(old('phone', '')),
                 email: @js(old('email', '')),
                 password: '',
                 confirmPassword: '',
@@ -30,6 +35,7 @@
                 errors: {
                     @error('first_name') firstName: @js($message), @enderror
                     @error('last_name') lastName: @js($message), @enderror
+                    @error('phone') phone: @js($message), @enderror
                     @error('email') email: @js($message), @enderror
                     @error('password') password: @js($message), @enderror
                     @error('terms') agreeTerms: @js($message), @enderror
@@ -44,6 +50,16 @@
                 get hasNumber() {
                     return /\d/.test(this.password);
                 },
+                switchTab(type) {
+                    if (this.registerType === type) return;
+                    this.registerType = type;
+                    delete this.errors.phone;
+                    delete this.errors.email;
+                    this.$nextTick(() => {
+                        const el = document.getElementById('reg-' + type);
+                        if (el) el.focus();
+                    });
+                },
                 clearError(field) {
                     if (this.errors[field]) delete this.errors[field];
                 },
@@ -55,10 +71,19 @@
                     if (!this.lastName.trim()) {
                         this.errors.lastName = 'Please enter your last name.';
                     }
-                    if (!this.email.trim()) {
-                        this.errors.email = 'Please enter your email address.';
-                    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim())) {
-                        this.errors.email = 'Please enter a valid email address.';
+                    if (this.registerType === 'phone') {
+                        const digits = this.phone.replace(/\D/g, '');
+                        if (!this.phone.trim()) {
+                            this.errors.phone = 'Please enter your mobile number.';
+                        } else if (digits.length < 7 || digits.length > 15) {
+                            this.errors.phone = 'Please enter a valid mobile number.';
+                        }
+                    } else {
+                        if (!this.email.trim()) {
+                            this.errors.email = 'Please enter your email address.';
+                        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim())) {
+                            this.errors.email = 'Please enter a valid email address.';
+                        }
                     }
                     if (!this.password) {
                         this.errors.password = 'Please create a password.';
@@ -77,6 +102,7 @@
                     const fieldMap = {
                         firstName: 'reg-first_name',
                         lastName: 'reg-last_name',
+                        phone: 'reg-phone',
                         email: 'reg-email',
                         password: 'reg-password',
                         confirmPassword: 'reg-confirm_password',
@@ -123,15 +149,44 @@
                 aria-live="polite"
             >
                 <span class="font-medium" x-text="demoNotice"></span>
-                <button type="button" @click="demoNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
+                <button type="button" @click="demoNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">âœ•</button>
             </div>
 
             <!-- Social Sign-Up (Demo Only) -->
-            <x-storefront.social-login-buttons :providers="config('demo.auth.enabled_providers')" mode="register" />
+            <x-storefront.social-login-buttons :providers="config('demo.auth.enabled_providers')" mode="register" divider-label="Or register with" />
+
+            <!-- Registration Method Tabs (Default: Mobile Number) -->
+            <div role="tablist" aria-label="Registration method" class="grid grid-cols-2 border border-[#D5DBCF] bg-[#F8F9F6] p-1 gap-1">
+                <button
+                    type="button"
+                    role="tab"
+                    id="tab-reg-phone"
+                    aria-controls="panel-reg-phone"
+                    :aria-selected="registerType === 'phone' ? 'true' : 'false'"
+                    @click="switchTab('phone')"
+                    class="min-h-[44px] px-3 text-xs uppercase tracking-[0.18em] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-1 cursor-pointer"
+                    :class="registerType === 'phone' ? 'bg-[#304C3D] text-[#FAF9F5]' : 'text-muted hover:text-ink bg-transparent'"
+                >
+                    Mobile Number
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    id="tab-reg-email"
+                    aria-controls="panel-reg-email"
+                    :aria-selected="registerType === 'email' ? 'true' : 'false'"
+                    @click="switchTab('email')"
+                    class="min-h-[44px] px-3 text-xs uppercase tracking-[0.18em] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-1 cursor-pointer"
+                    :class="registerType === 'email' ? 'bg-[#304C3D] text-[#FAF9F5]' : 'text-muted hover:text-ink bg-transparent'"
+                >
+                    Email
+                </button>
+            </div>
 
             <!-- Registration Form -->
             <form x-ref="registerForm" method="POST" action="{{ route('register.submit') }}" @submit.prevent="submit()" class="space-y-5" novalidate>
                 @csrf
+                <input type="hidden" name="register_type" :value="registerType" />
                 <!-- First and Last Name -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -146,7 +201,6 @@
                             @input="clearError('firstName')"
                             autocomplete="given-name" 
                             required 
-                            placeholder="First name"
                             class="input-field" 
                             :class="errors.firstName ? 'input-error !border-[#B3453A]' : ''"
                             :aria-invalid="errors.firstName ? 'true' : 'false'"
@@ -166,7 +220,6 @@
                             @input="clearError('lastName')"
                             autocomplete="family-name" 
                             required 
-                            placeholder="Last name"
                             class="input-field" 
                             :class="errors.lastName ? 'input-error !border-[#B3453A]' : ''"
                             :aria-invalid="errors.lastName ? 'true' : 'false'"
@@ -176,8 +229,31 @@
                     </div>
                 </div>
 
+                <!-- Mobile Number -->
+                <div id="panel-reg-phone" role="tabpanel" aria-labelledby="tab-reg-phone" x-show="registerType === 'phone'" x-cloak>
+                    <label for="reg-phone" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                        Mobile Number <span class="text-forest" aria-hidden="true">*</span>
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="reg-phone" 
+                        name="phone"
+                        x-model="phone" 
+                        @input="clearError('phone')"
+                        :disabled="registerType !== 'phone'"
+                        autocomplete="tel" 
+                        inputmode="tel"
+                        required 
+                        class="input-field" 
+                        :class="errors.phone ? 'input-error !border-[#B3453A]' : ''"
+                        :aria-invalid="errors.phone ? 'true' : 'false'"
+                        :aria-describedby="errors.phone ? 'err-reg-phone' : null"
+                    />
+                    <p id="err-reg-phone" x-show="errors.phone" x-text="errors.phone" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
+                </div>
+
                 <!-- Email Address -->
-                <div>
+                <div id="panel-reg-email" role="tabpanel" aria-labelledby="tab-reg-email" x-show="registerType === 'email'" x-cloak>
                     <label for="reg-email" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
                         Email Address <span class="text-forest" aria-hidden="true">*</span>
                     </label>
@@ -187,10 +263,10 @@
                         name="email"
                         x-model="email" 
                         @input="clearError('email')"
+                        :disabled="registerType !== 'email'"
                         autocomplete="email" 
                         inputmode="email"
                         required 
-                        placeholder="name@example.com" 
                         class="input-field" 
                         :class="errors.email ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.email ? 'true' : 'false'"

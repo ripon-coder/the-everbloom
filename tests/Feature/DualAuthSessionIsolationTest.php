@@ -85,4 +85,94 @@ class DualAuthSessionIsolationTest extends TestCase
         $this->assertSame('everbloom_user_session', config('session.cookie'));
         $this->assertSame('/', config('session.path'));
     }
+
+    public function test_login_page_shows_mobile_and_email_tabs_with_mobile_as_default(): void
+    {
+        $response = $this->get('/account/login');
+
+        $response->assertOk();
+        $response->assertSee('Mobile Number');
+        $response->assertSee('Email');
+        $response->assertSee('id="tab-login-phone"', false);
+        $response->assertSee('id="tab-login-email"', false);
+        $response->assertSee("loginType: 'phone'", false);
+    }
+
+    public function test_customer_can_sign_in_using_mobile_number(): void
+    {
+        $user = User::create([
+            'first_name' => 'Eleanor',
+            'last_name' => 'Vance',
+            'email' => 'eleanor.vance@example.com',
+            'phone' => '+880 1711-000192',
+            'password' => Hash::make('password'),
+            'status' => 'Active',
+        ]);
+
+        $response = $this->post('/account/login', [
+            'login_type' => 'phone',
+            'phone' => '01711000192',
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect('/account');
+        $this->assertAuthenticatedAs($user, 'web');
+        $this->assertGuest('admin');
+    }
+
+    public function test_customer_sign_in_with_invalid_mobile_number_returns_error(): void
+    {
+        User::create([
+            'first_name' => 'Eleanor',
+            'last_name' => 'Vance',
+            'email' => 'eleanor.vance@example.com',
+            'phone' => '+880 1711-000192',
+            'password' => Hash::make('password'),
+            'status' => 'Active',
+        ]);
+
+        $response = $this->from('/account/login')->post('/account/login', [
+            'login_type' => 'phone',
+            'phone' => '01711000192',
+            'password' => 'wrong-password',
+        ]);
+
+        $response->assertRedirect('/account/login');
+        $response->assertSessionHasErrors('phone');
+        $this->assertGuest('web');
+    }
+
+    public function test_register_page_shows_mobile_and_email_tabs_with_mobile_as_default(): void
+    {
+        $response = $this->get('/account/register');
+
+        $response->assertOk();
+        $response->assertSee('Mobile Number');
+        $response->assertSee('Email');
+        $response->assertSee('id="tab-reg-phone"', false);
+        $response->assertSee('id="tab-reg-email"', false);
+        $response->assertSee("registerType: 'phone'", false);
+    }
+
+    public function test_customer_can_register_using_mobile_number(): void
+    {
+        $response = $this->post('/account/register', [
+            'register_type' => 'phone',
+            'first_name' => 'Amina',
+            'last_name' => 'Rahman',
+            'phone' => '01711000999',
+            'password' => 'Secret1234',
+            'password_confirmation' => 'Secret1234',
+            'terms' => '1',
+        ]);
+
+        $response->assertRedirect('/account');
+        $this->assertAuthenticated('web');
+        $this->assertDatabaseHas('users', [
+            'first_name' => 'Amina',
+            'last_name' => 'Rahman',
+            'phone' => '01711000999',
+            'email' => null,
+        ]);
+    }
 }

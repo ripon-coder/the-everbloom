@@ -1,6 +1,6 @@
-@extends('layouts.account')
+﻿@extends('layouts.account')
 
-@section('title', 'Profile & Security — ' . config('demo.site.name'))
+@section('title', 'Profile & Security â€” ' . config('demo.site.name'))
 
 @section('breadcrumbs')
     <x-storefront.breadcrumbs :items="[
@@ -218,7 +218,7 @@
                     aria-live="polite"
                 >
                     <span x-text="profileFeedback"></span>
-                    <button type="button" @click="profileFeedback = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center cursor-pointer" aria-label="Close message">✕</button>
+                    <button type="button" @click="profileFeedback = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center cursor-pointer" aria-label="Close message">âœ•</button>
                 </div>
 
                 <form @submit.prevent="submitProfile()" novalidate class="space-y-5">
@@ -234,7 +234,6 @@
                                 x-model="profileForm.first_name" 
                                 @input="clearProfileError('first_name')"
                                 autocomplete="given-name" 
-                                placeholder="First name"
                                 class="input-field" 
                                 :class="profileErrors.first_name ? 'input-error !border-[#B3453A]' : ''"
                                 :aria-invalid="profileErrors.first_name ? 'true' : 'false'"
@@ -253,7 +252,6 @@
                                 x-model="profileForm.last_name" 
                                 @input="clearProfileError('last_name')"
                                 autocomplete="family-name" 
-                                placeholder="Last name"
                                 class="input-field" 
                                 :class="profileErrors.last_name ? 'input-error !border-[#B3453A]' : ''"
                                 :aria-invalid="profileErrors.last_name ? 'true' : 'false'"
@@ -275,7 +273,6 @@
                             @input="clearProfileError('email')"
                             autocomplete="email" 
                             inputmode="email"
-                            placeholder="name@example.com"
                             class="input-field" 
                             :class="profileErrors.email ? 'input-error !border-[#B3453A]' : ''"
                             :aria-invalid="profileErrors.email ? 'true' : 'false'"
@@ -297,7 +294,6 @@
                             id="profile-phone" 
                             x-model="profileForm.phone" 
                             autocomplete="tel" 
-                            placeholder="Phone number"
                             class="input-field" 
                         />
                     </div>
@@ -334,7 +330,7 @@
                     aria-live="polite"
                 >
                     <span x-text="securityFeedback"></span>
-                    <button type="button" @click="securityFeedback = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center cursor-pointer" aria-label="Close message">✕</button>
+                    <button type="button" @click="securityFeedback = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center cursor-pointer" aria-label="Close message">âœ•</button>
                 </div>
 
                 <form @submit.prevent="submitSecurity()" novalidate class="space-y-5">

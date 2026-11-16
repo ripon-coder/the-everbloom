@@ -1,4 +1,4 @@
-@php
+﻿@php
     $allProducts = $storefrontProductsJson ?? config('demo.products', []);
     $currencySymbol = config('demo.site.currency.symbol', '$');
 @endphp
@@ -60,7 +60,6 @@
                     type="search" 
                     id="storefront-search-input"
                     x-model="query"
-                    placeholder="Search by product name, ingredient, or skin goal..."
                     class="h-16 w-full border-0 bg-transparent px-4 text-ink placeholder:text-muted-light focus:outline-none text-base font-sans"
                 />
 
@@ -138,7 +137,7 @@
             <!-- Footer note -->
             <div class="px-6 py-3 bg-sage-light/40 border-t border-[#ECEEE6] text-xs text-muted flex items-center justify-between">
                 <span>Press <kbd class="px-1.5 py-0.5 bg-ivory border border-[#E3E6DD] text-xs rounded-sm font-mono">ESC</kbd> to exit</span>
-                <a href="/shop" @click="closeModal()" class="text-[13px] text-forest hover:text-ink underline underline-offset-4">Browse All Products →</a>
+                <a href="/shop" @click="closeModal()" class="text-[13px] text-forest hover:text-ink underline underline-offset-4">Browse All Products â†’</a>
             </div>
         </div>
     </div>

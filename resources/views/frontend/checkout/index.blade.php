@@ -1,6 +1,6 @@
-@extends('layouts.checkout')
+﻿@extends('layouts.checkout')
 
-@section('title', 'Checkout — ' . config('demo.site.name'))
+@section('title', 'Checkout â€” ' . config('demo.site.name'))
 @section('hide_newsletter', true)
 
 @section('content')
@@ -18,14 +18,14 @@
         'standard' => [
             'id' => 'standard',
             'name' => 'Standard Ground Botanical Shipping',
-            'time' => '3–5 business days',
+            'time' => '3â€“5 business days',
             'cost' => 6.00,
             'free_threshold' => 75.00,
         ],
         'express' => [
             'id' => 'express',
             'name' => 'Express Priority Courier',
-            'time' => '1–2 business days',
+            'time' => '1â€“2 business days',
             'cost' => 15.00,
             'free_threshold' => 150.00,
         ],
@@ -165,7 +165,6 @@
                             id="mobile-discount-code"
                             type="text" 
                             x-model="discountInput" 
-                            placeholder="Discount code" 
                             class="input-field flex-1"
                             @keydown.enter.prevent="applyDiscountCode()"
                         >
@@ -243,7 +242,6 @@
                                 @input="clearError('email')"
                                 :aria-invalid="errors.email ? 'true' : 'false'"
                                 :aria-describedby="errors.email ? 'email-error' : null"
-                                placeholder="name@example.com" 
                                 class="input-field"
                                 :class="{ 'input-error': errors.email }"
                             >
@@ -263,7 +261,6 @@
                                 @input="clearError('phone')"
                                 :aria-invalid="errors.phone ? 'true' : 'false'"
                                 :aria-describedby="errors.phone ? 'phone-error' : null"
-                                placeholder="Phone number" 
                                 class="input-field"
                                 :class="{ 'input-error': errors.phone }"
                             >
@@ -293,7 +290,6 @@
                                     @input="clearError('firstName')"
                                     :aria-invalid="errors.firstName ? 'true' : 'false'"
                                     :aria-describedby="errors.firstName ? 'first_name-error' : null"
-                                    placeholder="First name"
                                     class="input-field"
                                     :class="{ 'input-error': errors.firstName }"
                                 >
@@ -313,7 +309,6 @@
                                     @input="clearError('lastName')"
                                     :aria-invalid="errors.lastName ? 'true' : 'false'"
                                     :aria-describedby="errors.lastName ? 'last_name-error' : null"
-                                    placeholder="Last name"
                                     class="input-field"
                                     :class="{ 'input-error': errors.lastName }"
                                 >
@@ -442,7 +437,6 @@
                                 @input="clearError('address')"
                                 :aria-invalid="errors.address ? 'true' : 'false'"
                                 :aria-describedby="errors.address ? 'address-error' : null"
-                                placeholder="House, road, block" 
                                 class="input-field"
                                 :class="{ 'input-error': errors.address }"
                             >
@@ -461,7 +455,6 @@
                                     type="text" 
                                     autocomplete="address-line2" 
                                     x-model="form.apartment" 
-                                    placeholder="Apartment, suite, floor (optional)" 
                                     class="input-field"
                                 >
                             </div>
@@ -477,7 +470,6 @@
                                     autocomplete="postal-code" 
                                     x-model="form.zip" 
                                     @input="clearError('zip')"
-                                    placeholder="Postal Code"
                                     class="input-field"
                                 >
                             </div>
@@ -647,7 +639,6 @@
                                 id="desktop-discount-code"
                                 type="text" 
                                 x-model="discountInput" 
-                                placeholder="Discount code" 
                                 class="input-field flex-1"
                                 @keydown.enter.prevent="applyDiscountCode()"
                             >

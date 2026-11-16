@@ -116,24 +116,92 @@ class AccountController extends Controller
 
     public function loginSubmit(Request $request): RedirectResponse
     {
+        $loginType = $request->input('login_type');
+        if (! in_array($loginType, ['phone', 'email'], true)) {
+            $loginType = $request->filled('email') ? 'email' : 'phone';
+        }
+
+        if ($loginType === 'email') {
+            $credentials = $request->validate([
+                'email' => ['required', 'email'],
+                'password' => ['required', 'string'],
+            ]);
+
+            if (Auth::guard('web')->attempt([
+                'email' => $credentials['email'],
+                'password' => $credentials['password'],
+                'status' => 'Active',
+            ], $request->boolean('remember'))) {
+                $request->session()->regenerate();
+
+                return redirect()->intended(route('account'));
+            }
+
+            return back()->withErrors([
+                'email' => 'Invalid email or password.',
+            ])->withInput($request->only('email', 'login_type'));
+        }
+
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'phone' => ['required', 'string', 'min:6', 'max:40'],
             'password' => ['required', 'string'],
         ]);
 
-        if (Auth::guard('web')->attempt([
-            'email' => $credentials['email'],
-            'password' => $credentials['password'],
-            'status' => 'Active',
-        ], $request->boolean('remember'))) {
+        $user = $this->findActiveUserByPhone($credentials['phone']);
+
+        if ($user && Hash::check($credentials['password'], $user->password)) {
+            Auth::guard('web')->login($user, $request->boolean('remember'));
             $request->session()->regenerate();
 
             return redirect()->intended(route('account'));
         }
 
         return back()->withErrors([
-            'email' => 'Invalid email or password.',
-        ])->onlyInput('email');
+            'phone' => 'Invalid mobile number or password.',
+        ])->withInput($request->only('phone', 'login_type'));
+    }
+
+    private function findActiveUserByPhone(string $inputPhone): ?User
+    {
+        return $this->findUserByPhone($inputPhone, activeOnly: true);
+    }
+
+    private function findUserByPhone(string $inputPhone, bool $activeOnly = true): ?User
+    {
+        $trimmed = trim($inputPhone);
+
+        $exactQuery = User::query()->where('phone', $trimmed);
+        if ($activeOnly) {
+            $exactQuery->where('status', 'Active');
+        }
+
+        $exact = $exactQuery->first();
+        if ($exact) {
+            return $exact;
+        }
+
+        $digits = preg_replace('/\D+/', '', $trimmed) ?? '';
+        if ($digits === '') {
+            return null;
+        }
+
+        $candidates = [$digits];
+        if (str_starts_with($digits, '0') && strlen($digits) >= 10) {
+            $candidates[] = '880' . substr($digits, 1);
+        } elseif (str_starts_with($digits, '880') && strlen($digits) >= 12) {
+            $candidates[] = '0' . substr($digits, 3);
+        }
+
+        $query = User::query()->whereNotNull('phone');
+        if ($activeOnly) {
+            $query->where('status', 'Active');
+        }
+
+        return $query->get()->first(function (User $user) use ($candidates) {
+            $userDigits = preg_replace('/\D+/', '', (string) $user->phone) ?? '';
+
+            return $userDigits !== '' && in_array($userDigits, $candidates, true);
+        });
     }
 
     public function register(): View
@@ -143,18 +211,37 @@ class AccountController extends Controller
 
     public function registerSubmit(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $registerType = $request->input('register_type');
+        if (! in_array($registerType, ['phone', 'email'], true)) {
+            $registerType = $request->filled('email') ? 'email' : 'phone';
+        }
+
+        $rules = [
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:191', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'terms' => ['accepted'],
-        ]);
+        ];
+
+        if ($registerType === 'email') {
+            $rules['email'] = ['required', 'string', 'email', 'max:191', 'unique:users,email'];
+        } else {
+            $rules['phone'] = ['required', 'string', 'min:6', 'max:40'];
+        }
+
+        $validated = $request->validate($rules);
+
+        if ($registerType === 'phone' && $this->findUserByPhone($validated['phone'], activeOnly: false)) {
+            return back()->withErrors([
+                'phone' => 'This mobile number is already registered.',
+            ])->withInput($request->except('password', 'password_confirmation'));
+        }
 
         $user = User::create([
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
-            'email' => $validated['email'],
+            'email' => $registerType === 'email' ? $validated['email'] : null,
+            'phone' => $registerType === 'phone' ? trim($validated['phone']) : null,
             'password' => Hash::make($validated['password']),
             'status' => 'Active',
         ]);

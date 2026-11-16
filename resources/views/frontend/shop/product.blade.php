@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', ($product['name'] ?? 'Product') . ' | The Everbloom')
 @section('meta_description', $product['short_description'] ?? 'Botanical skincare formulation from The Everbloom.')
@@ -75,7 +75,7 @@
     ];
 
     $freeShippingThreshold = (float) config('demo.site.shipping.free_shipping_threshold', 75);
-    $standardDays = config('demo.site.shipping.standard_days', '3–5 business days');
+    $standardDays = config('demo.site.shipping.standard_days', '3â€“5 business days');
     $returnWindowDays = (int) config('demo.site.returns.window_days', 30);
     $secureCheckoutLabel = config('demo.site.trust_badges.secure_checkout', 'Secure Checkout');
 
@@ -287,7 +287,7 @@
                             >
                                 <x-storefront.image 
                                     :src="$imgSrc" 
-                                    :alt="($product['name'] ?? 'Product') . ' — ' . $productCategory . ' view ' . ($index + 1)" 
+                                    :alt="($product['name'] ?? 'Product') . ' â€” ' . $productCategory . ' view ' . ($index + 1)" 
                                     aspect-ratio=""
                                     class="!absolute inset-0 w-full h-full object-cover"
                                     width="960"
@@ -1192,7 +1192,6 @@
                                 x-model="reviewName" 
                                 @input="if (errors.name && reviewName.trim()) errors.name = ''"
                                 autocomplete="name"
-                                placeholder="Your name"
                                 class="input-field"
                                 :aria-invalid="errors.name ? 'true' : 'false'"
                                 :aria-describedby="errors.name ? 'review-name-error' : null"
@@ -1216,7 +1215,6 @@
                                 x-model="reviewEmail" 
                                 @input="if (errors.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reviewEmail.trim())) errors.email = ''"
                                 autocomplete="email"
-                                placeholder="name@example.com"
                                 class="input-field"
                                 :aria-invalid="errors.email ? 'true' : 'false'"
                                 :aria-describedby="errors.email ? 'review-email-error review-email-helper' : 'review-email-helper'"
@@ -1243,7 +1241,6 @@
                             id="review-title" 
                             type="text" 
                             x-model="reviewTitle" 
-                            placeholder="Summarize your experience (optional)"
                             class="input-field"
                         />
                     </div>
@@ -1261,7 +1258,6 @@
                             @input="if (errors.body && reviewBody.trim().length >= 20) errors.body = ''"
                             minlength="20"
                             maxlength="1000"
-                            placeholder="How did this formulation feel on your skin? (minimum 20 characters)"
                             class="input-field resize-y"
                             :aria-invalid="errors.body ? 'true' : 'false'"
                             :aria-describedby="errors.body ? 'review-body-error review-body-guidelines' : 'review-body-guidelines'"

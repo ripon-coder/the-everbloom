@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Forgot Password — ' . config('demo.site.name'))
+@section('title', 'Forgot Password â€” ' . config('demo.site.name'))
 @section('meta_description', 'Reset your password for The Everbloom account.')
 @section('meta_robots', 'noindex, nofollow')
 @section('hide_newsletter', true)
@@ -71,7 +71,7 @@
                 aria-live="polite"
             >
                 <span class="font-medium" x-text="demoNotice"></span>
-                <button type="button" @click="demoNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
+                <button type="button" @click="demoNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">âœ•</button>
             </div>
 
             <!-- Email Form -->
@@ -90,7 +90,6 @@
                         autocomplete="email" 
                         inputmode="email"
                         required 
-                        placeholder="name@example.com" 
                         class="input-field" 
                         :class="errors.email ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.email ? 'true' : 'false'"

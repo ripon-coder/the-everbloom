@@ -1,6 +1,7 @@
 @props([
     'providers' => config('demo.auth.enabled_providers', ['google', 'apple']),
     'mode' => 'signin', // 'signin' | 'register'
+    'dividerLabel' => null,
 ])
 
 @php
@@ -9,7 +10,7 @@
         ['google', 'apple']
     ));
     $isRegister = $mode === 'register';
-    $dividerLabel = $isRegister ? 'Or register with email' : 'Or continue with email';
+    $dividerLabel = $dividerLabel ?? ($isRegister ? 'Or register with email' : 'Or continue with email');
 @endphp
 
 @if(count($normalizedProviders) > 0)

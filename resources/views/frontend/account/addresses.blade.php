@@ -1,6 +1,6 @@
-@extends('layouts.account')
+﻿@extends('layouts.account')
 
-@section('title', 'Saved Addresses — ' . config('demo.site.name'))
+@section('title', 'Saved Addresses â€” ' . config('demo.site.name'))
 
 @section('breadcrumbs')
     <x-storefront.breadcrumbs :items="[
@@ -315,7 +315,7 @@
         aria-live="polite"
     >
         <span x-text="demoFeedback"></span>
-        <button type="button" @click="demoFeedback = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center cursor-pointer" aria-label="Close message">✕</button>
+        <button type="button" @click="demoFeedback = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center cursor-pointer" aria-label="Close message">âœ•</button>
     </div>
 
     <!-- Top Action Bar (vertically centered with first sidebar item) -->
@@ -362,7 +362,7 @@
                 class="w-11 h-11 min-w-[44px] min-h-[44px] -mr-2 -mt-1 flex items-center justify-center text-muted hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-2"
                 aria-label="Close edit form"
             >
-                ✕
+                âœ•
             </button>
         </div>
 
@@ -379,7 +379,6 @@
                         x-model="form.first_name" 
                         @input="clearError('first_name')"
                         autocomplete="given-name" 
-                        placeholder="First name"
                         class="input-field" 
                         :class="errors.first_name ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.first_name ? 'true' : 'false'"
@@ -398,7 +397,6 @@
                         x-model="form.last_name" 
                         @input="clearError('last_name')"
                         autocomplete="family-name" 
-                        placeholder="Last name"
                         class="input-field" 
                         :class="errors.last_name ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.last_name ? 'true' : 'false'"
@@ -418,7 +416,6 @@
                     id="field-company" 
                     x-model="form.company" 
                     autocomplete="organization" 
-                    placeholder="Company name (optional)"
                     class="input-field" 
                 />
             </div>
@@ -531,7 +528,6 @@
                     x-model="form.address_line1" 
                     @input="clearError('address_line1')"
                     autocomplete="address-line1" 
-                    placeholder="House, road, block"
                     class="input-field" 
                     :class="errors.address_line1 ? 'input-error !border-[#B3453A]' : ''"
                     :aria-invalid="errors.address_line1 ? 'true' : 'false'"
@@ -551,7 +547,6 @@
                         id="field-address_line2" 
                         x-model="form.address_line2" 
                         autocomplete="address-line2" 
-                        placeholder="Apartment, suite, floor (optional)"
                         class="input-field" 
                     />
                 </div>
@@ -566,7 +561,6 @@
                         x-model="form.postal_code" 
                         @input="clearError('postal_code')"
                         autocomplete="postal-code" 
-                        placeholder="Postal code"
                         class="input-field" 
                     />
                 </div>
@@ -583,7 +577,6 @@
                     x-model="form.phone" 
                     @input="clearError('phone')"
                     autocomplete="tel" 
-                    placeholder="Phone number"
                     class="input-field" 
                     :class="errors.phone ? 'input-error !border-[#B3453A]' : ''"
                     :aria-invalid="errors.phone ? 'true' : 'false'"

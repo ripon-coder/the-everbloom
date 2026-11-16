@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Sign In — ' . config('demo.site.name'))
+@section('title', 'Sign In â€” ' . config('demo.site.name'))
 @section('meta_description', 'Sign in to your account at The Everbloom to view your orders, saved items, and delivery addresses.')
 @section('meta_robots', 'noindex, nofollow')
 @section('hide_newsletter', true)
@@ -16,26 +16,50 @@
 
     <!-- Single Centered Column -->
     <div class="mx-auto w-full max-w-md">
+        @php
+            $initialLoginType = old('login_type') === 'email' || $errors->has('email') ? 'email' : 'phone';
+        @endphp
         <div 
             x-data="{
+                loginType: @js($initialLoginType),
+                phone: @js(old('phone', '')),
                 email: @js(old('email', '')),
                 password: '',
                 showPassword: false,
                 rememberMe: false,
                 errors: {
+                    @error('phone') phone: @js($message), @enderror
                     @error('email') email: @js($message), @enderror
                     @error('password') password: @js($message), @enderror
                 },
                 demoNotice: @js(session('status', '')),
+                switchTab(type) {
+                    if (this.loginType === type) return;
+                    this.loginType = type;
+                    this.errors = {};
+                    this.$nextTick(() => {
+                        const el = document.getElementById('login-' + type);
+                        if (el) el.focus();
+                    });
+                },
                 clearError(field) {
                     if (this.errors[field]) delete this.errors[field];
                 },
                 validate() {
                     this.errors = {};
-                    if (!this.email.trim()) {
-                        this.errors.email = 'Please enter your email address.';
-                    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim())) {
-                        this.errors.email = 'Please enter a valid email address.';
+                    if (this.loginType === 'phone') {
+                        const digits = this.phone.replace(/\D/g, '');
+                        if (!this.phone.trim()) {
+                            this.errors.phone = 'Please enter your mobile number.';
+                        } else if (digits.length < 7 || digits.length > 15) {
+                            this.errors.phone = 'Please enter a valid mobile number.';
+                        }
+                    } else {
+                        if (!this.email.trim()) {
+                            this.errors.email = 'Please enter your email address.';
+                        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim())) {
+                            this.errors.email = 'Please enter a valid email address.';
+                        }
                     }
                     if (!this.password) {
                         this.errors.password = 'Please enter your password.';
@@ -81,17 +105,70 @@
                 aria-live="polite"
             >
                 <span class="font-medium" x-text="demoNotice"></span>
-                <button type="button" @click="demoNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">✕</button>
+                <button type="button" @click="demoNotice = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center shrink-0 cursor-pointer" aria-label="Close message">âœ•</button>
             </div>
 
             <!-- Social Sign-In (Demo Only) -->
-            <x-storefront.social-login-buttons :providers="config('demo.auth.enabled_providers')" mode="signin" />
+            <x-storefront.social-login-buttons :providers="config('demo.auth.enabled_providers')" mode="signin" divider-label="Or continue with" />
 
-            <!-- Email & Password Form -->
+            <!-- Sign-In Method Tabs (Default: Mobile Number) -->
+            <div role="tablist" aria-label="Sign in method" class="grid grid-cols-2 border border-[#D5DBCF] bg-[#F8F9F6] p-1 gap-1">
+                <button
+                    type="button"
+                    role="tab"
+                    id="tab-login-phone"
+                    aria-controls="panel-login-phone"
+                    :aria-selected="loginType === 'phone' ? 'true' : 'false'"
+                    @click="switchTab('phone')"
+                    class="min-h-[44px] px-3 text-xs uppercase tracking-[0.18em] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-1 cursor-pointer"
+                    :class="loginType === 'phone' ? 'bg-[#304C3D] text-[#FAF9F5]' : 'text-muted hover:text-ink bg-transparent'"
+                >
+                    Mobile Number
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    id="tab-login-email"
+                    aria-controls="panel-login-email"
+                    :aria-selected="loginType === 'email' ? 'true' : 'false'"
+                    @click="switchTab('email')"
+                    class="min-h-[44px] px-3 text-xs uppercase tracking-[0.18em] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-1 cursor-pointer"
+                    :class="loginType === 'email' ? 'bg-[#304C3D] text-[#FAF9F5]' : 'text-muted hover:text-ink bg-transparent'"
+                >
+                    Email
+                </button>
+            </div>
+
+            <!-- Mobile / Email & Password Form -->
             <form x-ref="loginForm" method="POST" action="{{ route('login.submit') }}" @submit.prevent="submit()" class="space-y-5" novalidate>
                 @csrf
+                <input type="hidden" name="login_type" :value="loginType" />
+
+                <!-- Mobile Number -->
+                <div id="panel-login-phone" role="tabpanel" aria-labelledby="tab-login-phone" x-show="loginType === 'phone'" x-cloak>
+                    <label for="login-phone" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
+                        Mobile Number <span class="text-forest" aria-hidden="true">*</span>
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="login-phone" 
+                        name="phone"
+                        x-model="phone" 
+                        @input="clearError('phone')"
+                        :disabled="loginType !== 'phone'"
+                        autocomplete="tel" 
+                        inputmode="tel"
+                        required 
+                        class="input-field" 
+                        :class="errors.phone ? 'input-error !border-[#B3453A]' : ''"
+                        :aria-invalid="errors.phone ? 'true' : 'false'"
+                        :aria-describedby="errors.phone ? 'err-login-phone' : null"
+                    />
+                    <p id="err-login-phone" x-show="errors.phone" x-text="errors.phone" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
+                </div>
+
                 <!-- Email Address -->
-                <div>
+                <div id="panel-login-email" role="tabpanel" aria-labelledby="tab-login-email" x-show="loginType === 'email'" x-cloak>
                     <label for="login-email" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
                         Email Address <span class="text-forest" aria-hidden="true">*</span>
                     </label>
@@ -101,10 +178,10 @@
                         name="email"
                         x-model="email" 
                         @input="clearError('email')"
+                        :disabled="loginType !== 'email'"
                         autocomplete="username" 
                         inputmode="email"
                         required 
-                        placeholder="name@example.com" 
                         class="input-field" 
                         :class="errors.email ? 'input-error !border-[#B3453A]' : ''"
                         :aria-invalid="errors.email ? 'true' : 'false'"
@@ -135,7 +212,6 @@
                             @input="clearError('password')"
                             autocomplete="current-password" 
                             required 
-                            placeholder="Enter your password"
                             class="input-field pr-12" 
                             :class="errors.password ? 'input-error !border-[#B3453A]' : ''"
                             :aria-invalid="errors.password ? 'true' : 'false'"

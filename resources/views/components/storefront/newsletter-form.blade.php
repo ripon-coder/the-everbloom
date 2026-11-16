@@ -1,4 +1,4 @@
-@props([
+﻿@props([
     'dark' => false,
     'idPrefix' => 'newsletter',
 ])
@@ -40,7 +40,6 @@
             autocomplete="email"
             x-model="email"
             @input="if (status === 'error') { status = 'idle'; errorMessage = ''; }"
-            placeholder="name@example.com" 
             :disabled="status === 'loading' || status === 'success'"
             :aria-invalid="status === 'error' ? 'true' : 'false'"
             :aria-describedby="status === 'error' ? '{{ $idPrefix }}-error' : null"
