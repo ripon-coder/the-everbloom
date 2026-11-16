@@ -72,4 +72,5 @@ jobs:
             **/.gitignore
             **/README.md
             **/docs/**
-            **/public/**
+            **/public/admin/**
+            **/public/images/**
