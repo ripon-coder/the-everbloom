@@ -114,7 +114,7 @@
                 <div class="dropdown topbar-item">
                     <a type="button" class="topbar-button" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="d-flex align-items-center">
-                            <img class="rounded-circle" width="32" height="32" src="{{ asset('admin/assets/images/users/avatar-1.jpg') }}" alt="Admin Avatar">
+                            <img class="rounded-circle" width="32" height="32" src="{{ asset('admin-assets/assets/images/users/avatar-1.jpg') }}" alt="Admin Avatar">
                         </span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end">

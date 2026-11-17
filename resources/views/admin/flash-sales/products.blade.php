@@ -85,7 +85,7 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const tbody = document.querySelector('#flash-products-table tbody');
@@ -125,5 +125,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-@endsection
+@endpush
 

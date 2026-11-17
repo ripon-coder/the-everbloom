@@ -11,7 +11,7 @@
                 <!-- Header with Logo and Print Button -->
                 <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                     <div>
-                        <img src="{{ asset('admin/assets/images/logo-dark.png') }}" alt="The Everbloom" height="32" class="mb-2">
+                        <img src="{{ asset('admin-assets/assets/images/logo-dark.png') }}" alt="The Everbloom" height="32" class="mb-2">
                         <p class="text-muted mb-0 fs-13">Artisanal Botanical Skincare & Laboratory</p>
                     </div>
                     <div class="text-end">

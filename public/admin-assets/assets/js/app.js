@@ -936,7 +936,7 @@ class ThemeLayout {
      _adjustLayout() {
           var self = this;
 
-          if (window.innerWidth < 992) {
+          if (window.innerWidth <= 1140) {
                self.changeMenuSize('hidden', false);
           } else {
                self.html.classList.remove('sidebar-enable');

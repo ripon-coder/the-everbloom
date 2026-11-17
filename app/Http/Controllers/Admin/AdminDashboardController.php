@@ -39,7 +39,9 @@ class AdminDashboardController extends Controller
 
         $placedOrdersCount = (int) ($statusCounts['Placed'] ?? 0);
         $processingOrdersCount = (int) ($statusCounts['Processing'] ?? 0);
+        $shippedOrdersCount = (int) ($statusCounts['Shipped'] ?? 0);
         $completedOrdersCount = (int) ($statusCounts['Delivered'] ?? 0);
+        $cancelledOrdersCount = (int) ($statusCounts['Cancelled'] ?? 0);
         $pendingOrdersCount = $placedOrdersCount + $processingOrdersCount;
 
         $totalProducts = Product::where('is_active', true)->count();
@@ -118,12 +120,16 @@ class AdminDashboardController extends Controller
             'totalOrders',
             'placedOrdersCount',
             'processingOrdersCount',
+            'shippedOrdersCount',
             'completedOrdersCount',
+            'cancelledOrdersCount',
             'pendingOrdersCount',
             'totalProducts',
             'totalCategories',
             'totalCustomers',
             'activeCustomersCount',
+            'buyersCount',
+            'repeatBuyersCount',
             'returningCustomerRate',
             'lowStockCount',
             'lowStockProducts',

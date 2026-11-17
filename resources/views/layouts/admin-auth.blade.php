@@ -9,21 +9,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('admin/assets/images/favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('admin-assets/assets/images/favicon.ico') }}">
 
     <!-- Vendor css -->
-    <link href="{{ asset('admin/assets/css/vendor.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('admin-assets/assets/css/vendor.min.css') }}" rel="stylesheet" type="text/css" />
 
     <!-- Icons css -->
-    <link href="{{ asset('admin/assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('admin-assets/assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
 
     <!-- App css -->
-    <link href="{{ asset('admin/assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('admin-assets/assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
 
     @stack('styles')
 
     <!-- Theme Config js -->
-    <script src="{{ asset('admin/assets/js/config.js') }}"></script>
+    <script src="{{ asset('admin-assets/assets/js/config.js') }}"></script>
 </head>
 
 <body class="h-100">
@@ -37,10 +37,10 @@
                             <div class="d-flex flex-column h-100 justify-content-center">
                                 <div class="auth-logo mb-4">
                                     <a href="{{ route('home') }}" class="logo-dark">
-                                        <img src="{{ asset('admin/assets/images/logo-dark.png') }}" height="28" alt="The Everbloom">
+                                        <img src="{{ asset('admin-assets/assets/images/logo-dark.png') }}" height="28" alt="The Everbloom">
                                     </a>
                                     <a href="{{ route('home') }}" class="logo-light">
-                                        <img src="{{ asset('admin/assets/images/logo-light.png') }}" height="28" alt="The Everbloom">
+                                        <img src="{{ asset('admin-assets/assets/images/logo-light.png') }}" height="28" alt="The Everbloom">
                                     </a>
                                 </div>
 
@@ -54,7 +54,7 @@
                 <div class="col-xxl-5 d-none d-xxl-flex">
                     <div class="card h-100 mb-0 overflow-hidden border-0">
                         <div class="d-flex flex-column h-100 position-relative">
-                            <img src="{{ asset('admin/assets/images/small/img-10.jpg') }}" alt="Everbloom Botanical Skincare" class="w-100 h-100 object-fit-cover">
+                            <img src="{{ asset('admin-assets/assets/images/small/img-10.jpg') }}" alt="Everbloom Botanical Skincare" class="w-100 h-100 object-fit-cover">
                             <div class="position-absolute bottom-0 start-0 end-0 p-4 bg-gradient-dark text-white text-center" style="background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);">
                                 <h4 class="text-white fw-bold">The Everbloom Botanical Lab</h4>
                                 <p class="text-white-50 mb-0 fs-13">Artisanal Skincare Management Console</p>
@@ -67,8 +67,8 @@
     </div>
 
     <!-- Vendor Javascript -->
-    <script src="{{ asset('admin/assets/js/vendor.js') }}"></script>
-    <script src="{{ asset('admin/assets/js/app.js') }}"></script>
+    <script src="{{ asset('admin-assets/assets/js/vendor.js') }}"></script>
+    <script src="{{ asset('admin-assets/assets/js/app.js') }}"></script>
 
     @stack('scripts')
 </body>

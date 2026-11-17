@@ -58,7 +58,7 @@
                                 @forelse($reviews as $r)
                                     @php
                                         $badge = $r->status === 'Approved' ? 'success' : ($r->status === 'Pending' ? 'warning' : 'danger');
-                                        $avatar = $r->user?->avatar ?? 'admin/assets/images/users/avatar-2.jpg';
+                                        $avatar = $r->user?->avatar ?? 'admin-assets/assets/images/users/avatar-2.jpg';
                                     @endphp
                                     <tr>
                                         <td>
@@ -158,10 +158,10 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 document.getElementById('select-all-reviews')?.addEventListener('change', function (e) {
     document.querySelectorAll('.review-checkbox').forEach(cb => cb.checked = e.target.checked);
 });
 </script>
-@endsection
+@endpush

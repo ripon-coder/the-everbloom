@@ -2,12 +2,12 @@
     <!-- Sidebar Logo -->
     <div class="logo-box">
         <a href="{{ route('admin.dashboard') }}" class="logo-dark">
-            <img src="{{ asset('admin/assets/images/logo-sm.png') }}" class="logo-sm" alt="Everbloom">
-            <img src="{{ asset('admin/assets/images/logo-dark.png') }}" class="logo-lg" alt="The Everbloom">
+            <img src="{{ asset('admin-assets/assets/images/logo-sm.png') }}" class="logo-sm" alt="Everbloom">
+            <img src="{{ asset('admin-assets/assets/images/logo-dark.png') }}" class="logo-lg" alt="The Everbloom">
         </a>
         <a href="{{ route('admin.dashboard') }}" class="logo-light">
-            <img src="{{ asset('admin/assets/images/logo-sm.png') }}" class="logo-sm" alt="Everbloom">
-            <img src="{{ asset('admin/assets/images/logo-light.png') }}" class="logo-lg" alt="The Everbloom">
+            <img src="{{ asset('admin-assets/assets/images/logo-sm.png') }}" class="logo-sm" alt="Everbloom">
+            <img src="{{ asset('admin-assets/assets/images/logo-light.png') }}" class="logo-lg" alt="The Everbloom">
         </a>
     </div>
 

@@ -9,21 +9,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('admin/assets/images/favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('admin-assets/assets/images/favicon.ico') }}">
 
     <!-- Vendor css (Bootstrap 5.3.3 + plugins) -->
-    <link href="{{ asset('admin/assets/css/vendor.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('admin-assets/assets/css/vendor.min.css') }}" rel="stylesheet" type="text/css" />
 
     <!-- Icons css (Solar + Boxicons + Iconamoon) -->
-    <link href="{{ asset('admin/assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('admin-assets/assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
 
     <!-- App css (Larkon theme) -->
-    <link href="{{ asset('admin/assets/css/app.min.css') }}?v={{ filemtime(public_path('admin/assets/css/app.min.css')) }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('admin-assets/assets/css/app.min.css') }}?v={{ filemtime(public_path('admin-assets/assets/css/app.min.css')) }}" rel="stylesheet" type="text/css" />
 
     @stack('styles')
 
     <!-- Theme Config Js (MUST run in <head> to set layout attributes before first paint) -->
-    <script src="{{ asset('admin/assets/js/config.js') }}?v={{ filemtime(public_path('admin/assets/js/config.js')) }}"></script>
+    <script src="{{ asset('admin-assets/assets/js/config.js') }}?v={{ filemtime(public_path('admin-assets/assets/js/config.js')) }}"></script>
 </head>
 
 <body>
@@ -31,7 +31,7 @@
     <div class="wrapper">
 
         <!-- Topbar Header -->
-        <x-admin.topbar :title="$pageTitle ?? ($title ?? 'Dashboard')" />
+        <x-admin.topbar :title="$pageTitle ?? ($title ?? trim($__env->yieldContent('title', 'Dashboard')))" />
 
         <!-- Offcanvas Drawers -->
         <x-admin.offcanvas-drawers />
@@ -54,8 +54,8 @@
     <!-- END Wrapper -->
 
     <!-- Core Vendor & App JS -->
-    <script src="{{ asset('admin/assets/js/vendor.js') }}"></script>
-    <script src="{{ asset('admin/assets/js/app.js') }}?v={{ filemtime(public_path('admin/assets/js/app.js')) }}"></script>
+    <script src="{{ asset('admin-assets/assets/js/vendor.js') }}"></script>
+    <script src="{{ asset('admin-assets/assets/js/app.js') }}?v={{ filemtime(public_path('admin-assets/assets/js/app.js')) }}"></script>
 
     @stack('scripts')
 </body>

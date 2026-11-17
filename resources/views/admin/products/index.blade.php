@@ -7,49 +7,33 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <!-- Card Header with Search, Filter & Add Product -->
+            <!-- Card Header with Filter Drawer Trigger & Add Product -->
+            @php
+                $activeFilterCount = collect([
+                    request('search'),
+                    request('category'),
+                    request('status'),
+                    request('sort') && request('sort') !== 'latest' ? request('sort') : null,
+                ])->filter()->count();
+            @endphp
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <h4 class="card-title mb-0">All Botanical Formulations ({{ $products->total() }})</h4>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <h4 class="card-title mb-0">All Botanical Formulations ({{ $products->total() }})</h4>
+                    @if($activeFilterCount > 0)
+                        <a href="{{ route('admin.products.index') }}" class="badge bg-soft-danger text-danger text-decoration-none fs-11">
+                            <i class="bx bx-x align-middle"></i> Clear Filters
+                        </a>
+                    @endif
+                </div>
 
                 <div class="d-flex flex-wrap align-items-center gap-2">
-                    <!-- Category, Status, Sort & Search Filter -->
-                    <form method="GET" action="{{ route('admin.products.index') }}" class="d-flex flex-wrap align-items-center gap-2">
-                        <select name="category" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 150px;">
-                            <option value="">All Categories</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat['slug'] }}" {{ request('category') === $cat['slug'] ? 'selected' : '' }}>
-                                    {{ $cat['name'] }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 120px;">
-                            <option value="">All Status</option>
-                            <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
-                            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                        </select>
-
-                        <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 130px;">
-                            <option value="latest" {{ request('sort', 'latest') === 'latest' ? 'selected' : '' }}>Latest</option>
-                            <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Price: Low → High</option>
-                            <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Price: High → Low</option>
-                            <option value="stock_asc" {{ request('sort') === 'stock_asc' ? 'selected' : '' }}>Stock: Low → High</option>
-                        </select>
-
-                        <!-- Search -->
-                        <div class="input-group input-group-sm" style="max-width: 210px;">
-                            <input type="text" name="search" class="form-control" placeholder="Search formulations..." value="{{ request('search') }}">
-                            <button class="btn btn-outline-secondary" type="submit">
-                                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
-                            </button>
-                        </div>
-
-                        @if(request()->hasAny(['category', 'status', 'sort', 'search']))
-                            <a href="{{ route('admin.products.index') }}" class="btn btn-sm btn-soft-danger" title="Clear Filters">
-                                <i class="bx bx-x"></i>
-                            </a>
+                    <button type="button" class="btn btn-sm btn-soft-secondary d-flex align-items-center gap-1 position-relative" data-bs-toggle="offcanvas" data-bs-target="#productFilterDrawer" aria-controls="productFilterDrawer">
+                        <iconify-icon icon="solar:filter-bold-duotone" class="fs-16"></iconify-icon>
+                        <span>Filter</span>
+                        @if($activeFilterCount > 0)
+                            <span class="badge bg-primary rounded-pill ms-1">{{ $activeFilterCount }}</span>
                         @endif
-                    </form>
+                    </button>
 
                     <a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
                         <iconify-icon icon="solar:add-circle-bold" class="fs-16"></iconify-icon>
@@ -202,6 +186,61 @@
         </div>
     </div>
 </div>
+<!-- Right-Side Filter Offcanvas Drawer -->
+<div class="offcanvas offcanvas-end border-0" tabindex="-1" id="productFilterDrawer" aria-labelledby="productFilterDrawerLabel" style="max-width: 380px; width: 100%;">
+    <div class="d-flex align-items-center bg-primary p-3 offcanvas-header">
+        <h5 class="text-white m-0 fw-semibold" id="productFilterDrawerLabel">
+            <iconify-icon icon="solar:filter-bold-duotone" class="align-middle me-1"></iconify-icon>
+            Filter Formulations
+        </h5>
+        <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-3">
+        <form method="GET" action="{{ route('admin.products.index') }}" class="d-flex flex-column h-100">
+            <div class="mb-3">
+                <label for="filter-search" class="form-label fw-semibold">Search</label>
+                <input type="text" id="filter-search" name="search" class="form-control" placeholder="Name, SKU, or keyword..." value="{{ request('search') }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="filter-category" class="form-label fw-semibold">Category</label>
+                <select id="filter-category" name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat['slug'] }}" {{ request('category') === $cat['slug'] ? 'selected' : '' }}>
+                            {{ $cat['name'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="filter-status" class="form-label fw-semibold">Status</label>
+                <select id="filter-status" name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="filter-sort" class="form-label fw-semibold">Sort By</label>
+                <select id="filter-sort" name="sort" class="form-select">
+                    <option value="latest" {{ request('sort', 'latest') === 'latest' ? 'selected' : '' }}>Latest</option>
+                    <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Price: Low → High</option>
+                    <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Price: High → Low</option>
+                    <option value="stock_asc" {{ request('sort') === 'stock_asc' ? 'selected' : '' }}>Stock: Low → High</option>
+                </select>
+            </div>
+
+            <div class="mt-auto pt-3 border-top d-flex gap-2">
+                <a href="{{ route('admin.products.index') }}" class="btn btn-light w-50">Reset</a>
+                <button type="submit" class="btn btn-primary w-50">Apply Filters</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     document.getElementById('checkAll')?.addEventListener('change', function () {
         document.querySelectorAll('.product-bulk-checkbox').forEach(cb => {

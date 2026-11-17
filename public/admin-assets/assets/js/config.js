@@ -49,7 +49,7 @@
           html.setAttribute("data-topbar-color", config.topbar.color);
           html.setAttribute("data-menu-color", config.menu.color);
 
-          if (window.innerWidth < 992) {
+          if (window.innerWidth <= 1140) {
                html.setAttribute("data-menu-size", "hidden");
           } else {
                html.setAttribute("data-menu-size", config.menu.size || "sm-hover-active");
