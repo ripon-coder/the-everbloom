@@ -102,28 +102,13 @@ class Category extends Model
     {
         $this->loadMissing(['assignedAttributes', 'parent.assignedAttributes', 'parent.parent.assignedAttributes']);
 
-        $ids = collect()
+        return collect()
             ->merge($this->assignedAttributes->pluck('id'))
             ->merge($this->parent?->assignedAttributes?->pluck('id') ?? [])
             ->merge($this->parent?->parent?->assignedAttributes?->pluck('id') ?? [])
             ->unique()
             ->values()
             ->all();
-
-        if (!empty($ids)) {
-            return $ids;
-        }
-
-        $globalIds = Attribute::where('is_active', true)
-            ->whereDoesntHave('categories')
-            ->pluck('id')
-            ->all();
-
-        if (!empty($globalIds)) {
-            return $globalIds;
-        }
-
-        return Attribute::where('is_active', true)->pluck('id')->all();
     }
 
     public function descendantAndSelfIds(): array
