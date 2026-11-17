@@ -930,7 +930,7 @@
                 return;
             }
 
-            const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            const csrf = document.querySelector('meta[name=csrf-token]')?.content || '';
             fetch(@js(route('shop.product.reviews.store', $product['slug'])), {
                 method: 'POST',
                 headers: {
