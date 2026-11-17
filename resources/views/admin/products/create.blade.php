@@ -176,6 +176,7 @@
                         <div class="col-lg-4">
                             <label class="form-label" for="product-slug">URL Slug</label>
                             <input type="text" id="product-slug" name="slug" class="form-control" value="{{ old('slug', $product['slug']) }}">
+                            <small class="text-muted d-block mt-1">Auto-generated from name if left blank.</small>
                         </div>
 
                         <div class="col-lg-4">
@@ -184,34 +185,39 @@
                         </div>
 
                         <div class="col-lg-4">
-                            <label class="form-label" for="product-price">Retail Price ({{ $currencySymbol }} {{ $currencyCode }}) <span class="text-danger">*</span></label>
+                            <label class="form-label" for="product-price">Selling Price ({{ $currencySymbol }} {{ $currencyCode }}) <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">{{ $currencySymbol }}</span>
                                 <input type="number" step="0.01" min="0" id="product-price" name="price" class="form-control" value="{{ old('price', $product['price']) }}" required>
                             </div>
+                            <small class="text-muted d-block mt-1">Current price customers pay.</small>
                         </div>
 
                         <div class="col-lg-4">
-                            <label class="form-label" for="compare-price">Compare Price ({{ $currencySymbol }} {{ $currencyCode }})</label>
+                            <label class="form-label" for="compare-price">Original / Regular Price ({{ $currencySymbol }} {{ $currencyCode }})</label>
                             <div class="input-group">
                                 <span class="input-group-text">{{ $currencySymbol }}</span>
                                 <input type="number" step="0.01" min="0" id="compare-price" name="compare_at_price" class="form-control" value="{{ old('compare_at_price', $product['compare_at_price'] ?? '') }}">
                             </div>
+                            <small class="text-muted d-block mt-1">Optional strikethrough price (higher than selling price).</small>
                         </div>
 
                         <div class="col-lg-4">
                             <label class="form-label" for="product-sku">Batch SKU</label>
                             <input type="text" id="product-sku" name="sku" class="form-control font-monospace" value="{{ old('sku', $product['sku'] ?? '') }}">
+                            <small class="text-muted d-block mt-1">Auto-generated if left blank.</small>
                         </div>
 
                         <div class="col-lg-3">
                             <label class="form-label" for="product-stock-count">Stock Count</label>
                             <input type="number" min="0" id="product-stock-count" name="stock_count" class="form-control" value="{{ old('stock_count', $product['stock_count'] ?? '') }}">
+                            <small class="text-muted d-block mt-1">Auto-sums variant stocks (defaults to 25 if blank).</small>
                         </div>
 
                         <div class="col-lg-3">
                             <label class="form-label" for="product-min-threshold">Low Stock Threshold</label>
                             <input type="number" min="0" id="product-min-threshold" name="min_threshold" class="form-control" value="{{ old('min_threshold', $product['min_threshold'] ?? '') }}">
+                            <small class="text-muted d-block mt-1">Defaults to 10 if left blank.</small>
                         </div>
 
                         <div class="col-lg-3">
@@ -314,7 +320,7 @@
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label fs-12 mb-1">Stock</label>
-                                        <input type="number" name="variants[{{ $vIdx }}][stock_count]" class="form-control form-control-sm" value="{{ $vRow['stock_count'] ?? '' }}">
+                                        <input type="number" name="variants[{{ $vIdx }}][stock_count]" class="form-control form-control-sm variant-stock-input" value="{{ $vRow['stock_count'] ?? '' }}">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fs-12 mb-1">Variant Image (Optional)</label>
@@ -429,6 +435,16 @@
         const rows = document.querySelectorAll('#variants-builder .variant-row');
         if (rows.length <= 1) return;
         btn.closest('.variant-row').remove();
+        syncTotalVariantStock();
+    }
+    function syncTotalVariantStock() {
+        const stockInput = document.getElementById('product-stock-count');
+        if (!stockInput) return;
+        const inputs = Array.from(document.querySelectorAll('.variant-stock-input'));
+        const hasAnyValue = inputs.some(el => el.value !== '');
+        if (!hasAnyValue) return;
+        const total = inputs.reduce((sum, el) => sum + (parseInt(el.value, 10) || 0), 0);
+        stockInput.value = total;
     }
     function filterAttributesByCategory() {
         const catSelect = document.getElementById('category-slug');
@@ -452,6 +468,12 @@
     }
     document.addEventListener('DOMContentLoaded', function () {
         filterAttributesByCategory();
+
+        document.getElementById('variants-builder')?.addEventListener('input', function (e) {
+            if (e.target.classList.contains('variant-stock-input')) {
+                syncTotalVariantStock();
+            }
+        });
 
         const currencySymbol = @json($currencySymbol);
         document.getElementById('product-name')?.addEventListener('input', function () {
