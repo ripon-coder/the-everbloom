@@ -26,11 +26,11 @@
                 @endphp
                 <div class="flex justify-between items-center py-1 border-b border-beige/60">
                     <span class="font-medium text-ink">Standard Ground Courier ({{ config('demo.site.shipping.standard_days', '3–5 business days') }})</span>
-                    <span class="text-forest font-semibold">{{ $currencySymbol }}{{ number_format($stdRate, 2) }} (Free on orders over {{ $currencySymbol }}{{ number_format($freeThresh, 0) }})</span>
+                    <span class="price text-forest font-semibold">{{ format_price($stdRate) }} (Free on orders over {{ format_price($freeThresh) }})</span>
                 </div>
                 <div class="flex justify-between items-center py-1">
                     <span class="font-medium text-ink">Express Priority Courier ({{ config('demo.site.shipping.express_days', '1–2 business days') }})</span>
-                    <span class="text-forest font-semibold">{{ $currencySymbol }}{{ number_format($expRate, 2) }} (Free on orders over {{ $currencySymbol }}{{ number_format($expThresh, 0) }})</span>
+                    <span class="price text-forest font-semibold">{{ format_price($expRate) }} (Free on orders over {{ format_price($expThresh) }})</span>
                 </div>
             </div>
         </section>

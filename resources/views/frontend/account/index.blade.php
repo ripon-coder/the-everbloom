@@ -58,7 +58,7 @@
                                     <x-storefront.status-badge :status="$order['status']" />
                                 </td>
                                 <td class="py-4 px-4 text-right price text-ink whitespace-nowrap">
-                                    {{ $currencySymbol }}{{ number_format($order['total'], 2) }}
+                                    {{ format_price($order['total']) }}
                                 </td>
                                 <td class="py-4 pl-4 text-right whitespace-nowrap">
                                     <a 
@@ -74,38 +74,42 @@
                 </table>
             </div>
 
-            <!-- Mobile Stacked Rows (below lg, no tables, full-width button) -->
-            <div class="lg:hidden divide-y divide-[#ECEEE6]">
+            <!-- Mobile Tappable Order Rows (below lg, no buttons) -->
+            <div class="lg:hidden">
                 @foreach($recentOrders as $order)
-                    <div class="py-5 space-y-3">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="space-y-1 min-w-0">
-                                <a 
-                                    href="{{ route('account.order.details', $order['id']) }}" 
-                                    class="text-base font-bold text-ink hover:text-forest no-underline hover:underline underline-offset-4 break-words block lining-nums"
-                                >
-                                    Order #{{ $order['id'] }}
-                                </a>
-                                <p class="text-xs text-muted lining-nums">
-                                    {{ $order['date'] }}
-                                </p>
-                            </div>
-                            <div class="text-right shrink-0 space-y-1.5">
+                    @php
+                        $formattedTotal = format_price($order['total']);
+                        $shortDate = !empty($order['iso_date'])
+                            ? \Illuminate\Support\Carbon::parse($order['iso_date'])->format('M j, Y')
+                            : \Illuminate\Support\Carbon::parse($order['date'])->format('M j, Y');
+                    @endphp
+                    <a 
+                        href="{{ route('account.order.details', $order['id']) }}" 
+                        aria-label="Order #{{ $order['id'] }}, {{ $order['status'] }}, {{ $formattedTotal }}. View details"
+                        class="group min-h-[72px] py-4 px-0 border-b border-[#ECEEE6] last:border-b-0 flex items-center justify-between gap-3 transition-colors hover:bg-[#F2F4EE] active:bg-[#F2F4EE] focus-visible:outline-none focus-visible:outline-2 focus-visible:outline-[#304C3D] focus-visible:outline-offset-2"
+                    >
+                        <div class="flex-1 min-w-0 space-y-1.5">
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="font-sans text-base font-medium text-ink lining-nums truncate">
+                                    #{{ $order['id'] }}
+                                </span>
                                 <x-storefront.status-badge :status="$order['status']" />
-                                <p class="price text-sm text-ink block">
-                                    {{ $currencySymbol }}{{ number_format($order['total'], 2) }}
-                                </p>
+                            </div>
+                            <div class="flex items-baseline justify-between gap-3">
+                                <span class="text-sm text-muted lining-nums truncate">
+                                    <span class="min-[360px]:hidden">{{ $shortDate }}</span>
+                                    <span class="hidden min-[360px]:inline">{{ $order['date'] }}</span>
+                                </span>
+                                <span class="price text-base font-medium text-ink shrink-0">
+                                    {{ $formattedTotal }}
+                                </span>
                             </div>
                         </div>
-                        <div>
-                            <a 
-                                href="{{ route('account.order.details', $order['id']) }}" 
-                                class="btn-secondary w-full text-center"
-                            >
-                                View Order Details
-                            </a>
-                        </div>
-                    </div>
+
+                        <svg class="w-5 h-5 text-[#777D74] shrink-0 transition-transform duration-150 group-hover:translate-x-0.5 group-active:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
                 @endforeach
             </div>
         @else

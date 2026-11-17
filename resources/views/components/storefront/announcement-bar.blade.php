@@ -20,7 +20,7 @@
 
             <!-- Single-line container preventing wrapping or truncation at 320px -->
             <div class="flex-1 flex items-center justify-center gap-1.5 text-xs whitespace-nowrap">
-                <span class="md:hidden">Free shipping over {{ $currencySymbol }}{{ number_format(config('demo.site.shipping_rates.standard.free_threshold', 75), 0) }}</span>
+                <span class="md:hidden">Free shipping over <span class="price">{{ format_price(config('demo.site.shipping.free_shipping_threshold', config('demo.site.shipping_rates.standard.free_threshold', 500))) }}</span></span>
                 <span class="hidden md:inline">{{ $message }}</span>
                 @if($link && $linkText)
                     <a href="{{ $link }}" class="underline underline-offset-4 font-semibold hover:text-beige transition-colors shrink-0 ml-1">

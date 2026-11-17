@@ -61,7 +61,7 @@
                     </a>
                     <span class="text-xs uppercase tracking-[0.2em] text-muted block truncate" x-text="item.category"></span>
                     <a :href="'/shop/product/' + item.slug" class="font-serif text-base text-ink hover:text-forest transition-colors line-clamp-2 mt-0.5 min-h-[2.5rem]" x-text="item.name"></a>
-                    <p class="price text-sm font-medium text-ink mt-1.5" x-text="'{{ $currencySymbol }}' + parseFloat(item.price || 0).toFixed(2)"></p>
+                    <p class="price text-sm font-medium text-ink mt-1.5" x-text="window.formatCurrency(item.price || 0)"></p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-[#ECEEE6]">
                     <div class="flex items-center justify-between">

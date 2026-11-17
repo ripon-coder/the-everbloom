@@ -5,7 +5,7 @@
 @section('hide_newsletter', true)
 
 @section('content')
-<div class="site-container py-8 md:py-12">
+<div class="site-container max-sm:!px-4 py-8 md:py-12">
     <!-- Breadcrumbs -->
     <div class="mb-6">
         @yield('breadcrumbs')

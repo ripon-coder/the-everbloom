@@ -1,4 +1,4 @@
-﻿@php
+@php
     $allProducts = $storefrontProductsJson ?? config('demo.products', []);
     $currencySymbol = config('demo.site.currency.symbol', '$');
 @endphp
@@ -120,7 +120,7 @@
                                     <p class="text-xs text-muted truncate mt-0.5" x-text="item.short_description"></p>
                                 </div>
                                 <div class="shrink-0 text-right">
-                                    <span class="price text-sm font-medium text-ink" x-text="'{{ $currencySymbol }}' + parseFloat(item.price).toFixed(2)"></span>
+                                    <span class="price text-sm font-medium text-ink" x-text="window.formatCurrency(item.price)"></span>
                                 </div>
                             </a>
                         </template>

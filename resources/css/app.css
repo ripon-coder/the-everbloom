@@ -213,9 +213,9 @@
         line-height: 1.4;
     }
 
-    /* Shared Price Class: Inter sans-serif, weight 500, lining numerals */
+    /* Shared Price Class: Inter sans-serif + Noto Sans Bengali (U+09F3 ৳), weight 500, lining numerals */
     .price {
-        font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+        font-family: 'Inter', 'Noto Sans Bengali', system-ui, -apple-system, sans-serif !important;
         font-weight: 500;
         font-variant-numeric: lining-nums tabular-nums;
         font-feature-settings: "lnum", "tnum";

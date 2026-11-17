@@ -21,6 +21,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600&text=%E0%A7%B3&display=swap" rel="stylesheet">
+
+    <!-- Preload currency config for shared formatCurrency helper -->
+    <script>
+        window.__everbloomCurrency = {!! json_encode(config('demo.site.currency', ['code' => 'BDT', 'symbol' => '৳', 'decimals' => 0, 'position' => 'before']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
+    </script>
 
     @stack('meta')
 

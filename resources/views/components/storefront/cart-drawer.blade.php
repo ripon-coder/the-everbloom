@@ -148,7 +148,7 @@
                             <p class="text-xs text-muted uppercase tracking-wider mt-0.5" x-show="item.size" x-text="item.size"></p>
 
                             <div class="mt-1">
-                                <span class="price text-xs text-muted" x-text="'{{ $currencySymbol }}' + parseFloat(item.price).toFixed(2) + ' each'"></span>
+                                <span class="price text-xs text-muted" x-text="window.formatCurrency(item.price) + ' each'"></span>
                             </div>
                         </div>
 
@@ -179,7 +179,7 @@
                                 </button>
                             </div>
 
-                            <span class="price text-sm font-medium text-ink shrink-0" x-text="'{{ $currencySymbol }}' + (item.price * item.qty).toFixed(2)"></span>
+                            <span class="price text-sm font-medium text-ink shrink-0" x-text="window.formatCurrency(item.price * item.qty)"></span>
                         </div>
                     </div>
                 </div>
@@ -190,7 +190,7 @@
         <div class="p-5 sm:p-6 border-t border-[#ECEEE6] bg-ivory space-y-3" x-show="$store.cart.items.length > 0">
             <div class="flex items-baseline justify-between text-sm">
                 <span class="uppercase tracking-[0.2em] text-xs text-muted font-medium">Subtotal</span>
-                <span class="price text-lg text-ink font-medium" x-text="'{{ $currencySymbol }}' + $store.cart.subtotal.toFixed(2)"></span>
+                <span class="price text-lg text-ink font-medium" x-text="window.formatCurrency($store.cart.subtotal)"></span>
             </div>
             <p class="text-xs text-muted">Taxes and shipping calculated at checkout.</p>
 
