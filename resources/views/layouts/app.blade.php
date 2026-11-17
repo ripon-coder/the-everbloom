@@ -27,6 +27,7 @@
     <!-- Preload currency config for shared formatCurrency helper -->
     <script>
         window.__everbloomCurrency = {!! json_encode(config('demo.site.currency', ['code' => 'BDT', 'symbol' => '৳', 'decimals' => 0, 'position' => 'before']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
+        window.__everbloomAuthenticated = @json(auth('web')->check());
     </script>
 
     @stack('meta')

@@ -128,8 +128,6 @@ class Order extends Model
             'shipping_cost' => (float) $this->shipping_cost,
             'tax' => (float) $this->tax_amount,
             'total' => (float) $this->total,
-            'total_cost' => (float) $this->total_cost,
-            'total_profit' => (float) $this->total_profit,
             'items_count' => (int) $this->items_count,
             'delivery_method' => $this->delivery_method,
             'payment_method' => $this->payment_method,
@@ -148,12 +146,50 @@ class Order extends Model
                 'image_source' => $item->image_source ?: 'local',
                 'qty' => (int) $item->qty,
                 'price' => (float) $item->price,
-                'unit_buy_price' => (float) $item->unit_buy_price,
                 'line_total' => (float) $item->line_total,
-                'line_cost_total' => (float) $item->line_cost_total,
-                'unit_profit' => (float) $item->unit_profit,
-                'line_profit' => (float) $item->line_profit,
             ])->all(),
         ];
+    }
+
+    public function toAdminArray(): array
+    {
+        $this->loadMissing(['items', 'invoice', 'statusHistories.admin']);
+
+        $base = $this->toViewArray();
+        $base['user_id'] = $this->user_id;
+        $base['notes'] = $this->notes;
+        $base['invoice_no'] = $this->invoice?->invoice_no;
+        $base['total_cost'] = (float) $this->total_cost;
+        $base['total_profit'] = (float) $this->total_profit;
+        $base['status_histories'] = $this->statusHistories
+            ->sortByDesc('id')
+            ->map(fn (OrderStatusHistory $h) => [
+                'from_status' => $h->from_status,
+                'to_status' => $h->to_status,
+                'note' => $h->note,
+                'admin_name' => $h->admin?->name ?? 'System',
+                'created_at' => $h->created_at?->format('M d, Y H:i') ?? '',
+            ])
+            ->values()
+            ->all();
+
+        $base['items'] = $this->items->map(fn (OrderItem $item) => [
+            'product_id' => $item->product_id,
+            'variant_id' => $item->variant,
+            'name' => $item->name,
+            'slug' => $item->slug,
+            'variant' => $item->variant,
+            'image' => $item->resolvedImage(),
+            'image_source' => $item->image_source ?: 'local',
+            'qty' => (int) $item->qty,
+            'price' => (float) $item->price,
+            'unit_buy_price' => (float) $item->unit_buy_price,
+            'line_total' => (float) $item->line_total,
+            'line_cost_total' => (float) $item->line_cost_total,
+            'unit_profit' => (float) $item->unit_profit,
+            'line_profit' => (float) $item->line_profit,
+        ])->all();
+
+        return $base;
     }
 }

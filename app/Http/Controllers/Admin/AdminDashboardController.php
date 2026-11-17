@@ -17,7 +17,7 @@ class AdminDashboardController extends Controller
             ->all();
 
         $orders = Order::with('items')->latest('placed_at')->get()
-            ->map(fn (Order $o) => $o->toViewArray())
+            ->map(fn (Order $o) => $o->toAdminArray())
             ->all();
 
         $categories = Category::withCount('products')->orderBy('sort_order')->get()->toArray();
@@ -31,7 +31,7 @@ class AdminDashboardController extends Controller
         $lowStockCount = Product::whereColumn('stock_count', '<=', 'min_threshold')->count();
 
         $recentOrders = Order::with('items')->latest('placed_at')->take(5)->get()
-            ->map(fn (Order $o) => $o->toViewArray())
+            ->map(fn (Order $o) => $o->toAdminArray())
             ->all();
 
         $topProducts = Product::with('categoryRelation')->orderByDesc('review_count')->take(5)->get()

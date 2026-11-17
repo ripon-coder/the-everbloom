@@ -101,15 +101,42 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <h4 class="card-title mb-0">Customer Orders ({{ count($orders) }})</h4>
+                <h4 class="card-title mb-0">Customer Orders ({{ $orders->total() }})</h4>
 
                 <div class="d-flex flex-wrap align-items-center gap-2">
+                    <form method="GET" action="{{ route('admin.orders.index') }}" class="d-flex flex-wrap align-items-center gap-2">
+                        @if(request('status'))
+                            <input type="hidden" name="status" value="{{ request('status') }}">
+                        @endif
+                        <select name="payment_status" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 130px;">
+                            <option value="">All Payments</option>
+                            <option value="Pending" {{ request('payment_status') === 'Pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="Paid" {{ request('payment_status') === 'Paid' ? 'selected' : '' }}>Paid</option>
+                            <option value="Failed" {{ request('payment_status') === 'Failed' ? 'selected' : '' }}>Failed</option>
+                        </select>
+                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control form-control-sm" style="width: 135px;" title="From date">
+                        <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control form-control-sm" style="width: 135px;" title="To date">
+                        <div class="input-group input-group-sm" style="max-width: 210px;">
+                            <input type="text" name="search" class="form-control" placeholder="Order #, email, phone..." value="{{ request('search') }}">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
+                            </button>
+                        </div>
+                        @if(request()->hasAny(['status', 'payment_status', 'search', 'date_from', 'date_to']))
+                            <a href="{{ route('admin.orders.index') }}" class="btn btn-sm btn-soft-danger" title="Clear Filters">
+                                <i class="bx bx-x"></i>
+                            </a>
+                        @endif
+                    </form>
+
                     <!-- Status Filter Tabs -->
                     <div class="btn-group btn-group-sm" role="group">
                         <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary {{ !request('status') ? 'active' : '' }}">All</a>
+                        <a href="{{ route('admin.orders.index', ['status' => 'placed']) }}" class="btn btn-outline-secondary {{ request('status') === 'placed' ? 'active' : '' }}">Placed</a>
                         <a href="{{ route('admin.orders.index', ['status' => 'processing']) }}" class="btn btn-outline-secondary {{ request('status') === 'processing' ? 'active' : '' }}">Processing</a>
                         <a href="{{ route('admin.orders.index', ['status' => 'shipped']) }}" class="btn btn-outline-secondary {{ request('status') === 'shipped' ? 'active' : '' }}">Shipped</a>
                         <a href="{{ route('admin.orders.index', ['status' => 'delivered']) }}" class="btn btn-outline-secondary {{ request('status') === 'delivered' ? 'active' : '' }}">Delivered</a>
+                        <a href="{{ route('admin.orders.index', ['status' => 'cancelled']) }}" class="btn btn-outline-secondary {{ request('status') === 'cancelled' ? 'active' : '' }}">Cancelled</a>
                     </div>
                 </div>
             </div>
@@ -228,7 +255,10 @@
             </div>
 
             <div class="card-footer py-2 bg-light bg-opacity-50">
-                <p class="mb-0 text-muted fs-12">Displaying {{ count($orders) }} botanical skincare orders</p>
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <p class="mb-0 text-muted fs-12">Showing {{ $orders->firstItem() ?? 0 }} to {{ $orders->lastItem() ?? 0 }} of {{ $orders->total() }} orders</p>
+                    <div>{{ $orders->links('pagination::bootstrap-5') }}</div>
+                </div>
             </div>
         </div>
     </div>

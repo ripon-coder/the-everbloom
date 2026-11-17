@@ -776,6 +776,7 @@ Alpine.store('wishlist', {
         if (typeof document !== 'undefined' && document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 this.cleanAndValidate();
+                this.syncWithServer();
             });
         }
     },
@@ -863,7 +864,9 @@ Alpine.store('wishlist', {
 
     toggle(product) {
         const targetId = (typeof product === 'object' && product !== null) ? product.id : product;
-        if (this.has(targetId)) {
+        const removing = this.has(targetId);
+
+        if (removing) {
             this.items = this.items.filter(item => String(item.id || item) !== String(targetId));
         } else {
             const catalog = getProductsCatalog();
@@ -875,6 +878,68 @@ Alpine.store('wishlist', {
             }
         }
         this.save();
+        this.persistToggleToServer(targetId, removing);
+    },
+
+    async syncWithServer() {
+        if (typeof window === 'undefined' || !window.__everbloomAuthenticated || typeof fetch === 'undefined') {
+            return;
+        }
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        try {
+            const localIds = this.items.map(i => Number(i.id || i)).filter(Boolean);
+            if (localIds.length > 0) {
+                await fetch('/account/wishlist', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: JSON.stringify({ product_ids: localIds }),
+                });
+            }
+
+            const res = await fetch('/account/wishlist', {
+                headers: { 'Accept': 'application/json' },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                const ids = Array.isArray(data.items) ? data.items : [];
+                this.items = ids.map(id => createDerivedWishlistItem(id));
+                this.save();
+            }
+        } catch (e) {
+            // Keep localStorage items if request fails
+        }
+    },
+
+    async persistToggleToServer(productId, removing) {
+        if (typeof window === 'undefined' || !window.__everbloomAuthenticated || typeof fetch === 'undefined' || !productId) {
+            return;
+        }
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        try {
+            if (removing) {
+                await fetch(`/account/wishlist/${productId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                });
+            } else {
+                await fetch('/account/wishlist', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: JSON.stringify({ product_id: productId }),
+                });
+            }
+        } catch (e) {}
     },
 
     get count() {

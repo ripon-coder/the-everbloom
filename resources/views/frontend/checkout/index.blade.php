@@ -1041,11 +1041,38 @@ function checkoutComponent() {
             return this.formatMoney(parseFloat(rate.cost) || 0);
         },
 
-        applyDiscountCode() {
-            if (!this.discountInput.trim()) return;
-            const success = this.$store.cart.applyDiscount(this.discountInput);
-            if (success) {
-                this.discountInput = '';
+        async applyDiscountCode() {
+            const raw = (this.discountInput || '').trim();
+            if (!raw) return;
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            try {
+                const res = await fetch(@js(route('checkout.validateCoupon')), {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: JSON.stringify({
+                        code: raw,
+                        subtotal: this.$store.cart.subtotal,
+                    }),
+                });
+                const data = await res.json();
+                if (res.ok && data.valid) {
+                    this.$store.cart.discountCode = data.code;
+                    this.$store.cart.discountError = '';
+                    this.$store.cart.discountSuccess = `Code ${data.code} applied (${data.label})`;
+                    try { localStorage.setItem('everbloom_discount', data.code); } catch (e) {}
+                    this.$store.cart.refreshQuote();
+                    this.discountInput = '';
+                } else {
+                    this.$store.cart.discountError = data.message || 'Invalid promotional code.';
+                    this.$store.cart.discountSuccess = '';
+                }
+            } catch (e) {
+                const success = this.$store.cart.applyDiscount(raw);
+                if (success) this.discountInput = '';
             }
         },
 
@@ -1096,7 +1123,8 @@ function checkoutComponent() {
             return Object.keys(errs).length === 0;
         },
 
-        submitDemoOrder() {
+        async submitDemoOrder() {
+            if (this.submitting) return;
             if (!this.validate()) {
                 if (this.savedAddresses.length > 0 && !this.showAddressForm) {
                     const addrFields = ['firstName', 'lastName', 'district_id', 'thana_id', 'area_id', 'address'];
@@ -1118,10 +1146,62 @@ function checkoutComponent() {
                 return;
             }
 
-            this.orderPlaced = true;
-            this.$nextTick(() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+            this.submitting = true;
+            this.errors = {};
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            try {
+                const res = await fetch(@js(route('checkout.store')), {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: JSON.stringify({
+                        email: this.form.email || null,
+                        phone: this.form.phone,
+                        firstName: this.form.firstName,
+                        lastName: this.form.lastName,
+                        district_id: Number(this.form.district_id),
+                        thana_id: Number(this.form.thana_id),
+                        area_id: Number(this.form.area_id),
+                        address: this.form.address,
+                        addressLine2: this.form.addressLine2 || null,
+                        saveAddress: Boolean(this.form.saveAddress),
+                        shippingMethod: this.shippingMethod,
+                        paymentMethod: this.paymentMethod,
+                        discountCode: this.$store.cart.discountCode || null,
+                        items: this.$store.cart.items.map(i => ({
+                            productId: i.productId,
+                            variantId: i.variantId,
+                            qty: i.qty,
+                        })),
+                    }),
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    this.$store.cart.clear();
+                    this.$store.cart.removeDiscount();
+                    window.location.href = data.redirect_url || '/';
+                    return;
+                }
+
+                if (res.status === 422 && data.errors) {
+                    const mapped = {};
+                    Object.keys(data.errors).forEach(k => {
+                        mapped[k] = Array.isArray(data.errors[k]) ? data.errors[k][0] : data.errors[k];
+                    });
+                    this.errors = mapped;
+                } else {
+                    this.errors = { items: data.message || 'Unable to place your order. Please try again.' };
+                }
+            } catch (e) {
+                this.errors = { items: 'Network error while placing your order. Please try again.' };
+            } finally {
+                this.submitting = false;
+            }
         }
     };
 }

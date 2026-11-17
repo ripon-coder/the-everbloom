@@ -10,6 +10,7 @@ use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,8 +58,9 @@ Route::get('/locations/thanas/{thana}/areas', [LocationController::class, 'areas
 
 // Checkout & Order Placement
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-Route::post('/checkout/validate-coupon', [CheckoutController::class, 'validateCoupon'])->name('checkout.validateCoupon');
+Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
+Route::post('/checkout/validate-coupon', [CheckoutController::class, 'validateCoupon'])->middleware('throttle:10,1')->name('checkout.validateCoupon');
+Route::get('/checkout/confirmation/{orderNumber}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
 
 // Static / Editorial Pages
 Route::get('/about', function () {
@@ -117,6 +119,9 @@ Route::middleware(['auth:web', 'active.account:web'])->group(function () {
     Route::put('/account/profile', [AccountController::class, 'updateProfile'])->name('account.profile.update');
     Route::put('/account/password', [AccountController::class, 'updatePassword'])->name('account.password.update');
     Route::delete('/account', [AccountController::class, 'destroyAccount'])->name('account.destroy');
+    Route::get('/account/wishlist', [WishlistController::class, 'index'])->name('account.wishlist.index');
+    Route::post('/account/wishlist', [WishlistController::class, 'store'])->name('account.wishlist.store');
+    Route::delete('/account/wishlist/{product}', [WishlistController::class, 'destroy'])->name('account.wishlist.destroy');
     Route::post('/account/logout', [AccountController::class, 'logout'])->name('logout');
 });
 

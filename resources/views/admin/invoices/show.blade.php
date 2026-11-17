@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Invoice #' . $order['id'])
 @section('container_class', 'container-xxl')
@@ -39,7 +39,7 @@
 
                     <div class="col-sm-6 text-sm-end">
                         <h6 class="text-muted text-uppercase fs-12 fw-semibold">Invoice Information</h6>
-                        <h4 class="fw-bold text-primary mb-1">#INV-2026-{{ substr($order['id'], -4) }}</h4>
+                        <h4 class="fw-bold text-primary mb-1">#{{ $order['invoice_no'] ?? $order['id'] }}</h4>
                         <p class="text-muted mb-1 fs-13"><strong class="text-dark">Order Ref:</strong> #{{ $order['id'] }}</p>
                         <p class="text-muted mb-1 fs-13"><strong class="text-dark">Date:</strong> {{ $order['date'] }}</p>
                         <p class="text-muted mb-0 fs-13"><strong class="text-dark">Payment Method:</strong> {{ $order['payment_method'] }}</p>
@@ -114,7 +114,7 @@
                 <!-- Footer Note -->
                 <div class="border-top pt-3 text-center text-muted fs-12">
                     <p class="mb-1">Thank you for curating your botanical skincare rituals with The Everbloom.</p>
-                    <p class="mb-0">Client Concierge: concierge@the-everbloom.com &bull; 740 Botanical Way, Suite 400, Portland, OR 97201</p>
+                    <p class="mb-0">{{ config('demo.site.name', 'The Everbloom') }} &bull; {{ config('demo.site.contact.email', 'support@the-everbloom.com') }}</p>
                 </div>
 
             </div>

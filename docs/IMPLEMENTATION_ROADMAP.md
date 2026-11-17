@@ -78,19 +78,30 @@ flowchart LR
 - [x] **P8-1** `POST /cart/quote` (`CartController@quote`) returning lines/prices/stock/coupon/shipping using `PriceResolver`.
 - [x] **P8-2** Alpine cart store calls quote on open/change (keep localStorage lines).
 - [x] **P8-3** Show stock limits & errors; qty max from stock.
-## Phase 9 — Wishlist
-- [ ] **P9-1** `wishlists` table, `WishlistController` (`GET/POST/DELETE /account/wishlist`), merge localStorage on login, guests keep local. Keep UI.
+## Phase 9 — Wishlist (`DONE`)
+- [x] **P9-1** `wishlists` table, `WishlistController` (`GET/POST/DELETE /account/wishlist`), merge `localStorage` on login, guests keep local. Keep UI.
 
-## Phase 10 — Checkout
-- [ ] **P10-1** Wire checkout form to `POST /checkout` (see integration doc). **P10-2** Extract `PlaceOrderService` & `CheckoutRequest`; fix stock (S-04), variant (S-05), `payment_status`. **P10-3** District delivery charge/zones in `ShippingCalculator` (D-09). **P10-4** Save address option. **P10-5** Order-confirmation page + email (queued). **P10-6** Atomic order/invoice numbers (sequence table or `Str::ulid` suffix). **P10-7** Guest policy — implement per D-02 (provisional; gate on owner sign-off).
-*Acceptance:* E2E place order as guest/customer, stock reduced, email logged, `CheckoutOrderPlacementTest` passes unchanged.
+## Phase 10 — Checkout (`DONE` core; P10-3 & P10-7 pending decisions)
+- [x] **P10-1** Wire checkout form to `POST /checkout` & `POST /checkout/validate-coupon` in `frontend/checkout/index.blade.php`.
+- [x] **P10-2** Extract `PlaceOrderService` & `CheckoutRequest`; fix stock (`S-04`), strict variant (`S-05`), `payment_status = Pending`.
+- [ ] **P10-3** District delivery charge/zones in `ShippingCalculator` (*Blocked:* D-09, D-12).
+- [x] **P10-4** Save address option (`saveAddress` persisted for authenticated users).
+- [x] **P10-5** Order-confirmation page (`checkout.confirmation`) + queued `OrderConfirmationMail` (external SMTP pending D-13).
+- [x] **P10-6** Atomic order/invoice numbers (ULID suffix).
+- [ ] **P10-7** Guest policy — provisional D-02 (awaiting owner sign-off; guest tracking pending D-28).
 
 ## Phase 11 — Payments (blocked by D-01)
 - [ ] **P11-1** `PaymentGateway` interface + COD gateway (Pending → Paid by admin). **P11-2** Chosen provider(s): initiate, return URL, webhook route (excluded from CSRF **only** this one, signature-verified, idempotent). **P11-3** `payment_transactions`, failure/timeout handling job. **P11-4** Admin Payment Settings UI (enable methods, credentials via encrypted settings or env). **P11-5** Refund API integration.
 
-## Phase 12 — Order management
-- [ ] **P12-1** Transition map + history + `OrderStatusService`. **P12-2** Pagination, date/search/payment filters. **P12-3** Internal notes (`orders.notes`) UI. **P12-4** Return/refund workflow (D-07). **P12-5** Remove hard-coded labels. **P12-6** Real invoice number on invoice page + PDF (optional). **P12-7** Customer emails on status change.
-- [ ] **P12-8** Remove `total_cost` / `total_profit` from `Order::toViewArray()` used on customer-facing pages; keep them only in admin/financial arrays. *Files:* `app/Models/Order.php`, `AccountController`, admin financial controller. *Accept:* customer order JSON contains no cost/profit keys. *Ref:* SECURITY_AUDIT §4 (Data exposure).
+## Phase 12 — Order management (`DONE` core; P12-4 deferred)
+- [x] **P12-1** Transition map + history + `OrderStatusService`.
+- [x] **P12-2** Pagination, date/search/payment filters.
+- [x] **P12-3** Internal notes (`orders.notes`) UI.
+- [ ] **P12-4** Return/refund workflow (*Blocked:* D-07).
+- [x] **P12-5** Remove hard-coded labels (`Portland`, `Everbloom Client #428`, `Captured`, hard-coded `Paid` badge).
+- [x] **P12-6** Real invoice number (`invoices.invoice_no`) on invoice page.
+- [x] **P12-7** Customer emails on status change (`OrderStatusChangedMail`).
+- [x] **P12-8** Remove `total_cost` / `total_profit` from `Order::toViewArray()` used on customer-facing pages; keep them only in `Order::toAdminArray()`.
 
 ## Phase 13 — Coupons
 - [ ] **P13-1** Edit/update/toggle. **P13-2** `max_discount`, `starts_at`, percentage ≤ 100, per-customer limit via redemptions. **P13-3** Product/category scope. **P13-4** Usage history screen. **P13-5** Restore usage on cancel. **P13-6** Cart/checkout use server quote.

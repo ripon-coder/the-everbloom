@@ -15,7 +15,11 @@
                     <div>
                         <h4 class="card-title mb-1">
                             Order #{{ $order['id'] }}
-                            <span class="badge bg-success-subtle text-success fs-12 ms-2">Paid</span>
+                            @php
+                                $payStatus = $order['payment_status'] ?? 'Pending';
+                                $payBadge = $payStatus === 'Paid' ? 'bg-success-subtle text-success' : ($payStatus === 'Failed' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning');
+                            @endphp
+                            <span class="badge {{ $payBadge }} fs-12 ms-2">{{ $payStatus }}</span>
                             @php
                                 $badgeClass = match($order['status']) {
                                     'Delivered' => 'bg-success-subtle text-success',
@@ -199,8 +203,46 @@
                         <h6 class="fw-semibold text-primary mb-0 font-monospace">{{ $order['tracking_number'] ?? 'Pending assignment' }}</h6>
                     </div>
                     <div class="col-md-4">
-                        <p class="text-muted mb-1 fs-12">Laboratory Hub</p>
-                        <h6 class="fw-semibold text-dark mb-0">Portland Botanical Studio (OR-97201)</h6>
+                        <p class="text-muted mb-1 fs-12">Fulfillment Center</p>
+                        <h6 class="fw-semibold text-dark mb-0">{{ config('demo.site.name', 'The Everbloom') }}</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Internal Notes & Status History -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-light-subtle">
+                        <h5 class="card-title mb-0">Internal Notes</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('admin.orders.updateNotes', $order['id']) }}" method="POST">
+                            @csrf
+                            <textarea name="notes" class="form-control mb-2" rows="3" placeholder="Add internal fulfillment or support notes...">{{ old('notes', $order['notes'] ?? '') }}</textarea>
+                            <button type="submit" class="btn btn-sm btn-soft-primary">Save Notes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-light-subtle">
+                        <h5 class="card-title mb-0">Status History</h5>
+                    </div>
+                    <div class="card-body">
+                        @forelse($order['status_histories'] ?? [] as $hist)
+                            <div class="border-bottom pb-2 mb-2 last:border-0">
+                                <div class="d-flex justify-content-between fs-12">
+                                    <span class="fw-semibold text-dark">{{ $hist['from_status'] ? "{$hist['from_status']} → {$hist['to_status']}" : $hist['to_status'] }}</span>
+                                    <span class="text-muted">{{ $hist['created_at'] }}</span>
+                                </div>
+                                <small class="text-muted">By {{ $hist['admin_name'] }}{{ !empty($hist['note']) ? ' — ' . $hist['note'] : '' }}</small>
+                            </div>
+                        @empty
+                            <p class="text-muted mb-0 fs-13">No status transitions recorded yet.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -268,7 +310,9 @@
                         <h5 class="fs-15 fw-semibold mb-1">
                             {{ $order['shipping_address']['first_name'] }} {{ $order['shipping_address']['last_name'] }}
                         </h5>
-                        <p class="text-muted mb-0 fs-12">Everbloom Client #428</p>
+                        <p class="text-muted mb-0 fs-12">
+                            {{ !empty($order['user_id']) ? ('Customer #' . $order['user_id']) : 'Guest Checkout' }}
+                        </p>
                     </div>
                 </div>
 
@@ -315,7 +359,7 @@
                     <iconify-icon icon="solar:card-2-bold-duotone" class="fs-24 text-primary"></iconify-icon>
                     <span class="fw-semibold text-dark">{{ $order['payment_method'] }}</span>
                 </div>
-                <p class="text-muted mb-0 fs-12">Status: <span class="badge bg-success-subtle text-success">Captured</span></p>
+                <p class="text-muted mb-0 fs-12">Status: <span class="badge {{ $payBadge }}">{{ $payStatus }}</span></p>
             </div>
         </div>
 

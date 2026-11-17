@@ -31,12 +31,16 @@ class AdminInvoiceController extends Controller
 
     public function show($id)
     {
-        $orderModel = Order::with(['items', 'user'])
-            ->where('order_number', $id)
-            ->orWhere('id', is_numeric($id) ? (int) $id : 0)
+        $orderModel = Order::with(['items', 'user', 'invoice'])
+            ->where(function ($q) use ($id) {
+                $q->where('order_number', $id);
+                if (is_numeric($id)) {
+                    $q->orWhere('id', (int) $id);
+                }
+            })
             ->firstOrFail();
 
-        $order = $orderModel->toViewArray();
+        $order = $orderModel->toAdminArray();
         $customer = $orderModel->user?->toArray() ?? [
             'first_name' => $order['shipping_address']['first_name'] ?? 'Guest',
             'last_name' => $order['shipping_address']['last_name'] ?? 'Customer',
