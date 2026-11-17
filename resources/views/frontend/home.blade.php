@@ -32,10 +32,13 @@
             
             <!-- Editorial Text Column (First in DOM for mobile & desktop left) -->
             <div class="lg:col-span-5 space-y-3 sm:space-y-4 lg:space-y-5 text-left">
-                <div class="inline-flex items-center gap-2 border-b border-forest/30 pb-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-forest"></span>
+                <div class="flex flex-wrap items-center gap-3">
                     <span class="text-xs uppercase tracking-[0.2em] font-medium text-forest">
                         DISCOVER YOUR BEAUTY ESSENTIALS
+                    </span>
+                    {{-- // DEMO PLACEHOLDER: replace before launch --}}
+                    <span class="inline-flex items-center whitespace-nowrap text-xs uppercase tracking-wider font-medium text-forest bg-[#E8EEE5] px-3 py-1.5">
+                        {{ config('demo.site.hero_sale_tag', 'Up to 40% off') }}
                     </span>
                 </div>
 
@@ -44,22 +47,15 @@
                 </h1>
 
                 <p class="text-base text-muted leading-relaxed max-w-md font-normal">
-                    Explore skincare, beauty and self-care essentials from your favorite brands. Discover products that make your everyday beauty routine special.
+                    Carefully selected botanical ingredients, thoughtfully formulated for everyday rituals.
                 </p>
 
-                <div class="inline-flex items-center gap-2.5 px-3.5 py-2 bg-forest/[0.06] border border-forest/20 rounded-sm">
-                    <span class="w-1.5 h-1.5 rounded-full bg-forest shrink-0"></span>
-                    <span class="text-xs uppercase tracking-[0.18em] font-medium text-forest">
-                        SEASONAL BEAUTY SALE — UP TO 40% OFF
-                    </span>
-                </div>
-
-                <div class="pt-1 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
-                    <x-storefront.button href="/shop" variant="primary" size="lg" class="w-full sm:w-auto min-h-[48px]">
+                <div class="!mt-4 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
+                    <x-storefront.button href="/shop" variant="primary" size="lg" class="w-full sm:w-auto h-[48px] !min-h-[48px] !py-0">
                         SHOP NOW
                     </x-storefront.button>
-                    <x-storefront.button href="/shop" variant="secondary" size="lg" class="w-full sm:w-auto min-h-[48px]">
-                        EXPLORE BRANDS
+                    <x-storefront.button href="/about" variant="secondary" size="lg" class="w-full sm:w-auto h-[48px] !min-h-[48px] !py-0">
+                        Our Philosophy
                     </x-storefront.button>
                 </div>
 

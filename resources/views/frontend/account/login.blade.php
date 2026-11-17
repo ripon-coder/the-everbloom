@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Sign In â€” ' . config('demo.site.name'))
 @section('meta_description', 'Sign in to your account at The Everbloom to view your orders, saved items, and delivery addresses.')
@@ -123,7 +123,7 @@
                     class="min-h-[44px] px-3 text-xs uppercase tracking-[0.18em] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#304C3D] focus-visible:ring-offset-1 cursor-pointer"
                     :class="loginType === 'phone' ? 'bg-[#304C3D] text-[#FAF9F5]' : 'text-muted hover:text-ink bg-transparent'"
                 >
-                    Mobile Number
+                    Mobile
                 </button>
                 <button
                     type="button"
@@ -144,10 +144,10 @@
                 @csrf
                 <input type="hidden" name="login_type" :value="loginType" />
 
-                <!-- Mobile Number -->
+                <!-- Mobile -->
                 <div id="panel-login-phone" role="tabpanel" aria-labelledby="tab-login-phone" x-show="loginType === 'phone'" x-cloak>
                     <label for="login-phone" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
-                        Mobile Number <span class="text-forest" aria-hidden="true">*</span>
+                        Mobile <span class="text-forest" aria-hidden="true">*</span>
                     </label>
                     <input 
                         type="tel" 

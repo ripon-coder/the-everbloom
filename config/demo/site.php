@@ -17,6 +17,8 @@ return [
         'link_text' => 'Shop Now',
     ],
     // DEMO PLACEHOLDER: replace before launch
+    'hero_sale_tag' => 'Up to 40% off', // DEMO PLACEHOLDER: replace before launch
+    // DEMO PLACEHOLDER: replace before launch
     'shipping_and_returns_note' => 'Free standard shipping over $75. 30-day returns on unopened items.', // DEMO PLACEHOLDER: replace before launch
     'shipping' => [
         'free_shipping_threshold' => 75.00, // DEMO PLACEHOLDER: replace before launch
