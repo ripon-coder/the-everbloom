@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Order #' . $order['id'])
 @section('container_class', 'container-xxl')
@@ -299,7 +299,7 @@
                     @if(!empty($order['shipping_address']['address_line2']))
                         {{ $order['shipping_address']['address_line2'] }}<br>
                     @endif
-                    {{ $order['shipping_address']['city'] }}, {{ $order['shipping_address']['state'] }} {{ $order['shipping_address']['postal_code'] }}<br>
+                    {{ $order['shipping_address']['city'] ?? '' }}{{ !empty($order['shipping_address']['state']) ? ', ' . $order['shipping_address']['state'] : '' }}<br>
                     {{ $order['shipping_address']['country'] }}
                 </p>
             </div>

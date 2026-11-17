@@ -12,7 +12,6 @@ class Address extends Model
         'is_default',
         'first_name',
         'last_name',
-        'company',
         'country',
         'district_id',
         'thana_id',
@@ -21,8 +20,6 @@ class Address extends Model
         'thana_name',
         'area_name',
         'address_line1',
-        'address_line2',
-        'postal_code',
         'phone',
     ];
 

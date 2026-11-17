@@ -227,7 +227,6 @@ class DatabaseSeeder extends Seeder
                 'is_default' => true,
                 'first_name' => 'Eleanor',
                 'last_name' => 'Vance',
-                'company' => '',
                 'country' => 'Bangladesh',
                 'district_id' => $dhaka?->id,
                 'thana_id' => $gulshan?->id,
@@ -236,8 +235,6 @@ class DatabaseSeeder extends Seeder
                 'thana_name' => $gulshan?->name ?? 'Gulshan',
                 'area_name' => $gulshan2?->name ?? 'Gulshan 2',
                 'address_line1' => 'House 42, Road 71, Gulshan 2',
-                'address_line2' => 'Suite 4B',
-                'postal_code' => $gulshan2?->postal_code ?? '1212',
                 'phone' => '+880 1711-000192',
             ]);
 
@@ -246,7 +243,6 @@ class DatabaseSeeder extends Seeder
                 'is_default' => false,
                 'first_name' => 'Eleanor',
                 'last_name' => 'Vance',
-                'company' => 'Studio Botanica',
                 'country' => 'Bangladesh',
                 'district_id' => $dhaka?->id,
                 'thana_id' => $dhanmondi?->id,
@@ -255,8 +251,6 @@ class DatabaseSeeder extends Seeder
                 'thana_name' => $dhanmondi?->name ?? 'Dhanmondi',
                 'area_name' => $dhanmondi27?->name ?? 'Dhanmondi Road 27',
                 'address_line1' => 'House 18, Road 27, Dhanmondi',
-                'address_line2' => 'Apt 2B',
-                'postal_code' => $dhanmondi27?->postal_code ?? '1209',
                 'phone' => '+880 1711-000144',
             ]);
         }

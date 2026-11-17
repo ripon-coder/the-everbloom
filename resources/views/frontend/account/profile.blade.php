@@ -1,4 +1,4 @@
-﻿@extends('layouts.account')
+@extends('layouts.account')
 
 @section('title', 'Profile & Security â€” ' . config('demo.site.name'))
 
@@ -13,184 +13,7 @@
 
 @section('account_content')
 <div 
-    x-data="{
-        profileFeedback: '',
-        securityFeedback: '',
-        deleteFeedback: '',
-        confirmingDelete: false,
-        profileForm: {
-            first_name: @js($customer['first_name'] ?? 'Eleanor'),
-            last_name: @js($customer['last_name'] ?? 'Vance'),
-            email: @js($customer['email'] ?? 'eleanor.vance@example.com'),
-            phone: @js($customer['phone'] ?? '+1 (503) 555-0192'),
-        },
-        profileErrors: {},
-        clearProfileError(field) {
-            if (this.profileErrors[field]) delete this.profileErrors[field];
-        },
-        validateProfile() {
-            this.profileErrors = {};
-            if (!this.profileForm.first_name.trim()) this.profileErrors.first_name = 'Please enter your first name.';
-            if (!this.profileForm.last_name.trim()) this.profileErrors.last_name = 'Please enter your last name.';
-            if (!this.profileForm.email.trim()) {
-                this.profileErrors.email = 'Please enter your email address.';
-            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.profileForm.email.trim())) {
-                this.profileErrors.email = 'Please enter a valid email address.';
-            }
-
-            const keys = Object.keys(this.profileErrors);
-            if (keys.length > 0) {
-                const first = keys[0];
-                this.$nextTick(() => {
-                    const el = document.getElementById('profile-' + first);
-                    if (el) el.focus();
-                });
-                return false;
-            }
-            return true;
-        },
-        async submitProfile() {
-            if (!this.validateProfile()) return;
-            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            try {
-                const res = await fetch(@js(route('account.profile.update')), {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrf,
-                    },
-                    body: JSON.stringify(this.profileForm),
-                });
-                const data = await res.json();
-                if (!res.ok) {
-                    if (data.errors) {
-                        Object.entries(data.errors).forEach(([k, v]) => {
-                            this.profileErrors[k] = Array.isArray(v) ? v[0] : v;
-                        });
-                    }
-                    return;
-                }
-                this.profileFeedback = data.message || 'Profile updated successfully.';
-                setTimeout(() => { this.profileFeedback = ''; }, 6000);
-            } catch (e) {
-                this.profileFeedback = 'Unable to update profile.';
-            }
-        },
-
-        securityForm: {
-            current_password: '',
-            new_password: '',
-            confirm_password: '',
-        },
-        showCurrent: false,
-        showNew: false,
-        showConfirm: false,
-        confirmTouched: false,
-        securityErrors: {},
-        get hasMinLength() {
-            return this.securityForm.new_password.length >= 8;
-        },
-        get hasLetter() {
-            return /[A-Za-z]/.test(this.securityForm.new_password);
-        },
-        get hasNumber() {
-            return /\d/.test(this.securityForm.new_password);
-        },
-        clearSecurityError(field) {
-            if (this.securityErrors[field]) delete this.securityErrors[field];
-        },
-        validateSecurity() {
-            this.securityErrors = {};
-            if (!this.securityForm.current_password) {
-                this.securityErrors.current_password = 'Please enter your current password.';
-            }
-            if (!this.securityForm.new_password) {
-                this.securityErrors.new_password = 'Please enter a new password.';
-            } else if (!this.hasMinLength || !this.hasLetter || !this.hasNumber) {
-                this.securityErrors.new_password = 'Password must be at least 8 characters and include a letter and a number.';
-            }
-            if (!this.securityForm.confirm_password) {
-                this.securityErrors.confirm_password = 'Please confirm your new password.';
-            } else if (this.securityForm.new_password !== this.securityForm.confirm_password) {
-                this.securityErrors.confirm_password = 'Passwords don\'t match.';
-            }
-
-            const keys = Object.keys(this.securityErrors);
-            if (keys.length > 0) {
-                const first = keys[0];
-                this.$nextTick(() => {
-                    const el = document.getElementById('security-' + first);
-                    if (el) el.focus();
-                });
-                return false;
-            }
-            return true;
-        },
-        async submitSecurity() {
-            if (!this.validateSecurity()) return;
-            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            try {
-                const res = await fetch(@js(route('account.password.update')), {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrf,
-                    },
-                    body: JSON.stringify({
-                        current_password: this.securityForm.current_password,
-                        password: this.securityForm.new_password,
-                        password_confirmation: this.securityForm.confirm_password,
-                    }),
-                });
-                const data = await res.json();
-                if (!res.ok) {
-                    if (data.errors) {
-                        if (data.errors.current_password) this.securityErrors.current_password = data.errors.current_password[0];
-                        if (data.errors.password) this.securityErrors.new_password = data.errors.password[0];
-                    }
-                    return;
-                }
-                this.securityFeedback = data.message || 'Password updated successfully.';
-                this.securityForm = { current_password: '', new_password: '', confirm_password: '' };
-                this.confirmTouched = false;
-                setTimeout(() => { this.securityFeedback = ''; }, 6000);
-            } catch (e) {
-                this.securityFeedback = 'Unable to update password.';
-            }
-        },
-        openDeleteConfirm() {
-            this.confirmingDelete = true;
-            this.$nextTick(() => {
-                this.$refs.cancelDeleteBtn?.focus();
-            });
-        },
-        closeDeleteConfirm() {
-            this.confirmingDelete = false;
-            this.$nextTick(() => {
-                this.$refs.deleteTriggerBtn?.focus();
-            });
-        },
-        async confirmDeleteAccount() {
-            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            try {
-                const res = await fetch(@js(route('account.destroy')), {
-                    method: 'DELETE',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrf,
-                    },
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    window.location.href = data.redirect_url || '/';
-                }
-            } catch (e) {
-                this.confirmingDelete = false;
-            }
-        }
-    }" 
+    x-data="accountProfileComponent()" 
     @keydown.escape.window="if (confirmingDelete) { closeDeleteConfirm(); }"
     class="pb-16"
 >
@@ -218,7 +41,7 @@
                     aria-live="polite"
                 >
                     <span x-text="profileFeedback"></span>
-                    <button type="button" @click="profileFeedback = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center cursor-pointer" aria-label="Close message">âœ•</button>
+                    <button type="button" @click="profileFeedback = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center cursor-pointer" aria-label="Close message"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M6 18L18 6M6 6l12 12" /></svg></button>
                 </div>
 
                 <form @submit.prevent="submitProfile()" novalidate class="space-y-5">
@@ -261,10 +84,10 @@
                         </div>
                     </div>
 
-                    <!-- Email Address -->
+                    <!-- Email Address (Optional) -->
                     <div>
                         <label for="profile-email" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
-                            Email Address <span class="text-forest" aria-hidden="true">*</span>
+                            Email Address <span class="text-muted font-normal lowercase">(optional)</span>
                         </label>
                         <input 
                             type="email" 
@@ -284,18 +107,25 @@
                         <p id="err-profile-email" x-show="profileErrors.email" x-text="profileErrors.email" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                     </div>
 
-                    <!-- Phone (Optional) -->
+                    <!-- Phone (Required) -->
                     <div>
                         <label for="profile-phone" class="block text-xs uppercase tracking-[0.2em] text-muted font-medium mb-1.5">
-                            Phone Number <span class="text-muted font-normal lowercase">(optional)</span>
+                            Phone Number <span class="text-forest" aria-hidden="true">*</span>
                         </label>
                         <input 
                             type="tel" 
+                            inputmode="tel"
                             id="profile-phone" 
                             x-model="profileForm.phone" 
+                            @input="clearProfileError('phone')"
                             autocomplete="tel" 
+                            required
                             class="input-field" 
+                            :class="profileErrors.phone ? 'input-error !border-[#B3453A]' : ''"
+                            :aria-invalid="profileErrors.phone ? 'true' : 'false'"
+                            :aria-describedby="profileErrors.phone ? 'err-profile-phone' : null"
                         />
+                        <p id="err-profile-phone" x-show="profileErrors.phone" x-text="profileErrors.phone" class="mt-1 text-[13px] text-[#B3453A] font-medium" role="alert" x-cloak></p>
                     </div>
 
                     <div class="pt-2 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
@@ -330,7 +160,7 @@
                     aria-live="polite"
                 >
                     <span x-text="securityFeedback"></span>
-                    <button type="button" @click="securityFeedback = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center cursor-pointer" aria-label="Close message">âœ•</button>
+                    <button type="button" @click="securityFeedback = ''" class="w-11 h-11 -mr-2 hover:text-sage-light text-ivory flex items-center justify-center cursor-pointer" aria-label="Close message"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M6 18L18 6M6 6l12 12" /></svg></button>
                 </div>
 
                 <form @submit.prevent="submitSecurity()" novalidate class="space-y-5">
@@ -602,4 +432,195 @@
         </aside>
     </div>
 </div>
+
+<script>
+function accountProfileComponent() {
+    return {
+        profileFeedback: '',
+        securityFeedback: '',
+        deleteFeedback: '',
+        confirmingDelete: false,
+        profileForm: {
+            first_name: @js($customer['first_name'] ?? 'Eleanor'),
+            last_name: @js($customer['last_name'] ?? 'Vance'),
+            email: @js($customer['email'] ?? 'eleanor.vance@example.com'),
+            phone: @js($customer['phone'] ?? '+880 1700-000000'),
+        },
+        profileErrors: {},
+        clearProfileError(field) {
+            if (this.profileErrors[field]) delete this.profileErrors[field];
+        },
+        validateProfile() {
+            this.profileErrors = {};
+            if (!this.profileForm.first_name.trim()) this.profileErrors.first_name = 'Please enter your first name.';
+            if (!this.profileForm.last_name.trim()) this.profileErrors.last_name = 'Please enter your last name.';
+            const email = (this.profileForm.email || '').trim();
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                this.profileErrors.email = 'Please enter a valid email address.';
+            }
+            const phone = (this.profileForm.phone || '').trim();
+            if (!phone) {
+                this.profileErrors.phone = 'Please enter your phone number.';
+            } else {
+                const digits = phone.replace(/\D/g, '');
+                if (!/^[+\d\s().-]{7,20}$/.test(phone) || digits.length < 7 || digits.length > 15) {
+                    this.profileErrors.phone = 'Please enter a valid phone number.';
+                }
+            }
+
+            const keys = Object.keys(this.profileErrors);
+            if (keys.length > 0) {
+                const first = keys[0];
+                this.$nextTick(() => {
+                    const el = document.getElementById('profile-' + first);
+                    if (el) el.focus();
+                });
+                return false;
+            }
+            return true;
+        },
+        async submitProfile() {
+            if (!this.validateProfile()) return;
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            try {
+                const res = await fetch(@js(route('account.profile.update')), {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: JSON.stringify(this.profileForm),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    if (data.errors) {
+                        Object.entries(data.errors).forEach(([k, v]) => {
+                            this.profileErrors[k] = Array.isArray(v) ? v[0] : v;
+                        });
+                    }
+                    return;
+                }
+                this.profileFeedback = data.message || 'Profile updated successfully.';
+                setTimeout(() => { this.profileFeedback = ''; }, 6000);
+            } catch (e) {
+                this.profileFeedback = 'Unable to update profile.';
+            }
+        },
+
+        securityForm: {
+            current_password: '',
+            new_password: '',
+            confirm_password: '',
+        },
+        showCurrent: false,
+        showNew: false,
+        showConfirm: false,
+        confirmTouched: false,
+        securityErrors: {},
+        get hasMinLength() {
+            return this.securityForm.new_password.length >= 8;
+        },
+        get hasLetter() {
+            return /[A-Za-z]/.test(this.securityForm.new_password);
+        },
+        get hasNumber() {
+            return /\d/.test(this.securityForm.new_password);
+        },
+        clearSecurityError(field) {
+            if (this.securityErrors[field]) delete this.securityErrors[field];
+        },
+        validateSecurity() {
+            this.securityErrors = {};
+            if (!this.securityForm.current_password) {
+                this.securityErrors.current_password = 'Please enter your current password.';
+            }
+            if (!this.securityForm.new_password) {
+                this.securityErrors.new_password = 'Please enter a new password.';
+            } else if (!this.hasMinLength || !this.hasLetter || !this.hasNumber) {
+                this.securityErrors.new_password = 'Password must be at least 8 characters and include a letter and a number.';
+            }
+            if (!this.securityForm.confirm_password) {
+                this.securityErrors.confirm_password = 'Please confirm your new password.';
+            } else if (this.securityForm.new_password !== this.securityForm.confirm_password) {
+                this.securityErrors.confirm_password = 'Passwords don\'t match.';
+            }
+
+            const keys = Object.keys(this.securityErrors);
+            if (keys.length > 0) {
+                const first = keys[0];
+                this.$nextTick(() => {
+                    const el = document.getElementById('security-' + first);
+                    if (el) el.focus();
+                });
+                return false;
+            }
+            return true;
+        },
+        async submitSecurity() {
+            if (!this.validateSecurity()) return;
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            try {
+                const res = await fetch(@js(route('account.password.update')), {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    body: JSON.stringify({
+                        current_password: this.securityForm.current_password,
+                        password: this.securityForm.new_password,
+                        password_confirmation: this.securityForm.confirm_password,
+                    }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    if (data.errors) {
+                        if (data.errors.current_password) this.securityErrors.current_password = data.errors.current_password[0];
+                        if (data.errors.password) this.securityErrors.new_password = data.errors.password[0];
+                    }
+                    return;
+                }
+                this.securityFeedback = data.message || 'Password updated successfully.';
+                this.securityForm = { current_password: '', new_password: '', confirm_password: '' };
+                this.confirmTouched = false;
+                setTimeout(() => { this.securityFeedback = ''; }, 6000);
+            } catch (e) {
+                this.securityFeedback = 'Unable to update password.';
+            }
+        },
+        openDeleteConfirm() {
+            this.confirmingDelete = true;
+            this.$nextTick(() => {
+                this.$refs.cancelDeleteBtn?.focus();
+            });
+        },
+        closeDeleteConfirm() {
+            this.confirmingDelete = false;
+            this.$nextTick(() => {
+                this.$refs.deleteTriggerBtn?.focus();
+            });
+        },
+        async confirmDeleteAccount() {
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            try {
+                const res = await fetch(@js(route('account.destroy')), {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    window.location.href = data.redirect_url || '/';
+                }
+            } catch (e) {
+                this.confirmingDelete = false;
+            }
+        }
+    };
+}
+</script>
 @endsection

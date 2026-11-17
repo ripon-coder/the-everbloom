@@ -283,14 +283,11 @@ class AccountController extends Controller
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            'company' => ['nullable', 'string', 'max:120'],
             'district_id' => ['required', 'integer', 'exists:districts,id,is_active,1'],
             'thana_id' => ['required', 'integer', 'exists:thanas,id,is_active,1'],
             'area_id' => ['required', 'integer', 'exists:areas,id,is_active,1'],
-            'address_line1' => ['required', 'string', 'max:255'],
-            'address_line2' => ['nullable', 'string', 'max:255'],
-            'postal_code' => ['nullable', 'string', 'max:30'],
-            'phone' => ['nullable', 'string', 'max:40'],
+            'address_line1' => ['required', 'string', 'max:500'],
+            'phone' => ['required', 'string', 'max:40'],
             'is_default' => ['boolean'],
         ]);
 
@@ -306,7 +303,6 @@ class AccountController extends Controller
         $address = $user->addresses()->create([
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
-            'company' => $validated['company'] ?? null,
             'country' => 'Bangladesh',
             'district_id' => $district->id,
             'thana_id' => $thana->id,
@@ -315,9 +311,7 @@ class AccountController extends Controller
             'thana_name' => $thana->name,
             'area_name' => $area->name,
             'address_line1' => $validated['address_line1'],
-            'address_line2' => $validated['address_line2'] ?? null,
-            'postal_code' => $validated['postal_code'] ?: $area->postal_code,
-            'phone' => $validated['phone'] ?? null,
+            'phone' => $validated['phone'],
             'is_default' => $isDefault,
         ]);
 
@@ -337,14 +331,11 @@ class AccountController extends Controller
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            'company' => ['nullable', 'string', 'max:120'],
             'district_id' => ['required', 'integer', 'exists:districts,id,is_active,1'],
             'thana_id' => ['required', 'integer', 'exists:thanas,id,is_active,1'],
             'area_id' => ['required', 'integer', 'exists:areas,id,is_active,1'],
-            'address_line1' => ['required', 'string', 'max:255'],
-            'address_line2' => ['nullable', 'string', 'max:255'],
-            'postal_code' => ['nullable', 'string', 'max:30'],
-            'phone' => ['nullable', 'string', 'max:40'],
+            'address_line1' => ['required', 'string', 'max:500'],
+            'phone' => ['required', 'string', 'max:40'],
             'is_default' => ['boolean'],
         ]);
 
@@ -359,7 +350,6 @@ class AccountController extends Controller
         $address->update([
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
-            'company' => $validated['company'] ?? null,
             'country' => 'Bangladesh',
             'district_id' => $district->id,
             'thana_id' => $thana->id,
@@ -368,9 +358,7 @@ class AccountController extends Controller
             'thana_name' => $thana->name,
             'area_name' => $area->name,
             'address_line1' => $validated['address_line1'],
-            'address_line2' => $validated['address_line2'] ?? null,
-            'postal_code' => $validated['postal_code'] ?: $area->postal_code,
-            'phone' => $validated['phone'] ?? null,
+            'phone' => $validated['phone'],
             'is_default' => (bool) ($validated['is_default'] ?? $address->is_default),
         ]);
 
@@ -426,8 +414,8 @@ class AccountController extends Controller
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:191', 'unique:users,email,' . $user->id],
-            'phone' => ['nullable', 'string', 'max:40'],
+            'email' => ['nullable', 'email', 'max:191', 'unique:users,email,' . $user->id],
+            'phone' => ['required', 'string', 'max:40'],
         ]);
 
         $user->update($validated);

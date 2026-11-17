@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Client Profile: ' . $customer['name'])
 @section('container_class', 'container-xxl')
@@ -52,7 +52,7 @@
                     @endif
                     <p class="text-muted mb-0 fs-13">
                         {{ $addr['address_line1'] }}{{ !empty($addr['address_line2']) ? (', ' . $addr['address_line2']) : '' }}<br>
-                        {{ $addr['city'] }}, {{ $addr['state'] }} {{ $addr['postal_code'] }}<br>
+                        {{ $addr['city'] ?? '' }}{{ !empty($addr['state']) ? ', ' . $addr['state'] : '' }}<br>
                         {{ $addr['country'] }}
                     </p>
                 </div>

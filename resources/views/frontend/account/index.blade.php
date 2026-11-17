@@ -1,4 +1,4 @@
-﻿@extends('layouts.account')
+@extends('layouts.account')
 
 @section('title', 'My Account — ' . config('demo.site.name'))
 
@@ -140,7 +140,7 @@
                         @if(!empty($defaultAddress['address_line2']))
                             <p>{{ $defaultAddress['address_line2'] }}</p>
                         @endif
-                        <p class="lining-nums">{{ $defaultAddress['city'] }}, {{ $defaultAddress['state'] }} {{ $defaultAddress['postal_code'] }}</p>
+                        <p class="lining-nums">{{ $defaultAddress['city'] ?? '' }}{{ !empty($defaultAddress['state']) ? ', ' . $defaultAddress['state'] : '' }}</p>
                         <p>{{ $defaultAddress['country'] }}</p>
                         @if(!empty($defaultAddress['phone']))
                             <p class="text-xs text-muted mt-2 lining-nums">{{ $defaultAddress['phone'] }}</p>

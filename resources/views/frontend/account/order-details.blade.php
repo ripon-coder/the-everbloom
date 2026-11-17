@@ -293,7 +293,7 @@
                     @if(!empty($order['shipping_address']['address_line2']))
                         <p>{{ $order['shipping_address']['address_line2'] }}</p>
                     @endif
-                    <p class="lining-nums">{{ $order['shipping_address']['city'] }}, {{ $order['shipping_address']['state'] }} {{ $order['shipping_address']['postal_code'] }}</p>
+                    <p class="lining-nums">{{ $order['shipping_address']['city'] ?? '' }}{{ !empty($order['shipping_address']['state']) ? ', ' . $order['shipping_address']['state'] : '' }}</p>
                     <p>{{ $order['shipping_address']['country'] }}</p>
                     @if(!empty($order['shipping_address']['phone']))
                         <p class="text-xs text-muted mt-2 lining-nums">{{ $order['shipping_address']['phone'] }}</p>
