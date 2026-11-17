@@ -56,12 +56,12 @@ function getDemoDiscounts() {
 }
 
 /**
- * Retrieve shipping configuration from #everbloom-shipping-data or defaults ($75 threshold, $6 cost).
+ * Retrieve shipping configuration from #everbloom-shipping-data or defaults (৳500 threshold, ৳60 cost).
  */
 function getShippingConfig() {
     const defaults = {
-        free_threshold: 75.00,
-        standard_cost: 6.00,
+        free_threshold: 500,
+        standard_cost: 60,
     };
     if (typeof document !== 'undefined') {
         const el = document.getElementById('everbloom-shipping-data');
@@ -77,6 +77,24 @@ function getShippingConfig() {
     }
     return defaults;
 }
+
+/**
+ * Shared currency formatter (symbol, thousands separator, configurable decimals).
+ */
+window.formatCurrency = function formatCurrency(amount) {
+    const cfg = (typeof window !== 'undefined' && window.__everbloomCurrency)
+        ? window.__everbloomCurrency
+        : { symbol: '৳', decimals: 0, position: 'before' };
+    const decimals = Number.isFinite(Number(cfg.decimals)) ? Number(cfg.decimals) : 0;
+    const num = Number(amount) || 0;
+    const formatted = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+    }).format(num);
+    return cfg.position === 'after'
+        ? `${formatted}${cfg.symbol || '৳'}`
+        : `${cfg.symbol || '৳'}${formatted}`;
+};
 
 /**
  * Dispatch an event to close any other open overlays so only one overlay is open at a time.

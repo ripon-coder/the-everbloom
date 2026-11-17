@@ -1,10 +1,13 @@
 @php
-    $freeShippingThreshold = config('demo.site.shipping_rates.standard.free_threshold', 75.00);
-    $standardShippingCost = config('demo.site.shipping_rates.standard.cost', 6.00);
-    $currencySymbol = config('demo.site.currency.symbol', '$');
+    $freeShippingThreshold = config('demo.site.shipping.free_shipping_threshold', config('demo.site.shipping_rates.standard.free_threshold', 500));
+    $standardShippingCost = config('demo.site.shipping.standard_fee', config('demo.site.shipping_rates.standard.cost', 60));
+    $currencySymbol = config('demo.site.currency.symbol', '৳');
 @endphp
 
 <!-- Single Global Catalog, Discount & Shipping Data Payloads for Store Synchronization -->
+<script>
+    window.__everbloomCurrency = {!! json_encode(config('demo.site.currency', ['code' => 'BDT', 'symbol' => '৳', 'decimals' => 0, 'position' => 'before']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
+</script>
 <script id="everbloom-products-data" type="application/json">
 {!! json_encode($storefrontProductsJson ?? config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 </script>
@@ -87,7 +90,7 @@
             <template x-if="$store.cart.subtotal < {{ $freeShippingThreshold }}">
                 <div class="space-y-1.5">
                     <p class="text-muted text-center">
-                        Add <span class="price font-semibold text-ink" x-text="'{{ $currencySymbol }}' + ({{ $freeShippingThreshold }} - $store.cart.subtotal).toFixed(2)"></span> more for free standard shipping
+                        Add <span class="price lining-nums font-semibold text-ink" x-text="window.formatCurrency({{ $freeShippingThreshold }} - $store.cart.subtotal)"></span> more for free standard shipping
                     </p>
                     <div class="w-full bg-beige/80 h-1.5 rounded-full overflow-hidden">
                         <div 

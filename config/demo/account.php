@@ -25,31 +25,60 @@ return [
     'addresses' => [
         [
             'id' => 'addr_1', // DEMO DATA
+            'label' => 'Home', // DEMO DATA
             'is_default' => true, // DEMO DATA
+            'recipient_name' => 'Eleanor Vance', // DEMO DATA
             'first_name' => 'Eleanor', // DEMO DATA
             'last_name' => 'Vance', // DEMO DATA
             'company' => '', // DEMO DATA
-            'address_line1' => '740 Botanical Way', // DEMO DATA
-            'address_line2' => 'Suite 400', // DEMO DATA
-            'city' => 'Portland', // DEMO DATA
-            'state' => 'OR', // DEMO DATA
-            'postal_code' => '97201', // DEMO DATA
-            'country' => 'United States', // DEMO DATA
-            'phone' => '+1 (503) 555-0192', // DEMO DATA
+            'district' => 'Dhaka', // DEMO DATA
+            'thana' => 'Dhanmondi', // DEMO DATA
+            'area' => 'Dhanmondi Road 27', // DEMO DATA
+            'address_line1' => 'House 18, Road 27', // DEMO DATA
+            'address_line2' => '4th Floor, Flat 4B', // DEMO DATA
+            'city' => 'Dhanmondi', // DEMO DATA
+            'state' => 'Dhaka', // DEMO DATA
+            'postal_code' => '1209', // DEMO DATA
+            'country' => 'Bangladesh', // DEMO DATA
+            'phone' => '01711223344', // DEMO DATA
         ],
         [
             'id' => 'addr_2', // DEMO DATA
+            'label' => 'Office', // DEMO DATA
             'is_default' => false, // DEMO DATA
+            'recipient_name' => 'Eleanor Vance', // DEMO DATA
             'first_name' => 'Eleanor', // DEMO DATA
             'last_name' => 'Vance', // DEMO DATA
             'company' => 'Studio Botanica', // DEMO DATA
-            'address_line1' => '1284 Rosewood Terrace', // DEMO DATA
-            'address_line2' => 'Apt 2B', // DEMO DATA
-            'city' => 'Seattle', // DEMO DATA
-            'state' => 'WA', // DEMO DATA
-            'postal_code' => '98101', // DEMO DATA
-            'country' => 'United States', // DEMO DATA
-            'phone' => '+1 (206) 555-0144', // DEMO DATA
+            'district' => 'Dhaka', // DEMO DATA
+            'thana' => 'Gulshan', // DEMO DATA
+            'area' => 'Gulshan 1', // DEMO DATA
+            'address_line1' => 'Plot 42, Road 113', // DEMO DATA
+            'address_line2' => 'Level 5, Suite 5A', // DEMO DATA
+            'city' => 'Gulshan', // DEMO DATA
+            'state' => 'Dhaka', // DEMO DATA
+            'postal_code' => '1212', // DEMO DATA
+            'country' => 'Bangladesh', // DEMO DATA
+            'phone' => '01819556677', // DEMO DATA
+        ],
+        [
+            'id' => 'addr_3', // DEMO DATA
+            'label' => 'Parents Home', // DEMO DATA
+            'is_default' => false, // DEMO DATA
+            'recipient_name' => 'Sophia Laurent', // DEMO DATA
+            'first_name' => 'Sophia', // DEMO DATA
+            'last_name' => 'Laurent', // DEMO DATA
+            'company' => '', // DEMO DATA
+            'district' => 'Dhaka', // DEMO DATA
+            'thana' => 'Uttara', // DEMO DATA
+            'area' => 'Uttara Sector 7', // DEMO DATA
+            'address_line1' => 'House 12, Road 9', // DEMO DATA
+            'address_line2' => 'Near Rabindra Sarani', // DEMO DATA
+            'city' => 'Uttara', // DEMO DATA
+            'state' => 'Dhaka', // DEMO DATA
+            'postal_code' => '1230', // DEMO DATA
+            'country' => 'Bangladesh', // DEMO DATA
+            'phone' => '01912334455', // DEMO DATA
         ],
     ],
 

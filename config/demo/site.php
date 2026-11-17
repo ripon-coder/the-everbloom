@@ -5,26 +5,28 @@ return [
     'tagline' => 'Naturally Beautiful. Always Blooming.',
     'url' => 'https://the-everbloom.com',
     'currency' => [
-        'code' => 'USD',
-        'symbol' => '$',
+        'code' => 'BDT',
+        'symbol' => '৳',
         'position' => 'before', // before or after
-        'decimals' => 2,
+        'decimals' => 0,
     ],
     'announcement' => [
         'enabled' => true,
-        'message' => 'Free shipping on orders over $75',
+        'message' => 'Free shipping on orders over ৳500',
         'link' => '/shop',
         'link_text' => 'Shop Now',
     ],
     // DEMO PLACEHOLDER: replace before launch
     'hero_sale_tag' => 'Up to 40% off', // DEMO PLACEHOLDER: replace before launch
     // DEMO PLACEHOLDER: replace before launch
-    'shipping_and_returns_note' => 'Free standard shipping over $75. 30-day returns on unopened items.', // DEMO PLACEHOLDER: replace before launch
+    'shipping_and_returns_note' => 'Free standard shipping over ৳500. 30-day returns on unopened items.', // DEMO PLACEHOLDER: replace before launch
     'shipping' => [
-        'free_shipping_threshold' => 75.00, // DEMO PLACEHOLDER: replace before launch
-        'standard_rate' => 6.00,            // DEMO PLACEHOLDER: replace before launch
-        'express_rate' => 15.00,            // DEMO PLACEHOLDER: replace before launch
-        'standard_days' => '3–5 business days', // DEMO PLACEHOLDER: replace before launch
+        'free_shipping_threshold' => 500,    // DEMO PLACEHOLDER: replace before launch
+        'standard_fee' => 60,                // DEMO PLACEHOLDER: replace before launch
+        'express_fee' => 120,                // DEMO PLACEHOLDER: replace before launch
+        'standard_rate' => 60,               // DEMO PLACEHOLDER: replace before launch
+        'express_rate' => 120,               // DEMO PLACEHOLDER: replace before launch
+        'standard_days' => '2–3 business days', // DEMO PLACEHOLDER: replace before launch
         'express_days' => '1–2 business days',  // DEMO PLACEHOLDER: replace before launch
     ],
     'returns' => [
@@ -40,9 +42,9 @@ return [
     // DEMO PLACEHOLDER: replace before launch
     'contact' => [
         'email' => 'concierge@the-everbloom.com', // DEMO PLACEHOLDER: replace before launch
-        'phone' => '+1 (800) 412-8874',           // DEMO PLACEHOLDER: replace before launch
-        'hours' => 'Mon – Fri: 9:00 AM – 6:00 PM EST', // DEMO PLACEHOLDER: replace before launch
-        'address' => '740 Botanical Way, Suite 400, Portland, OR 97201', // DEMO PLACEHOLDER: replace before launch
+        'phone' => '+880 1700-000000',            // DEMO PLACEHOLDER: replace before launch
+        'hours' => 'Sat – Thu: 10:00 AM – 7:00 PM BST', // DEMO PLACEHOLDER: replace before launch
+        'address' => 'House 24, Road 11, Banani, Dhaka 1213', // DEMO PLACEHOLDER: replace before launch
     ],
     // DEMO PLACEHOLDER: verify before launch
     'trust_badges' => [
@@ -63,8 +65,8 @@ return [
         ],
         [
             'icon' => 'shield',
-            'title' => 'Free Shipping $75+', // DEMO PLACEHOLDER: verify before launch
-            'description' => 'Complimentary standard delivery on orders over $75.',
+            'title' => 'Free Shipping ৳500+', // DEMO PLACEHOLDER: verify before launch
+            'description' => 'Complimentary standard delivery on orders over ৳500.',
         ],
         'secure_checkout' => 'Secure Checkout',
         'returns_policy' => '30-Day Returns on Unopened Items', // DEMO PLACEHOLDER: replace before launch
@@ -84,17 +86,17 @@ return [
     'shipping_rates' => [
         'standard' => [
             'id' => 'standard',
-            'name' => 'Standard Ground Botanical Shipping',
-            'time' => '3–5 business days',
-            'cost' => 6.00,
-            'free_threshold' => 75.00,
+            'name' => 'Standard Delivery',
+            'time' => '2–3 business days',
+            'cost' => 60,
+            'free_threshold' => 500,
         ],
         'express' => [
             'id' => 'express',
-            'name' => 'Express Priority Courier',
+            'name' => 'Express Courier',
             'time' => '1–2 business days',
-            'cost' => 15.00,
-            'free_threshold' => 150.00,
+            'cost' => 120,
+            'free_threshold' => 0,
         ],
     ],
 ];

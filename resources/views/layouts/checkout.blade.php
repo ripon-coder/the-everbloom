@@ -14,10 +14,11 @@
 
     @stack('meta')
 
-    <!-- Preload products catalog & discounts payload for Alpine Cart Store -->
+    <!-- Preload products catalog, discounts & currency payload for Alpine Cart Store -->
     <script>
         window.__everbloomProducts = {!! json_encode(config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
         window.__everbloomDiscounts = {!! json_encode(config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
+        window.__everbloomCurrency = {!! json_encode(config('demo.site.currency', ['code' => 'BDT', 'symbol' => '৳', 'decimals' => 0, 'position' => 'before']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])

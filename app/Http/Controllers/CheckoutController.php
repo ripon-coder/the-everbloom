@@ -26,6 +26,9 @@ class CheckoutController extends Controller
     {
         $districts = District::active()->get(['id', 'name', 'bn_name', 'delivery_charge']);
 
+        $isGuest = !Auth::guard('web')->check();
+        $savedAddresses = [];
+
         $prefill = [
             'email' => '',
             'phone' => '',
@@ -36,33 +39,101 @@ class CheckoutController extends Controller
             'thana_id' => '',
             'area_id' => '',
             'address' => '',
-            'apartment' => '',
-            'zip' => '',
+            'addressLine2' => '',
+            'saveAddress' => false,
         ];
 
-        if (Auth::guard('web')->check()) {
+        if (!$isGuest) {
             $user = Auth::guard('web')->user();
-            $defaultAddress = $user->addresses()->where('is_default', true)->first()
-                ?? $user->addresses()->first();
+            $dbAddresses = $user->addresses()
+                ->with(['district', 'thana', 'area'])
+                ->orderByDesc('is_default')
+                ->get();
+
+            if ($dbAddresses->isNotEmpty()) {
+                $savedAddresses = $dbAddresses->map(function ($addr, $idx) use ($user) {
+                    $recipient = trim(($addr->first_name ?? '') . ' ' . ($addr->last_name ?? ''));
+                    if ($recipient === '') {
+                        $recipient = trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? ''));
+                    }
+
+                    return [
+                        'id' => 'db_' . $addr->id,
+                        'label' => $addr->label ?: ($idx === 0 ? 'Home' : 'Address ' . ($idx + 1)),
+                        'is_default' => (bool) $addr->is_default,
+                        'recipient_name' => $recipient ?: 'Customer',
+                        'first_name' => $addr->first_name ?: ($user->first_name ?? ''),
+                        'last_name' => $addr->last_name ?: ($user->last_name ?? ''),
+                        'phone' => $addr->phone ?: ($user->phone ?? ''),
+                        'country' => 'Bangladesh',
+                        'district_id' => $addr->district_id ? (string) $addr->district_id : '',
+                        'thana_id' => $addr->thana_id ? (string) $addr->thana_id : '',
+                        'area_id' => $addr->area_id ? (string) $addr->area_id : '',
+                        'district_name' => $addr->district?->name ?? '',
+                        'thana_name' => $addr->thana?->name ?? '',
+                        'area_name' => $addr->area?->name ?? '',
+                        'address' => $addr->address_line1 ?? '',
+                        'address_line2' => $addr->address_line2 ?? '',
+                    ];
+                })->values()->all();
+            } else {
+                $demoAddresses = config('demo.account.addresses', []);
+                $savedAddresses = collect($demoAddresses)->map(function ($addr, $idx) {
+                    $district = !empty($addr['district'])
+                        ? District::where('name', $addr['district'])->first()
+                        : null;
+                    $thana = ($district && !empty($addr['thana']))
+                        ? Thana::where('district_id', $district->id)->where('name', $addr['thana'])->first()
+                        : null;
+                    $area = ($thana && !empty($addr['area']))
+                        ? Area::where('thana_id', $thana->id)->where('name', $addr['area'])->first()
+                        : null;
+
+                    $recipient = $addr['recipient_name']
+                        ?? trim(($addr['first_name'] ?? '') . ' ' . ($addr['last_name'] ?? ''));
+
+                    return [
+                        'id' => $addr['id'] ?? ('demo_' . ($idx + 1)),
+                        'label' => $addr['label'] ?? ($idx === 0 ? 'Home' : 'Address ' . ($idx + 1)),
+                        'is_default' => (bool) ($addr['is_default'] ?? false),
+                        'recipient_name' => $recipient ?: 'Customer',
+                        'first_name' => $addr['first_name'] ?? '',
+                        'last_name' => $addr['last_name'] ?? '',
+                        'phone' => $addr['phone'] ?? '',
+                        'country' => $addr['country'] ?? 'Bangladesh',
+                        'district_id' => $district ? (string) $district->id : '',
+                        'thana_id' => $thana ? (string) $thana->id : '',
+                        'area_id' => $area ? (string) $area->id : '',
+                        'district_name' => $district?->name ?? ($addr['district'] ?? ''),
+                        'thana_name' => $thana?->name ?? ($addr['thana'] ?? ''),
+                        'area_name' => $area?->name ?? ($addr['area'] ?? ''),
+                        'address' => $addr['address_line1'] ?? ($addr['address'] ?? ''),
+                        'address_line2' => $addr['address_line2'] ?? '',
+                    ];
+                })->values()->all();
+            }
+
+            $defaultAddr = collect($savedAddresses)->firstWhere('is_default', true) ?? ($savedAddresses[0] ?? null);
 
             $prefill['email'] = $user->email ?? '';
-            $prefill['phone'] = $defaultAddress?->phone ?: ($user->phone ?? '');
-            $prefill['firstName'] = $defaultAddress?->first_name ?: ($user->first_name ?? '');
-            $prefill['lastName'] = $defaultAddress?->last_name ?: ($user->last_name ?? '');
+            $prefill['phone'] = $defaultAddr['phone'] ?? ($user->phone ?? '');
+            $prefill['firstName'] = $defaultAddr['first_name'] ?? ($user->first_name ?? '');
+            $prefill['lastName'] = $defaultAddr['last_name'] ?? ($user->last_name ?? '');
 
-            if ($defaultAddress) {
-                $prefill['district_id'] = $defaultAddress->district_id ? (string) $defaultAddress->district_id : '';
-                $prefill['thana_id'] = $defaultAddress->thana_id ? (string) $defaultAddress->thana_id : '';
-                $prefill['area_id'] = $defaultAddress->area_id ? (string) $defaultAddress->area_id : '';
-                $prefill['address'] = $defaultAddress->address_line1 ?? '';
-                $prefill['apartment'] = $defaultAddress->address_line2 ?? '';
-                $prefill['zip'] = $defaultAddress->postal_code ?? '';
+            if ($defaultAddr) {
+                $prefill['district_id'] = $defaultAddr['district_id'] ?? '';
+                $prefill['thana_id'] = $defaultAddr['thana_id'] ?? '';
+                $prefill['area_id'] = $defaultAddr['area_id'] ?? '';
+                $prefill['address'] = $defaultAddr['address'] ?? '';
+                $prefill['addressLine2'] = $defaultAddr['address_line2'] ?? '';
             }
         }
 
         return view('frontend.checkout.index', [
             'prefillForm' => $prefill,
             'districts' => $districts,
+            'savedAddresses' => $savedAddresses,
+            'isGuest' => $isGuest,
         ]);
     }
 
@@ -97,6 +168,7 @@ class CheckoutController extends Controller
     public function store(Request $request, PurchaseBatchService $purchaseBatchService): JsonResponse
     {
         $validated = $request->validate([
+            'email' => ['nullable', 'email', 'max:191'],
             'phone' => ['required', 'string', 'max:40'],
             'firstName' => ['required', 'string', 'max:100'],
             'lastName' => ['required', 'string', 'max:100'],
@@ -104,8 +176,9 @@ class CheckoutController extends Controller
             'thana_id' => ['required', 'integer', 'exists:thanas,id,is_active,1'],
             'area_id' => ['required', 'integer', 'exists:areas,id,is_active,1'],
             'address' => ['required', 'string', 'max:500'],
+            'addressLine2' => ['nullable', 'string', 'max:255'],
             'shippingMethod' => ['required', 'in:standard,express'],
-            'paymentMethod' => ['required', 'in:card_demo,digital_wallet_demo'],
+            'paymentMethod' => ['required', 'in:cod_demo,bkash_demo,nagad_demo,card_demo'],
             'discountCode' => ['nullable', 'string', 'max:60'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.productId' => ['required', 'integer', 'exists:products,id'],
@@ -207,14 +280,21 @@ class CheckoutController extends Controller
                 }
             }
 
-            $shippingRates = config('demo.site.shipping_rates', []);
-            $rateKey = $validated['shippingMethod'];
-            $rate = $shippingRates[$rateKey] ?? ['name' => 'Standard Ground Botanical Shipping', 'cost' => 6.00, 'free_threshold' => 75.00];
+            $shippingCfg = config('demo.site.shipping', []);
+            $freeThreshold = (float) ($shippingCfg['free_shipping_threshold'] ?? 500);
+            $standardFee = (float) ($shippingCfg['standard_fee'] ?? 60);
+            $expressFee = (float) ($shippingCfg['express_fee'] ?? 120);
 
-            $freeThreshold = (float) ($rate['free_threshold'] ?? 75.00);
-            $shippingCost = ($isFreeShippingCoupon || ($freeThreshold > 0 && $subtotal >= $freeThreshold))
-                ? 0.0
-                : (float) ($rate['cost'] ?? 6.00);
+            $rateKey = $validated['shippingMethod'];
+            if ($rateKey === 'express') {
+                $shippingCost = $isFreeShippingCoupon ? 0.0 : $expressFee;
+                $deliveryMethodLabel = 'Express Courier';
+            } else {
+                $shippingCost = ($isFreeShippingCoupon || ($freeThreshold > 0 && $subtotal >= $freeThreshold))
+                    ? 0.0
+                    : $standardFee;
+                $deliveryMethodLabel = 'Standard Delivery';
+            }
 
             $total = max(0, round($subtotal - $discountAmount + $shippingCost, 2));
             $totalCost = round($sumLineCosts, 2);
@@ -227,11 +307,16 @@ class CheckoutController extends Controller
                 $orderNumber = 'EVB-' . $nextSeq;
             }
 
-            $paymentLabel = $validated['paymentMethod'] === 'digital_wallet_demo'
-                ? 'Apple Pay / Digital Wallet'
-                : 'Credit / Debit Card';
+            $paymentLabel = match ($validated['paymentMethod']) {
+                'cod_demo' => 'Cash on Delivery (Demo)',
+                'bkash_demo' => 'bKash (Demo)',
+                'nagad_demo' => 'Nagad (Demo)',
+                default => 'Card (Demo)',
+            };
 
-            $customerEmail = Auth::guard('web')->user()?->email ?? '';
+            $customerEmail = !empty($validated['email'])
+                ? $validated['email']
+                : (Auth::guard('web')->user()?->email ?? '');
 
             $order = Order::create([
                 'order_number' => $orderNumber,
@@ -250,7 +335,7 @@ class CheckoutController extends Controller
                 'total_cost' => $totalCost,
                 'total_profit' => $totalProfit,
                 'items_count' => $itemsCount,
-                'delivery_method' => $rate['name'] ?? 'Standard Ground Botanical Shipping',
+                'delivery_method' => $deliveryMethodLabel,
                 'payment_method' => $paymentLabel,
                 'payment_status' => 'Paid',
                 'tracking_number' => 'Pending assignment',
@@ -265,7 +350,7 @@ class CheckoutController extends Controller
                     'thana_name' => $thana->name,
                     'area_name' => $area->name,
                     'address_line1' => $validated['address'],
-                    'address_line2' => '',
+                    'address_line2' => $validated['addressLine2'] ?? '',
                     'city' => $thana->name,
                     'state' => $district->name,
                     'postal_code' => $area->postal_code ?? '',

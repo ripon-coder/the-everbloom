@@ -6,9 +6,8 @@
 ])
 
 @php
-    $currency = config('demo.site.currency.symbol', '$');
-    $formattedPrice = $currency . number_format((float)$price, 2);
-    $formattedCompare = $compareAtPrice ? $currency . number_format((float)$compareAtPrice, 2) : null;
+    $formattedPrice = \App\Support\Currency::format($price);
+    $formattedCompare = $compareAtPrice ? \App\Support\Currency::format($compareAtPrice) : null;
     $hasDiscount = !empty($compareAtPrice) && $compareAtPrice > $price;
 
     $sizeClasses = match($size) {
@@ -18,7 +17,7 @@
     };
 @endphp
 
-<div {{ $attributes->merge(['class' => "price inline-flex items-baseline gap-2 font-sans font-medium text-ink {$sizeClasses} {$class}"]) }}>
+<div {{ $attributes->merge(['class' => "price lining-nums inline-flex items-baseline gap-2 font-sans font-medium text-ink {$sizeClasses} {$class}"]) }}>
     <span class="price tracking-tight text-ink font-medium">
         {{ $formattedPrice }}
     </span>
