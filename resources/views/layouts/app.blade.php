@@ -56,7 +56,7 @@
         $showBottomNav = !View::hasSection('hide_bottom_nav') && !request()->is('checkout*');
     @endphp
 </head>
-<body class="min-h-full flex flex-col bg-ivory text-ink selection:bg-sage selection:text-ink {{ $showBottomNav ? 'pb-[calc(56px+env(safe-area-inset-bottom))] lg:pb-0' : '' }}">
+<body class="min-h-full flex flex-col bg-ivory text-ink selection:bg-sage selection:text-ink {{ $showBottomNav ? 'max-lg:pb-[calc(56px+env(safe-area-inset-bottom))] lg:pb-0' : '' }}">
     <!-- Accessible Skip to Content -->
     <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-forest focus:text-ivory text-xs uppercase tracking-widest font-medium">
         Skip to main content
