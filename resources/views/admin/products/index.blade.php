@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Product List')
 @section('container_class', 'container-fluid')
@@ -12,9 +12,9 @@
                 <h4 class="card-title mb-0">All Botanical Formulations ({{ $products->total() }})</h4>
 
                 <div class="d-flex flex-wrap align-items-center gap-2">
-                    <!-- Category Filter -->
-                    <form method="GET" action="{{ route('admin.products.index') }}" class="d-flex align-items-center gap-2">
-                        <select name="category" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 160px;">
+                    <!-- Category, Status, Sort & Search Filter -->
+                    <form method="GET" action="{{ route('admin.products.index') }}" class="d-flex flex-wrap align-items-center gap-2">
+                        <select name="category" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 150px;">
                             <option value="">All Categories</option>
                             @foreach($categories as $cat)
                                 <option value="{{ $cat['slug'] }}" {{ request('category') === $cat['slug'] ? 'selected' : '' }}>
@@ -23,15 +23,28 @@
                             @endforeach
                         </select>
 
+                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 120px;">
+                            <option value="">All Status</option>
+                            <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+                            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                        </select>
+
+                        <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 130px;">
+                            <option value="latest" {{ request('sort', 'latest') === 'latest' ? 'selected' : '' }}>Latest</option>
+                            <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Price: Low → High</option>
+                            <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Price: High → Low</option>
+                            <option value="stock_asc" {{ request('sort') === 'stock_asc' ? 'selected' : '' }}>Stock: Low → High</option>
+                        </select>
+
                         <!-- Search -->
-                        <div class="input-group input-group-sm" style="max-width: 220px;">
+                        <div class="input-group input-group-sm" style="max-width: 210px;">
                             <input type="text" name="search" class="form-control" placeholder="Search formulations..." value="{{ request('search') }}">
                             <button class="btn btn-outline-secondary" type="submit">
                                 <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
                             </button>
                         </div>
 
-                        @if(request()->hasAny(['category', 'search']))
+                        @if(request()->hasAny(['category', 'status', 'sort', 'search']))
                             <a href="{{ route('admin.products.index') }}" class="btn btn-sm btn-soft-danger" title="Clear Filters">
                                 <i class="bx bx-x"></i>
                             </a>
@@ -70,7 +83,7 @@
                             <tr>
                                 <td>
                                     <div class="form-check ms-1">
-                                        <input type="checkbox" class="form-check-input">
+                                        <input type="checkbox" class="form-check-input product-bulk-checkbox" name="product_ids[]" form="bulk-products-form" value="{{ $product['id'] }}">
                                     </div>
                                 </td>
                                 <td>
@@ -168,7 +181,19 @@
             <!-- Card Footer -->
             <div class="card-footer py-2 bg-light bg-opacity-50">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                    <p class="mb-0 text-muted fs-12">Showing {{ $products->firstItem() ?? 0 }} to {{ $products->lastItem() ?? 0 }} of {{ $products->total() }} formulations</p>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <form id="bulk-products-form" action="{{ route('admin.products.bulk') }}" method="POST" class="d-flex align-items-center gap-2">
+                            @csrf
+                            <select name="action" class="form-select form-select-sm" style="width: 150px;" required>
+                                <option value="">Bulk Actions...</option>
+                                <option value="activate">Activate Selected</option>
+                                <option value="deactivate">Deactivate Selected</option>
+                                <option value="delete">Delete Selected</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Apply</button>
+                        </form>
+                        <p class="mb-0 text-muted fs-12">Showing {{ $products->firstItem() ?? 0 }} to {{ $products->lastItem() ?? 0 }} of {{ $products->total() }} formulations</p>
+                    </div>
                     <div>
                         {{ $products->links('pagination::bootstrap-5') }}
                     </div>
@@ -177,4 +202,11 @@
         </div>
     </div>
 </div>
+<script>
+    document.getElementById('checkAll')?.addEventListener('change', function () {
+        document.querySelectorAll('.product-bulk-checkbox').forEach(cb => {
+            cb.checked = this.checked;
+        });
+    });
+</script>
 @endsection

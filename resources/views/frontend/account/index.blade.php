@@ -210,12 +210,15 @@
 
     <!-- Mobile Sign Out Button (below lg, full-width) -->
     <div class="lg:hidden pt-6 border-t border-[#ECEEE6]">
-        <a 
-            href="{{ route('login') }}" 
-            class="btn-secondary w-full text-center"
-        >
-            Sign Out of Account
-        </a>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button
+                type="submit"
+                class="btn-secondary w-full text-center cursor-pointer"
+            >
+                Sign Out of Account
+            </button>
+        </form>
     </div>
 </div>
 @endsection

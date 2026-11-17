@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', config('demo.site.name') . ' — ' . config('demo.site.tagline'))</title>
     <meta name="description" content="@yield('meta_description', 'Discover The Everbloom: conscious, botanical skincare thoughtfully formulated for your daily ritual.')">
     <meta name="robots" content="@yield('meta_robots', 'index, follow')">

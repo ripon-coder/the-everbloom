@@ -22,6 +22,8 @@ class Category extends Model
         'image_source',
         'sort_order',
         'is_active',
+        'meta_title',
+        'meta_description',
     ];
 
     protected $appends = ['item_count'];

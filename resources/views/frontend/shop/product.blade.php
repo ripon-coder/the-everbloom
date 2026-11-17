@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', ($product['name'] ?? 'Product') . ' | The Everbloom')
-@section('meta_description', $product['short_description'] ?? 'Botanical skincare formulation from The Everbloom.')
+@section('title', !empty($product['meta_title']) ? $product['meta_title'] : (($product['name'] ?? 'Product') . ' | The Everbloom'))
+@section('meta_description', !empty($product['meta_description']) ? $product['meta_description'] : ($product['short_description'] ?? 'Botanical skincare formulation from The Everbloom.'))
 
 @php
     $productCategory = $product['category'] ?? 'Skincare';

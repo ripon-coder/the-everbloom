@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Services\ImageStorageService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class OrderItem extends Model
 {
@@ -19,6 +20,7 @@ class OrderItem extends Model
         'image_source',
         'qty',
         'price',
+        'original_price',
         'unit_buy_price',
         'line_total',
         'line_cost_total',
@@ -31,6 +33,7 @@ class OrderItem extends Model
         return [
             'qty' => 'integer',
             'price' => 'float',
+            'original_price' => 'float',
             'unit_buy_price' => 'float',
             'line_total' => 'float',
             'line_cost_total' => 'float',
@@ -47,6 +50,16 @@ class OrderItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function productVariant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+
+    public function batches(): HasMany
+    {
+        return $this->hasMany(OrderItemBatch::class);
     }
 
     public function resolvedImage(): string

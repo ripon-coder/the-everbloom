@@ -22,7 +22,7 @@ Nothing below can be determined from the code. Do not implement dependent featur
 | D-16 | Courier integrations (Steadfast, Pathao appear only as demo strings) | API costs, tracking | Shipping, order timeline | Manual tracking number only / API integration per courier | UNRESOLVED |
 | D-17 | Purchase-based "verified buyer" rule & review moderation (auto-approve verified?) | Trust, spam | Reviews | Manual approve all / auto-approve verified purchasers | UNRESOLVED<br>> Related: reviews.status DB default is Approved — must change to Pending when D-17 is resolved (see DATABASE_SCHEMA §1.4). |
 | D-18 | Deleting products/categories/customers: soft delete vs hard; data retention for deleted accounts (privacy policy text) | Referential integrity, GDPR-like requests | Admin delete actions | Soft delete + anonymise | UNRESOLVED |
-| D-19 | Brands: separate entity (recommended) vs free-text `products.brand`; brand pages needed? | Schema, SEO | Phase 5 | Entity + page / keep string | UNRESOLVED |
+| D-19 | Brands: separate entity (recommended) vs free-text `products.brand`; brand pages needed? | Schema, SEO | Phase 5 | Entity + page / keep string | **RESOLVED (2026-11-17, Owner)**: Separate `brands` table + `products.brand_id` FK + dedicated `/brand/{slug}` pages. |
 | D-20 | Loyalty points ("580 pts" appears in admin customer page) — real feature? | Schema | Customer module | Remove / implement | UNRESOLVED |
 | D-21 | Wholesale/COGS visibility: should profit be visible to all admin roles? | Data exposure | RBAC | Super admin & manager only | UNRESOLVED |
 | D-22 | Coupon types required beyond percentage/fixed/free shipping (BOGO, first-order only, customer-group) | Coupon schema | Phase 13 | per business | UNRESOLVED |

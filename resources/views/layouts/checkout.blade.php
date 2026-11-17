@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Checkout — ' . config('demo.site.name'))</title>
     <meta name="description" content="Secure botanical skincare checkout at The Everbloom.">
     <meta name="robots" content="noindex, nofollow">
@@ -17,8 +18,8 @@
 
     <!-- Preload products catalog, discounts & currency payload for Alpine Cart Store -->
     <script>
-        window.__everbloomProducts = {!! json_encode(config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
-        window.__everbloomDiscounts = {!! json_encode(config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
+        window.__everbloomProducts = {!! json_encode($storefrontProductsJson ?? config('demo.products', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
+        window.__everbloomDiscounts = {!! json_encode($storefrontDiscountsJson ?? config('demo.site.demo_discounts', []), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
         window.__everbloomCurrency = {!! json_encode(config('demo.site.currency', ['code' => 'BDT', 'symbol' => '৳', 'decimals' => 0, 'position' => 'before']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!};
     </script>
 

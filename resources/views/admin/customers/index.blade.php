@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between">
-                    <p class="text-muted fw-medium fs-22 mb-0">{{ $allClientsCount ?? count($customers) }}</p>
+                    <p class="text-muted fw-medium fs-22 mb-0">{{ $allClientsCount ?? $customers->total() }}</p>
                     <div>
                         <span class="badge text-success bg-success-subtle fs-12"><i class="bx bx-up-arrow-alt"></i> Live</span>
                     </div>
@@ -99,8 +99,35 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0">Registered Botanical Skincare Clients ({{ count($customers) }})</h4>
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h4 class="card-title mb-0">Registered Botanical Skincare Clients ({{ $customers->total() }})</h4>
+
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <form method="GET" action="{{ route('admin.customers.index') }}" class="d-flex flex-wrap align-items-center gap-2">
+                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 120px;">
+                            <option value="">All Status</option>
+                            <option value="Active" {{ request('status') === 'Active' ? 'selected' : '' }}>Active</option>
+                            <option value="Inactive" {{ request('status') === 'Inactive' ? 'selected' : '' }}>Inactive</option>
+                        </select>
+
+                        <div class="input-group input-group-sm" style="max-width: 220px;">
+                            <input type="text" name="search" class="form-control" placeholder="Name, email or phone..." value="{{ request('search') }}">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
+                            </button>
+                        </div>
+
+                        @if(request()->hasAny(['search', 'status']))
+                            <a href="{{ route('admin.customers.index') }}" class="btn btn-sm btn-soft-danger" title="Clear Filters">
+                                <i class="bx bx-x"></i>
+                            </a>
+                        @endif
+                    </form>
+
+                    <a href="{{ route('admin.customers.export', request()->query()) }}" class="btn btn-sm btn-soft-secondary">
+                        <iconify-icon icon="solar:download-minimalistic-linear" class="me-1"></iconify-icon> Export CSV
+                    </a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -163,9 +190,17 @@
                                     </span>
                                 </td>
                                 <td class="text-end">
-                                    <a href="{{ route('admin.customers.show', $c['id']) }}" class="btn btn-sm btn-soft-primary" title="View Profile">
-                                        <iconify-icon icon="solar:eye-broken" class="fs-16"></iconify-icon>
-                                    </a>
+                                    <div class="d-flex align-items-center justify-content-end gap-1">
+                                        <a href="{{ route('admin.customers.show', $c['id']) }}" class="btn btn-sm btn-soft-primary" title="View Profile">
+                                            <iconify-icon icon="solar:eye-broken" class="fs-16"></iconify-icon>
+                                        </a>
+                                        <form action="{{ route('admin.customers.toggleStatus', $c['id']) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm {{ $c['status'] === 'Active' ? 'btn-soft-warning' : 'btn-soft-success' }}" title="{{ $c['status'] === 'Active' ? 'Deactivate Customer' : 'Activate Customer' }}">
+                                                <iconify-icon icon="{{ $c['status'] === 'Active' ? 'solar:user-block-broken' : 'solar:user-check-broken' }}" class="fs-16"></iconify-icon>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             @empty
@@ -178,7 +213,10 @@
                 </div>
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50">
-                <p class="mb-0 text-muted fs-12">Displaying {{ count($customers) }} of {{ $allClientsCount ?? count($customers) }} registered Everbloom clients</p>
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <p class="mb-0 text-muted fs-12">Showing {{ $customers->firstItem() ?? 0 }} to {{ $customers->lastItem() ?? 0 }} of {{ $customers->total() }} clients</p>
+                    <div>{{ $customers->links('pagination::bootstrap-5') }}</div>
+                </div>
             </div>
         </div>
     </div>

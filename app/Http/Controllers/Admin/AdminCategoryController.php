@@ -84,7 +84,11 @@ class AdminCategoryController extends Controller
             'slug' => ['nullable', 'string', 'max:120', 'unique:categories,slug'],
             'tagline' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'max:5120'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:max_width=6000,max_height=6000'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'is_active' => ['nullable', 'boolean'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string', 'max:1000'],
             'attribute_ids' => ['nullable', 'array'],
             'attribute_ids.*' => ['integer', 'exists:attributes,id'],
         ]);
@@ -124,12 +128,15 @@ class AdminCategoryController extends Controller
             'description' => $validated['description'] ?? null,
             'image' => $imagePath,
             'image_source' => $imageSource,
-            'sort_order' => (Category::max('sort_order') ?? 0) + 1,
-            'is_active' => true,
+            'sort_order' => $validated['sort_order'] ?? ((Category::max('sort_order') ?? 0) + 1),
+            'is_active' => $request->has('is_active') ? $request->boolean('is_active') : true,
+            'meta_title' => $validated['meta_title'] ?? null,
+            'meta_description' => $validated['meta_description'] ?? null,
         ]);
 
         $category->assignedAttributes()->sync($request->input('attribute_ids', []));
         Cache::forget('storefront_catalog_json');
+        Cache::forget('storefront_categories_nav');
 
         return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
     }
@@ -147,7 +154,11 @@ class AdminCategoryController extends Controller
             'slug' => ['nullable', 'string', 'max:120', 'unique:categories,slug,' . $category->id],
             'tagline' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'max:5120'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:max_width=6000,max_height=6000'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'is_active' => ['nullable', 'boolean'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string', 'max:1000'],
             'attribute_ids' => ['nullable', 'array'],
             'attribute_ids.*' => ['integer', 'exists:attributes,id'],
         ]);
@@ -202,6 +213,10 @@ class AdminCategoryController extends Controller
             'description' => $validated['description'] ?? null,
             'image' => $imagePath,
             'image_source' => $imageSource,
+            'sort_order' => array_key_exists('sort_order', $validated) && $validated['sort_order'] !== null ? (int) $validated['sort_order'] : $category->sort_order,
+            'is_active' => $request->has('is_active') ? $request->boolean('is_active') : $category->is_active,
+            'meta_title' => array_key_exists('meta_title', $validated) ? $validated['meta_title'] : $category->meta_title,
+            'meta_description' => array_key_exists('meta_description', $validated) ? $validated['meta_description'] : $category->meta_description,
         ]);
 
         foreach ($children as $child) {
@@ -213,6 +228,7 @@ class AdminCategoryController extends Controller
 
         $category->assignedAttributes()->sync($request->input('attribute_ids', []));
         Cache::forget('storefront_catalog_json');
+        Cache::forget('storefront_categories_nav');
 
         return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
     }
@@ -223,9 +239,22 @@ class AdminCategoryController extends Controller
             ->orWhere('id', is_numeric($slug) ? (int) $slug : 0)
             ->firstOrFail();
 
+        if ($category->products()->exists()) {
+            return redirect()->back()->withErrors([
+                'category' => 'Cannot delete this category because it still has assigned products.',
+            ]);
+        }
+
+        if ($category->children()->exists()) {
+            return redirect()->back()->withErrors([
+                'category' => 'Cannot delete this category because it still has child categories.',
+            ]);
+        }
+
         $imageStorage->delete($category->image, $category->image_source);
         $category->delete();
         Cache::forget('storefront_catalog_json');
+        Cache::forget('storefront_categories_nav');
 
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
     }

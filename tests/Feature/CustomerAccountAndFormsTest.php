@@ -30,6 +30,7 @@ class CustomerAccountAndFormsTest extends TestCase
         $createRes = $this->actingAs($user, 'web')->postJson('/account/addresses', [
             'first_name' => 'Eleanor',
             'last_name' => 'Vance',
+            'phone' => '+8801711000001',
             'district_id' => $dhaka->id,
             'thana_id' => $gulshan->id,
             'area_id' => $gulshan2->id,
@@ -44,6 +45,7 @@ class CustomerAccountAndFormsTest extends TestCase
         $this->actingAs($user, 'web')->putJson("/account/addresses/{$addressId}", [
             'first_name' => 'Eleanor',
             'last_name' => 'Vance',
+            'phone' => '+8801711000001',
             'district_id' => $dhaka->id,
             'thana_id' => $gulshan->id,
             'area_id' => $gulshan2->id,

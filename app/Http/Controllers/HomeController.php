@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Review;
@@ -127,16 +128,28 @@ class HomeController extends Controller
             })
             ->all();
 
-        $brandsSetting = Setting::where('group', 'storefront')
-            ->where('key', 'brands')
-            ->first()?->value;
+        $dbBrands = Brand::active()
+            ->withCount(['products as active_products_count' => fn ($q) => $q->where('is_active', true)])
+            ->take(6)
+            ->get();
 
-        if (is_array($brandsSetting) && !empty($brandsSetting)) {
-            $brands = collect($brandsSetting)
-                ->filter(fn ($b) => is_array($b) && !empty($b['name']))
-                ->take(6)
-                ->values()
-                ->all();
+        if ($dbBrands->isNotEmpty()) {
+            $brands = $dbBrands->map(function (Brand $brand) {
+                $logo = $brand->resolvedLogo();
+                if ($logo === '') {
+                    $firstProd = $brand->products()->where('is_active', true)->first();
+                    $images = $firstProd ? $firstProd->resolvedImages() : [];
+                    $logo = $images[0] ?? 'products/placeholder.jpg';
+                }
+
+                return [
+                    'name' => $brand->name,
+                    'slug' => $brand->slug,
+                    'image' => $logo,
+                    'count' => (int) $brand->active_products_count,
+                    'url' => route('shop.brand', $brand->slug),
+                ];
+            })->values()->all();
         } else {
             $brands = Product::where('is_active', true)
                 ->whereNotNull('brand')

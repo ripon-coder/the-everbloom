@@ -80,6 +80,13 @@
     <!-- Cart Items Table / Summary Grid -->
     <template x-if="$store.cart.items.length > 0">
         <div class="space-y-12">
+            <template x-if="$store.cart.stockErrors.length > 0">
+                <div class="p-4 bg-[#FDF4F3] border border-[#B3453A] text-[#B3453A] text-xs space-y-1" role="alert">
+                    <template x-for="err in $store.cart.stockErrors" :key="err">
+                        <p x-text="err"></p>
+                    </template>
+                </div>
+            </template>
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
                 
                 <!-- Items List (8 Columns) -->

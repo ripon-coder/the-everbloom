@@ -29,7 +29,7 @@ return new class extends Migration
             $table->integer('total_qty')->default(0);
             $table->decimal('total_cost', 12, 2)->default(0);
             $table->text('notes')->nullable();
-            $table->unsignedBigInteger('created_by')->nullable();
+            $table->foreignId('created_by')->nullable()->constrained('admins')->nullOnDelete();
             $table->timestamps();
         });
 
@@ -45,49 +45,13 @@ return new class extends Migration
             $table->decimal('unit_buy_price', 10, 2);
             $table->decimal('line_total_cost', 12, 2);
             $table->timestamps();
-        });
 
-        Schema::table('products', function (Blueprint $table) {
-            $table->decimal('avg_buy_price', 10, 2)->default(0)->after('compare_at_price');
-            $table->decimal('last_buy_price', 10, 2)->default(0)->after('avg_buy_price');
-        });
-
-        Schema::table('product_variants', function (Blueprint $table) {
-            $table->decimal('avg_buy_price', 10, 2)->default(0)->after('compare_at_price');
-            $table->decimal('last_buy_price', 10, 2)->default(0)->after('avg_buy_price');
-        });
-
-        Schema::table('order_items', function (Blueprint $table) {
-            $table->decimal('unit_buy_price', 10, 2)->default(0)->after('price');
-            $table->decimal('line_cost_total', 10, 2)->default(0)->after('line_total');
-            $table->decimal('unit_profit', 10, 2)->default(0)->after('line_cost_total');
-            $table->decimal('line_profit', 10, 2)->default(0)->after('unit_profit');
-        });
-
-        Schema::table('orders', function (Blueprint $table) {
-            $table->decimal('total_cost', 10, 2)->default(0)->after('total');
-            $table->decimal('total_profit', 10, 2)->default(0)->after('total_cost');
+            $table->index(['product_id', 'remaining_qty'], 'purchase_batch_items_product_rem_idx');
         });
     }
 
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn(['total_cost', 'total_profit']);
-        });
-
-        Schema::table('order_items', function (Blueprint $table) {
-            $table->dropColumn(['unit_buy_price', 'line_cost_total', 'unit_profit', 'line_profit']);
-        });
-
-        Schema::table('product_variants', function (Blueprint $table) {
-            $table->dropColumn(['avg_buy_price', 'last_buy_price']);
-        });
-
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn(['avg_buy_price', 'last_buy_price']);
-        });
-
         Schema::dropIfExists('purchase_batch_items');
         Schema::dropIfExists('purchase_batches');
         Schema::dropIfExists('vendors');

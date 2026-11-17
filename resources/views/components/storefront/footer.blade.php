@@ -1,5 +1,11 @@
 @php
     $footerNav = config('demo.navigation.footer', []);
+    if (! empty($dbNavCategories)) {
+        $footerNav['shop'] = array_merge(
+            [['label' => 'All Formulations', 'url' => '/shop']],
+            $dbNavCategories
+        );
+    }
     $site = config('demo.site');
 @endphp
 

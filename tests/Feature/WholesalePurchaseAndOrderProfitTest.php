@@ -61,6 +61,7 @@ class WholesalePurchaseAndOrderProfitTest extends TestCase
 
         $checkoutRes = $this->actingAs($user, 'web')->postJson('/checkout', [
             'email' => $user->email,
+            'phone' => '+8801711000001',
             'firstName' => 'Eleanor',
             'lastName' => 'Vance',
             'district_id' => $dhaka->id,
@@ -96,12 +97,12 @@ class WholesalePurchaseAndOrderProfitTest extends TestCase
         $this->actingAs($admin, 'admin')->get('/admin/orders')
             ->assertOk()
             ->assertSee($order->order_number)
-            ->assertSee('+$66.00');
+            ->assertSee('+' . format_price(66.00));
 
         $this->actingAs($admin, 'admin')->get("/admin/orders/{$order->order_number}")
             ->assertOk()
             ->assertSee('31.00')
-            ->assertSee('+$66.00');
+            ->assertSee('+' . format_price(66.00));
     }
 }
 

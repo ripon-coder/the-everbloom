@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Review;
@@ -35,7 +36,16 @@ class ShopController extends Controller
         }
 
         if ($request->filled('brand')) {
-            $query->where('brand', (string) $request->query('brand'));
+            $brandParam = (string) $request->query('brand');
+            $brandModel = Brand::where('slug', $brandParam)->first();
+            if ($brandModel) {
+                $query->where(function ($q) use ($brandModel) {
+                    $q->where('brand_id', $brandModel->id)
+                        ->orWhere('brand', $brandModel->name);
+                });
+            } else {
+                $query->where('brand', $brandParam);
+            }
         }
 
         if ($request->boolean('in_stock')) {
@@ -78,9 +88,12 @@ class ShopController extends Controller
             ->get()
             ->toArray();
 
+        $totalActiveProductsCount = Product::where('is_active', true)->count();
+
         return view('frontend.shop.index', [
             'products' => $products,
             'categories' => $categories,
+            'totalActiveProductsCount' => $totalActiveProductsCount,
         ]);
     }
 
@@ -109,8 +122,58 @@ class ShopController extends Controller
             ->values()
             ->all();
 
+        $categories = Category::where('is_active', true)
+            ->withCount(['products as item_count' => fn ($q) => $q->where('is_active', true)])
+            ->orderBy('sort_order')
+            ->get()
+            ->toArray();
+
+        $totalActiveProductsCount = Product::where('is_active', true)->count();
+
+        $categoryArr = $category->toArray();
+        $categoryArr['resolved_image'] = $category->resolvedImage();
+
         return view('frontend.shop.category', [
-            'category' => $category->toArray(),
+            'category' => $categoryArr,
+            'products' => $products,
+            'categories' => $categories,
+            'totalActiveProductsCount' => $totalActiveProductsCount,
+        ]);
+    }
+
+    public function brand(string $slug, Request $request): View
+    {
+        $brand = Brand::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $query = Product::with(['categoryRelation', 'brandRelation', 'productVariants'])
+            ->where('is_active', true)
+            ->where(function ($q) use ($brand) {
+                $q->where('brand_id', $brand->id)
+                    ->orWhere('brand', $brand->name);
+            });
+
+        $sort = (string) $request->query('sort', 'featured');
+        match ($sort) {
+            'price-asc' => $query->orderBy('price', 'asc'),
+            'price-desc' => $query->orderBy('price', 'desc'),
+            'rating' => $query->orderByDesc('rating'),
+            'newest' => $query->latest(),
+            'best_selling' => $query->orderByDesc('best_seller')->orderByDesc('review_count'),
+            default => $query->orderByDesc('is_featured')->orderBy('id'),
+        };
+
+        $products = $query->get()
+            ->map(fn (Product $p) => $p->toStorefrontArray())
+            ->values()
+            ->all();
+
+        $brandArr = $brand->toArray();
+        $brandArr['resolved_logo'] = $brand->resolvedLogo();
+
+        return view('frontend.shop.brand', [
+            'brand' => $brandArr,
             'products' => $products,
         ]);
     }

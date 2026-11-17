@@ -13,8 +13,9 @@ app/
 config/demo/*.php              demo content used as fallback & seed source
 routes/web.php, routes/admin.php (loaded in bootstrap/app.php with `web` middleware)
 ```
-> `IsolateAdminSession` overrides session config per request — review whether this is the correct approach vs. a dedicated admin cookie/domain before launch.
-Absent: Form Requests, Policies/Gates, Events/Listeners, Jobs (queue tables exist), Notifications, Mailables, custom exceptions, scheduler entries (`routes/console.php` only has `inspire`), API routes, observers.
+> `IsolateAdminSession` isolates admin and storefront sessions by switching `session.cookie` (`everbloom_admin_session` vs `everbloom_user_session`) and `session.path` (`/admin` vs `/`) per request. This keeps both guards isolated on a single domain without requiring a separate admin subdomain; production `.env` must still enable `SESSION_SECURE_COOKIE=true` and `SESSION_ENCRYPT=true`.
+Absent: Form Requests, Policies/Gates (pending D-14), Jobs (queue tables exist), custom exceptions, scheduler entries (`routes/console.php` only has `inspire`), API routes, observers.
+Added in Phase 2: `EnsureAccountIsActive`, `LogAdminActivity`, `RateLimiter::for('login'|'password-reset')`, `Password::defaults()`, `AdminActivityLog`.
 
 The project is a **conventional Laravel monolith with controllers containing business logic**; "modular monolith" is a goal not yet reflected in folders.
 

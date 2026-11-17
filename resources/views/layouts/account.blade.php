@@ -139,14 +139,17 @@
                     </a>
                 </div>
 
-                <!-- Sign out link (below left rail, 1px divider above) -->
+                <!-- Sign out form (below left rail, 1px divider above) -->
                 <div class="pt-6 mt-6 border-t border-[#ECEEE6]">
-                    <a 
-                        href="{{ route('login') }}" 
-                        class="min-h-[44px] flex items-center pl-4 py-2 text-sm text-forest hover:text-ink transition-colors font-medium no-underline hover:underline underline-offset-4"
-                    >
-                        Sign Out
-                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="min-h-[44px] w-full text-left flex items-center pl-4 py-2 text-sm text-forest hover:text-ink transition-colors font-medium no-underline hover:underline underline-offset-4 cursor-pointer"
+                        >
+                            Sign Out
+                        </button>
+                    </form>
                 </div>
             </nav>
         </aside>

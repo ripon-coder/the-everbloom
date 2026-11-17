@@ -27,14 +27,8 @@ return new class extends Migration
             $table->integer('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-        });
 
-        Schema::table('product_variants', function (Blueprint $table) {
-            $table->string('title', 180)->nullable()->after('size');
-            $table->json('attributes_json')->nullable()->after('title');
-            $table->string('image')->nullable()->after('stock_status');
-            $table->string('image_source', 40)->default('local')->after('image');
-            $table->boolean('is_active')->default(true)->after('sort_order');
+            $table->unique(['attribute_id', 'slug'], 'attribute_values_attr_slug_unique');
         });
 
         Schema::create('product_variant_values', function (Blueprint $table) {
@@ -44,16 +38,21 @@ return new class extends Migration
             $table->foreignId('attribute_value_id')->constrained('attribute_values')->cascadeOnDelete();
             $table->timestamps();
         });
+
+        Schema::create('category_attribute', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
+            $table->foreignId('attribute_id')->constrained('attributes')->cascadeOnDelete();
+            $table->timestamps();
+
+            $table->unique(['category_id', 'attribute_id']);
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('category_attribute');
         Schema::dropIfExists('product_variant_values');
-
-        Schema::table('product_variants', function (Blueprint $table) {
-            $table->dropColumn(['title', 'attributes_json', 'image', 'image_source', 'is_active']);
-        });
-
         Schema::dropIfExists('attribute_values');
         Schema::dropIfExists('attributes');
     }

@@ -104,6 +104,13 @@
 
         <!-- Drawer Body: Cart Items List -->
         <div class="flex-1 overflow-y-auto p-5 sm:p-6 divide-y divide-[#ECEEE6]">
+            <template x-if="$store.cart.stockErrors.length > 0">
+                <div class="mb-4 p-3 bg-[#FDF4F3] border border-[#B3453A] text-[#B3453A] text-xs space-y-1" role="alert">
+                    <template x-for="err in $store.cart.stockErrors" :key="err">
+                        <p x-text="err"></p>
+                    </template>
+                </div>
+            </template>
             <!-- Empty State -->
             <template x-if="$store.cart.items.length === 0">
                 <div class="h-full flex flex-col items-center justify-center text-center py-12">

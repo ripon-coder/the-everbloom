@@ -9,7 +9,7 @@ Each workflow states what **exists** (`[VERIFIED EXISTING]`, with file) and what
 4. Storefront shows only `is_active = true` (`ShopController`, `HomeController`, `SearchController`).
 5. Customer views product → picks variant → Add to Bag (Alpine `Alpine.store('cart')`).
 
-`[REQUIRED]` Product status (draft/published) toggle, `is_active` input, `brand`, `subtitle`, `min_threshold`, `best_seller`, skin_types/benefits/key_ingredients inputs, `compare_at_price > price` validation (compare-at is the 'was' price and must exceed the selling price; allow NULL)[^compare-at], variant `price <= 0` guard.
+`[REQUIRED]` ~~Product status (draft/published) toggle, `is_active` input, `brand`, `subtitle`, `min_threshold`, `best_seller`, skin_types/benefits/key_ingredients inputs, `compare_at_price > price` validation (compare-at is the 'was' price and must exceed the selling price; allow NULL)[^compare-at], variant `price <= 0` guard.~~ **IMPLEMENTED (Phase 3)** via `StoreProductRequest`, `UpdateProductRequest`, `AdminProductController`, and `admin/products/create.blade.php`.
 
 [^compare-at]: See IMPLEMENTATION_ROADMAP.md P3-2 (`gt:price`).
 

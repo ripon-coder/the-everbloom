@@ -11,9 +11,19 @@
         'price' => 64.00,
         'compare_at_price' => '',
         'sku' => 'EB-BOT-001',
+        'brand' => '',
+        'subtitle' => '',
         'stock_count' => 50,
+        'min_threshold' => 10,
         'stock_status' => 'in_stock',
         'is_featured' => false,
+        'best_seller' => false,
+        'is_active' => true,
+        'meta_title' => '',
+        'meta_description' => '',
+        'key_ingredients' => [],
+        'benefits' => [],
+        'skin_types' => [],
         'sizes' => ['30ml / 1.0 fl oz', '50ml / 1.7 fl oz'],
         'short_description' => 'Targeted botanical elixir formulated with organic rosehip seed oil and cold-pressed botanical extracts.',
         'description' => 'A concentrated daily serum designed to restore barrier vitality, even tone, and infuse cells with natural antioxidants.',
@@ -105,20 +115,29 @@
                 <div class="card-body">
                     <div class="dropzone border-dashed border-2 rounded p-4 text-center bg-light-subtle" id="productDropzone" style="cursor: pointer;">
                         <div class="fallback">
-                            <input name="file" type="file" multiple />
+                            <input name="images[]" type="file" multiple accept="image/*" />
                         </div>
                         <div class="dz-message needsclick my-3">
                             <i class="bx bx-cloud-upload fs-48 text-primary"></i>
                             <h4 class="mt-2 mb-1">Drop botanical images here or click to upload</h4>
-                            <p class="text-muted fs-13 mb-0">Recommended size: 1000×1000px high-resolution JPG or WebP with neutral studio backdrop.</p>
+                            <p class="text-muted fs-13 mb-0">Recommended size: 1000×1000px high-resolution JPG, PNG, or WebP (max 5MB).</p>
                         </div>
                     </div>
 
                     <!-- Existing Image Thumbs -->
-                    <div class="d-flex gap-2 mt-3">
-                        @foreach($product['images'] ?? [] as $img)
-                            <div class="position-relative rounded border p-1" style="width: 70px; height: 70px;">
-                                <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($img) }}" class="w-100 h-100 object-fit-cover rounded" alt="">
+                    @php
+                        $rawGallery = $product['raw_images'] ?? ($product['images'] ?? []);
+                    @endphp
+                    <div class="d-flex flex-wrap gap-3 mt-3">
+                        @foreach($rawGallery as $gIdx => $img)
+                            <div class="position-relative rounded border p-1 text-center" style="width: 82px;">
+                                <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($img, $product['image_source'] ?? 'local') }}" class="w-100 rounded object-fit-cover" style="height: 62px;" alt="">
+                                @if($isEdit)
+                                    <div class="form-check mt-1 mb-0 d-flex justify-content-center gap-1">
+                                        <input class="form-check-input" type="checkbox" name="remove_images[]" value="{{ $img }}" id="remove_img_{{ $gIdx }}">
+                                        <label class="form-check-label fs-11 text-danger" for="remove_img_{{ $gIdx }}">Remove</label>
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -156,25 +175,44 @@
                             <input type="text" id="product-slug" name="slug" class="form-control" placeholder="e.g. botanical-radiance-serum" value="{{ old('slug', $product['slug']) }}">
                         </div>
 
+                        <!-- Brand -->
+                        <div class="col-lg-4">
+                            <label class="form-label" for="product-brand-id">Brand</label>
+                            <select id="product-brand-id" name="brand_id" class="form-select">
+                                <option value="">— Select Brand —</option>
+                                @foreach($brands ?? [] as $b)
+                                    <option value="{{ $b->id }}" {{ (string) old('brand_id', $product['brand_id'] ?? '') === (string) $b->id ? 'selected' : '' }}>
+                                        {{ $b->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Subtitle -->
+                        <div class="col-lg-4">
+                            <label class="form-label" for="product-subtitle">Subtitle</label>
+                            <input type="text" id="product-subtitle" name="subtitle" class="form-control" placeholder="e.g. Vitamin C + Rosehip Elixir" value="{{ old('subtitle', $product['subtitle'] ?? '') }}">
+                        </div>
+
                         <!-- Badge -->
                         <div class="col-lg-4">
                             <label class="form-label" for="product-badge">Product Badge</label>
-                            <select id="product-badge" name="badge" class="form-select">
-                                <option value="">None</option>
-                                <option value="Bestseller" {{ ($product['badge'] ?? '') === 'Bestseller' ? 'selected' : '' }}>Bestseller</option>
-                                <option value="Signature" {{ ($product['badge'] ?? '') === 'Signature' ? 'selected' : '' }}>Signature</option>
-                                <option value="New" {{ ($product['badge'] ?? '') === 'New' ? 'selected' : '' }}>New</option>
-                                <option value="Award Winner" {{ ($product['badge'] ?? '') === 'Award Winner' ? 'selected' : '' }}>Award Winner</option>
-                            </select>
+                            <input type="text" id="product-badge" name="badge" list="badge-presets" class="form-control" placeholder="e.g. Bestseller, New" value="{{ old('badge', $product['badge'] ?? '') }}">
+                            <datalist id="badge-presets">
+                                <option value="Bestseller">
+                                <option value="Signature">
+                                <option value="New">
+                                <option value="Award Winner">
+                            </datalist>
                         </div>
 
                         <!-- Stock Status -->
                         <div class="col-lg-4">
                             <label class="form-label" for="stock-status">Stock Status</label>
                             <select id="stock-status" name="stock_status" class="form-select">
-                                <option value="in_stock" {{ ($product['stock_status'] ?? '') === 'in_stock' ? 'selected' : '' }}>In Stock</option>
-                                <option value="low_stock" {{ ($product['stock_status'] ?? '') === 'low_stock' ? 'selected' : '' }}>Low Stock</option>
-                                <option value="out_of_stock" {{ ($product['stock_status'] ?? '') === 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                                <option value="in_stock" {{ old('stock_status', $product['stock_status'] ?? '') === 'in_stock' ? 'selected' : '' }}>In Stock</option>
+                                <option value="low_stock" {{ old('stock_status', $product['stock_status'] ?? '') === 'low_stock' ? 'selected' : '' }}>Low Stock</option>
+                                <option value="out_of_stock" {{ old('stock_status', $product['stock_status'] ?? '') === 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
                             </select>
                         </div>
 
@@ -285,12 +323,35 @@
                             document.addEventListener('DOMContentLoaded', filterAttributesByCategory);
                         </script>
 
-                        <!-- Featured Toggle -->
-                        <div class="col-12">
+                        <!-- Status & Visibility Toggles -->
+                        <div class="col-12 d-flex flex-wrap gap-4">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="featuredSwitch" name="is_featured" value="1" {{ !empty($product['is_featured']) ? 'checked' : '' }}>
+                                <input type="hidden" name="is_active" value="0">
+                                <input class="form-check-input" type="checkbox" role="switch" id="activeSwitch" name="is_active" value="1" {{ old('is_active', $product['is_active'] ?? true) ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold" for="activeSwitch">Active (Published on Storefront)</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="featuredSwitch" name="is_featured" value="1" {{ old('is_featured', !empty($product['is_featured'])) ? 'checked' : '' }}>
                                 <label class="form-check-label fw-semibold" for="featuredSwitch">Feature on Storefront Homepage</label>
                             </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="bestSellerSwitch" name="best_seller" value="1" {{ old('best_seller', !empty($product['best_seller'])) ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold" for="bestSellerSwitch">Best Seller</label>
+                            </div>
+                        </div>
+
+                        <!-- Tag Lists -->
+                        <div class="col-lg-4">
+                            <label class="form-label" for="skin-types">Skin Types (comma-separated)</label>
+                            <input type="text" id="skin-types" name="skin_types" class="form-control" placeholder="Dry, Sensitive, All" value="{{ old('skin_types', is_array($product['skin_types'] ?? null) ? implode(', ', $product['skin_types']) : ($product['skin_types'] ?? '')) }}">
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="form-label" for="benefits">Benefits (comma-separated)</label>
+                            <input type="text" id="benefits" name="benefits" class="form-control" placeholder="Hydration, Brightening" value="{{ old('benefits', is_array($product['benefits'] ?? null) ? implode(', ', $product['benefits']) : ($product['benefits'] ?? '')) }}">
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="form-label" for="key-ingredients">Key Ingredients (comma-separated)</label>
+                            <input type="text" id="key-ingredients" name="key_ingredients" class="form-control" placeholder="Rosehip, Squalane" value="{{ old('key_ingredients', is_array($product['key_ingredients'] ?? null) ? implode(', ', $product['key_ingredients']) : ($product['key_ingredients'] ?? '')) }}">
                         </div>
 
                         <!-- Short Description -->
@@ -350,6 +411,33 @@
                         <div class="col-lg-4">
                             <label class="form-label" for="product-sku">Batch SKU</label>
                             <input type="text" id="product-sku" name="sku" class="form-control font-monospace" value="{{ old('sku', $product['sku'] ?? ('EB-' . str_pad($product['id'] ?? 1, 4, '0', STR_PAD_LEFT))) }}">
+                        </div>
+
+                        <!-- Stock Count -->
+                        <div class="col-lg-6">
+                            <label class="form-label" for="product-stock-count">Stock Count (Non-Variant / Base)</label>
+                            <input type="number" min="0" id="product-stock-count" name="stock_count" class="form-control" value="{{ old('stock_count', $product['stock_count'] ?? 25) }}">
+                        </div>
+
+                        <!-- Min Threshold -->
+                        <div class="col-lg-6">
+                            <label class="form-label" for="product-min-threshold">Low Stock Threshold</label>
+                            <input type="number" min="0" id="product-min-threshold" name="min_threshold" class="form-control" value="{{ old('min_threshold', $product['min_threshold'] ?? 10) }}">
+                        </div>
+
+                        <!-- SEO Metadata -->
+                        <div class="col-12 border-top pt-3 mt-2">
+                            <h6 class="fw-semibold mb-2">SEO Metadata</h6>
+                            <div class="row g-3">
+                                <div class="col-lg-6">
+                                    <label class="form-label" for="meta-title">Meta Title</label>
+                                    <input type="text" id="meta-title" name="meta_title" class="form-control" value="{{ old('meta_title', $product['meta_title'] ?? '') }}">
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="form-label" for="meta-description">Meta Description</label>
+                                    <input type="text" id="meta-description" name="meta_description" class="form-control" value="{{ old('meta_description', $product['meta_description'] ?? '') }}">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

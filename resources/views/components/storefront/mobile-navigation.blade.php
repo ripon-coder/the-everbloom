@@ -1,7 +1,12 @@
 @props([
-    'items' => config('demo.navigation.main', []),
-    'categories' => config('demo.navigation.categories', []),
+    'items' => null,
+    'categories' => null,
 ])
+
+@php
+    $items = $items ?? ($dbNavItems ?? config('demo.navigation.main', []));
+    $categories = $categories ?? ($dbNavCategories ?? config('demo.navigation.categories', []));
+@endphp
 
 <!-- Mobile Menu Drawer (Global Mount) -->
 <div 

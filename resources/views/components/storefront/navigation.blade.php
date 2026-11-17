@@ -1,6 +1,10 @@
 @props([
-    'items' => config('demo.navigation.main', []),
+    'items' => null,
 ])
+
+@php
+    $items = $items ?? ($dbNavItems ?? config('demo.navigation.main', []));
+@endphp
 
 <nav class="flex items-center justify-center flex-wrap gap-x-8 gap-y-2" aria-label="Primary Navigation">
     @foreach($items as $item)

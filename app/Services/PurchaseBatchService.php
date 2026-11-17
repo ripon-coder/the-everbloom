@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\PurchaseBatch;
 use App\Models\PurchaseBatchItem;
+use App\Models\StockMovement;
 use App\Models\Vendor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -139,6 +140,18 @@ class PurchaseBatchService
                     }
                 }
 
+                StockMovement::create([
+                    'product_id' => $product->id,
+                    'product_variant_id' => $variant?->id,
+                    'delta' => $purchasedQty,
+                    'reason' => 'purchase_received',
+                    'reference_type' => PurchaseBatch::class,
+                    'reference_id' => $batch->id,
+                    'note' => "Purchase batch {$batch->batch_code}",
+                    'admin_id' => Auth::guard('admin')->id(),
+                    'created_at' => now(),
+                ]);
+
                 $totalQty += $purchasedQty;
                 $totalCost += $lineTotalCost;
             }
@@ -156,12 +169,15 @@ class PurchaseBatchService
 
     /**
      * Deduct sold quantity from available purchase batch items in FIFO order.
+     *
+     * @return array<int, array{purchase_batch_item_id: int, qty: int}>
      */
-    public function deductFromAvailableBatches(int $productId, int $qty): void
+    public function deductFromAvailableBatches(int $productId, int $qty): array
     {
+        $consumed = [];
         $remainingToDeduct = $qty;
         if ($remainingToDeduct <= 0) {
-            return;
+            return $consumed;
         }
 
         $batchItems = PurchaseBatchItem::where('product_id', $productId)
@@ -176,7 +192,13 @@ class PurchaseBatchService
             }
             $take = min($remainingToDeduct, (int) $item->remaining_qty);
             $item->decrement('remaining_qty', $take);
+            $consumed[] = [
+                'purchase_batch_item_id' => $item->id,
+                'qty' => $take,
+            ];
             $remainingToDeduct -= $take;
         }
+
+        return $consumed;
     }
 }

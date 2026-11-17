@@ -68,6 +68,31 @@
                             <input type="text" id="category-tagline" name="tagline" class="form-control" placeholder="e.g. Gentle botanical purifying rituals" value="{{ old('tagline', $category['tagline'] ?? '') }}">
                         </div>
 
+                        <!-- Sort Order -->
+                        <div class="col-md-3">
+                            <label class="form-label" for="category-sort-order">Sort Order</label>
+                            <input type="number" min="0" id="category-sort-order" name="sort_order" class="form-control" value="{{ old('sort_order', $category['sort_order'] ?? 0) }}">
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-3 d-flex align-items-end pb-2">
+                            <div class="form-check form-switch">
+                                <input type="hidden" name="is_active" value="0">
+                                <input class="form-check-input" type="checkbox" role="switch" id="catActiveSwitch" name="is_active" value="1" {{ old('is_active', $category['is_active'] ?? true) ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold" for="catActiveSwitch">Active</label>
+                            </div>
+                        </div>
+
+                        <!-- SEO Metadata -->
+                        <div class="col-md-6">
+                            <label class="form-label" for="category-meta-title">Meta Title</label>
+                            <input type="text" id="category-meta-title" name="meta_title" class="form-control" value="{{ old('meta_title', $category['meta_title'] ?? '') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="category-meta-description">Meta Description</label>
+                            <input type="text" id="category-meta-description" name="meta_description" class="form-control" value="{{ old('meta_description', $category['meta_description'] ?? '') }}">
+                        </div>
+
                         <!-- Editorial Description -->
                         <div class="col-12">
                             <label class="form-label" for="category-description">Category Editorial Description</label>

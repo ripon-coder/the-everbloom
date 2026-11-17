@@ -13,11 +13,14 @@ return new class extends Migration
             $table->string('code', 60)->unique();
             $table->string('type', 30); // percentage, fixed, shipping
             $table->decimal('value', 10, 2)->default(0);
+            $table->decimal('max_discount', 10, 2)->nullable();
             $table->string('label');
             $table->decimal('min_order_amount', 10, 2)->default(0);
             $table->integer('usage_limit')->nullable();
+            $table->unsignedInteger('per_customer_limit')->nullable();
             $table->integer('used_count')->default(0);
             $table->boolean('is_active')->default(true);
+            $table->timestamp('starts_at')->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
         });

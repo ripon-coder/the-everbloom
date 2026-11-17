@@ -11,7 +11,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Thana;
-use App\Services\PurchaseBatchService;
+use App\Services\Inventory\StockService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -165,7 +165,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(Request $request, PurchaseBatchService $purchaseBatchService): JsonResponse
+    public function store(Request $request, StockService $stockService): JsonResponse
     {
         $validated = $request->validate([
             'email' => ['nullable', 'email', 'max:191'],
@@ -190,7 +190,7 @@ class CheckoutController extends Controller
         $thana = Thana::where('id', $validated['thana_id'])->where('district_id', $district->id)->where('is_active', true)->firstOrFail();
         $area = Area::where('id', $validated['area_id'])->where('thana_id', $thana->id)->where('is_active', true)->firstOrFail();
 
-        $order = DB::transaction(function () use ($validated, $district, $thana, $area, $purchaseBatchService) {
+        $order = DB::transaction(function () use ($validated, $district, $thana, $area, $stockService) {
             $subtotal = 0.0;
             $sumLineCosts = 0.0;
             $itemsCount = 0;
@@ -217,46 +217,31 @@ class CheckoutController extends Controller
                 $unitProfit = round($unitPrice - $unitBuyPrice, 2);
                 $lineProfit = round($lineTotal - $lineCostTotal, 2);
 
-                if ($variant) {
-                    if ($variant->stock_count < $qty && $variant->stock_status === 'out_of_stock') {
-                        throw ValidationException::withMessages([
-                            'items' => ["{$product->name} ({$variant->size}) is currently out of stock."],
-                        ]);
-                    }
-                    $newVariantStock = max(0, $variant->stock_count - $qty);
-                    $variant->update([
-                        'stock_count' => $newVariantStock,
-                        'stock_status' => $this->resolveStockStatus($newVariantStock, $product->min_threshold),
-                    ]);
-                }
-
-                $newProductStock = max(0, $product->stock_count - $qty);
-                $product->update([
-                    'stock_count' => $newProductStock,
-                    'stock_status' => $this->resolveStockStatus($newProductStock, $product->min_threshold),
-                ]);
-
-                $purchaseBatchService->deductFromAvailableBatches($product->id, $qty);
+                $consumedBatches = $stockService->deductForLine($product, $variant, $qty);
 
                 $subtotal += $lineTotal;
                 $sumLineCosts += $lineCostTotal;
                 $itemsCount += $qty;
 
                 $preparedItems[] = [
-                    'product_id' => $product->id,
-                    'product_variant_id' => $variant?->id,
-                    'name' => $product->name,
-                    'slug' => $product->slug,
-                    'variant' => $variant?->title ?: ($variant?->size ?? ($line['variantId'] ?? ($product->sizes[0] ?? null))),
-                    'image' => $variant?->image ?: ($product->images[0] ?? null),
-                    'image_source' => $variant?->image ? ($variant->image_source ?: 'local') : ($product->image_source ?: 'local'),
-                    'qty' => $qty,
-                    'price' => $unitPrice,
-                    'unit_buy_price' => $unitBuyPrice,
-                    'line_total' => $lineTotal,
-                    'line_cost_total' => $lineCostTotal,
-                    'unit_profit' => $unitProfit,
-                    'line_profit' => $lineProfit,
+                    'consumed_batches' => $consumedBatches,
+                    'attributes' => [
+                        'product_id' => $product->id,
+                        'product_variant_id' => $variant?->id,
+                        'name' => $product->name,
+                        'slug' => $product->slug,
+                        'variant' => $variant?->title ?: ($variant?->size ?? ($line['variantId'] ?? ($product->sizes[0] ?? null))),
+                        'image' => $variant?->image ?: ($product->images[0] ?? null),
+                        'image_source' => $variant?->image ? ($variant->image_source ?: 'local') : ($product->image_source ?: 'local'),
+                        'qty' => $qty,
+                        'price' => $unitPrice,
+                        'original_price' => $unitPrice,
+                        'unit_buy_price' => $unitBuyPrice,
+                        'line_total' => $lineTotal,
+                        'line_cost_total' => $lineCostTotal,
+                        'unit_profit' => $unitProfit,
+                        'line_profit' => $lineProfit,
+                    ],
                 ];
             }
 
@@ -360,7 +345,8 @@ class CheckoutController extends Controller
             ]);
 
             foreach ($preparedItems as $item) {
-                OrderItem::create(array_merge($item, ['order_id' => $order->id]));
+                $orderItem = OrderItem::create(array_merge($item['attributes'], ['order_id' => $order->id]));
+                $stockService->recordOrderItemConsumption($orderItem, $item['consumed_batches']);
             }
 
             $invoiceSeq = (Invoice::max('id') ?? 0) + 1001;

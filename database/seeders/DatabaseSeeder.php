@@ -35,6 +35,10 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        if (app()->isProduction()) {
+            throw new \RuntimeException('DatabaseSeeder cannot run in production. Use ProductionSeeder instead.');
+        }
+
         // 1. Default Admin
         Admin::updateOrCreate(
             ['email' => 'admin@the-everbloom.com'],

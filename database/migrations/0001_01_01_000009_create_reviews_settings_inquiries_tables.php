@@ -23,6 +23,8 @@ return new class extends Migration
             $table->boolean('is_featured_testimonial')->default(false);
             $table->string('status', 30)->default('Approved');
             $table->timestamps();
+
+            $table->index(['product_id', 'status'], 'reviews_product_status_idx');
         });
 
         Schema::create('settings', function (Blueprint $table) {

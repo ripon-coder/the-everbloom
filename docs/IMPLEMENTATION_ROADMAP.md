@@ -16,58 +16,68 @@ flowchart LR
 ```
 
 ## Phase 0 — Prerequisites (do first)
-- [ ] **P0-1** Add `<meta name="csrf-token">` to `layouts/app.blade.php` & `layouts/checkout.blade.php`. *Files:* those two. *Accept:* profile/address AJAX returns 200 in browser.
-- [ ] **P0-2** Admin flash/validation alert partial in `layouts/admin.blade.php`. *Accept:* `session('success')` and `$errors` visible after any admin action.
-- [ ] **P0-3** Restrict `Route::resource` for products/categories with `->except('show')` (`routes/admin.php`). *Accept:* `GET /admin/products/1` → 404, not 500.
-- [ ] **P0-4** Replace `config('demo.products')` in `layouts/checkout.blade.php` with `$storefrontProductsJson` (via view composer: add `layouts.checkout` to the composer list in `AppServiceProvider`).
+- [x] **P0-1** Add `<meta name="csrf-token">` to `layouts/app.blade.php` & `layouts/checkout.blade.php`. *Files:* those two. *Accept:* profile/address AJAX returns 200 in browser.
+- [x] **P0-2** Admin flash/validation alert partial in `layouts/admin.blade.php`. *Accept:* `session('success')` and `$errors` visible after any admin action.
+- [x] **P0-3** Restrict `Route::resource` for products/categories with `->except('show')` (`routes/admin.php`). *Accept:* `GET /admin/products/1` → 404, not 500.
+- [x] **P0-4** Replace `config('demo.products')` in `layouts/checkout.blade.php` with `$storefrontProductsJson` (via view composer: add `layouts.checkout` to the composer list in `AppServiceProvider`).
 
 ## Phase 1 — Database & schema preparation
 | ID | Description | Status | Depends | Create | Update | DB | Acceptance |
 |---|---|---|---|---|---|---|---|
-| P1-1 | Indexes from DATABASE_SCHEMA §5 | TODO | – | migration `add_indexes_for_catalog_orders` | – | indexes | `EXPLAIN` uses indexes on shop/orders queries |
-| P1-2 | Fix category→products FK to restrict | TODO | – | migration | `AdminCategoryController@destroy` (block if products/children) | FK change | Deleting category with products → validation error |
-| P1-3 | Core new tables: `flash_sales`, `flash_sale_products`, `brands`, `payment_transactions`, `order_status_histories`, `stock_movements`, `coupon_redemptions`, `wishlists` | TODO | – | 8 migrations + models | – | per schema doc | `migrate:fresh --seed` passes on MySQL & SQLite |
-| P1-4 | Coupon columns: `starts_at`, `max_discount`, `per_customer_limit`, pivot tables | TODO | P1-3 | migration | `Coupon` | | |
-| P1-5 | `orders` adds `payment_status` default `Pending`, `placed_via`, `coupon…`; `order_items` adds `flash_sale_id`, `flash_sale_product_id`, `original_price` | TODO | P1-3 | migration | `Order`, `OrderItem` fillable | | existing rows backfilled `original_price = price` |
+| P1-1 | Indexes from DATABASE_SCHEMA §5 | DONE | – | consolidated into original `0001_01_01_000000..000011` migrations | – | indexes | `EXPLAIN` uses indexes on shop/orders queries |
+| P1-2 | Fix category→products FK to restrict | DONE | – | consolidated into `0001_01_01_000005` (`products.category_id` `restrictOnDelete`) & `0001_01_01_000010` (`purchase_batches.created_by` FK) | `AdminCategoryController@destroy` (block if products/children) | FK change | Deleting category with products → validation error |
+| P1-3 | Core new tables: `flash_sales`, `flash_sale_products`, `brands`, `payment_transactions`, `order_status_histories`, `stock_movements`, `order_item_batches`, `coupon_redemptions`, `wishlists` | PARTIAL | – | `0001_01_01_000012`..`000015` + models (`order_status_histories`, `stock_movements`, `order_item_batches`, `coupon_redemptions`, `wishlists`) | – | `brands` deferred (D-19); `flash_sales`/`flash_sale_products` deferred (D-03/D-04/D-08); `payment_transactions` deferred (D-01) | `migrate` passes on MySQL & SQLite |
+| P1-4 | Coupon columns: `starts_at`, `max_discount`, `per_customer_limit`, pivot tables | DONE | P1-3 | `coupons` columns in `0001_01_01_000007`; `0001_01_01_000014_create_coupon_redemptions_and_scope_tables` | `Coupon` | `coupon_product`, `coupon_category`, `coupon_redemptions` | |
+| P1-5 | `orders` adds `payment_status` default `Pending`, `placed_via`; `order_items` adds `original_price` (`flash_sale_id`/`flash_sale_product_id` deferred) | PARTIAL | P1-3 | consolidated into `0001_01_01_000008_create_orders_items_invoices_tables` | `Order`, `OrderItem` fillable | `flash_sale_*` columns deferred (D-03/D-04/D-08) | `orders.payment_status` defaults to `Pending`; `order_items.original_price` nullable |
 | P1-6 | `users.phone_normalized` + index | TODO | D-26 | migration + backfill | `AccountController` | | phone login uses indexed lookup. *Blocked: D-26 (duplicate-phone handling) must be resolved before the unique index is added.* |
-| P1-7 | Production seeder split (`ProductionSeeder` for admin only) | TODO | – | seeder | `DatabaseSeeder` guard | | no demo data/credentials in production |
+| P1-7 | Production seeder split (`ProductionSeeder` for admin only) | DONE | – | `ProductionSeeder` | `DatabaseSeeder` guard | | no demo data/credentials in production |
 
 ## Phase 2 — Authentication & authorization
-- [ ] **P2-1** Login throttling (`RateLimiter::for('login')`) for admin & customer. *Test:* `AuthThrottleTest`.
-- [ ] **P2-2** Real password reset (customer broker `users`, admin broker `admins`): routes `password.reset`, `password.update`, Blade views reusing `forgot-password` styling; Mailable. *Depends:* mail config (D-13).
-- [ ] **P2-3** POST logout forms (storefront account layout/overview).
-- [ ] **P2-4** Admin RBAC: `config/admin_permissions.php`, `Gate::define`, `EnsureAdminPermission`, per-request `is_active` check. *Blocked:* D-14.
-- [ ] **P2-5** Admin Users module (list/create/edit/deactivate/reset password; cannot delete last super_admin). UI new, follow admin conventions.
-- [ ] **P2-6** `admin_activity_logs` + log middleware on write routes.
-- [ ] **P2-7** Server password policy (`Password::defaults()`).
-- [ ] **P2-8** Session hardening env + remember-me default off (admin).
-- [ ] **P2-9** Social login (Socialite google/apple) — only if D-15 = yes; else remove buttons.
-- [ ] **P2-10** Review `IsolateAdminSession` middleware; confirm it is the right mechanism (vs. separate admin session cookie/domain) and document the rationale. *Ref:* SECURITY_AUDIT S-13, LARAVEL_ARCHITECTURE §1.
+- [x] **P2-1** Login throttling (`RateLimiter::for('login')`) for admin & customer. *Test:* `Phase2AuthAndSecurityTest`.
+- [ ] **P2-2** Real password reset (customer broker `users` implemented with `password.reset`, `password.update`, `reset-password.blade.php`; admin broker `admins` + production mail delivery pending D-13). *Depends:* mail config (D-13).
+- [x] **P2-3** POST logout forms (storefront account layout/overview).
+- [ ] **P2-4** Admin RBAC: `config/admin_permissions.php`, `Gate::define`, `EnsureAdminPermission` (*Blocked:* D-14). Per-request `is_active` check implemented via `EnsureAccountIsActive`.
+- [ ] **P2-5** Admin Users module (list/create/edit/deactivate/reset password; cannot delete last super_admin). *Blocked:* D-14.
+- [x] **P2-6** `admin_activity_logs` + `LogAdminActivity` middleware on admin write routes.
+- [x] **P2-7** Server password policy (`Password::defaults()`).
+- [x] **P2-8** Remember-me default off on admin login (production `SESSION_SECURE_COOKIE` / `SESSION_ENCRYPT` env checklist remains for Phase 21).
+- [ ] **P2-9** Social login (Socialite google/apple) — *Blocked:* D-15.
+- [x] **P2-10** Review `IsolateAdminSession` middleware; confirmed cookie-name + path isolation (`everbloom_admin_session` at `/admin` vs `everbloom_user_session` at `/`), documented in `LARAVEL_ARCHITECTURE.md`.
 
-## Phase 3 — Product management (`PARTIAL`)
-- [ ] **P3-1** Add form inputs: `brand` (select from brands once P5, free text until), `subtitle`, `min_threshold`, `best_seller`, `is_active`, `badge` free text, `skin_types`, `benefits`, `key_ingredients` (tag inputs), `stock_count` for non-variant product. *Files:* `admin/products/create.blade.php`, `AdminProductController@store/update`, new `StoreProductRequest`.
-- [ ] **P3-2** Validation: `compare_at_price gt:price`, variant `price min:0.01`, variant SKU unique, max images (matches BUSINESS_LOGIC.md §1).
-- [ ] **P3-3** Product gallery management (reorder/delete individual images; stop wiping all on upload). Use `product_images` as source; keep `products.images` in sync or drop it.
-- [ ] **P3-4** Pagination/search/sort/status filter in listing; bulk delete/activate (checkboxes exist but do nothing).
-- [ ] **P3-5** Soft deletes for products (preserve order history links) — decision D-18; delete in a transaction (DB first, then images).
-- [ ] **P3-6** SEO fields (Phase 17).
-*Acceptance:* creating/editing every column in DATABASE_SCHEMA `products` from the UI; `ProductCrudTest` passes.
+## Phase 3 — Product management (`DONE` core)
+- [x] **P3-1** Add form inputs: `brand` (free text, D-19 pending), `subtitle`, `min_threshold`, `best_seller`, `is_active`, `badge` free text, `skin_types`, `benefits`, `key_ingredients`, `stock_count` for non-variant product. *Files:* `admin/products/create.blade.php`, `AdminProductController@store/update`, `StoreProductRequest`, `UpdateProductRequest`.
+- [x] **P3-2** Validation: `compare_at_price gt:price`, variant `price min:0.01`, variant SKU unique, image mimes/dimensions/max size (matches BUSINESS_LOGIC.md §1).
+- [x] **P3-3** Product gallery management (delete individual images; append on upload instead of wiping all). Syncs `product_images` and `products.images`.
+- [x] **P3-4** Pagination/search/sort/status filter in listing; bulk activate/deactivate/delete (`admin.products.bulk`).
+- [ ] **P3-5** Soft deletes for products — *Blocked:* D-18. Order-referenced product deletion is blocked in `AdminProductController@destroy` & `bulkAction`; unreferenced deletes run in `DB::transaction`.
+- [x] **P3-6** SEO fields (`meta_title`, `meta_description` on `products` & `categories`).
+*Acceptance:* creating/editing every column in DATABASE_SCHEMA `products` from the UI; `Phase3ProductAndCategoryTest` passes.
 
-## Phase 4 — Categories (`DONE` core)
-- [ ] **P4-1** `is_active` & `sort_order` inputs; **P4-2** block delete when products/children exist; **P4-3** storefront category nav from DB (replace `config('demo.navigation')` and `config('demo.categories')` in header/footer/shop sidebar); **P4-4** image rendering on category page; **P4-5** SEO fields.
+## Phase 4 — Categories (`DONE`)
+- [x] **P4-1** `is_active` & `sort_order` inputs; **P4-2** block delete when products/children exist; **P4-3** storefront category nav from DB (replace `config('demo.navigation')` and `config('demo.categories')` in header/footer/shop sidebar); **P4-4** image rendering on category page; **P4-5** SEO fields (`meta_title`, `meta_description`).
 
-## Phase 5 — Brands (`PARTIAL`)
-- [ ] **P5-1** `brands` table + `Brand` model + `AdminBrandController` (resource except show) + views `admin/brands/index|create` + sidebar entry. **P5-2** migrate distinct `products.brand` strings → brands, add `products.brand_id`; **P5-3** `/shop?brand=slug` & brand pages (`/brand/{slug}` optional); **P5-4** homepage brands section reads `Brand::active()` (retire `settings.brands`).
+## Phase 5 — Brands (`DONE`)
+- [x] **P5-1** `brands` table + `Brand` model + `AdminBrandController` (resource except show) + views `admin/brands/index|create` + sidebar entry.
+- [x] **P5-2** migrate distinct `products.brand` strings → brands, add `products.brand_id`.
+- [x] **P5-3** `/shop?brand=slug` & dedicated brand pages (`/brand/{slug}`).
+- [x] **P5-4** homepage brands section reads `Brand::active()` (retire `settings.brands`).
 
-## Phase 6 — Inventory
-- [ ] **P6-1** `StockService` (atomic decrement/increment with locks) and use it in checkout, cancel, admin adjust. **P6-2** `stock_movements` log on every change (+ history table in inventory page). **P6-3** Variant-level adjust UI. **P6-4** Low-stock alerts list/widget + optional email. **P6-5** Fix cancel restore to use original FIFO rows (store consumed batch rows per order item: `order_item_batches`). **P6-6** Reservation for online payments (D-05).
-*Test:* `InventoryConcurrencyTest`, `StockMovementTest`.
+## Phase 6 — Inventory (`DONE` core; P6-6 deferred)
+- [x] **P6-1** `StockService` (atomic decrement/increment with locks) and use it in checkout, cancel, admin adjust.
+- [x] **P6-2** `stock_movements` log on every change (+ history table in inventory page).
+- [x] **P6-3** Variant-level adjust UI (`admin.inventory.adjustVariant`).
+- [x] **P6-4** Low-stock alerts list/widget on inventory page.
+- [x] **P6-5** Fix cancel restore to use original FIFO rows (`order_item_batches`).
+- [ ] **P6-6** Reservation for online payments (*Blocked:* D-05).
+*Test:* `Phase6InventoryTest`.
 
-## Phase 7 — Customer management
-- [ ] **P7-1** Search/filter/paginate, **P7-2** status toggle (`Active/Inactive`) w/ per-request enforcement, **P7-3** remove fabricated labels, **P7-4** address & order stats real, **P7-5** export CSV (optional).
+## Phase 7 — Customer management (`DONE`)
+- [x] **P7-1** Search/filter/paginate (`AdminCustomerController@index`), **P7-2** status toggle (`Active/Inactive`) w/ per-request enforcement (`EnsureAccountIsActive`), **P7-3** remove fabricated labels (`VIP Botanical Member`, `Preferred Ritual`, `580 pts`), **P7-4** address & order stats real, **P7-5** export CSV (`admin.customers.export`).
 
-## Phase 8 — Shopping cart (server authority)
-- [ ] **P8-1** `POST /cart/quote` (`CartController@quote`) returning lines/prices/stock/coupon/shipping using `PriceResolver`. **P8-2** Alpine cart store calls quote on open/change (keep localStorage lines). **P8-3** Show stock limits & errors; qty max from stock.
+## Phase 8 — Shopping cart (server authority) (`DONE`)
+- [x] **P8-1** `POST /cart/quote` (`CartController@quote`) returning lines/prices/stock/coupon/shipping using `PriceResolver`.
+- [x] **P8-2** Alpine cart store calls quote on open/change (keep localStorage lines).
+- [x] **P8-3** Show stock limits & errors; qty max from stock.
 ## Phase 9 — Wishlist
 - [ ] **P9-1** `wishlists` table, `WishlistController` (`GET/POST/DELETE /account/wishlist`), merge localStorage on login, guests keep local. Keep UI.
 

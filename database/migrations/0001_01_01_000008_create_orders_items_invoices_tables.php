@@ -23,15 +23,23 @@ return new class extends Migration
             $table->decimal('shipping_cost', 10, 2)->default(0);
             $table->decimal('tax_amount', 10, 2)->default(0);
             $table->decimal('total', 10, 2);
+            $table->decimal('total_cost', 10, 2)->default(0);
+            $table->decimal('total_profit', 10, 2)->default(0);
             $table->unsignedInteger('items_count')->default(1);
             $table->string('delivery_method');
             $table->string('payment_method');
-            $table->string('payment_status', 30)->default('Paid');
+            $table->string('payment_status', 30)->default('Pending');
+            $table->string('placed_via', 30)->default('web');
             $table->string('tracking_number', 80)->default('Pending assignment');
             $table->json('shipping_address');
             $table->text('notes')->nullable();
             $table->timestamp('placed_at');
             $table->timestamps();
+
+            $table->index(['user_id', 'placed_at'], 'orders_user_placed_idx');
+            $table->index('status', 'orders_status_idx');
+            $table->index('payment_status', 'orders_payment_status_idx');
+            $table->index('placed_at', 'orders_placed_at_idx');
         });
 
         Schema::create('order_items', function (Blueprint $table) {
@@ -46,8 +54,15 @@ return new class extends Migration
             $table->string('image_source', 40)->default('local');
             $table->unsignedInteger('qty')->default(1);
             $table->decimal('price', 10, 2);
+            $table->decimal('original_price', 10, 2)->nullable();
+            $table->decimal('unit_buy_price', 10, 2)->default(0);
             $table->decimal('line_total', 10, 2);
+            $table->decimal('line_cost_total', 10, 2)->default(0);
+            $table->decimal('unit_profit', 10, 2)->default(0);
+            $table->decimal('line_profit', 10, 2)->default(0);
             $table->timestamps();
+
+            $table->index('product_id', 'order_items_product_idx');
         });
 
         Schema::create('invoices', function (Blueprint $table) {

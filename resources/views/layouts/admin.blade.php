@@ -42,6 +42,7 @@
         <!-- Right Page Content Area -->
         <div class="page-content">
             <div class="@yield('container_class', 'container-xxl')">
+                <x-admin.alerts />
                 @yield('content')
             </div>
 

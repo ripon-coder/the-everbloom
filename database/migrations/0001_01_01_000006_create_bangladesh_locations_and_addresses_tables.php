@@ -48,7 +48,6 @@ return new class extends Migration
             $table->boolean('is_default')->default(false);
             $table->string('first_name', 100);
             $table->string('last_name', 100);
-            $table->string('company', 120)->nullable();
             $table->string('country', 60)->default('Bangladesh');
             $table->foreignId('district_id')->nullable()->constrained('districts')->nullOnDelete();
             $table->foreignId('thana_id')->nullable()->constrained('thanas')->nullOnDelete();
@@ -56,10 +55,8 @@ return new class extends Migration
             $table->string('district_name', 120)->nullable();
             $table->string('thana_name', 120)->nullable();
             $table->string('area_name', 150)->nullable();
-            $table->string('address_line1');
-            $table->string('address_line2')->nullable();
-            $table->string('postal_code', 30)->nullable();
-            $table->string('phone', 40)->nullable();
+            $table->text('address_line1');
+            $table->string('phone', 40);
             $table->timestamps();
         });
     }

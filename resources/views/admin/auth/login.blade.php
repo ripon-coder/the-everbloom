@@ -30,7 +30,7 @@
         </div>
         <div class="mb-3">
             <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="checkbox-signin" name="remember" value="1" checked>
+                <input type="checkbox" class="form-check-input" id="checkbox-signin" name="remember" value="1">
                 <label class="form-check-label" for="checkbox-signin">Remember this browser</label>
             </div>
         </div>

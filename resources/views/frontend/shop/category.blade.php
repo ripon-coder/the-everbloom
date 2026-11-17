@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', ($category['name'] ?? 'Category') . ' — The Everbloom')
-@section('meta_description', $category['description'] ?? 'Botanical skincare formulations.')
+@section('title', !empty($category['meta_title']) ? $category['meta_title'] : (($category['name'] ?? 'Category') . ' — The Everbloom'))
+@section('meta_description', !empty($category['meta_description']) ? $category['meta_description'] : ($category['description'] ?? 'Botanical skincare formulations.'))
 
 @section('content')
 <div 
@@ -39,13 +39,22 @@
         ]" />
 
         <div class="mt-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-                <span class="text-xs uppercase tracking-[0.2em] font-medium text-forest block mb-1">Botanical Collection</span>
-                <h1 class="font-serif text-3xl sm:text-4xl text-ink font-normal">{{ $category['name'] ?? 'Category' }}</h1>
-                <!-- VERIFY CLAIM before launch -->
-                <p class="text-sm text-muted mt-2 max-w-xl">
-                    {{ $category['description'] ?? 'Thoughtfully formulated botanical skincare for your daily ritual.' }}
-                </p>
+            <div class="flex items-start gap-4 sm:gap-6">
+                @if(!empty($category['resolved_image']))
+                    <img
+                        src="{{ $category['resolved_image'] }}"
+                        alt="{{ $category['name'] ?? 'Category' }}"
+                        class="w-20 h-24 sm:w-24 sm:h-28 object-cover rounded border border-beige/80 shrink-0"
+                    >
+                @endif
+                <div>
+                    <span class="text-xs uppercase tracking-[0.2em] font-medium text-forest block mb-1">Botanical Collection</span>
+                    <h1 class="font-serif text-3xl sm:text-4xl text-ink font-normal">{{ $category['name'] ?? 'Category' }}</h1>
+                    <!-- VERIFY CLAIM before launch -->
+                    <p class="text-sm text-muted mt-2 max-w-xl">
+                        {{ $category['description'] ?? 'Thoughtfully formulated botanical skincare for your daily ritual.' }}
+                    </p>
+                </div>
             </div>
             <p class="hidden lg:block text-xs uppercase tracking-widest text-muted">
                 Showing {{ count($products ?? []) }} Formulations
@@ -155,7 +164,7 @@
                         >
                             All Formulations
                         </a>
-                        @foreach(config('demo.categories') as $cat)
+                        @foreach($categories ?? [] as $cat)
                             <a 
                                 href="/shop/category/{{ $cat['slug'] }}" 
                                 class="px-3 py-1.5 text-xs rounded border transition-colors {{ ($category['slug'] ?? '') === $cat['slug'] ? 'bg-forest text-ivory border-forest' : 'bg-ivory border-beige text-ink hover:border-forest' }}"
@@ -332,10 +341,10 @@
                                 class="flex items-center justify-between py-1 text-muted hover:text-forest transition-colors"
                             >
                                 <span>All Botanical Products</span>
-                                <span class="text-muted/70">({{ count(config('demo.products')) }})</span>
+                                <span class="text-muted/70">({{ $totalActiveProductsCount ?? count($products ?? []) }})</span>
                             </a>
                         </li>
-                        @foreach(config('demo.categories') as $cat)
+                        @foreach($categories ?? [] as $cat)
                             <li>
                                 <a 
                                     href="/shop/category/{{ $cat['slug'] }}" 

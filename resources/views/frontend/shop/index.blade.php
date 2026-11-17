@@ -154,7 +154,7 @@
                         >
                             All Formulations
                         </a>
-                        @foreach(config('demo.categories') as $cat)
+                        @foreach($categories ?? [] as $cat)
                             <a 
                                 href="/shop/category/{{ $cat['slug'] }}" 
                                 class="px-3 py-1.5 text-xs rounded border transition-colors bg-ivory border-beige text-ink hover:border-forest"
@@ -331,10 +331,10 @@
                                 class="flex items-center justify-between py-1 font-semibold text-forest"
                             >
                                 <span>All Botanical Products</span>
-                                <span class="text-muted">({{ count(config('demo.products')) }})</span>
+                                <span class="text-muted">({{ $totalActiveProductsCount ?? count($products ?? []) }})</span>
                             </a>
                         </li>
-                        @foreach(config('demo.categories') as $cat)
+                        @foreach($categories ?? [] as $cat)
                             <li>
                                 <a 
                                     href="/shop/category/{{ $cat['slug'] }}" 

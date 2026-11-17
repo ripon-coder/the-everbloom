@@ -43,6 +43,7 @@ class Product extends Model
     }
     protected $fillable = [
         'category_id',
+        'brand_id',
         'slug',
         'sku',
         'name',
@@ -73,6 +74,8 @@ class Product extends Model
         'best_seller',
         'badge',
         'is_active',
+        'meta_title',
+        'meta_description',
     ];
 
     protected $appends = [
@@ -109,6 +112,11 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
+    public function brandRelation(): BelongsTo
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
+    }
+
     public function productVariants(): HasMany
     {
         return $this->hasMany(ProductVariant::class)->orderBy('sort_order');
@@ -122,6 +130,11 @@ class Product extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
     }
 
     public function getCategoryAttribute(): string
@@ -173,7 +186,9 @@ class Product extends Model
             'slug' => $this->slug,
             'sku' => $this->sku,
             'name' => $this->name,
-            'brand' => $this->brand,
+            'brand_id' => $this->brand_id,
+            'brand' => $this->brandRelation?->name ?? $this->brand,
+            'brand_slug' => $this->brandRelation?->slug,
             'subtitle' => $this->subtitle,
             'category' => $this->category,
             'category_slug' => $this->category_slug,
@@ -184,14 +199,22 @@ class Product extends Model
             'short_description' => $this->short_description,
             'description' => $this->description,
             'ingredients' => $this->ingredients,
+            'key_ingredients' => $this->key_ingredients ?? [],
+            'benefits' => $this->benefits ?? [],
+            'skin_types' => $this->skin_types ?? [],
             'how_to_use' => $this->how_to_use,
             'sizes' => $this->sizes ?? [],
             'variants' => $this->variants,
             'stock_status' => $this->stock_status,
             'stock_count' => (int) $this->stock_count,
+            'min_threshold' => (int) $this->min_threshold,
             'is_featured' => (bool) $this->is_featured,
             'best_seller' => (bool) $this->best_seller,
             'badge' => $this->badge,
+            'is_active' => (bool) $this->is_active,
+            'meta_title' => $this->meta_title,
+            'meta_description' => $this->meta_description,
+            'raw_images' => is_array($this->images) ? $this->images : [],
             'images' => $this->resolvedImages(),
             'image_source' => $this->image_source ?: 'local',
         ];

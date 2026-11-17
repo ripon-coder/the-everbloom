@@ -1,6 +1,9 @@
 <?php
 
+use App\Exceptions\InsufficientStockException;
+use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\IsolateAdminSession;
+use App\Http\Middleware\LogAdminActivity;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -22,9 +25,27 @@ return Application::configure(basePath: dirname(__DIR__))
             IsolateAdminSession::class,
         ]);
 
+        $middleware->alias([
+            'active.account' => EnsureAccountIsActive::class,
+            'admin.log' => LogAdminActivity::class,
+        ]);
+
         $middleware->redirectGuestsTo(fn (Request $request) => ($request->is('admin') || $request->is('admin/*')) ? route('admin.login') : route('login'));
         $middleware->redirectUsersTo(fn (Request $request) => ($request->is('admin') || $request->is('admin/*')) ? route('admin.dashboard') : route('account'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (InsufficientStockException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'errors' => [
+                        'items' => [$e->getMessage()],
+                    ],
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors([
+                'items' => $e->getMessage(),
+            ])->withInput();
+        });
     })->create();

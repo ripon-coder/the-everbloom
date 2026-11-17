@@ -84,6 +84,26 @@
                 </div>
             </li>
 
+            <!-- Brands -->
+            <li class="nav-item">
+                <a class="nav-link menu-arrow {{ request()->routeIs('admin.brands.*') ? 'active' : '' }}" href="#sidebarBrands" data-bs-toggle="collapse" role="button" aria-expanded="{{ request()->routeIs('admin.brands.*') ? 'true' : 'false' }}" aria-controls="sidebarBrands">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:tag-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Brands </span>
+                </a>
+                <div class="collapse {{ request()->routeIs('admin.brands.*') ? 'show' : '' }}" id="sidebarBrands">
+                    <ul class="nav sub-navbar-nav">
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link {{ request()->routeIs('admin.brands.index') ? 'active' : '' }}" href="{{ route('admin.brands.index') }}">Brand List</a>
+                        </li>
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link {{ request()->routeIs('admin.brands.create') ? 'active' : '' }}" href="{{ route('admin.brands.create') }}">Create Brand</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
             <!-- Inventory -->
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.inventory.index') ? 'active' : '' }}" href="{{ route('admin.inventory.index') }}">

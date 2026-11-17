@@ -99,6 +99,7 @@ class MultiAttributeProductVariantTest extends TestCase
 
         $checkoutRes = $this->actingAs($user, 'web')->postJson('/checkout', [
             'email' => $user->email,
+            'phone' => '+8801711000001',
             'firstName' => 'Eleanor',
             'lastName' => 'Vance',
             'district_id' => $dhaka->id,

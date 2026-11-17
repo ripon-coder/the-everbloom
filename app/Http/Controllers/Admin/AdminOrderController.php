@@ -4,11 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Models\Product;
-use App\Models\ProductVariant;
-use App\Models\PurchaseBatchItem;
+use App\Services\Inventory\StockService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AdminOrderController extends Controller
@@ -57,9 +55,9 @@ class AdminOrderController extends Controller
         return view('admin.orders.show', compact('order', 'customer'));
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $id, StockService $stockService)
     {
-        $order = Order::with('items')
+        $order = Order::with('items.batches')
             ->where('order_number', $id)
             ->orWhere('id', is_numeric($id) ? (int) $id : 0)
             ->firstOrFail();
@@ -72,37 +70,9 @@ class AdminOrderController extends Controller
         $previousStatus = $order->status;
         $newStatus = $validated['status'];
 
-        DB::transaction(function () use ($order, $validated, $previousStatus, $newStatus) {
+        DB::transaction(function () use ($order, $validated, $previousStatus, $newStatus, $stockService) {
             if ($previousStatus !== 'Cancelled' && $newStatus === 'Cancelled') {
-                foreach ($order->items as $item) {
-                    $qty = (int) $item->qty;
-                    if ($qty <= 0 || !$item->product_id) {
-                        continue;
-                    }
-                    $product = Product::lockForUpdate()->find($item->product_id);
-                    if ($product) {
-                        $newStock = (int) $product->stock_count + $qty;
-                        $product->update([
-                            'stock_count' => $newStock,
-                            'stock_status' => $newStock > $product->min_threshold ? 'in_stock' : ($newStock > 0 ? 'low_stock' : 'out_of_stock'),
-                        ]);
-                    }
-                    if ($item->product_variant_id) {
-                        $variant = ProductVariant::lockForUpdate()->find($item->product_variant_id);
-                        if ($variant) {
-                            $newVarStock = (int) $variant->stock_count + $qty;
-                            $variant->update([
-                                'stock_count' => $newVarStock,
-                                'stock_status' => $newVarStock > ($product?->min_threshold ?? 10) ? 'in_stock' : 'low_stock',
-                            ]);
-                        }
-                    }
-                    $batchItem = PurchaseBatchItem::where('product_id', $item->product_id)->latest('id')->first();
-                    if ($batchItem) {
-                        $batchItem->increment('remaining_qty', $qty);
-                    }
-                }
-                Cache::forget('storefront_catalog_json');
+                $stockService->restoreForCancelledOrder($order, Auth::guard('admin')->id());
             }
 
             $order->update([

@@ -69,9 +69,9 @@ Severity summary: **CRITICAL 2 · HIGH 5 · MEDIUM 8 · LOW 6**.
 
 | ID | Finding | Evidence | Fix |
 |---|---|---|---|
-| S-16 | **Logout via GET link doesn't log out** (UI uses `<a href=login>`), leaving sessions alive on shared devices. | `layouts/account.blade.php` L144, `account/index.blade.php` L213 | Use POST form to `route('logout')`. |
-| S-17 | **Password reset is a stub** that claims an email was sent. | `AccountController::forgotPasswordSubmit` | Use `Password::broker('users')`; admins use `admins` broker (config exists). |
-| S-18 | **Server-side password policy weaker than UI**: server `min:8|confirmed`, UI requires letter+number. Admin has no policy. | `registerSubmit`, `updatePassword` | `Password::min(8)->letters()->numbers()->uncompromised()`. |
+| S-16 | **Logout via GET link** — **FIXED (Phase 2)**: replaced with POST `<form action="{{ route('logout') }}">` in `layouts/account.blade.php` and `account/index.blade.php`. | `layouts/account.blade.php`, `account/index.blade.php` | Resolved. |
+| S-17 | **Password reset is a stub** — **PARTIALLY FIXED (Phase 2)**: customer `users` broker wired (`forgotPasswordSubmit`, `resetPassword`, `resetPasswordSubmit`); admin broker + production SMTP pending D-13. | `AccountController` | Resolved for customer flow; D-13 pending for mail config. |
+| S-18 | **Server-side password policy weaker than UI** — **FIXED (Phase 2)**: `Password::defaults()` (`min(8)->letters()->numbers()`) enforced on registration, password update, and reset. | `AppServiceProvider`, `AccountController` | Resolved. |
 | S-19 | **Public `/styleguide` and demo content** exposed. | `routes/web.php` L30 | Remove/gate by env. |
 | S-20 | **Information disclosure when `APP_DEBUG=true`** (current local `.env`); `.env.example` also ships `APP_DEBUG=true`. | `.env.example` L4 | Production checklist: `APP_DEBUG=false`, `APP_ENV=production`. |
 | S-21 | **Account deletion has no password confirmation** (single DELETE with CSRF) and hard-deletes. | `AccountController::destroyAccount` | Require current password; soft delete. |
@@ -81,7 +81,7 @@ Severity summary: **CRITICAL 2 · HIGH 5 · MEDIUM 8 · LOW 6**.
 
 | Area | Result |
 |---|---|
-| Authentication | Dual guard works; see S-02, S-03, S-15, S-17. Active-status enforced for customers (`status=Active`) and admins (`is_active`) at login only, not per request. |
+| Authentication | Dual guard works; login & password-reset rate limited (`throttle:login`, `throttle:password-reset`), customer password reset wired (`users` broker), `Password::defaults()` enforced, and active-status (`status=Active` / `is_active`) enforced per request via `EnsureAccountIsActive`. See S-02, S-15, and admin reset (D-13). |
 | Authorization / IDOR | Customer orders & addresses correctly scoped (`$user->orders()`, `abort_unless($address->user_id === $user->id, 403)`) ✔. Admin has no roles (S-07). `Order::getRouteKeyName = order_number` but controllers query manually. |
 | CSRF | Enabled globally on `web`; forms include `@csrf`; AJAX token missing (S-06). |
 | XSS | Blade `{{ }}` escaping used consistently; `{!! nl2br(e()) !!}` in accordion is safe; **script-context JSON is not** (S-08). Review/contact text rendered via `x-text` (safe). |

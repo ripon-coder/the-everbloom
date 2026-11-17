@@ -10,13 +10,16 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained()->restrictOnDelete();
             $table->string('slug', 160)->unique();
             $table->string('sku', 60)->unique();
             $table->string('name', 180);
+            $table->string('brand')->nullable();
             $table->string('subtitle', 255)->nullable();
             $table->decimal('price', 10, 2);
             $table->decimal('compare_at_price', 10, 2)->nullable();
+            $table->decimal('avg_buy_price', 10, 2)->default(0);
+            $table->decimal('last_buy_price', 10, 2)->default(0);
             $table->decimal('rating', 3, 2)->default(5.00);
             $table->unsignedInteger('review_count')->default(0);
             $table->text('short_description')->nullable();
@@ -39,6 +42,12 @@ return new class extends Migration
             $table->string('badge', 60)->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            $table->index(['is_active', 'category_id'], 'products_active_category_idx');
+            $table->index('brand', 'products_brand_idx');
+            $table->index('stock_status', 'products_stock_status_idx');
+            $table->index('is_featured', 'products_featured_idx');
+            $table->index('best_seller', 'products_best_seller_idx');
         });
 
         Schema::create('product_images', function (Blueprint $table) {
@@ -55,13 +64,22 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->string('size', 80);
-            $table->string('sku', 80)->nullable();
+            $table->string('title', 180)->nullable();
+            $table->json('attributes_json')->nullable();
+            $table->string('sku', 80)->nullable()->unique('product_variants_sku_unique');
             $table->decimal('price', 10, 2);
             $table->decimal('compare_at_price', 10, 2)->nullable();
+            $table->decimal('avg_buy_price', 10, 2)->default(0);
+            $table->decimal('last_buy_price', 10, 2)->default(0);
             $table->integer('stock_count')->default(25);
             $table->string('stock_status', 30)->default('in_stock');
+            $table->string('image')->nullable();
+            $table->string('image_source', 40)->default('local');
             $table->integer('sort_order')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            $table->index(['product_id', 'is_active'], 'product_variants_product_active_idx');
         });
     }
 

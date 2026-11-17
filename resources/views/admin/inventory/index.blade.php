@@ -181,6 +181,18 @@
                                         <input type="number" name="min_threshold" value="{{ $item['min_threshold'] }}" min="0" class="form-control form-control-sm" style="width:62px;" title="Alert threshold">
                                         <button type="submit" class="btn btn-sm btn-soft-primary">Save</button>
                                     </form>
+                                    @if(!empty($item['variants']))
+                                        <div class="mt-2 pt-2 border-top d-flex flex-column gap-1 align-items-end">
+                                            @foreach($item['variants'] as $variant)
+                                                <form action="{{ route('admin.inventory.adjustVariant', $variant['id']) }}" method="POST" class="d-inline-flex gap-1 align-items-center">
+                                                    @csrf
+                                                    <span class="text-muted fs-11 me-1">{{ $variant['title'] }}:</span>
+                                                    <input type="number" name="stock_count" value="{{ $variant['stock_count'] }}" min="0" class="form-control form-control-sm" style="width:64px;" title="Variant stock">
+                                                    <button type="submit" class="btn btn-sm btn-soft-secondary">Set</button>
+                                                </form>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                             @empty
@@ -193,7 +205,98 @@
                 </div>
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50">
-                <p class="mb-0 text-muted fs-12">Warehouse location: Portland Botanical Fulfillment Center (OR-97201)</p>
+                <p class="mb-0 text-muted fs-12">Warehouse location: Primary Botanical Fulfillment Center</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if(!empty($lowStockItems))
+<!-- Row 3: Low-Stock Alerts Widget -->
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning-subtle d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0 text-warning-emphasis">Low-Stock &amp; Out-of-Stock Alerts ({{ count($lowStockItems) }})</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-sm">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>Product</th>
+                                <th>SKU</th>
+                                <th>Available</th>
+                                <th>Threshold</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($lowStockItems as $alertItem)
+                            <tr>
+                                <td class="fw-medium">{{ $alertItem['name'] }}</td>
+                                <td class="font-monospace fs-12">{{ $alertItem['sku'] }}</td>
+                                <td class="fw-bold">{{ $alertItem['stock'] }}</td>
+                                <td>{{ $alertItem['min_threshold'] }}</td>
+                                <td><span class="badge bg-{{ $alertItem['status_badge'] }}-subtle text-{{ $alertItem['status_badge'] }}">{{ $alertItem['status'] }}</span></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- Row 4: Stock Movement History -->
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Recent Stock Movements</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 table-hover table-sm">
+                        <thead class="bg-light-subtle">
+                            <tr>
+                                <th>Date</th>
+                                <th>Product / Variant</th>
+                                <th>Delta</th>
+                                <th>Reason</th>
+                                <th>Note</th>
+                                <th>Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($stockMovements ?? [] as $movement)
+                            <tr>
+                                <td class="text-muted fs-12">{{ $movement->created_at?->format('M d, Y H:i') }}</td>
+                                <td>
+                                    <span class="fw-medium">{{ $movement->product?->name ?? ('Product #' . $movement->product_id) }}</span>
+                                    @if($movement->variant)
+                                        <small class="text-muted d-block">{{ $movement->variant->title ?: $movement->variant->size }}</small>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="badge {{ $movement->delta >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">
+                                        {{ $movement->delta >= 0 ? '+' . $movement->delta : $movement->delta }}
+                                    </span>
+                                </td>
+                                <td class="font-monospace fs-12">{{ $movement->reason }}</td>
+                                <td class="text-muted fs-12">{{ $movement->note }}</td>
+                                <td class="text-muted fs-12">{{ $movement->admin?->name ?? 'System' }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-3 text-muted">No stock movements recorded yet.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

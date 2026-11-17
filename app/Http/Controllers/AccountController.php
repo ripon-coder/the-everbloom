@@ -8,11 +8,15 @@ use App\Models\District;
 use App\Models\Order;
 use App\Models\Thana;
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password as PasswordFacade;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class AccountController extends Controller
@@ -219,7 +223,7 @@ class AccountController extends Controller
         $rules = [
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', Password::defaults(), 'confirmed'],
             'terms' => ['accepted'],
         ];
 
@@ -259,11 +263,52 @@ class AccountController extends Controller
 
     public function forgotPasswordSubmit(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'email' => ['required', 'email'],
         ]);
 
+        PasswordFacade::broker('users')->sendResetLink([
+            'email' => $validated['email'],
+        ]);
+
         return back()->with('status', 'If an account matches that email, a password reset link has been sent.');
+    }
+
+    public function resetPassword(Request $request, string $token): View
+    {
+        return view('frontend.account.reset-password', [
+            'token' => $token,
+            'email' => (string) $request->query('email', ''),
+        ]);
+    }
+
+    public function resetPasswordSubmit(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', Password::defaults(), 'confirmed'],
+        ]);
+
+        $status = PasswordFacade::broker('users')->reset(
+            $validated,
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        if ($status === PasswordFacade::PASSWORD_RESET) {
+            return redirect()->route('login')->with('status', __($status));
+        }
+
+        return back()->withInput($request->only('email'))->withErrors([
+            'email' => [__($status)],
+        ]);
     }
 
     public function logout(Request $request): RedirectResponse
@@ -434,7 +479,7 @@ class AccountController extends Controller
 
         $validated = $request->validate([
             'current_password' => ['required', 'current_password:web'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', Password::defaults(), 'confirmed'],
         ]);
 
         $user->update([

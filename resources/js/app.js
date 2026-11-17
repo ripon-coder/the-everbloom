@@ -297,6 +297,9 @@ Alpine.store('cart', {
     discountCode: null,
     discountError: '',
     discountSuccess: '',
+    serverQuote: null,
+    stockErrors: [],
+    quoteLoading: false,
 
     init() {
         // Load saved promo code
@@ -324,6 +327,9 @@ Alpine.store('cart', {
         if (typeof document !== 'undefined' && document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 this.cleanAndValidate();
+                if (this.items.length > 0) {
+                    this.refreshQuote();
+                }
             });
         }
     },
@@ -485,6 +491,7 @@ Alpine.store('cart', {
     openDrawer() {
         closeOtherOverlays('cart');
         this.drawerOpen = true;
+        this.refreshQuote();
     },
 
     closeDrawer() {
@@ -566,6 +573,7 @@ Alpine.store('cart', {
         }
 
         this.save();
+        this.refreshQuote();
         if (open) {
             this.openDrawer();
         }
@@ -574,6 +582,28 @@ Alpine.store('cart', {
     remove(key) {
         this.items = this.items.filter(item => item.key !== key);
         this.save();
+        this.refreshQuote();
+    },
+
+    maxQtyForItem(item) {
+        if (this.serverQuote && Array.isArray(this.serverQuote.lines)) {
+            const line = this.serverQuote.lines.find(l =>
+                String(l.productId) === String(item.productId) &&
+                String(l.variantId || '') === String(item.variantId || '')
+            );
+            if (line && typeof line.max_qty === 'number') {
+                return Math.max(1, Math.min(10, line.max_qty));
+            }
+        }
+        const v = item.variant;
+        if (v && typeof v.stock_count === 'number') {
+            return Math.max(1, Math.min(10, v.stock_count));
+        }
+        const p = item.product;
+        if (p && typeof p.stock_count === 'number') {
+            return Math.max(1, Math.min(10, p.stock_count));
+        }
+        return 10;
     },
 
     updateQty(key, quantity) {
@@ -584,14 +614,67 @@ Alpine.store('cart', {
         }
         const item = this.items.find(i => i.key === key);
         if (item) {
-            item.qty = Math.min(10, Math.max(1, qty));
+            const maxQty = this.maxQtyForItem(item);
+            item.qty = Math.min(maxQty, Math.max(1, qty));
             this.save();
+            this.refreshQuote();
         }
     },
 
     clear() {
         this.items = [];
+        this.serverQuote = null;
+        this.stockErrors = [];
         this.save();
+    },
+
+    async refreshQuote() {
+        if (typeof fetch === 'undefined' || typeof document === 'undefined') {
+            return null;
+        }
+        if (this.items.length === 0) {
+            this.serverQuote = null;
+            this.stockErrors = [];
+            return null;
+        }
+
+        this.quoteLoading = true;
+        try {
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const res = await fetch('/cart/quote', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
+                },
+                body: JSON.stringify({
+                    items: this.items.map(i => ({
+                        productId: i.productId,
+                        variantId: i.variantId,
+                        qty: i.qty,
+                    })),
+                    discountCode: this.discountCode,
+                    shippingMethod: 'standard',
+                }),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                this.serverQuote = data;
+                this.stockErrors = Array.isArray(data.errors) ? data.errors : [];
+                if (this.discountCode && data.coupon_error) {
+                    this.discountError = data.coupon_error;
+                    this.discountSuccess = '';
+                }
+                return data;
+            }
+        } catch (e) {
+            // Keep graceful fallback to client totals if offline
+        } finally {
+            this.quoteLoading = false;
+        }
+        return null;
     },
 
     get count() {
@@ -599,6 +682,9 @@ Alpine.store('cart', {
     },
 
     get subtotal() {
+        if (this.serverQuote && typeof this.serverQuote.subtotal === 'number') {
+            return this.serverQuote.subtotal;
+        }
         return this.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
     },
 
@@ -610,6 +696,9 @@ Alpine.store('cart', {
     },
 
     get discountAmount() {
+        if (this.serverQuote && typeof this.serverQuote.discount_amount === 'number') {
+            return this.serverQuote.discount_amount;
+        }
         const d = this.discount;
         if (!d || this.items.length === 0) return 0;
         if (d.type === 'percentage') {
@@ -623,6 +712,9 @@ Alpine.store('cart', {
 
     get shippingCost() {
         if (this.items.length === 0) return 0;
+        if (this.serverQuote && typeof this.serverQuote.shipping_cost === 'number') {
+            return this.serverQuote.shipping_cost;
+        }
         const shippingConfig = getShippingConfig();
         const threshold = shippingConfig.free_threshold;
         const d = this.discount;
@@ -634,6 +726,9 @@ Alpine.store('cart', {
 
     get total() {
         if (this.items.length === 0) return 0;
+        if (this.serverQuote && typeof this.serverQuote.total === 'number') {
+            return this.serverQuote.total;
+        }
         return Math.max(0, this.subtotal - this.discountAmount + this.shippingCost);
     },
 
@@ -652,6 +747,7 @@ Alpine.store('cart', {
             try {
                 localStorage.setItem('everbloom_discount', code);
             } catch (e) {}
+            this.refreshQuote();
             return true;
         } else {
             this.discountError = `The code "${code}" is invalid. Try WELCOME10`;
@@ -666,6 +762,7 @@ Alpine.store('cart', {
         try {
             localStorage.removeItem('everbloom_discount');
         } catch (e) {}
+        this.refreshQuote();
     }
 });
 

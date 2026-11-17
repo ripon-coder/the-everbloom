@@ -18,8 +18,13 @@
                 <p class="text-muted fs-13 mb-3">{{ $customer['city'] }}</p>
 
                 <div class="d-flex justify-content-center gap-2 mb-3">
-                    <span class="badge bg-primary-subtle text-primary px-3 py-1 fs-12">VIP Botanical Member</span>
-                    <span class="badge bg-success-subtle text-success px-3 py-1 fs-12">{{ $customer['status'] }}</span>
+                    <span class="badge {{ $customer['status'] === 'Active' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }} px-3 py-1 fs-12">{{ $customer['status'] }}</span>
+                    <form action="{{ route('admin.customers.toggleStatus', $customer['id']) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-sm {{ $customer['status'] === 'Active' ? 'btn-soft-warning' : 'btn-soft-success' }}">
+                            {{ $customer['status'] === 'Active' ? 'Deactivate Account' : 'Activate Account' }}
+                        </button>
+                    </form>
                 </div>
 
                 <hr>
@@ -27,8 +32,7 @@
                 <div class="text-start">
                     <p class="text-muted mb-2 fs-13"><strong class="text-dark">Email:</strong> <a href="mailto:{{ $customer['email'] }}" class="text-reset">{{ $customer['email'] }}</a></p>
                     <p class="text-muted mb-2 fs-13"><strong class="text-dark">Phone:</strong> {{ $customer['phone'] }}</p>
-                    <p class="text-muted mb-2 fs-13"><strong class="text-dark">Member Since:</strong> {{ $customer['join_date'] }}</p>
-                    <p class="text-muted mb-0 fs-13"><strong class="text-dark">Preferred Ritual:</strong> Evening Restorative Hydration</p>
+                    <p class="text-muted mb-0 fs-13"><strong class="text-dark">Member Since:</strong> {{ $customer['join_date'] }}</p>
                 </div>
             </div>
         </div>
@@ -47,13 +51,10 @@
                             <span class="badge bg-primary fs-11">Default</span>
                         @endif
                     </div>
-                    @if(!empty($addr['company']))
-                        <p class="text-muted mb-1 fs-12">{{ $addr['company'] }}</p>
-                    @endif
                     <p class="text-muted mb-0 fs-13">
-                        {{ $addr['address_line1'] }}{{ !empty($addr['address_line2']) ? (', ' . $addr['address_line2']) : '' }}<br>
-                        {{ $addr['city'] ?? '' }}{{ !empty($addr['state']) ? ', ' . $addr['state'] : '' }}<br>
-                        {{ $addr['country'] }}
+                        {{ $addr['address_line1'] }}<br>
+                        {{ trim(($addr['area_name'] ?? '') . ', ' . ($addr['thana_name'] ?? '') . ', ' . ($addr['district_name'] ?? ''), ', ') }}<br>
+                        {{ $addr['country'] }} &middot; {{ $addr['phone'] ?? '' }}
                     </p>
                 </div>
                 @endforeach
@@ -84,8 +85,8 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body text-center">
-                        <p class="text-muted mb-1 fs-13">Botanical Bloom Points</p>
-                        <h3 class="fw-bold text-success mb-0">580 pts</h3>
+                        <p class="text-muted mb-1 fs-13">Average Order Value</p>
+                        <h3 class="fw-bold text-success mb-0">{{ $currencySymbol }}{{ number_format($customer['avg_order_value'] ?? 0, 2) }}</h3>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
@@ -37,6 +38,9 @@ Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 // Shop by Category
 Route::get('/shop/category/{slug}', [ShopController::class, 'category'])->name('shop.category');
 
+// Shop by Brand
+Route::get('/brand/{slug}', [ShopController::class, 'brand'])->name('shop.brand');
+
 // Product Detail Page
 Route::get('/shop/product/{slug}', [ShopController::class, 'product'])->name('shop.product');
 
@@ -44,6 +48,7 @@ Route::get('/shop/product/{slug}', [ShopController::class, 'product'])->name('sh
 Route::get('/cart', function () {
     return view('frontend.cart.index');
 })->name('cart.index');
+Route::post('/cart/quote', [CartController::class, 'quote'])->name('cart.quote');
 
 // Bangladesh Cascading Locations API
 Route::get('/locations/districts', [LocationController::class, 'districts'])->name('locations.districts');
@@ -90,14 +95,16 @@ Route::get('/shipping-and-returns', function () {
 // Account Authentication & Customer Area
 Route::middleware('guest:web')->group(function () {
     Route::get('/account/login', [AccountController::class, 'login'])->name('login');
-    Route::post('/account/login', [AccountController::class, 'loginSubmit'])->name('login.submit');
+    Route::post('/account/login', [AccountController::class, 'loginSubmit'])->middleware('throttle:login')->name('login.submit');
     Route::get('/account/register', [AccountController::class, 'register'])->name('register');
     Route::post('/account/register', [AccountController::class, 'registerSubmit'])->name('register.submit');
     Route::get('/account/forgot-password', [AccountController::class, 'forgotPassword'])->name('password.request');
-    Route::post('/account/forgot-password', [AccountController::class, 'forgotPasswordSubmit'])->name('password.email');
+    Route::post('/account/forgot-password', [AccountController::class, 'forgotPasswordSubmit'])->middleware('throttle:password-reset')->name('password.email');
+    Route::get('/account/reset-password/{token}', [AccountController::class, 'resetPassword'])->name('password.reset');
+    Route::post('/account/reset-password', [AccountController::class, 'resetPasswordSubmit'])->middleware('throttle:password-reset')->name('password.update');
 });
 
-Route::middleware('auth:web')->group(function () {
+Route::middleware(['auth:web', 'active.account:web'])->group(function () {
     Route::get('/account', [AccountController::class, 'index'])->name('account');
     Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
     Route::get('/account/orders/{id}', [AccountController::class, 'showOrder'])->name('account.order.details');

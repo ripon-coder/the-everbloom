@@ -29,6 +29,7 @@ class Order extends Model
         'delivery_method',
         'payment_method',
         'payment_status',
+        'placed_via',
         'tracking_number',
         'shipping_address',
         'notes',
@@ -81,6 +82,11 @@ class Order extends Model
     public function invoice(): HasOne
     {
         return $this->hasOne(Invoice::class);
+    }
+
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(OrderStatusHistory::class);
     }
 
     public function getDateAttribute(): string

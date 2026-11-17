@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\StockMovement;
+use App\Services\Inventory\StockService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 
 class AdminInventoryController extends Controller
 {
@@ -39,37 +42,65 @@ class AdminInventoryController extends Controller
                     'status_badge' => $statusBadge,
                     'batch_lot' => $p->batch_lot ?? ('LOT-2026-B' . $p->id),
                     'last_restocked' => $p->last_restocked_at?->format('M d, Y') ?? 'Nov 02, 2026',
+                    'variants' => $p->productVariants->map(fn (ProductVariant $v) => [
+                        'id' => $v->id,
+                        'title' => $v->title ?: $v->size,
+                        'sku' => $v->sku,
+                        'stock_count' => (int) $v->stock_count,
+                        'stock_status' => $v->stock_status,
+                    ])->values()->all(),
                 ];
             })
             ->all();
 
-        return view('admin.inventory.index', compact('inventory'));
+        $lowStockItems = collect($inventory)
+            ->filter(fn (array $item) => $item['stock'] <= $item['min_threshold'])
+            ->values()
+            ->all();
+
+        $stockMovements = StockMovement::with(['product', 'variant', 'admin'])
+            ->latest('id')
+            ->take(25)
+            ->get();
+
+        return view('admin.inventory.index', compact('inventory', 'lowStockItems', 'stockMovements'));
     }
 
-    public function updateStock(Request $request, Product $product)
+    public function updateStock(Request $request, Product $product, StockService $stockService)
     {
         $validated = $request->validate([
             'stock_count' => ['required', 'integer', 'min:0'],
             'min_threshold' => ['nullable', 'integer', 'min:0'],
             'batch_lot' => ['nullable', 'string', 'max:60'],
+            'note' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $stockCount = (int) $validated['stock_count'];
-        $threshold = (int) ($validated['min_threshold'] ?? $product->min_threshold);
-        $stockStatus = $stockCount <= 0
-            ? 'out_of_stock'
-            : ($stockCount <= $threshold ? 'low_stock' : 'in_stock');
-
-        $product->update([
-            'stock_count' => $stockCount,
-            'min_threshold' => $threshold,
-            'stock_status' => $stockStatus,
-            'batch_lot' => $validated['batch_lot'] ?? $product->batch_lot,
-            'last_restocked_at' => now()->toDateString(),
-        ]);
-
-        Cache::forget('storefront_catalog_json');
+        $stockService->adjustProductStock(
+            product: $product,
+            newStockCount: (int) $validated['stock_count'],
+            minThreshold: isset($validated['min_threshold']) ? (int) $validated['min_threshold'] : null,
+            batchLot: $validated['batch_lot'] ?? null,
+            note: $validated['note'] ?? null,
+            adminId: Auth::guard('admin')->id(),
+        );
 
         return redirect()->back()->with('success', 'Inventory updated successfully.');
+    }
+
+    public function updateVariantStock(Request $request, ProductVariant $variant, StockService $stockService)
+    {
+        $validated = $request->validate([
+            'stock_count' => ['required', 'integer', 'min:0'],
+            'note' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $stockService->adjustVariantStock(
+            variant: $variant,
+            newStockCount: (int) $validated['stock_count'],
+            note: $validated['note'] ?? null,
+            adminId: Auth::guard('admin')->id(),
+        );
+
+        return redirect()->back()->with('success', 'Variant inventory updated successfully.');
     }
 }

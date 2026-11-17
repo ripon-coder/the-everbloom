@@ -10,6 +10,8 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('parent_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->unsignedTinyInteger('level')->default(1);
             $table->string('slug', 120)->unique();
             $table->string('name', 120);
             $table->string('short_name', 60)->nullable();
