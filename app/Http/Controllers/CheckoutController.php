@@ -97,16 +97,13 @@ class CheckoutController extends Controller
     public function store(Request $request, PurchaseBatchService $purchaseBatchService): JsonResponse
     {
         $validated = $request->validate([
-            'email' => ['required', 'email', 'max:191'],
-            'phone' => ['nullable', 'string', 'max:40'],
+            'phone' => ['required', 'string', 'max:40'],
             'firstName' => ['required', 'string', 'max:100'],
             'lastName' => ['required', 'string', 'max:100'],
             'district_id' => ['required', 'integer', 'exists:districts,id,is_active,1'],
             'thana_id' => ['required', 'integer', 'exists:thanas,id,is_active,1'],
             'area_id' => ['required', 'integer', 'exists:areas,id,is_active,1'],
-            'address' => ['required', 'string', 'max:255'],
-            'apartment' => ['nullable', 'string', 'max:255'],
-            'zip' => ['nullable', 'string', 'max:30'],
+            'address' => ['required', 'string', 'max:500'],
             'shippingMethod' => ['required', 'in:standard,express'],
             'paymentMethod' => ['required', 'in:card_demo,digital_wallet_demo'],
             'discountCode' => ['nullable', 'string', 'max:60'],
@@ -234,12 +231,14 @@ class CheckoutController extends Controller
                 ? 'Apple Pay / Digital Wallet'
                 : 'Credit / Debit Card';
 
+            $customerEmail = Auth::guard('web')->user()?->email ?? '';
+
             $order = Order::create([
                 'order_number' => $orderNumber,
                 'user_id' => Auth::guard('web')->id(),
                 'coupon_id' => $appliedCoupon?->id,
-                'customer_email' => $validated['email'],
-                'customer_phone' => $validated['phone'] ?? null,
+                'customer_email' => $customerEmail,
+                'customer_phone' => $validated['phone'],
                 'status' => 'Placed',
                 'current_step' => 'Placed',
                 'subtotal' => $subtotal,
@@ -266,11 +265,11 @@ class CheckoutController extends Controller
                     'thana_name' => $thana->name,
                     'area_name' => $area->name,
                     'address_line1' => $validated['address'],
-                    'address_line2' => $validated['apartment'] ?? '',
+                    'address_line2' => '',
                     'city' => $thana->name,
                     'state' => $district->name,
-                    'postal_code' => ($validated['zip'] ?? null) ?: ($area->postal_code ?? ''),
-                    'phone' => $validated['phone'] ?? '',
+                    'postal_code' => $area->postal_code ?? '',
+                    'phone' => $validated['phone'],
                 ],
                 'placed_at' => now(),
             ]);
@@ -284,7 +283,7 @@ class CheckoutController extends Controller
                 'order_id' => $order->id,
                 'invoice_no' => 'INV-' . now()->format('Y') . '-' . $invoiceSeq,
                 'customer_name' => trim($validated['firstName'] . ' ' . $validated['lastName']),
-                'customer_email' => $validated['email'],
+                'customer_email' => $customerEmail,
                 'amount' => $total,
                 'status' => 'Paid',
                 'payment_method' => $paymentLabel,

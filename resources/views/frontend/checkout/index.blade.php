@@ -1,4 +1,4 @@
-﻿@extends('layouts.checkout')
+@extends('layouts.checkout')
 
 @section('title', 'Checkout â€” ' . config('demo.site.name'))
 @section('hide_newsletter', true)
@@ -230,33 +230,15 @@
 
                     <div class="space-y-4">
                         <div>
-                            <label for="email" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
-                                Email Address *
-                            </label>
-                            <input 
-                                id="email" 
-                                name="email" 
-                                type="email" 
-                                autocomplete="email" 
-                                x-model="form.email" 
-                                @input="clearError('email')"
-                                :aria-invalid="errors.email ? 'true' : 'false'"
-                                :aria-describedby="errors.email ? 'email-error' : null"
-                                class="input-field"
-                                :class="{ 'input-error': errors.email }"
-                            >
-                            <p id="email-error" x-show="errors.email" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.email" role="alert"></p>
-                        </div>
-
-                        <div>
                             <label for="phone" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
-                                Phone (optional)
+                                Phone *
                             </label>
                             <input 
                                 id="phone" 
                                 name="phone" 
                                 type="tel" 
                                 autocomplete="tel" 
+                                required
                                 x-model="form.phone" 
                                 @input="clearError('phone')"
                                 :aria-invalid="errors.phone ? 'true' : 'false'"
@@ -423,56 +405,24 @@
                             </div>
                         </div>
 
-                        <!-- Street Address -->
+                        <!-- Address Details -->
                         <div>
                             <label for="address" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
-                                House / Road / Block *
+                                Address Details *
                             </label>
-                            <input 
+                            <textarea 
                                 id="address" 
                                 name="address" 
-                                type="text" 
-                                autocomplete="address-line1" 
+                                rows="3" 
+                                autocomplete="street-address" 
                                 x-model="form.address" 
                                 @input="clearError('address')"
                                 :aria-invalid="errors.address ? 'true' : 'false'"
                                 :aria-describedby="errors.address ? 'address-error' : null"
-                                class="input-field"
+                                class="input-field !h-auto py-3 resize-y"
                                 :class="{ 'input-error': errors.address }"
-                            >
+                            ></textarea>
                             <p id="address-error" x-show="errors.address" x-cloak class="mt-1 text-[13px] text-[#B3453A] font-medium" x-text="errors.address" role="alert"></p>
-                        </div>
-
-                        <!-- Apartment / Suite & Postal Code -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label for="apartment" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
-                                    Apartment, suite, floor (optional)
-                                </label>
-                                <input 
-                                    id="apartment" 
-                                    name="apartment" 
-                                    type="text" 
-                                    autocomplete="address-line2" 
-                                    x-model="form.apartment" 
-                                    class="input-field"
-                                >
-                            </div>
-
-                            <div>
-                                <label for="postal_code" class="block text-xs uppercase tracking-[0.2em] text-muted mb-1.5 font-medium">
-                                    Postal Code (optional)
-                                </label>
-                                <input 
-                                    id="postal_code" 
-                                    name="postal_code" 
-                                    type="text" 
-                                    autocomplete="postal-code" 
-                                    x-model="form.zip" 
-                                    @input="clearError('zip')"
-                                    class="input-field"
-                                >
-                            </div>
                         </div>
                     </div>
                 </section>
@@ -725,7 +675,6 @@ function checkoutComponent() {
         ]),
         errors: {},
         fieldIdMap: {
-            email: 'email',
             phone: 'phone',
             firstName: 'first_name',
             lastName: 'last_name',
@@ -733,7 +682,6 @@ function checkoutComponent() {
             thana_id: 'thana_id',
             area_id: 'area_id',
             address: 'address',
-            zip: 'postal_code',
         },
 
         async init() {
@@ -872,10 +820,11 @@ function checkoutComponent() {
 
         validate() {
             const errs = {};
-            if (!this.form.email.trim()) {
-                errs.email = 'Please enter your email address.';
-            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email.trim())) {
-                errs.email = 'Please enter a valid email address.';
+            const phoneDigits = (this.form.phone || '').replace(/\D/g, '');
+            if (!this.form.phone || !this.form.phone.trim()) {
+                errs.phone = 'Please enter your phone number.';
+            } else if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+                errs.phone = 'Please enter a valid phone number.';
             }
 
             if (!this.form.firstName.trim()) {
@@ -899,7 +848,7 @@ function checkoutComponent() {
             }
 
             if (!this.form.address.trim()) {
-                errs.address = 'Please enter your house, road, or block.';
+                errs.address = 'Please enter your address details.';
             }
 
             this.errors = errs;
@@ -971,7 +920,7 @@ function checkoutComponent() {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
             } catch (e) {
-                this.errors.email = 'Unable to place order right now. Please try again.';
+                this.errors.phone = 'Unable to place order right now. Please try again.';
             } finally {
                 this.submitting = false;
             }
