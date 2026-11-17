@@ -7,12 +7,35 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0">Active Promotional Codes & Coupons ({{ $coupons->total() }})</h4>
-                <a href="{{ route('admin.coupons.create') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
-                    <iconify-icon icon="solar:add-circle-bold" class="fs-16"></iconify-icon>
-                    <span>Create Coupon</span>
-                </a>
+            @php
+                $couponFilterCount = collect([
+                    request('search'),
+                    request('type'),
+                    request('status'),
+                ])->filter()->count();
+            @endphp
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <h4 class="card-title mb-0">Active Promotional Codes &amp; Coupons ({{ $coupons->total() }})</h4>
+                    @if($couponFilterCount > 0)
+                        <a href="{{ route('admin.coupons.index') }}" class="badge bg-soft-danger text-danger text-decoration-none fs-11">
+                            <i class="bx bx-x align-middle"></i> Clear Filters
+                        </a>
+                    @endif
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-soft-secondary d-flex align-items-center gap-1 position-relative" data-bs-toggle="offcanvas" data-bs-target="#couponFilterDrawer" aria-controls="couponFilterDrawer">
+                        <iconify-icon icon="solar:filter-bold-duotone" class="fs-16"></iconify-icon>
+                        <span>Filter</span>
+                        @if($couponFilterCount > 0)
+                            <span class="badge bg-primary rounded-pill ms-1">{{ $couponFilterCount }}</span>
+                        @endif
+                    </button>
+                    <a href="{{ route('admin.coupons.create') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
+                        <iconify-icon icon="solar:add-circle-bold" class="fs-16"></iconify-icon>
+                        <span>Create Coupon</span>
+                    </a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -106,4 +129,33 @@
         </div>
     </div>
 </div>
+<x-admin.filter-drawer
+    id="couponFilterDrawer"
+    title="Filter Coupons"
+    :action="route('admin.coupons.index')"
+    :reset-url="route('admin.coupons.index')">
+    <div class="mb-3">
+        <label for="cpn-filter-search" class="form-label fw-semibold">Search</label>
+        <input type="text" id="cpn-filter-search" name="search" class="form-control" placeholder="Coupon code or campaign label..." value="{{ request('search') }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="cpn-filter-type" class="form-label fw-semibold">Discount Type</label>
+        <select id="cpn-filter-type" name="type" class="form-select">
+            <option value="">All Types</option>
+            <option value="percentage" {{ request('type') === 'percentage' ? 'selected' : '' }}>Percentage</option>
+            <option value="fixed" {{ request('type') === 'fixed' ? 'selected' : '' }}>Fixed Amount</option>
+            <option value="free_shipping" {{ request('type') === 'free_shipping' ? 'selected' : '' }}>Free Shipping</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="cpn-filter-status" class="form-label fw-semibold">Status</label>
+        <select id="cpn-filter-status" name="status" class="form-select">
+            <option value="">All Statuses</option>
+            <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+        </select>
+    </div>
+</x-admin.filter-drawer>
 @endsection

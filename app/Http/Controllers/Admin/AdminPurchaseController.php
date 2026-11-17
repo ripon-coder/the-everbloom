@@ -11,15 +11,36 @@ use Illuminate\Http\Request;
 
 class AdminPurchaseController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = trim((string) $request->input('search', ''));
+        $vendorId = $request->input('vendor_id');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+
         $batches = PurchaseBatch::with(['vendor', 'items.product'])
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('batch_code', 'like', "%{$search}%")
+                        ->orWhere('vendor_name', 'like', "%{$search}%")
+                        ->orWhere('reference_no', 'like', "%{$search}%");
+                });
+            })
+            ->when($vendorId, fn ($q) => $q->where('vendor_id', (int) $vendorId))
+            ->when($dateFrom, fn ($q) => $q->whereDate('purchased_at', '>=', $dateFrom))
+            ->when($dateTo, fn ($q) => $q->whereDate('purchased_at', '<=', $dateTo))
             ->latest('purchased_at')
             ->latest('id')
             ->get();
 
-        $products = Product::with(['categoryRelation'])
-            ->with(['productVariants'])
+        $products = Product::with(['categoryRelation', 'productVariants'])
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%")
+                        ->orWhere('batch_lot', 'like', "%{$search}%");
+                });
+            })
             ->orderBy('id')
             ->get()
             ->map(function (Product $p) {
@@ -37,6 +58,7 @@ class AdminPurchaseController extends Controller
                     'id' => $p->id,
                     'name' => $p->name,
                     'sku' => $p->sku,
+                    'vendor_id' => $latestBatchItem?->vendor_id,
                     'vendor_name' => $latestBatchItem?->vendor?->name ?? '—',
                     'batch_lot' => $p->batch_lot ?? '—',
                     'stock_count' => (int) $p->stock_count,
@@ -47,9 +69,13 @@ class AdminPurchaseController extends Controller
                     'margin_pct' => $marginPct,
                 ];
             })
+            ->when($vendorId, fn ($col) => $col->where('vendor_id', (int) $vendorId))
+            ->values()
             ->all();
 
-        return view('admin.purchases.index', compact('batches', 'products'));
+        $vendors = Vendor::orderBy('name')->get(['id', 'name']);
+
+        return view('admin.purchases.index', compact('batches', 'products', 'vendors'));
     }
 
     public function create()

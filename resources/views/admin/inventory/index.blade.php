@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Warehouse Inventory')
-@section('container_class', 'container-xxl')
+@section('container_class', 'container-fluid')
 
 @section('content')
 @php
@@ -139,90 +139,92 @@
                     <table class="table align-middle mb-0 table-hover table-centered">
                         <thead class="bg-light-subtle">
                             <tr>
-                                <th>Botanical Formulation</th>
-                                <th>SKU</th>
-                                <th>Batch / Lot No.</th>
-                                <th>Category</th>
-                                <th>Available Stock</th>
-                                <th>Avg Buy Price</th>
-                                <th>Selling Price</th>
-                                <th>Unit Profit</th>
-                                <th>Alert Threshold</th>
-                                <th>Status</th>
-                                <th>Last Harvest/Restock</th>
-                                <th class="text-end">Adjust Stock</th>
+                                <th class="ps-3">Formulation</th>
+                                <th>Batch / Restock</th>
+                                <th>Pricing &amp; Margin</th>
+                                <th>Stock Health</th>
+                                <th class="text-end pe-3">Adjust Stock</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($inventory as $item)
                             <tr>
-                                <td>
+                                <td class="ps-3">
                                     <div class="d-flex align-items-center gap-3">
-                                        <div class="avatar-sm bg-light rounded d-flex align-items-center justify-content-center overflow-hidden border">
-                                            <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($item['image'] ?? 'products/botanical-radiance-serum-01.jpg') }}" alt="" class="avatar-sm object-fit-cover">
+                                        <div class="rounded bg-light avatar-md d-flex align-items-center justify-content-center overflow-hidden border flex-shrink-0">
+                                            <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($item['image'] ?? 'products/botanical-radiance-serum-01.jpg') }}" alt="{{ $item['name'] }}" class="avatar-md object-fit-cover">
                                         </div>
-                                        <a href="{{ route('admin.products.edit', $item['id']) }}" class="text-dark fw-semibold fs-14">
-                                            {{ $item['name'] }}
-                                        </a>
+                                        <div>
+                                            <a href="{{ route('admin.products.edit', $item['id']) }}" class="text-dark fw-semibold fs-14 d-block">
+                                                {{ $item['name'] }}
+                                            </a>
+                                            <div class="d-flex align-items-center gap-2 mt-1">
+                                                <span class="text-muted fs-12 font-monospace text-nowrap">{{ $item['sku'] }}</span>
+                                                <span class="badge bg-secondary-subtle text-secondary fs-11">{{ $item['category'] }}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
-                                <td>
-                                    <span class="font-monospace text-muted fs-13">{{ $item['sku'] }}</span>
+                                <td class="text-nowrap">
+                                    <span class="badge bg-light text-dark border font-monospace fs-12">{{ $item['batch_lot'] }}</span>
+                                    <p class="text-muted mb-0 mt-1 fs-12">{{ $item['last_restocked'] }}</p>
                                 </td>
-                                <td>
-                                    <span class="badge bg-light text-dark border font-monospace">{{ $item['batch_lot'] }}</span>
+                                <td class="text-nowrap">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold text-dark fs-14">{{ $currencySymbol }}{{ number_format($item['sell_price'] ?? 0, 2) }}</span>
+                                        @php $invUnitProfit = (float) ($item['unit_profit'] ?? 0); @endphp
+                                        <span class="badge {{ $invUnitProfit >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} fs-11">
+                                            {{ ($invUnitProfit >= 0 ? '+' : '-') . $currencySymbol }}{{ number_format(abs($invUnitProfit), 2) }}
+                                        </span>
+                                    </div>
+                                    <p class="text-muted mb-0 mt-1 fs-12">Buy: {{ $currencySymbol }}{{ number_format($item['avg_buy_price'] ?? 0, 2) }}</p>
                                 </td>
-                                <td>
-                                    <span class="badge bg-secondary-subtle text-secondary">{{ $item['category'] }}</span>
+                                <td class="text-nowrap">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold fs-14 text-dark">{{ $item['stock'] }} units</span>
+                                        <span class="badge bg-{{ $item['status_badge'] }}-subtle text-{{ $item['status_badge'] }} fs-11">
+                                            {{ $item['status'] }}
+                                        </span>
+                                    </div>
+                                    <p class="text-muted mb-0 mt-1 fs-12">Min threshold: {{ $item['min_threshold'] }} units</p>
                                 </td>
-                                <td>
-                                    <span class="fw-bold fs-14 text-dark">{{ $item['stock'] }} units</span>
-                                </td>
-                                <td>
-                                    <span class="fs-13 text-muted">{{ $currencySymbol }}{{ number_format($item['avg_buy_price'] ?? 0, 2) }}</span>
-                                </td>
-                                <td>
-                                    <span class="fs-13 text-dark">{{ $currencySymbol }}{{ number_format($item['sell_price'] ?? 0, 2) }}</span>
-                                </td>
-                                <td>
-                                    @php $invUnitProfit = (float) ($item['unit_profit'] ?? 0); @endphp
-                                    <span class="badge {{ $invUnitProfit >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }}">{{ ($invUnitProfit >= 0 ? '+' : '-') . $currencySymbol }}{{ number_format(abs($invUnitProfit), 2) }}</span>
-                                </td>
-                                <td>
-                                    <span class="text-muted fs-13">{{ $item['min_threshold'] }} units</span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-{{ $item['status_badge'] }}-subtle text-{{ $item['status_badge'] }} px-2 py-1 fs-12">
-                                        {{ $item['status'] }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="text-muted fs-13">{{ $item['last_restocked'] }}</span>
-                                </td>
-                                <td class="text-end">
-                                    <form action="{{ route('admin.inventory.adjust', $item['id']) }}" method="POST" class="d-inline-flex gap-1 align-items-center">
-                                        @csrf
-                                        <input type="number" name="stock_count" value="{{ $item['stock'] }}" min="0" class="form-control form-control-sm" style="width:72px;" title="Stock count">
-                                        <input type="number" name="min_threshold" value="{{ $item['min_threshold'] }}" min="0" class="form-control form-control-sm" style="width:62px;" title="Alert threshold">
-                                        <button type="submit" class="btn btn-sm btn-soft-primary">Save</button>
-                                    </form>
+                                <td class="text-end pe-3">
+                                    <div class="d-inline-flex flex-wrap align-items-center justify-content-end gap-2">
+                                        <form action="{{ route('admin.inventory.adjust', $item['id']) }}" method="POST" class="d-inline-flex align-items-center">
+                                            @csrf
+                                            <div class="input-group input-group-sm" style="width: 215px;">
+                                                <input type="number" name="stock_count" value="{{ $item['stock'] }}" min="0" class="form-control text-center" title="Available stock" aria-label="Stock count">
+                                                <input type="number" name="min_threshold" value="{{ $item['min_threshold'] }}" min="0" class="form-control text-center" title="Alert threshold" aria-label="Alert threshold">
+                                                <button type="submit" class="btn btn-soft-primary fw-medium">Save</button>
+                                            </div>
+                                        </form>
+                                        @if(!empty($item['variants']))
+                                            <button type="button" class="btn btn-sm btn-soft-secondary text-nowrap" data-bs-toggle="collapse" data-bs-target="#inv-variants-{{ $item['id'] }}" aria-expanded="false">
+                                                <i class="bx bx-layer me-1"></i>Variants ({{ count($item['variants']) }})
+                                            </button>
+                                        @endif
+                                    </div>
                                     @if(!empty($item['variants']))
-                                        <div class="mt-2 pt-2 border-top d-flex flex-column gap-1 align-items-end">
-                                            @foreach($item['variants'] as $variant)
-                                                <form action="{{ route('admin.inventory.adjustVariant', $variant['id']) }}" method="POST" class="d-inline-flex gap-1 align-items-center">
-                                                    @csrf
-                                                    <span class="text-muted fs-11 me-1">{{ $variant['title'] }}:</span>
-                                                    <input type="number" name="stock_count" value="{{ $variant['stock_count'] }}" min="0" class="form-control form-control-sm" style="width:64px;" title="Variant stock">
-                                                    <button type="submit" class="btn btn-sm btn-soft-secondary">Set</button>
-                                                </form>
-                                            @endforeach
+                                        <div class="collapse mt-2" id="inv-variants-{{ $item['id'] }}">
+                                            <div class="p-2 rounded bg-light bg-opacity-75 border d-inline-flex flex-column gap-1 text-start">
+                                                @foreach($item['variants'] as $variant)
+                                                    <form action="{{ route('admin.inventory.adjustVariant', $variant['id']) }}" method="POST" class="d-flex align-items-center justify-content-between gap-2 text-nowrap">
+                                                        @csrf
+                                                        <span class="text-muted fs-12 fw-medium">{{ $variant['title'] }}</span>
+                                                        <div class="input-group input-group-sm" style="width: 120px;">
+                                                            <input type="number" name="stock_count" value="{{ $variant['stock_count'] }}" min="0" class="form-control text-center" title="Variant stock">
+                                                            <button type="submit" class="btn btn-soft-secondary">Set</button>
+                                                        </div>
+                                                    </form>
+                                                @endforeach
+                                            </div>
                                         </div>
                                     @endif
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="12" class="text-center py-4 text-muted">No inventory records found.</td>
+                                <td colspan="5" class="text-center py-4 text-muted">No inventory records found.</td>
                             </tr>
                             @endforelse
                         </tbody>

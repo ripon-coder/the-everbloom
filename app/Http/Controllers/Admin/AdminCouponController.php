@@ -8,15 +8,31 @@ use App\Models\Category;
 use App\Models\Coupon;
 use App\Models\CouponRedemption;
 use App\Models\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class AdminCouponController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $currencySymbol = config('demo.site.currency.symbol', '৳');
+        $search = trim((string) $request->input('search', ''));
+        $type = trim((string) $request->input('type', ''));
+        $status = trim((string) $request->input('status', ''));
 
-        $coupons = Coupon::latest()->paginate(15);
+        $coupons = Coupon::query()
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('code', 'like', "%{$search}%")
+                        ->orWhere('label', 'like', "%{$search}%");
+                });
+            })
+            ->when(in_array($type, ['percentage', 'fixed', 'free_shipping'], true), fn ($q) => $q->where('type', $type))
+            ->when($status === 'active', fn ($q) => $q->where('is_active', true))
+            ->when($status === 'inactive', fn ($q) => $q->where('is_active', false))
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
         $coupons->setCollection(
             $coupons->getCollection()->map(function (Coupon $c) use ($currencySymbol) {
                 return [

@@ -5,12 +5,29 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Order;
+use Illuminate\Http\Request;
 
 class AdminInvoiceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = trim((string) $request->input('search', ''));
+        $status = trim((string) $request->input('status', ''));
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+
         $invoices = Invoice::with('order.items')
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('invoice_no', 'like', "%{$search}%")
+                        ->orWhere('customer_name', 'like', "%{$search}%")
+                        ->orWhere('customer_email', 'like', "%{$search}%")
+                        ->orWhereHas('order', fn ($oq) => $oq->where('order_number', 'like', "%{$search}%"));
+                });
+            })
+            ->when($status !== '', fn ($q) => $q->where('status', $status))
+            ->when($dateFrom, fn ($q) => $q->whereDate('issued_at', '>=', $dateFrom))
+            ->when($dateTo, fn ($q) => $q->whereDate('issued_at', '<=', $dateTo))
             ->latest('issued_at')
             ->get()
             ->map(fn (Invoice $inv) => [
