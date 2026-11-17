@@ -103,8 +103,13 @@ flowchart LR
 - [x] **P12-7** Customer emails on status change (`OrderStatusChangedMail`).
 - [x] **P12-8** Remove `total_cost` / `total_profit` from `Order::toViewArray()` used on customer-facing pages; keep them only in `Order::toAdminArray()`.
 
-## Phase 13 — Coupons
-- [ ] **P13-1** Edit/update/toggle. **P13-2** `max_discount`, `starts_at`, percentage ≤ 100, per-customer limit via redemptions. **P13-3** Product/category scope. **P13-4** Usage history screen. **P13-5** Restore usage on cancel. **P13-6** Cart/checkout use server quote.
+## Phase 13 — Coupons (`DONE`)
+- [x] **P13-1** Edit/update/toggle (`AdminCouponController@edit/update/toggle`).
+- [x] **P13-2** `max_discount`, `starts_at`, `percentage <= 100`, `per_customer_limit` via `coupon_redemptions`, case-insensitive code uniqueness.
+- [x] **P13-3** Product/category scope (`coupon_product`, `coupon_category`).
+- [x] **P13-4** Usage history screen (`admin.coupons.history`).
+- [x] **P13-5** Restore usage on cancel (`OrderStatusService`).
+- [x] **P13-6** Cart/checkout use server quote (`CouponService`).
 
 ## Phase 14 — Flash Sale (see `admin-dashboard/FLASH_SALE_MANAGEMENT.md`)
 - [ ] **P14-1** Models/migrations. **P14-2** `FlashSaleService` + `PriceResolver` integration (resolves price at cart quote & checkout). `PriceResolver` must ignore stale `status` when timestamps place the sale in-window (see BUSINESS_LOGIC §8). **P14-3** Scheduler command `flashsales:sync`. **P14-4** Admin list/create/edit/products/show/analytics views & routes. **P14-5** Storefront homepage section + product-card/product-page price & countdown & remaining stock; `/flash-sales` page for upcoming/active. **P14-6** Checkout lock/limit/`sold_qty`/order-item tracking. **P14-7** Cancel/refund adjustments (D-04). **P14-8** Analytics. **P14-9** Retire `settings.flash_sale` + "compare_at_price" heuristic in `HomeController`.

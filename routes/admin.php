@@ -83,7 +83,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'active.accoun
     Route::post('customers/{id}/toggle-status', [AdminCustomerController::class, 'toggleStatus'])->name('customers.toggleStatus');
 
     // Coupons & Promotions
-    Route::resource('coupons', AdminCouponController::class)->only(['index', 'create', 'store', 'destroy']);
+    Route::resource('coupons', AdminCouponController::class)->except(['show']);
+    Route::post('coupons/{coupon}/toggle', [AdminCouponController::class, 'toggle'])->name('coupons.toggle');
+    Route::get('coupons/{coupon}/history', [AdminCouponController::class, 'history'])->name('coupons.history');
 
     // Customer Reviews Moderation
     Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');

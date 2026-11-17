@@ -8,7 +8,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0">Active Promotional Codes & Coupons ({{ count($coupons) }})</h4>
+                <h4 class="card-title mb-0">Active Promotional Codes & Coupons ({{ $coupons->total() }})</h4>
                 <a href="{{ route('admin.coupons.create') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
                     <iconify-icon icon="solar:add-circle-bold" class="fs-16"></iconify-icon>
                     <span>Create Coupon</span>
@@ -65,13 +65,27 @@
                                     <span class="badge bg-{{ $c['status_badge'] }}-subtle text-{{ $c['status_badge'] }} px-2 py-1 fs-12">{{ $c['status'] }}</span>
                                 </td>
                                 <td class="text-end">
-                                    <form action="{{ route('admin.coupons.destroy', $c['id']) }}" method="POST" onsubmit="return confirm('Delete this coupon?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-soft-danger" title="Delete Coupon">
-                                            <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="fs-16"></iconify-icon>
-                                        </button>
-                                    </form>
+                                    <div class="d-flex align-items-center justify-content-end gap-1">
+                                        <a href="{{ route('admin.coupons.history', $c['id']) }}" class="btn btn-sm btn-soft-secondary" title="Usage History">
+                                            <iconify-icon icon="solar:history-broken" class="fs-16"></iconify-icon>
+                                        </a>
+                                        <a href="{{ route('admin.coupons.edit', $c['id']) }}" class="btn btn-sm btn-soft-primary" title="Edit Coupon">
+                                            <iconify-icon icon="solar:pen-2-broken" class="fs-16"></iconify-icon>
+                                        </a>
+                                        <form action="{{ route('admin.coupons.toggle', $c['id']) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm {{ $c['is_active'] ? 'btn-soft-warning' : 'btn-soft-success' }}" title="{{ $c['is_active'] ? 'Deactivate' : 'Activate' }}">
+                                                <iconify-icon icon="{{ $c['is_active'] ? 'solar:pause-circle-broken' : 'solar:play-circle-broken' }}" class="fs-16"></iconify-icon>
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('admin.coupons.destroy', $c['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this coupon?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-soft-danger" title="Delete Coupon">
+                                                <iconify-icon icon="solar:trash-bin-minimalistic-2-broken" class="fs-16"></iconify-icon>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             @empty
@@ -84,7 +98,10 @@
                 </div>
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50">
-                <p class="mb-0 text-muted fs-12">Promotional coupons managed in database.</p>
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <p class="mb-0 text-muted fs-12">Showing {{ $coupons->firstItem() ?? 0 }} to {{ $coupons->lastItem() ?? 0 }} of {{ $coupons->total() }} coupons</p>
+                    <div>{{ $coupons->links('pagination::bootstrap-5') }}</div>
+                </div>
             </div>
         </div>
     </div>

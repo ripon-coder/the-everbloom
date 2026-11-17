@@ -5,9 +5,13 @@ namespace App\Services\Checkout;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use Illuminate\Support\Facades\Auth;
 
 class PriceResolver
 {
+    public function __construct(
+        private readonly CouponService $couponService
+    ) {}
     public function resolveUnitPrice(Product $product, ?ProductVariant $variant): array
     {
         if ($variant) {
@@ -76,6 +80,8 @@ class PriceResolver
 
             $lines[] = [
                 'productId' => $product->id,
+                'product_id' => $product->id,
+                'category_id' => $product->category_id,
                 'variantId' => $variant ? ($variant->size ?: (string) $variant->id) : null,
                 'product_variant_id' => $variant?->id,
                 'name' => $product->name,
@@ -102,23 +108,24 @@ class PriceResolver
             $normalizedCode = strtoupper(trim($couponCode));
             $coupon = Coupon::where('code', $normalizedCode)->first();
 
-            if (! $coupon || ! $this->isCouponEligible($coupon, $subtotal)) {
+            if (! $coupon) {
                 $couponError = 'This promotional code is invalid, expired, or does not meet order requirements.';
             } else {
-                $appliedCouponCode = $coupon->code;
-                $appliedCouponLabel = $coupon->label;
-                $appliedCouponType = $coupon->type;
+                $eval = $this->couponService->evaluate(
+                    coupon: $coupon,
+                    lines: $lines,
+                    subtotal: $subtotal,
+                    user: Auth::guard('web')->user(),
+                );
 
-                if ($coupon->type === 'percentage') {
-                    $discountAmount = round($subtotal * ((float) $coupon->value / 100), 2);
-                    if ($coupon->max_discount !== null) {
-                        $discountAmount = min($discountAmount, round((float) $coupon->max_discount, 2));
-                    }
-                    $discountAmount = min($subtotal, $discountAmount);
-                } elseif ($coupon->type === 'fixed') {
-                    $discountAmount = min($subtotal, round((float) $coupon->value, 2));
-                } elseif ($coupon->type === 'shipping') {
-                    $isFreeShippingCoupon = true;
+                if (! $eval['valid']) {
+                    $couponError = $eval['reason'];
+                } else {
+                    $appliedCouponCode = $coupon->code;
+                    $appliedCouponLabel = $coupon->label;
+                    $appliedCouponType = $coupon->type;
+                    $discountAmount = $eval['discount_amount'];
+                    $isFreeShippingCoupon = $eval['free_shipping'];
                 }
             }
         }

@@ -27,6 +27,7 @@ class PlaceOrderService
     public function __construct(
         private readonly StockService $stockService,
         private readonly PriceResolver $priceResolver,
+        private readonly CouponService $couponService,
     ) {}
 
     public function placeOrder(array $validated, ?User $user = null): Order
@@ -74,6 +75,7 @@ class PlaceOrderService
                 $itemsCount += $qty;
 
                 $preparedItems[] = [
+                    'category_id' => $product->category_id,
                     'consumed_batches' => $consumedBatches,
                     'attributes' => [
                         'product_id' => $product->id,
@@ -102,22 +104,27 @@ class PlaceOrderService
             if (! empty($validated['discountCode'])) {
                 $code = strtoupper(trim($validated['discountCode']));
                 $coupon = Coupon::where('code', $code)->lockForUpdate()->first();
-                $startsOk = ! $coupon?->starts_at || ! $coupon->starts_at->isFuture();
+                if ($coupon) {
+                    $evalLines = array_map(fn ($item) => [
+                        'product_id' => $item['attributes']['product_id'],
+                        'category_id' => $item['category_id'],
+                        'line_total' => $item['attributes']['line_total'],
+                    ], $preparedItems);
 
-                if ($coupon && $startsOk && $coupon->isValidForSubtotal($subtotal)) {
-                    $appliedCoupon = $coupon;
-                    if ($coupon->type === 'percentage') {
-                        $discountAmount = round($subtotal * ((float) $coupon->value / 100), 2);
-                        if ($coupon->max_discount !== null) {
-                            $discountAmount = min($discountAmount, round((float) $coupon->max_discount, 2));
-                        }
-                        $discountAmount = min($subtotal, $discountAmount);
-                    } elseif ($coupon->type === 'fixed') {
-                        $discountAmount = min($subtotal, (float) $coupon->value);
-                    } elseif ($coupon->type === 'shipping') {
-                        $isFreeShippingCoupon = true;
+                    $eval = $this->couponService->evaluate(
+                        coupon: $coupon,
+                        lines: $evalLines,
+                        subtotal: $subtotal,
+                        user: $user,
+                        email: $validated['email'] ?? null,
+                    );
+
+                    if ($eval['valid']) {
+                        $appliedCoupon = $coupon;
+                        $discountAmount = $eval['discount_amount'];
+                        $isFreeShippingCoupon = $eval['free_shipping'];
+                        $coupon->increment('used_count');
                     }
-                    $coupon->increment('used_count');
                 }
             }
 
