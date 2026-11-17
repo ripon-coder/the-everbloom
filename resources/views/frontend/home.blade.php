@@ -90,7 +90,7 @@
             <div class="lg:col-span-7 relative flex justify-center lg:justify-end">
                 <div class="relative w-full max-w-[320px] mx-auto lg:mx-0 lg:max-w-lg xl:max-w-xl">
                     <!-- Main Arch Hero Image (max-h-[50vh] on mobile, uncapped aspect-[4/5] on lg+) -->
-                    <div class="relative z-10 w-full aspect-[4/5] max-h-[50vh] lg:max-h-none overflow-hidden rounded-t-[999px] bg-sage-light/60">
+                    <div class="relative z-10 w-full aspect-[4/5] max-h-[50vh] lg:max-h-none overflow-hidden rounded-t-[999px] hero-arch-mask">
                         <x-storefront.image 
                             src="hero/hero-multi-brand.jpg" 
                             alt="Curated multi-brand skincare and beauty essentials at The Everbloom" 
@@ -98,7 +98,7 @@
                             width="960"
                             height="1200"
                             loading="eager"
-                            class="!absolute inset-0 w-full h-full object-cover"
+                            class="!absolute inset-0 w-full h-full object-cover !bg-transparent"
                         />
                     </div>
 
@@ -328,7 +328,7 @@
                         x-show="remaining > 0"
                         x-cloak
                         aria-label="Flash sale countdown"
-                        class="inline-flex items-center gap-3 px-4 py-2.5 bg-ivory border border-[#E3E6DD]"
+                        class="inline-flex items-center justify-center gap-3 px-4 py-2.5 bg-ivory border border-[#E3E6DD]"
                     >
                         <span class="text-[11px] uppercase tracking-[0.18em] font-medium text-muted">
                             Ends In
@@ -374,13 +374,14 @@
             
             <!-- Left Visual Column -->
             <div class="lg:col-span-6 relative">
-                <div class="relative z-10 overflow-hidden max-h-[560px] aspect-[4/5] w-full">
+                <div class="relative z-10 overflow-hidden aspect-[4/3] lg:aspect-[4/5] lg:max-h-[560px] w-full">
                     <x-storefront.image 
                         src="hero/hero-main.jpg" 
                         alt="Curated skincare and beauty essentials at The Everbloom" 
-                        aspect-ratio="aspect-[4/5] max-h-[560px]"
+                        aspect-ratio="aspect-[4/3] lg:aspect-[4/5]"
                         width="800"
                         height="1000"
+                        class="w-full h-full object-cover"
                     />
                 </div>
             </div>
