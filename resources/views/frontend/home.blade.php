@@ -88,9 +88,9 @@
 
             <!-- Right Arch Visual Composition (7 cols on lg, below text on mobile) -->
             <div class="lg:col-span-7 relative flex justify-center lg:justify-end">
-                <div class="relative w-full max-w-[320px] mx-auto lg:mx-0 lg:max-w-lg xl:max-w-xl">
-                    <!-- Main Arch Hero Image (max-h-[50vh] on mobile, uncapped aspect-[4/5] on lg+) -->
-                    <div class="relative z-10 w-full aspect-[4/5] max-h-[50vh] lg:max-h-none overflow-hidden rounded-t-[999px] hero-arch-mask">
+                <div class="relative w-[92%] max-w-[480px] mx-auto lg:w-full lg:mx-0 lg:max-w-lg xl:max-w-xl">
+                    <!-- Main Arch Hero Image (preserves aspect-[4/5] on mobile & desktop) -->
+                    <div class="relative z-10 w-full aspect-[4/5] overflow-hidden rounded-t-[999px] hero-arch-mask">
                         <x-storefront.image 
                             src="hero/hero-multi-brand.jpg" 
                             alt="Curated multi-brand skincare and beauty essentials at The Everbloom" 
@@ -104,7 +104,7 @@
 
                     <!-- Caption Quote Panel: left-rule caption on mobile (no box/bg), overlapping bottom-left edge on lg+ -->
                     {{-- // DEMO COPY --}}
-                    <div class="mt-4 w-full border-l-2 border-[#A8B7A0] pl-4 py-0.5 lg:mt-0 lg:bg-white lg:border lg:border-[#E3E6DD] lg:p-5 lg:absolute lg:-left-6 lg:bottom-10 lg:max-w-[260px] z-20">
+                    <div class="mt-5 w-full border-l-2 border-[#A8B7A0] pl-4 py-0.5 lg:mt-0 lg:bg-white lg:border lg:border-[#E3E6DD] lg:p-5 lg:absolute lg:-left-6 lg:bottom-10 lg:max-w-[260px] z-20">
                         <p class="font-serif italic text-[15px] text-ink/80 lg:text-forest leading-snug">
                             "Curated skincare and beauty from your favorite brands."
                         </p>
