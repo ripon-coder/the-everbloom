@@ -29,6 +29,7 @@ class Product extends Model
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'brand' => $this->brand ?? '',
             'slug' => $this->slug,
             'sku' => $this->sku,
             'category' => $this->categoryRelation?->name ?? '',
@@ -45,6 +46,7 @@ class Product extends Model
         'slug',
         'sku',
         'name',
+        'brand',
         'subtitle',
         'price',
         'compare_at_price',
@@ -171,6 +173,7 @@ class Product extends Model
             'slug' => $this->slug,
             'sku' => $this->sku,
             'name' => $this->name,
+            'brand' => $this->brand,
             'subtitle' => $this->subtitle,
             'category' => $this->category,
             'category_slug' => $this->category_slug,

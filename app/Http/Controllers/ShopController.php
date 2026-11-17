@@ -34,6 +34,10 @@ class ShopController extends Controller
             }
         }
 
+        if ($request->filled('brand')) {
+            $query->where('brand', (string) $request->query('brand'));
+        }
+
         if ($request->boolean('in_stock')) {
             $query->where('stock_status', 'in_stock');
         }

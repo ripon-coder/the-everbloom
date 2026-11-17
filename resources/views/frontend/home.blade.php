@@ -6,7 +6,12 @@
 @section('content')
 @php
     $allProducts = collect(config('demo.products', []));
+    $flashSaleProducts = $flashSaleProducts ?? $allProducts->filter(
+        fn ($p) => !empty($p['compare_at_price']) && $p['compare_at_price'] > $p['price']
+    )->take(4)->values()->all();
+    $flashSaleEndsAt = $flashSaleEndsAt ?? null;
     $featuredProducts = $featuredProducts ?? $allProducts->where('is_featured', true)->take(4)->values()->all();
+    $newArrivalsProducts = $newArrivalsProducts ?? $allProducts->sortByDesc('id')->take(4)->values()->all();
     $bestsellerProducts = $bestsellerProducts ?? $allProducts->where('best_seller', true)
         ->whereNotIn('id', collect($featuredProducts)->pluck('id')->all())
         ->take(4)
@@ -30,24 +35,31 @@
                 <div class="inline-flex items-center gap-2 border-b border-forest/30 pb-1">
                     <span class="w-1.5 h-1.5 rounded-full bg-forest"></span>
                     <span class="text-xs uppercase tracking-[0.2em] font-medium text-forest">
-                        Botanical Skincare Formulations
+                        DISCOVER YOUR BEAUTY ESSENTIALS
                     </span>
                 </div>
 
                 <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-ink font-normal leading-[1.08] tracking-tight text-balance">
-                    A Ritual of <span class="italic font-normal text-forest">Natural</span> Beauty.
+                    Your Beauty, Your <span class="italic font-normal text-forest">Ritual.</span>
                 </h1>
 
                 <p class="text-base text-muted leading-relaxed max-w-md font-normal">
-                    Thoughtful formulations crafted for everyday skincare rituals. Made with carefully selected ingredients to support comfort and daily hydration.
+                    Explore skincare, beauty and self-care essentials from your favorite brands. Discover products that make your everyday beauty routine special.
                 </p>
+
+                <div class="inline-flex items-center gap-2.5 px-3.5 py-2 bg-forest/[0.06] border border-forest/20 rounded-sm">
+                    <span class="w-1.5 h-1.5 rounded-full bg-forest shrink-0"></span>
+                    <span class="text-xs uppercase tracking-[0.18em] font-medium text-forest">
+                        SEASONAL BEAUTY SALE — UP TO 40% OFF
+                    </span>
+                </div>
 
                 <div class="pt-1 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
                     <x-storefront.button href="/shop" variant="primary" size="lg" class="w-full sm:w-auto min-h-[48px]">
-                        Explore Collection
+                        SHOP NOW
                     </x-storefront.button>
-                    <x-storefront.button href="/about" variant="secondary" size="lg" class="w-full sm:w-auto min-h-[48px]">
-                        Our Philosophy
+                    <x-storefront.button href="/shop" variant="secondary" size="lg" class="w-full sm:w-auto min-h-[48px]">
+                        EXPLORE BRANDS
                     </x-storefront.button>
                 </div>
 
@@ -57,19 +69,19 @@
                         <svg class="w-3.5 h-3.5 text-forest shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        <span>Carefully Selected Ingredients</span>
+                        <span>Curated Multi-Brand Edit</span>
                     </li>
                     <li class="inline-flex items-center gap-2">
                         <svg class="w-3.5 h-3.5 text-forest shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        <span>Thoughtful Formulations</span>
+                        <span>Skincare &amp; Beauty Favorites</span>
                     </li>
                     <li class="inline-flex items-center gap-2">
                         <svg class="w-3.5 h-3.5 text-forest shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        <span>Everyday Skincare Rituals</span>
+                        <span>Everyday Self-Care Rituals</span>
                     </li>
                 </ul>
             </div>
@@ -80,8 +92,8 @@
                     <!-- Main Arch Hero Image (max-h-[50vh] on mobile, uncapped aspect-[4/5] on lg+) -->
                     <div class="relative z-10 w-full aspect-[4/5] max-h-[50vh] lg:max-h-none overflow-hidden rounded-t-[999px] bg-sage-light/60">
                         <x-storefront.image 
-                            src="hero/hero-main.jpg" 
-                            alt="The Everbloom Botanical Skincare Collection" 
+                            src="hero/hero-multi-brand.jpg" 
+                            alt="Curated multi-brand skincare and beauty essentials at The Everbloom" 
                             aspect-ratio=""
                             width="960"
                             height="1200"
@@ -94,7 +106,7 @@
                     {{-- // DEMO COPY --}}
                     <div class="mt-4 w-full border-l-2 border-[#A8B7A0] pl-4 py-0.5 lg:mt-0 lg:bg-white lg:border lg:border-[#E3E6DD] lg:p-5 lg:absolute lg:-left-6 lg:bottom-10 lg:max-w-[260px] z-20">
                         <p class="font-serif italic text-[15px] text-ink/80 lg:text-forest leading-snug">
-                            "Formulated to honor your skin's natural rhythm."
+                            "Curated skincare and beauty from your favorite brands."
                         </p>
                     </div>
                 </div>
@@ -262,22 +274,100 @@
     </div>
 </section>
 
-<!-- 4. FEATURED PRODUCTS (4 Products) -->
+<!-- 4. FLASH SALE (Discounted Multi-Brand Products) -->
 <section class="py-10 lg:py-16 bg-beige/25 border-y border-[#ECEEE6]">
     <div class="site-container">
-        <x-storefront.section-heading 
-            eyebrow="Seasonal Edit" 
-            title="Featured Botanicals" 
-            description="Thoughtfully selected formulations to support hydration, luminosity, and daily comfort."
-            link-text="Shop All Products"
-            link-url="/shop"
-        />
+        <div class="mb-8 md:mb-12 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div>
+                <span class="block text-xs uppercase tracking-[0.2em] font-medium text-forest mb-2">
+                    LIMITED-TIME BEAUTY DEALS
+                </span>
+                <h2 class="font-serif text-2xl sm:text-3xl md:text-4xl text-ink font-normal tracking-tight">
+                    Beauty Deals You Don't Want to Miss.
+                </h2>
+                <p class="mt-3 text-sm md:text-base text-muted max-w-xl leading-relaxed">
+                    Discover special offers on your favorite skincare and beauty essentials.
+                </p>
+            </div>
 
-        <x-storefront.product-grid :products="$featuredProducts" columns="4" />
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-6 shrink-0">
+                @if(!empty($flashSaleEndsAt))
+                    <div
+                        x-data="{
+                            endsAt: new Date(@js($flashSaleEndsAt)).getTime(),
+                            remaining: 0,
+                            days: '00',
+                            hours: '00',
+                            minutes: '00',
+                            seconds: '00',
+                            timer: null,
+                            tick() {
+                                const diff = this.endsAt - Date.now();
+                                if (diff <= 0) {
+                                    this.remaining = 0;
+                                    if (this.timer) clearInterval(this.timer);
+                                    return;
+                                }
+                                this.remaining = diff;
+                                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                                const m = Math.floor((diff / (1000 * 60)) % 60);
+                                const s = Math.floor((diff / 1000) % 60);
+                                this.days = String(d).padStart(2, '0');
+                                this.hours = String(h).padStart(2, '0');
+                                this.minutes = String(m).padStart(2, '0');
+                                this.seconds = String(s).padStart(2, '0');
+                            },
+                            init() {
+                                this.tick();
+                                if (this.remaining > 0) {
+                                    this.timer = setInterval(() => this.tick(), 1000);
+                                }
+                            }
+                        }"
+                        x-show="remaining > 0"
+                        x-cloak
+                        aria-label="Flash sale countdown"
+                        class="inline-flex items-center gap-3 px-4 py-2.5 bg-ivory border border-[#E3E6DD]"
+                    >
+                        <span class="text-[11px] uppercase tracking-[0.18em] font-medium text-muted">
+                            Ends In
+                        </span>
+                        <div class="flex items-center gap-2 font-sans text-sm font-medium text-ink tabular-nums lining-nums">
+                            <template x-if="Number(days) > 0">
+                                <span class="inline-flex items-baseline gap-0.5">
+                                    <span x-text="days" class="inline-block w-[1.45em] text-center tabular-nums"></span><span class="text-[11px] text-muted uppercase">d</span>
+                                </span>
+                            </template>
+                            <span class="inline-flex items-baseline gap-0.5">
+                                <span x-text="hours" class="inline-block w-[1.45em] text-center tabular-nums"></span><span class="text-[11px] text-muted uppercase">h</span>
+                            </span>
+                            <span class="text-muted/60">:</span>
+                            <span class="inline-flex items-baseline gap-0.5">
+                                <span x-text="minutes" class="inline-block w-[1.45em] text-center tabular-nums"></span><span class="text-[11px] text-muted uppercase">m</span>
+                            </span>
+                            <span class="text-muted/60">:</span>
+                            <span class="inline-flex items-baseline gap-0.5">
+                                <span x-text="seconds" class="inline-block w-[1.45em] text-center tabular-nums"></span><span class="text-[11px] text-muted uppercase">s</span>
+                            </span>
+                        </div>
+                    </div>
+                @endif
+
+                <a href="{{ url('/shop') }}" class="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.2em] font-medium text-forest hover:text-ink transition-colors border-b border-forest pb-0.5 group self-start sm:self-auto">
+                    <span>VIEW ALL OFFERS</span>
+                    <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <x-storefront.product-grid :products="$flashSaleProducts" columns="4" />
     </div>
 </section>
 
-<!-- 5. EDITORIAL STORY / BRAND PHILOSOPHY SPLIT -->
+<!-- 5. WHY SHOP WITH THE EVERBLOOM -->
 <section class="py-10 lg:py-16 bg-ivory overflow-hidden">
     <div class="site-container">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
@@ -286,8 +376,8 @@
             <div class="lg:col-span-6 relative">
                 <div class="relative z-10 overflow-hidden max-h-[560px] aspect-[4/5] w-full">
                     <x-storefront.image 
-                        src="editorial/about-founder.jpg" 
-                        alt="Botanical studio apothecary at The Everbloom" 
+                        src="hero/hero-main.jpg" 
+                        alt="Curated skincare and beauty essentials at The Everbloom" 
                         aspect-ratio="aspect-[4/5] max-h-[560px]"
                         width="800"
                         height="1000"
@@ -298,42 +388,48 @@
             <!-- Right Editorial Narrative Column -->
             <div class="lg:col-span-6 space-y-5">
                 <span class="block text-xs uppercase tracking-[0.2em] font-medium text-forest">
-                    The Everbloom Philosophy
+                    THE EVERBLOOM EXPERIENCE
                 </span>
 
                 <h2 class="font-serif text-3xl sm:text-4xl lg:text-5xl text-ink font-normal leading-[1.15]">
-                    Slow Skincare for <span class="italic text-forest">Resilient</span> Skin Barriers.
+                    Beauty Shopping <span class="italic text-forest">Made Better.</span>
                 </h2>
 
-                <!-- VERIFY CLAIM before launch -->
                 <p class="text-base text-muted leading-relaxed">
-                    We believe skincare should never overwhelm the skin. Rather than chasing aggressive quick fixes, our thoughtful formulations focus on comfort, daily hydration, and gentle nourishment.
+                    Discover your favorite beauty brands, explore carefully selected products and enjoy a convenient shopping experience.
                 </p>
 
-                <!-- VERIFY CLAIM before launch -->
-                <p class="text-sm text-muted leading-relaxed">
-                    Every bottle begins with carefully selected ingredients—thoughtfully prepared and housed in amber glass vessels for your daily routine.
-                </p>
-
-                <!-- Ingredient Highlight Columns -->
-                <div class="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-[#ECEEE6]">
+                <!-- Four Benefits Grid -->
+                <div class="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 border-t border-[#ECEEE6]">
                     <div class="pt-3">
-                        <h3 class="font-serif text-lg text-ink font-normal">Carefully Selected Ingredients</h3>
+                        <h3 class="font-serif text-lg text-ink font-normal">Authentic Products.</h3>
                         <p class="text-sm text-muted mt-1 leading-relaxed">
-                            Formulated with botanical oils, hydrosols, and soothing extracts for everyday skincare rituals.
+                            Carefully selected beauty and skincare essentials from trusted brands.
                         </p>
                     </div>
                     <div class="pt-3">
-                        <h3 class="font-serif text-lg text-ink font-normal">Thoughtful Formulations</h3>
+                        <h3 class="font-serif text-lg text-ink font-normal">Multiple Beauty Brands.</h3>
                         <p class="text-sm text-muted mt-1 leading-relaxed">
-                            Balanced textures with squalane, ceramides, and niacinamide designed for gentle daily use.
+                            Explore everyday skincare, body care, and self-care favorites in one place.
+                        </p>
+                    </div>
+                    <div class="pt-1">
+                        <h3 class="font-serif text-lg text-ink font-normal">Secure Shopping Experience.</h3>
+                        <p class="text-sm text-muted mt-1 leading-relaxed">
+                            Clear product information and a smooth, reliable checkout flow.
+                        </p>
+                    </div>
+                    <div class="pt-1">
+                        <h3 class="font-serif text-lg text-ink font-normal">Customer Support.</h3>
+                        <p class="text-sm text-muted mt-1 leading-relaxed">
+                            Dedicated assistance whenever you have questions about your order.
                         </p>
                     </div>
                 </div>
 
                 <div class="pt-2">
-                    <x-storefront.button href="/about" variant="secondary">
-                        Read Our Full Story
+                    <x-storefront.button href="/shop" variant="secondary">
+                        Explore Collection
                     </x-storefront.button>
                 </div>
             </div>
@@ -342,14 +438,14 @@
     </div>
 </section>
 
-<!-- 6. MOST LOVED RITUALS (4 distinct best_seller products) -->
+<!-- 6. BEST SELLERS (4 distinct best_seller products) -->
 <section class="py-10 lg:py-16 bg-sage-light/30 border-t border-[#ECEEE6]">
     <div class="site-container">
         <x-storefront.section-heading 
-            eyebrow="Community Favorites" 
-            title="Most Loved Rituals" 
-            description="Our foundational daily essentials—trusted for morning protection and evening recovery."
-            link-text="Shop Best Sellers"
+            eyebrow="BEST SELLERS" 
+            title="Customer Favorites." 
+            description="Explore the beauty and skincare products customers love most."
+            link-text="VIEW ALL BEST SELLERS"
             link-url="/shop?sort=best_selling"
         />
 
@@ -357,7 +453,22 @@
     </div>
 </section>
 
-<!-- 7. TESTIMONIALS (1 large featured quote left + 2 smaller quotes right divided by thin lines, initials circles) -->
+<!-- 7. NEW ARRIVALS (4 recently added products) -->
+<section class="py-10 lg:py-16 bg-beige/25 border-t border-[#ECEEE6]">
+    <div class="site-container">
+        <x-storefront.section-heading 
+            eyebrow="JUST ARRIVED" 
+            title="Fresh Finds for Your Beauty Routine." 
+            description="Explore the latest additions to our skincare and beauty collection."
+            link-text="VIEW ALL NEW ARRIVALS"
+            link-url="/shop?sort=newest"
+        />
+
+        <x-storefront.product-grid :products="$newArrivalsProducts" columns="4" />
+    </div>
+</section>
+
+<!-- 8. TESTIMONIALS (1 large featured quote left + 2 smaller quotes right divided by thin lines, initials circles) -->
 <section class="py-10 lg:py-16 bg-ivory border-t border-[#ECEEE6]">
     <div class="site-container">
         <x-storefront.section-heading 
@@ -384,9 +495,11 @@
                 <div class="lg:col-span-6 space-y-5">
                     <div class="flex items-center justify-between gap-3">
                         <x-storefront.rating :rating="$featuredQuote['rating']" :show-count="false" size="sm" />
-                        <span class="text-xs uppercase tracking-[0.2em] text-muted border border-[#E3E6DD] bg-white px-2.5 py-0.5">
-                            Verified Buyer
-                        </span>
+                        @if(!empty($featuredQuote['verified']))
+                            <span class="text-xs uppercase tracking-[0.2em] text-muted border border-[#E3E6DD] bg-white px-2.5 py-0.5">
+                                Verified Purchase
+                            </span>
+                        @endif
                     </div>
 
                     <blockquote class="font-serif italic text-2xl text-ink leading-relaxed">
@@ -394,15 +507,34 @@
                     </blockquote>
 
                     <div class="pt-4 border-t border-[#ECEEE6] flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-sage-light border border-[#E3E6DD] flex items-center justify-center shrink-0 text-xs font-medium text-forest" aria-hidden="true">
-                            {{ $getInitials($featuredQuote['author']) }}
-                        </div>
+                        @if(!empty($featuredQuote['avatar']))
+                            <img
+                                src="{{ $featuredQuote['avatar'] }}"
+                                alt="{{ $featuredQuote['author'] }}"
+                                class="w-9 h-9 rounded-full object-cover border border-[#E3E6DD] shrink-0"
+                                loading="lazy"
+                            />
+                        @else
+                            <div class="w-9 h-9 rounded-full bg-sage-light border border-[#E3E6DD] flex items-center justify-center shrink-0 text-xs font-medium text-forest" aria-hidden="true">
+                                {{ $getInitials($featuredQuote['author']) }}
+                            </div>
+                        @endif
                         <div class="min-w-0">
                             <p class="font-sans text-sm font-medium text-ink">
                                 {{ $featuredQuote['author'] }}
                             </p>
                             <p class="text-[13px] text-muted">
-                                {{ $featuredQuote['location'] ?? 'Daily Ritual' }} &middot; <span class="text-forest">{{ $featuredQuote['product'] ?? 'Botanical Collection' }}</span>
+                                {{ $featuredQuote['location'] ?? 'Daily Ritual' }}
+                                @if(!empty($featuredQuote['product']))
+                                    &middot;
+                                    @if(!empty($featuredQuote['product_slug']))
+                                        <a href="{{ url('/shop/product/' . $featuredQuote['product_slug']) }}" class="text-forest hover:underline">
+                                            {{ $featuredQuote['product'] }}
+                                        </a>
+                                    @else
+                                        <span class="text-forest">{{ $featuredQuote['product'] }}</span>
+                                    @endif
+                                @endif
                             </p>
                         </div>
                     </div>
@@ -415,9 +547,11 @@
                     <div class="{{ $idx === 0 ? 'pb-6' : 'pt-6' }} space-y-3">
                         <div class="flex items-center justify-between gap-3">
                             <x-storefront.rating :rating="$review['rating']" :show-count="false" size="sm" />
-                            <span class="text-xs uppercase tracking-[0.2em] text-muted border border-[#E3E6DD] bg-white px-2.5 py-0.5">
-                                Verified Buyer
-                            </span>
+                            @if(!empty($review['verified']))
+                                <span class="text-xs uppercase tracking-[0.2em] text-muted border border-[#E3E6DD] bg-white px-2.5 py-0.5">
+                                    Verified Purchase
+                                </span>
+                            @endif
                         </div>
 
                         <blockquote class="font-serif italic text-lg text-ink leading-relaxed">
@@ -425,15 +559,34 @@
                         </blockquote>
 
                         <div class="pt-2 flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-full bg-sage-light border border-[#E3E6DD] flex items-center justify-center shrink-0 text-xs font-medium text-forest" aria-hidden="true">
-                                {{ $getInitials($review['author']) }}
-                            </div>
+                            @if(!empty($review['avatar']))
+                                <img
+                                    src="{{ $review['avatar'] }}"
+                                    alt="{{ $review['author'] }}"
+                                    class="w-9 h-9 rounded-full object-cover border border-[#E3E6DD] shrink-0"
+                                    loading="lazy"
+                                />
+                            @else
+                                <div class="w-9 h-9 rounded-full bg-sage-light border border-[#E3E6DD] flex items-center justify-center shrink-0 text-xs font-medium text-forest" aria-hidden="true">
+                                    {{ $getInitials($review['author']) }}
+                                </div>
+                            @endif
                             <div class="min-w-0">
                                 <p class="font-sans text-sm font-medium text-ink">
                                     {{ $review['author'] }}
                                 </p>
                                 <p class="text-[13px] text-muted">
-                                    {{ $review['location'] ?? 'Daily Ritual' }} &middot; <span class="text-forest">{{ $review['product'] ?? 'Botanical Collection' }}</span>
+                                    {{ $review['location'] ?? 'Daily Ritual' }}
+                                    @if(!empty($review['product']))
+                                        &middot;
+                                        @if(!empty($review['product_slug']))
+                                            <a href="{{ url('/shop/product/' . $review['product_slug']) }}" class="text-forest hover:underline">
+                                                {{ $review['product'] }}
+                                            </a>
+                                        @else
+                                            <span class="text-forest">{{ $review['product'] }}</span>
+                                        @endif
+                                    @endif
                                 </p>
                             </div>
                         </div>
@@ -444,51 +597,60 @@
     </div>
 </section>
 
-<!-- 8. BOTANICAL GALLERY ("From the Apothecary", 3-column grid of 6 tiles on desktop, 2 columns on mobile) -->
+<!-- 8. SHOP BY BRAND (3-column grid of 6 tiles on desktop, 2 columns on mobile) -->
 <section class="py-10 lg:py-16 bg-ivory border-t border-[#ECEEE6]">
     <div class="site-container">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 lg:mb-8 gap-4">
             <div>
                 <span class="block text-xs uppercase tracking-[0.2em] font-medium text-forest mb-1.5">
-                    @@theeverbloom.botanicals
+                    EXPLORE YOUR FAVORITE BRANDS
                 </span>
                 <h2 class="font-serif text-2xl sm:text-3xl text-ink font-normal">
-                    From the Apothecary
+                    Shop by Brand.
                 </h2>
+                <p class="mt-2 text-sm md:text-base text-muted max-w-xl leading-relaxed">
+                    Discover skincare and beauty essentials from brands you know and love.
+                </p>
             </div>
-            <a href="/about" class="text-xs uppercase tracking-[0.2em] font-medium text-forest hover:text-ink border-b border-forest pb-0.5 self-start sm:self-auto transition-colors">
-                Explore Our Rituals &rarr;
+            <a href="{{ url('/shop') }}" class="text-xs uppercase tracking-[0.2em] font-medium text-forest hover:text-ink border-b border-forest pb-0.5 self-start sm:self-auto transition-colors shrink-0">
+                View All Brands &rarr;
             </a>
         </div>
 
         @php
-            $galleryItems = [
-                ['src' => 'gallery/gallery-1.jpg', 'alt' => 'Morning botanical oil ritual'],
-                ['src' => 'gallery/gallery-2.jpg', 'alt' => 'Dried calendula and chamomile petals'],
-                ['src' => 'gallery/gallery-3.jpg', 'alt' => 'Amber glass dropper bottles in sunlight'],
-                ['src' => 'gallery/gallery-4.jpg', 'alt' => 'Rich cream texture swatch on linen'],
-                ['src' => 'gallery/gallery-5.jpg', 'alt' => 'Green tea and bamboo cleanser mousse'],
-                ['src' => 'gallery/gallery-6.jpg', 'alt' => 'Evening self-care sanctuary'],
-            ];
+            $brands = $brands ?? [];
         @endphp
 
-        <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach($galleryItems as $item)
-                <div class="group relative overflow-hidden aspect-square border border-[#E3E6DD]">
-                    <x-storefront.image 
-                        :src="$item['src']" 
-                        :alt="$item['alt']" 
-                        aspect-ratio="aspect-square"
-                        width="640"
-                        height="640"
-                        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div class="absolute inset-0 bg-forest/35 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 pointer-events-none">
-                        <span class="text-sm text-ivory font-sans tracking-wide leading-snug">{{ $item['alt'] }}</span>
-                    </div>
-                </div>
-            @endforeach
-        </div>
+        @if(count($brands) > 0)
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach($brands as $brand)
+                    <a href="{{ $brand['url'] ?? url('/shop?brand=' . urlencode($brand['name'])) }}" class="group relative overflow-hidden aspect-square border border-[#E3E6DD] block bg-sage-light/30">
+                        <x-storefront.image 
+                            :src="$brand['image'] ?? 'products/placeholder.jpg'" 
+                            :alt="$brand['name']" 
+                            aspect-ratio="aspect-square"
+                            width="640"
+                            height="640"
+                            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(to top, rgba(41,45,41,0.72) 0%, rgba(41,45,41,0.18) 48%, transparent 100%);"></div>
+                        <div class="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-end justify-between gap-2 pointer-events-none">
+                            <div class="min-w-0">
+                                <span class="block font-serif text-lg sm:text-xl text-ivory font-normal tracking-tight truncate">
+                                    {{ $brand['name'] }}
+                                </span>
+                                @if(!empty($brand['count']))
+                                    <span class="block text-[11px] uppercase tracking-[0.18em] text-ivory/85 mt-0.5">
+                                        {{ $brand['count'] }} {{ \Illuminate\Support\Str::plural('Product', $brand['count']) }}
+                                    </span>
+                                @endif
+                            </div>
+                            <span class="text-ivory/90 text-sm transition-transform duration-300 group-hover:translate-x-1 shrink-0" aria-hidden="true">&rarr;</span>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        @endif
     </div>
 </section>
 @endsection
