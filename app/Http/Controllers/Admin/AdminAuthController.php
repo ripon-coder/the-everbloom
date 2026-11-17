@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 
 class AdminAuthController extends Controller
 {
@@ -24,17 +27,14 @@ class AdminAuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (Auth::guard('admin')->attempt([
-            'email' => $credentials['email'],
-            'password' => $credentials['password'],
-            'is_active' => true,
-        ], $request->boolean('remember'))) {
-            $request->session()->regenerate();
+        $admin = Admin::where('email', $credentials['email'])
+            ->where('is_active', true)
+            ->first();
 
-            $admin = Auth::guard('admin')->user();
-            if ($admin) {
-                $admin->forceFill(['last_login_at' => now()])->save();
-            }
+        if ($admin && $this->verifyAndUpgradePassword($admin, $credentials['password'])) {
+            Auth::guard('admin')->login($admin, $request->boolean('remember'));
+            $request->session()->regenerate();
+            $admin->forceFill(['last_login_at' => now()])->save();
 
             return redirect()->intended(route('admin.dashboard'))
                 ->with('success', 'Welcome to The Everbloom Admin.');
@@ -43,6 +43,32 @@ class AdminAuthController extends Controller
         return back()->withErrors([
             'email' => 'Invalid admin credentials.',
         ])->onlyInput('email');
+    }
+
+    private function verifyAndUpgradePassword(Admin $admin, string $plainPassword): bool
+    {
+        $storedHash = (string) $admin->password;
+
+        try {
+            if (Hash::check($plainPassword, $storedHash)) {
+                if (Hash::needsRehash($storedHash)) {
+                    $admin->forceFill(['password' => $plainPassword])->save();
+                }
+
+                return true;
+            }
+
+            return false;
+        } catch (RuntimeException) {
+            // Support legacy $2a$ bcrypt hashes without crashing BcryptHasher algorithm verification.
+            if (password_verify($plainPassword, $storedHash)) {
+                $admin->forceFill(['password' => $plainPassword])->save();
+
+                return true;
+            }
+
+            return false;
+        }
     }
 
     public function logout(Request $request)
