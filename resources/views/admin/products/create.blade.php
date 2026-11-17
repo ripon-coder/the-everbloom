@@ -208,28 +208,13 @@
                             <small class="text-muted d-block mt-1">Auto-generated if left blank.</small>
                         </div>
 
-                        <div class="col-lg-3">
-                            <label class="form-label" for="product-stock-count">Stock Count</label>
-                            <input type="number" min="0" id="product-stock-count" name="stock_count" class="form-control" value="{{ old('stock_count', $product['stock_count'] ?? '') }}">
-                            <small class="text-muted d-block mt-1">Auto-sums variant stocks (defaults to 25 if blank).</small>
-                        </div>
-
-                        <div class="col-lg-3">
+                        <div class="col-lg-4">
                             <label class="form-label" for="product-min-threshold">Low Stock Threshold</label>
                             <input type="number" min="0" id="product-min-threshold" name="min_threshold" class="form-control" value="{{ old('min_threshold', $product['min_threshold'] ?? '') }}">
                             <small class="text-muted d-block mt-1">Defaults to 10 if left blank.</small>
                         </div>
 
-                        <div class="col-lg-3">
-                            <label class="form-label" for="stock-status">Stock Status</label>
-                            <select id="stock-status" name="stock_status" class="form-select">
-                                <option value="in_stock" {{ old('stock_status', $product['stock_status'] ?? 'in_stock') === 'in_stock' ? 'selected' : '' }}>In Stock</option>
-                                <option value="low_stock" {{ old('stock_status', $product['stock_status'] ?? '') === 'low_stock' ? 'selected' : '' }}>Low Stock</option>
-                                <option value="out_of_stock" {{ old('stock_status', $product['stock_status'] ?? '') === 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
-                            </select>
-                        </div>
-
-                        <div class="col-lg-3">
+                        <div class="col-lg-4">
                             <label class="form-label" for="product-badge">Product Badge</label>
                             <input type="text" id="product-badge" name="badge" list="badge-presets" class="form-control" value="{{ old('badge', $product['badge'] ?? '') }}">
                             <datalist id="badge-presets">
@@ -238,6 +223,15 @@
                                 <option value="New">
                                 <option value="Award Winner">
                             </datalist>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <label class="form-label">Available Stock</label>
+                            <div class="form-control bg-light d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold text-dark">{{ (int) ($product['stock_count'] ?? 0) }} units</span>
+                                <a href="{{ route('admin.purchases.create') }}" class="badge bg-primary-subtle text-primary text-decoration-none">+ Add via Wholesale</a>
+                            </div>
+                            <small class="text-muted d-block mt-1">Stock &amp; buy cost are managed via Wholesale Purchases.</small>
                         </div>
                     </div>
                 </div>
@@ -319,8 +313,8 @@
                                         <input type="number" step="0.01" name="variants[{{ $vIdx }}][price]" class="form-control form-control-sm" value="{{ $vRow['price'] ?? '' }}">
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label fs-12 mb-1">Stock</label>
-                                        <input type="number" name="variants[{{ $vIdx }}][stock_count]" class="form-control form-control-sm variant-stock-input" value="{{ $vRow['stock_count'] ?? '' }}">
+                                        <label class="form-label fs-12 mb-1">Stock (Wholesale)</label>
+                                        <input type="text" class="form-control form-control-sm bg-light text-muted variant-stock-display" value="{{ (int) ($vRow['stock_count'] ?? 0) }} units" readonly disabled>
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fs-12 mb-1">Variant Image (Optional)</label>
@@ -424,6 +418,10 @@
         const clone = first.cloneNode(true);
         clone.querySelectorAll('input[type="hidden"], .variant-existing-image-wrap').forEach(el => el.remove());
         clone.querySelectorAll('select, input').forEach(el => {
+            if (el.classList.contains('variant-stock-display')) {
+                el.value = '0 units';
+                return;
+            }
             el.name = el.name.replace(/\[\d+\]/, `[${variantRowIndex}]`);
             if (el.type === 'file' || el.type === 'text' || el.type === 'number') el.value = '';
         });
@@ -435,16 +433,6 @@
         const rows = document.querySelectorAll('#variants-builder .variant-row');
         if (rows.length <= 1) return;
         btn.closest('.variant-row').remove();
-        syncTotalVariantStock();
-    }
-    function syncTotalVariantStock() {
-        const stockInput = document.getElementById('product-stock-count');
-        if (!stockInput) return;
-        const inputs = Array.from(document.querySelectorAll('.variant-stock-input'));
-        const hasAnyValue = inputs.some(el => el.value !== '');
-        if (!hasAnyValue) return;
-        const total = inputs.reduce((sum, el) => sum + (parseInt(el.value, 10) || 0), 0);
-        stockInput.value = total;
     }
     function filterAttributesByCategory() {
         const catSelect = document.getElementById('category-slug');
@@ -468,12 +456,6 @@
     }
     document.addEventListener('DOMContentLoaded', function () {
         filterAttributesByCategory();
-
-        document.getElementById('variants-builder')?.addEventListener('input', function (e) {
-            if (e.target.classList.contains('variant-stock-input')) {
-                syncTotalVariantStock();
-            }
-        });
 
         const currencySymbol = @json($currencySymbol);
         document.getElementById('product-name')?.addEventListener('input', function () {

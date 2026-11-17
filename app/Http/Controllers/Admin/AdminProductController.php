@@ -142,7 +142,7 @@ class AdminProductController extends Controller
 
         $sizes = $validated['sizes'] ?? ['30ml / 1.0 fl oz'];
         $minThreshold = (int) ($validated['min_threshold'] ?? 10);
-        $stockCount = (int) ($validated['stock_count'] ?? 25);
+        $stockCount = (int) ($validated['stock_count'] ?? 0);
         $stockStatus = $validated['stock_status'] ?? ($stockCount > $minThreshold ? 'in_stock' : ($stockCount > 0 ? 'low_stock' : 'out_of_stock'));
 
         $brandModel = !empty($validated['brand_id']) ? Brand::find($validated['brand_id']) : null;
@@ -291,7 +291,15 @@ class AdminProductController extends Controller
             'meta_description' => array_key_exists('meta_description', $validated) ? $validated['meta_description'] : $product->meta_description,
         ]);
 
-        $this->syncProductVariants($product, $request, $imageStorage, $validated, $product->sku, $stockCount, $stockStatus);
+        $this->syncProductVariants(
+            $product,
+            $request,
+            $imageStorage,
+            $validated,
+            $product->sku,
+            array_key_exists('stock_count', $validated) && $validated['stock_count'] !== null ? (int) $validated['stock_count'] : 0,
+            $stockStatus
+        );
 
         Cache::forget('storefront_catalog_json');
         try {
@@ -379,8 +387,8 @@ class AdminProductController extends Controller
 
                 $vStock = isset($vData['stock_count']) && $vData['stock_count'] !== ''
                     ? (int) $vData['stock_count']
-                    : $defaultStockCount;
-                $vStatus = $vData['stock_status'] ?? ($vStock > 0 ? $defaultStockStatus : 'out_of_stock');
+                    : ($existing ? (int) $existing->stock_count : $defaultStockCount);
+                $vStatus = $vData['stock_status'] ?? ($vStock > $product->min_threshold ? 'in_stock' : ($vStock > 0 ? 'low_stock' : 'out_of_stock'));
 
                 $variant = $existing
                     ? tap($existing)->update([
@@ -442,8 +450,12 @@ class AdminProductController extends Controller
 
         // Legacy fallback when simple sizes[] checkboxes are submitted
         $sizes = $validated['sizes'] ?? ($product->sizes ?: ['30ml / 1.0 fl oz']);
+        $hasExplicitStock = array_key_exists('stock_count', $validated) && $validated['stock_count'] !== null;
         $product->productVariants()->whereNotIn('size', $sizes)->delete();
         foreach ($sizes as $idx => $sizeLabel) {
+            $existingVar = $product->productVariants()->where('size', $sizeLabel)->first();
+            $vStock = $hasExplicitStock ? $defaultStockCount : ($existingVar ? (int) $existingVar->stock_count : $defaultStockCount);
+            $vStatus = $hasExplicitStock ? $defaultStockStatus : ($existingVar ? $existingVar->stock_status : $defaultStockStatus);
             $product->productVariants()->updateOrCreate(
                 ['size' => $sizeLabel],
                 [
@@ -451,8 +463,8 @@ class AdminProductController extends Controller
                     'sku' => $sku . '-V' . ($idx + 1),
                     'price' => $validated['price'],
                     'compare_at_price' => $validated['compare_at_price'] ?? null,
-                    'stock_count' => $defaultStockCount,
-                    'stock_status' => $defaultStockStatus,
+                    'stock_count' => $vStock,
+                    'stock_status' => $vStatus,
                     'sort_order' => $idx,
                 ]
             );
