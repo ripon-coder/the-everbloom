@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Models\Category;
 use App\Models\Coupon;
+use App\Models\Order;
 use App\Models\Product;
+use App\Models\Review;
 use App\Models\Setting;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -48,6 +50,10 @@ class AppServiceProvider extends ServiceProvider
 
                 if (is_array($siteSettings) && !empty($siteSettings)) {
                     config(['demo.site' => array_replace_recursive(config('demo.site', []), $siteSettings)]);
+                    if (! empty($siteSettings['timezone']) && in_array($siteSettings['timezone'], timezone_identifiers_list(), true)) {
+                        config(['app.timezone' => $siteSettings['timezone']]);
+                        @date_default_timezone_set($siteSettings['timezone']);
+                    }
                 }
             }
         } catch (\Throwable $e) {
@@ -58,6 +64,34 @@ class AppServiceProvider extends ServiceProvider
         $currencyCode = config('demo.site.currency.code', 'USD');
         View::share('currencySymbol', $currencySymbol);
         View::share('currencyCode', $currencyCode);
+
+        View::composer('components.admin.topbar', function ($view) {
+            try {
+                $pendingOrders = Schema::hasTable('orders')
+                    ? Order::whereIn('status', ['Placed', 'Processing'])->latest('placed_at')->take(3)->get(['id', 'order_number', 'total', 'placed_at'])
+                    : collect();
+                $pendingReviews = Schema::hasTable('reviews')
+                    ? Review::with('product:id,name')->where('status', 'Pending')->latest()->take(2)->get(['id', 'product_id', 'author'])
+                    : collect();
+                $lowStockItems = Schema::hasTable('products')
+                    ? Product::whereColumn('stock_count', '<=', 'min_threshold')->orderBy('stock_count')->take(2)->get(['id', 'name', 'stock_count'])
+                    : collect();
+
+                $view->with([
+                    'adminNotifOrders' => $pendingOrders,
+                    'adminNotifReviews' => $pendingReviews,
+                    'adminNotifLowStock' => $lowStockItems,
+                    'adminNotifCount' => $pendingOrders->count() + $pendingReviews->count() + $lowStockItems->count(),
+                ]);
+            } catch (\Throwable) {
+                $view->with([
+                    'adminNotifOrders' => collect(),
+                    'adminNotifReviews' => collect(),
+                    'adminNotifLowStock' => collect(),
+                    'adminNotifCount' => 0,
+                ]);
+            }
+        });
 
         View::composer(['components.storefront.navigation', 'components.storefront.mobile-navigation', 'components.storefront.footer'], function ($view) {
             try {

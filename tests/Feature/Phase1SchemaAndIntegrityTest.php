@@ -33,13 +33,13 @@ class Phase1SchemaAndIntegrityTest extends TestCase
             'coupon_product',
             'coupon_category',
             'wishlists',
+            'flash_sales',
+            'flash_sale_products',
         ] as $table) {
             $this->assertTrue(Schema::hasTable($table), "Expected table [{$table}] to exist.");
         }
 
         // Still-deferred tables & columns per OPEN_DECISIONS.md
-        $this->assertFalse(Schema::hasTable('flash_sales'));
-        $this->assertFalse(Schema::hasTable('flash_sale_products'));
         $this->assertFalse(Schema::hasTable('payment_transactions'));
         $this->assertFalse(Schema::hasColumn('users', 'phone_normalized'));
 

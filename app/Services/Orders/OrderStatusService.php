@@ -6,6 +6,7 @@ use App\Mail\OrderStatusChangedMail;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
+use App\Services\FlashSale\FlashSaleService;
 use App\Services\Inventory\StockService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -22,7 +23,8 @@ class OrderStatusService
     ];
 
     public function __construct(
-        private readonly StockService $stockService
+        private readonly StockService $stockService,
+        private readonly FlashSaleService $flashSaleService,
     ) {}
 
     public function transition(
@@ -46,6 +48,7 @@ class OrderStatusService
         DB::transaction(function () use ($order, $previousStatus, $newStatus, $trackingNumber, $note, $adminId) {
             if ($previousStatus !== 'Cancelled' && $newStatus === 'Cancelled') {
                 $this->stockService->restoreForCancelledOrder($order, $adminId);
+                $this->flashSaleService->restoreForCancelledOrder($order);
 
                 if ($order->coupon_id) {
                     Coupon::where('id', $order->coupon_id)

@@ -2,6 +2,7 @@
 
 use App\Exceptions\InsufficientStockException;
 use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\HandleSlugRedirects;
 use App\Http\Middleware\IsolateAdminSession;
 use App\Http\Middleware\LogAdminActivity;
 use Illuminate\Foundation\Application;
@@ -23,6 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(prepend: [
             IsolateAdminSession::class,
+        ]);
+        $middleware->web(append: [
+            HandleSlugRedirects::class,
         ]);
 
         $middleware->alias([

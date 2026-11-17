@@ -4,45 +4,45 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\FlashSale;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\Setting;
-use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
     public function index(): View
     {
-        $flashSaleProducts = Product::with(['categoryRelation', 'productVariants'])
-            ->where('is_active', true)
-            ->whereNotNull('compare_at_price')
-            ->whereColumn('compare_at_price', '>', 'price')
-            ->orderBy('id')
-            ->take(4)
-            ->get()
-            ->map(fn (Product $p) => $p->toStorefrontArray())
-            ->values()
-            ->all();
+        $activeFlashSale = FlashSale::live()
+            ->where('show_on_homepage', true)
+            ->with(['items' => function ($q) {
+                $q->where('is_active', true)
+                    ->whereColumn('sold_qty', '<', 'sale_stock')
+                    ->with(['product.categoryRelation', 'product.productVariants', 'variant']);
+            }])
+            ->orderBy('ends_at')
+            ->first();
 
-        $flashSaleIds = collect($flashSaleProducts)->pluck('id')->all();
+        $flashSaleEndsAt = $activeFlashSale?->ends_at?->toIso8601String();
+        $flashSaleProducts = [];
 
-        $flashSaleSetting = Setting::where('group', 'storefront')
-            ->where('key', 'flash_sale')
-            ->first()?->value;
-
-        $flashSaleEndsAt = null;
-        if (is_array($flashSaleSetting) && !empty($flashSaleSetting['enabled']) && !empty($flashSaleSetting['ends_at'])) {
-            try {
-                $startsAt = !empty($flashSaleSetting['starts_at']) ? Carbon::parse($flashSaleSetting['starts_at']) : null;
-                $endsAt = Carbon::parse($flashSaleSetting['ends_at']);
-                if ((!$startsAt || $startsAt->isPast()) && $endsAt->isFuture()) {
-                    $flashSaleEndsAt = $endsAt->toIso8601String();
+        if ($activeFlashSale) {
+            foreach ($activeFlashSale->items->take(4) as $item) {
+                if (! $item->product || ! $item->product->is_active) {
+                    continue;
                 }
-            } catch (\Throwable) {
-                $flashSaleEndsAt = null;
+                $arr = $item->product->toStorefrontArray();
+                $regularPrice = $item->variant ? (float) $item->variant->price : (float) $item->product->price;
+                $arr['price'] = round((float) $item->sale_price, 2);
+                $arr['compare_at_price'] = round($regularPrice, 2);
+                $arr['is_flash_sale'] = true;
+                $arr['flash_sale_remaining'] = $item->remainingStock();
+                $flashSaleProducts[] = $arr;
             }
         }
+
+        $flashSaleIds = collect($flashSaleProducts)->pluck('id')->all();
 
         $featuredProducts = Product::with(['categoryRelation', 'productVariants'])
             ->where('is_active', true)

@@ -5,25 +5,49 @@ namespace App\Services\Checkout;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Services\FlashSale\FlashSaleService;
 use Illuminate\Support\Facades\Auth;
 
 class PriceResolver
 {
     public function __construct(
-        private readonly CouponService $couponService
+        private readonly CouponService $couponService,
+        private readonly FlashSaleService $flashSaleService,
     ) {}
+
     public function resolveUnitPrice(Product $product, ?ProductVariant $variant): array
     {
-        if ($variant) {
+        $regularPrice = $variant
+            ? round((float) $variant->price, 2)
+            : round((float) $product->price, 2);
+
+        $compareAt = $variant
+            ? round((float) ($variant->compare_at_price ?? $variant->price), 2)
+            : round((float) ($product->compare_at_price ?? $product->price), 2);
+
+        $flashItem = $this->flashSaleService->resolveActiveItem($product, $variant);
+        if ($flashItem && (float) $flashItem->sale_price < $regularPrice) {
             return [
-                'unit_price' => round((float) $variant->price, 2),
-                'original_price' => round((float) ($variant->compare_at_price ?? $variant->price), 2),
+                'unit_price' => round((float) $flashItem->sale_price, 2),
+                'original_price' => $regularPrice,
+                'is_flash_sale' => true,
+                'flash_sale_id' => $flashItem->flash_sale_id,
+                'flash_sale_product_id' => $flashItem->id,
+                'flash_remaining_stock' => $flashItem->remainingStock(),
+                'flash_max_per_customer' => $flashItem->max_qty_per_customer,
+                'flash_item' => $flashItem,
             ];
         }
 
         return [
-            'unit_price' => round((float) $product->price, 2),
-            'original_price' => round((float) ($product->compare_at_price ?? $product->price), 2),
+            'unit_price' => $regularPrice,
+            'original_price' => $compareAt,
+            'is_flash_sale' => false,
+            'flash_sale_id' => null,
+            'flash_sale_product_id' => null,
+            'flash_remaining_stock' => null,
+            'flash_max_per_customer' => null,
+            'flash_item' => null,
         ];
     }
 
@@ -78,6 +102,16 @@ class PriceResolver
             $lineTotal = round($unitPrice * $qty, 2);
             $subtotal = round($subtotal + $lineTotal, 2);
 
+            $maxQty = min(10, $availableStock);
+            if ($pricing['is_flash_sale']) {
+                if ($pricing['flash_remaining_stock'] !== null) {
+                    $maxQty = min($maxQty, (int) $pricing['flash_remaining_stock']);
+                }
+                if ($pricing['flash_max_per_customer'] !== null) {
+                    $maxQty = min($maxQty, (int) $pricing['flash_max_per_customer']);
+                }
+            }
+
             $lines[] = [
                 'productId' => $product->id,
                 'product_id' => $product->id,
@@ -90,9 +124,12 @@ class PriceResolver
                 'qty' => $qty,
                 'unit_price' => $unitPrice,
                 'original_price' => $pricing['original_price'],
+                'is_flash_sale' => $pricing['is_flash_sale'],
+                'flash_sale_id' => $pricing['flash_sale_id'],
+                'flash_sale_product_id' => $pricing['flash_sale_product_id'],
                 'line_total' => $lineTotal,
                 'available_stock' => $availableStock,
-                'max_qty' => min(10, $availableStock),
+                'max_qty' => $maxQty,
                 'stock_error' => $stockError,
             ];
         }

@@ -13,6 +13,8 @@ class OrderItem extends Model
         'order_id',
         'product_id',
         'product_variant_id',
+        'flash_sale_id',
+        'flash_sale_product_id',
         'name',
         'slug',
         'variant',
@@ -55,6 +57,16 @@ class OrderItem extends Model
     public function productVariant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+
+    public function flashSale(): BelongsTo
+    {
+        return $this->belongsTo(FlashSale::class, 'flash_sale_id');
+    }
+
+    public function flashSaleProduct(): BelongsTo
+    {
+        return $this->belongsTo(FlashSaleProduct::class, 'flash_sale_product_id');
     }
 
     public function batches(): HasMany

@@ -15,6 +15,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Thana;
 use App\Models\User;
+use App\Services\FlashSale\FlashSaleService;
 use App\Services\Inventory\StockService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,7 @@ class PlaceOrderService
         private readonly StockService $stockService,
         private readonly PriceResolver $priceResolver,
         private readonly CouponService $couponService,
+        private readonly FlashSaleService $flashSaleService,
     ) {}
 
     public function placeOrder(array $validated, ?User $user = null): Order
@@ -63,6 +65,16 @@ class PlaceOrderService
                 $originalPrice = $pricing['original_price'];
                 $lineTotal = round($unitPrice * $qty, 2);
 
+                if (! empty($pricing['is_flash_sale']) && $pricing['flash_item']) {
+                    $this->flashSaleService->consumeForOrderLine(
+                        item: $pricing['flash_item'],
+                        qty: $qty,
+                        user: $user,
+                        phone: $validated['phone'] ?? null,
+                        email: $validated['email'] ?? null,
+                    );
+                }
+
                 $unitBuyPrice = (float) ($variant?->avg_buy_price > 0 ? $variant->avg_buy_price : $product->avg_buy_price);
                 $lineCostTotal = round($unitBuyPrice * $qty, 2);
                 $unitProfit = round($unitPrice - $unitBuyPrice, 2);
@@ -76,10 +88,13 @@ class PlaceOrderService
 
                 $preparedItems[] = [
                     'category_id' => $product->category_id,
+                    'is_flash_sale' => (bool) ($pricing['is_flash_sale'] ?? false),
                     'consumed_batches' => $consumedBatches,
                     'attributes' => [
                         'product_id' => $product->id,
                         'product_variant_id' => $variant?->id,
+                        'flash_sale_id' => $pricing['flash_sale_id'] ?? null,
+                        'flash_sale_product_id' => $pricing['flash_sale_product_id'] ?? null,
                         'name' => $product->name,
                         'slug' => $product->slug,
                         'variant' => $variant?->title ?: ($variant?->size ?? ($line['variantId'] ?? ($product->sizes[0] ?? null))),
@@ -108,6 +123,7 @@ class PlaceOrderService
                     $evalLines = array_map(fn ($item) => [
                         'product_id' => $item['attributes']['product_id'],
                         'category_id' => $item['category_id'],
+                        'is_flash_sale' => $item['is_flash_sale'],
                         'line_total' => $item['attributes']['line_total'],
                     ], $preparedItems);
 

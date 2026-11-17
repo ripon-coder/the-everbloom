@@ -219,12 +219,21 @@ class ShopController extends Controller
             'label' => $r->label,
             'headline' => $r->headline,
             'body' => $r->body,
+            'admin_reply' => $r->admin_reply,
         ])->values()->all();
+
+        $totalApproved = $product->reviews->count();
+        $ratingBreakdown = [];
+        for ($star = 5; $star >= 1; $star--) {
+            $starCount = $product->reviews->where('rating', $star)->count();
+            $ratingBreakdown[$star] = $totalApproved > 0 ? (int) round(($starCount / $totalApproved) * 100) : 0;
+        }
 
         return view('frontend.shop.product', [
             'product' => $product->toStorefrontArray(),
             'related' => $related->map(fn (Product $p) => $p->toStorefrontArray())->values()->all(),
             'reviews' => $reviews,
+            'ratingBreakdown' => $ratingBreakdown,
         ]);
     }
 }

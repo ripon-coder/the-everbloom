@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Review extends Model
 {
+    public const STATUS_PENDING = 'Pending';
+
+    public const STATUS_APPROVED = 'Approved';
+
+    public const STATUS_REJECTED = 'Rejected';
+
     protected $fillable = [
         'product_id',
         'user_id',
@@ -20,6 +26,8 @@ class Review extends Model
         'verified',
         'is_featured_testimonial',
         'status',
+        'admin_reply',
+        'replied_at',
     ];
 
     protected $appends = [
@@ -36,6 +44,7 @@ class Review extends Model
             'rating' => 'integer',
             'verified' => 'boolean',
             'is_featured_testimonial' => 'boolean',
+            'replied_at' => 'datetime',
         ];
     }
 

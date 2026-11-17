@@ -11,5 +11,15 @@ class ContactInquiry extends Model
         'email',
         'message',
         'status',
+        'admin_reply',
+        'replied_at',
+        'replied_by',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'replied_at' => 'datetime',
+        ];
+    }
 }

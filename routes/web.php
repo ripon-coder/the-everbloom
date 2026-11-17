@@ -4,11 +4,14 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\FlashSaleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +27,8 @@ use Illuminate\Support\Facades\Route;
 
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 
 // Instant Search (TNTSearch)
 Route::get('/search', [SearchController::class, 'index'])->name('search');
@@ -35,6 +40,7 @@ Route::get('/styleguide', function () {
 
 // Shop Catalogue
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/flash-sales', [FlashSaleController::class, 'index'])->name('flash-sales.index');
 
 // Shop by Category
 Route::get('/shop/category/{slug}', [ShopController::class, 'category'])->name('shop.category');
@@ -62,37 +68,26 @@ Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('thro
 Route::post('/checkout/validate-coupon', [CheckoutController::class, 'validateCoupon'])->middleware('throttle:10,1')->name('checkout.validateCoupon');
 Route::get('/checkout/confirmation/{orderNumber}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
 
-// Static / Editorial Pages
-Route::get('/about', function () {
-    return view('frontend.pages.about');
-})->name('about');
+// Static / Editorial Pages (DB-backed with Blade fallback)
+Route::get('/about', [PageController::class, 'show'])->defaults('slug', 'about')->name('about');
 
 Route::get('/contact', function () {
     return view('frontend.pages.contact');
 })->name('contact');
-Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
-Route::post('/newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
-Route::post('/shop/product/{slug}/reviews', [ReviewController::class, 'store'])->name('shop.product.reviews.store');
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:20,1')->name('contact.store');
+Route::post('/newsletter', [NewsletterController::class, 'store'])->middleware('throttle:20,1')->name('newsletter.store');
+Route::post('/shop/product/{slug}/reviews', [ReviewController::class, 'store'])->middleware('throttle:20,1')->name('shop.product.reviews.store');
 
-Route::get('/faq', function () {
-    return view('frontend.pages.faq');
-})->name('faq');
+Route::get('/faq', [PageController::class, 'faq'])->name('faq');
 
 Route::get('/wishlist', function () {
     return view('frontend.pages.wishlist');
 })->name('wishlist');
 
-Route::get('/privacy-policy', function () {
-    return view('frontend.pages.privacy-policy');
-})->name('privacy');
-
-Route::get('/terms-and-conditions', function () {
-    return view('frontend.pages.terms-and-conditions');
-})->name('terms');
-
-Route::get('/shipping-and-returns', function () {
-    return view('frontend.pages.shipping-and-returns');
-})->name('shipping');
+Route::get('/privacy-policy', [PageController::class, 'show'])->defaults('slug', 'privacy-policy')->name('privacy');
+Route::get('/terms-and-conditions', [PageController::class, 'show'])->defaults('slug', 'terms-and-conditions')->name('terms');
+Route::get('/shipping-and-returns', [PageController::class, 'show'])->defaults('slug', 'shipping-and-returns')->name('shipping');
+Route::get('/page/{slug}', [PageController::class, 'show'])->name('cms.page');
 
 // Account Authentication & Customer Area
 Route::middleware('guest:web')->group(function () {

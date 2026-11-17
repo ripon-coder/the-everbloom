@@ -73,19 +73,32 @@ class CouponService
         $scopedCategoryIds = array_values(array_unique($scopedCategoryIds));
 
         $hasScope = ! empty($scopedProductIds) || ! empty($scopedCategoryIds);
-        if (! $hasScope) {
-            $eligibleSubtotal = $subtotal;
-        } else {
-            $eligibleSubtotal = 0.0;
-            foreach ($lines as $line) {
+        $eligibleSubtotal = 0.0;
+        $hasAnyFlashSaleLine = false;
+
+        foreach ($lines as $line) {
+            // Per D-03: Flash-sale lines are excluded from coupon discounts.
+            if (! empty($line['is_flash_sale'])) {
+                $hasAnyFlashSaleLine = true;
+                continue;
+            }
+
+            if ($hasScope) {
                 $matchesProduct = in_array((int) $line['product_id'], $scopedProductIds, true);
                 $matchesCategory = $line['category_id'] !== null && in_array((int) $line['category_id'], $scopedCategoryIds, true);
-                if ($matchesProduct || $matchesCategory) {
-                    $eligibleSubtotal = round($eligibleSubtotal + (float) $line['line_total'], 2);
+                if (! $matchesProduct && ! $matchesCategory) {
+                    continue;
                 }
             }
 
-            if ($eligibleSubtotal <= 0) {
+            $eligibleSubtotal = round($eligibleSubtotal + (float) $line['line_total'], 2);
+        }
+
+        if ($eligibleSubtotal <= 0 && $coupon->type !== 'shipping') {
+            if ($hasAnyFlashSaleLine) {
+                return $this->invalid('Promotional codes cannot be combined with Flash Sale items.');
+            }
+            if ($hasScope) {
                 return $this->invalid('This promotional code does not apply to the items in your bag.');
             }
         }

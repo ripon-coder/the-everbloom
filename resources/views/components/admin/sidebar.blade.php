@@ -210,6 +210,26 @@
                 </div>
             </li>
 
+            <!-- Flash Sales -->
+            <li class="nav-item">
+                <a class="nav-link menu-arrow {{ request()->routeIs('admin.flash-sales.*') ? 'active' : '' }}" href="#sidebarFlashSales" data-bs-toggle="collapse" role="button" aria-expanded="{{ request()->routeIs('admin.flash-sales.*') ? 'true' : 'false' }}" aria-controls="sidebarFlashSales">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:bolt-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Flash Sales </span>
+                </a>
+                <div class="collapse {{ request()->routeIs('admin.flash-sales.*') ? 'show' : '' }}" id="sidebarFlashSales">
+                    <ul class="nav sub-navbar-nav">
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link {{ request()->routeIs('admin.flash-sales.index') ? 'active' : '' }}" href="{{ route('admin.flash-sales.index') }}">All Flash Sales</a>
+                        </li>
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link {{ request()->routeIs('admin.flash-sales.create') ? 'active' : '' }}" href="{{ route('admin.flash-sales.create') }}">Create Flash Sale</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
             <!-- Reviews -->
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.reviews.index') ? 'active' : '' }}" href="{{ route('admin.reviews.index') }}">
@@ -217,6 +237,35 @@
                         <iconify-icon icon="solar:chat-square-like-bold-duotone"></iconify-icon>
                     </span>
                     <span class="nav-text"> Reviews </span>
+                </a>
+            </li>
+
+            <!-- CMS & Content -->
+            <li class="nav-item">
+                <a class="nav-link menu-arrow {{ request()->routeIs('admin.cms.*') ? 'active' : '' }}" href="#sidebarCms" data-bs-toggle="collapse" role="button" aria-expanded="{{ request()->routeIs('admin.cms.*') ? 'true' : 'false' }}" aria-controls="sidebarCms">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> CMS & Content </span>
+                </a>
+                <div class="collapse {{ request()->routeIs('admin.cms.*') ? 'show' : '' }}" id="sidebarCms">
+                    <ul class="nav sub-navbar-nav">
+                        <li class="sub-nav-item"><a class="sub-nav-link {{ request()->routeIs('admin.cms.pages*') ? 'active' : '' }}" href="{{ route('admin.cms.pages') }}">Pages</a></li>
+                        <li class="sub-nav-item"><a class="sub-nav-link {{ request()->routeIs('admin.cms.banners*') ? 'active' : '' }}" href="{{ route('admin.cms.banners') }}">Banners & Sections</a></li>
+                        <li class="sub-nav-item"><a class="sub-nav-link {{ request()->routeIs('admin.cms.faqs*') ? 'active' : '' }}" href="{{ route('admin.cms.faqs') }}">FAQs</a></li>
+                        <li class="sub-nav-item"><a class="sub-nav-link {{ request()->routeIs('admin.cms.inquiries*') ? 'active' : '' }}" href="{{ route('admin.cms.inquiries') }}">Contact Inquiries</a></li>
+                        <li class="sub-nav-item"><a class="sub-nav-link {{ request()->routeIs('admin.cms.subscribers*') ? 'active' : '' }}" href="{{ route('admin.cms.subscribers') }}">Newsletter Subscribers</a></li>
+                    </ul>
+                </div>
+            </li>
+
+            <!-- SEO Management -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.seo.*') ? 'active' : '' }}" href="{{ route('admin.seo.index') }}">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:global-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> SEO Management </span>
                 </a>
             </li>
 

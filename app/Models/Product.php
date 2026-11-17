@@ -137,6 +137,11 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function flashSaleProducts(): HasMany
+    {
+        return $this->hasMany(FlashSaleProduct::class);
+    }
+
     public function getCategoryAttribute(): string
     {
         return $this->categoryRelation?->name ?? 'Skincare';

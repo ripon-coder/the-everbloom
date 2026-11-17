@@ -4,37 +4,47 @@
 @section('container_class', 'container-fluid')
 
 @section('content')
-<!-- Row 1: Promo banner + KPI Cards + Performance Chart -->
-<div class="row">
-    <!-- Left Column: Banner + 4 KPI Cards -->
-    <div class="col-xxl-5">
-        <div class="alert alert-primary text-truncate mb-3" role="alert">
-            <i class="bx bx-broadcast fs-16 align-middle me-1"></i> Storefront Active: <strong>Free standard ground shipping over {{ $currencySymbol }}{{ number_format(config('demo.site.shipping.free_shipping_threshold', 75), 0) }}</strong> promo is currently live.
+<!-- Date Range Filter Bar -->
+<div class="row mb-3">
+    <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="alert alert-primary text-truncate mb-0 py-2 flex-grow-1" role="alert">
+            <i class="bx bx-broadcast fs-16 align-middle me-1"></i> Storefront Active: <strong>Free shipping over {{ $currencySymbol }}{{ number_format(config('demo.site.shipping.free_shipping_threshold', 75), 0) }}</strong>.
         </div>
+        <form method="GET" action="{{ route('admin.dashboard') }}" class="d-flex flex-wrap gap-2 align-items-center">
+            <select name="period" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()">
+                @foreach(['all' => 'All Time', 'today' => 'Today', '7d' => 'Last 7 Days', 'this_month' => 'This Month', 'last_month' => 'Last Month', 'this_year' => 'This Year'] as $k => $lbl)
+                    <option value="{{ $k }}" {{ $period === $k ? 'selected' : '' }}>{{ $lbl }}</option>
+                @endforeach
+            </select>
+        </form>
+    </div>
+</div>
 
+<!-- Row 1: KPI Cards + Performance Chart -->
+<div class="row">
+    <div class="col-xxl-5">
         <div class="row">
-            <!-- Total Orders -->
+            <!-- Total Orders + Breakdown -->
             <div class="col-md-6">
                 <div class="card overflow-hidden">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-5">
                                 <div class="avatar-md bg-soft-primary rounded">
                                     <iconify-icon icon="solar:cart-5-bold-duotone" class="avatar-title fs-32 text-primary"></iconify-icon>
                                 </div>
                             </div>
-                            <div class="col-6 text-end">
+                            <div class="col-7 text-end">
                                 <p class="text-muted mb-0 text-truncate">Total Orders</p>
                                 <h3 class="text-dark mt-1 mb-0">{{ number_format($totalOrders) }}</h3>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer py-2 bg-light bg-opacity-50">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <span class="badge bg-warning-subtle text-warning fs-11">{{ $pendingOrdersCount }} Pending / Processing</span>
-                            </div>
-                            <a href="{{ route('admin.orders.index') }}" class="text-reset fw-semibold fs-12">View All</a>
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 fs-11">
+                            <span class="badge bg-secondary-subtle text-secondary">{{ $placedOrdersCount }} Pending</span>
+                            <span class="badge bg-warning-subtle text-warning">{{ $processingOrdersCount }} Processing</span>
+                            <span class="badge bg-success-subtle text-success">{{ $completedOrdersCount }} Completed</span>
                         </div>
                     </div>
                 </div>
@@ -45,12 +55,12 @@
                 <div class="card overflow-hidden">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-5">
                                 <div class="avatar-md bg-soft-primary rounded">
                                     <iconify-icon icon="solar:users-group-two-rounded-bold-duotone" class="avatar-title fs-32 text-primary"></iconify-icon>
                                 </div>
                             </div>
-                            <div class="col-6 text-end">
+                            <div class="col-7 text-end">
                                 <p class="text-muted mb-0 text-truncate">Customers</p>
                                 <h3 class="text-dark mt-1 mb-0">{{ number_format($totalCustomers) }}</h3>
                             </div>
@@ -58,53 +68,49 @@
                     </div>
                     <div class="card-footer py-2 bg-light bg-opacity-50">
                         <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <span class="badge bg-success-subtle text-success fs-11">{{ $activeCustomersCount ?? $totalCustomers }} Active Profiles</span>
-                            </div>
+                            <span class="badge bg-success-subtle text-success fs-11">{{ $activeCustomersCount }} Active Profiles</span>
                             <a href="{{ route('admin.customers.index') }}" class="text-reset fw-semibold fs-12">View All</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Botanical SKUs -->
+            <!-- Paid Revenue -->
             <div class="col-md-6">
                 <div class="card overflow-hidden">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-6">
-                                <div class="avatar-md bg-soft-primary rounded">
-                                    <iconify-icon icon="solar:box-bold-duotone" class="avatar-title fs-32 text-primary"></iconify-icon>
+                            <div class="col-5">
+                                <div class="avatar-md bg-soft-success rounded">
+                                    <iconify-icon icon="solar:wallet-money-bold-duotone" class="avatar-title fs-32 text-success"></iconify-icon>
                                 </div>
                             </div>
-                            <div class="col-6 text-end">
-                                <p class="text-muted mb-0 text-truncate">Active SKUs</p>
-                                <h3 class="text-dark mt-1 mb-0">{{ count($products) }}</h3>
+                            <div class="col-7 text-end">
+                                <p class="text-muted mb-0 text-truncate">Paid Revenue</p>
+                                <h4 class="text-dark mt-1 mb-0">{{ $currencySymbol }}{{ number_format($paidRevenue, 2) }}</h4>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer py-2 bg-light bg-opacity-50">
                         <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <span class="text-muted fs-12">{{ count($categories) }} Categories</span>
-                            </div>
-                            <a href="{{ route('admin.products.index') }}" class="text-reset fw-semibold fs-12">Manage</a>
+                            <span class="text-muted fs-12">Booked: <strong>{{ $currencySymbol }}{{ number_format($totalRevenue, 2) }}</strong></span>
+                            <a href="{{ route('admin.financial.index') }}" class="text-reset fw-semibold fs-12">Financials</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Low Stock Alerts & Booked Revenue -->
+            <!-- Low Stock & Active SKUs -->
             <div class="col-md-6">
                 <div class="card overflow-hidden">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-6">
-                                <div class="avatar-md bg-soft-primary rounded">
-                                    <iconify-icon icon="solar:danger-triangle-bold-duotone" class="avatar-title fs-32 text-primary"></iconify-icon>
+                            <div class="col-5">
+                                <div class="avatar-md bg-soft-danger rounded">
+                                    <iconify-icon icon="solar:danger-triangle-bold-duotone" class="avatar-title fs-32 text-danger"></iconify-icon>
                                 </div>
                             </div>
-                            <div class="col-6 text-end">
+                            <div class="col-7 text-end">
                                 <p class="text-muted mb-0 text-truncate">Low Stock Alerts</p>
                                 <h3 class="text-dark mt-1 mb-0">{{ number_format($lowStockCount) }}</h3>
                             </div>
@@ -112,9 +118,7 @@
                     </div>
                     <div class="card-footer py-2 bg-light bg-opacity-50">
                         <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <a href="{{ route('admin.financial.index') }}" class="text-muted fs-12 text-decoration-none">Booked: <strong class="text-dark">{{ $currencySymbol }}{{ number_format($totalRevenue, 2) }}</strong></a>
-                            </div>
+                            <span class="text-muted fs-12">{{ $totalProducts }} Active SKUs</span>
                             <a href="{{ route('admin.inventory.index') }}" class="text-reset fw-semibold fs-12">Inventory</a>
                         </div>
                     </div>
@@ -123,46 +127,59 @@
         </div>
     </div>
 
-    <!-- Right Column: Performance Mixed Chart Card -->
+    <!-- Right Column: Real Sales & Revenue Chart -->
     <div class="col-xxl-7">
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">Botanical Sales & Traffic Performance</h4>
-                    <div>
-                        <button type="button" class="btn btn-sm btn-outline-light">ALL</button>
-                        <button type="button" class="btn btn-sm btn-outline-light">1M</button>
-                        <button type="button" class="btn btn-sm btn-outline-light">6M</button>
-                        <button type="button" class="btn btn-sm btn-outline-light active">1Y</button>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="card-title mb-0">Sales & Revenue Performance</h4>
+                    <div class="btn-group btn-group-sm" id="chart-period-btns">
+                        <button type="button" data-period="all" class="btn btn-outline-secondary {{ $period === 'all' ? 'active' : '' }}">ALL</button>
+                        <button type="button" data-period="1m" class="btn btn-outline-secondary {{ $period === '1m' ? 'active' : '' }}">1M</button>
+                        <button type="button" data-period="6m" class="btn btn-outline-secondary {{ $period === '6m' ? 'active' : '' }}">6M</button>
+                        <button type="button" data-period="1y" class="btn btn-outline-secondary {{ $period === '1y' ? 'active' : '' }}">1Y</button>
                     </div>
                 </div>
                 <div dir="ltr">
-                    <div id="dash-performance-chart" class="apex-charts"></div>
+                    <div id="dash-performance-chart" class="apex-charts" style="min-height: 280px;"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Row 2: Conversions + Sessions Map + Top Botanical Products -->
+<!-- Flash Sale Analytics Row (P20-4) -->
 <div class="row">
-    <!-- Conversions Radial Bar -->
+    <div class="col-md-4">
+        <div class="card"><div class="card-body d-flex justify-content-between align-items-center">
+            <div><p class="text-muted mb-1">Active Flash Sales</p><h4 class="mb-0">{{ $activeFlashSalesCount }}</h4></div>
+            <a href="{{ route('admin.flash-sales.index') }}" class="btn btn-sm btn-soft-primary">Manage</a>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card"><div class="card-body d-flex justify-content-between align-items-center">
+            <div><p class="text-muted mb-1">Flash Sale Units Sold</p><h4 class="mb-0">{{ number_format($flashSaleUnitsSold) }}</h4></div>
+            <iconify-icon icon="solar:bolt-bold-duotone" class="fs-28 text-warning"></iconify-icon>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card"><div class="card-body d-flex justify-content-between align-items-center">
+            <div><p class="text-muted mb-1">Flash Sale Revenue</p><h4 class="mb-0 text-success">{{ $currencySymbol }}{{ number_format($flashSaleRevenue, 2) }}</h4></div>
+            <iconify-icon icon="solar:graph-up-bold-duotone" class="fs-28 text-success"></iconify-icon>
+        </div></div>
+    </div>
+</div>
+
+<!-- Row 2: Returning Customers + District Distribution + Low Stock Products -->
+<div class="row">
+    <!-- Returning Customers -->
     <div class="col-lg-4">
         <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Returning Customers</h4>
-                <div dir="ltr">
-                    <div id="conversions" class="apex-charts"></div>
-                </div>
-                <div class="row text-center mt-2">
-                    <div class="col-6">
-                        <p class="text-muted mb-1">This Week</p>
-                        <h4 class="text-dark mb-0">65.2%</h4>
-                    </div>
-                    <div class="col-6">
-                        <p class="text-muted mb-1">Last Week</p>
-                        <h4 class="text-dark mb-0">58.7%</h4>
-                    </div>
+            <div class="card-body text-center">
+                <h4 class="card-title text-start">Returning Customer Rate</h4>
+                <div class="py-4">
+                    <h2 class="display-5 fw-bold text-primary mb-1">{{ $returningCustomerRate }}%</h2>
+                    <p class="text-muted mb-0">Customers with 2+ completed/active orders</p>
                 </div>
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50 text-center">
@@ -171,55 +188,51 @@
         </div>
     </div>
 
-    <!-- Sessions by Country (Vector Map) -->
+    <!-- District Distribution -->
     <div class="col-lg-4">
         <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Customer Distribution</h4>
-                <div id="world-map-markers" style="height: 316px"></div>
+            <div class="card-header"><h4 class="card-title mb-0">Orders by District</h4></div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0 align-middle">
+                    <thead class="bg-light-subtle"><tr><th>District</th><th>Orders</th><th class="text-end">Revenue</th></tr></thead>
+                    <tbody>
+                        @forelse($districtDistribution as $row)
+                            <tr>
+                                <td class="fw-medium">{{ $row['district'] }}</td>
+                                <td>{{ $row['orders'] }}</td>
+                                <td class="text-end">{{ $currencySymbol }}{{ number_format($row['revenue'], 2) }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="3" class="text-center py-3 text-muted">No order distribution data yet.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Top Botanical Formulations -->
+    <!-- Low Stock Products List -->
     <div class="col-lg-4">
-        <div class="card card-height-100">
+        <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <h4 class="card-title mb-0">Top Formulations</h4>
-                <a href="{{ route('admin.products.index') }}" class="text-reset fw-semibold fs-12">View All</a>
+                <h4 class="card-title mb-0">Low Stock Watchlist</h4>
+                <a href="{{ route('admin.inventory.index') }}" class="text-reset fw-semibold fs-12">Manage</a>
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover table-nowrap align-middle mb-0">
-                        <thead class="bg-light-subtle">
+                <table class="table table-sm mb-0 align-middle">
+                    <thead class="bg-light-subtle"><tr><th>Product</th><th>Stock</th><th>Threshold</th></tr></thead>
+                    <tbody>
+                        @forelse($lowStockProducts as $lp)
                             <tr>
-                                <th>Product</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Rating</th>
+                                <td><a href="{{ route('admin.products.edit', $lp->id) }}" class="text-dark fw-medium">{{ \Illuminate\Support\Str::limit($lp->name, 26) }}</a></td>
+                                <td><span class="badge bg-danger-subtle text-danger">{{ $lp->stock_count }}</span></td>
+                                <td class="text-muted">{{ $lp->min_threshold }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($topProducts as $topP)
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="avatar-sm bg-light rounded d-flex align-items-center justify-content-center overflow-hidden">
-                                            <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($topP['images'][0] ?? 'products/botanical-radiance-serum-01.jpg') }}" alt="" class="avatar-sm object-fit-cover">
-                                        </div>
-                                        <div>
-                                            <a href="{{ route('admin.products.edit', $topP['id']) }}" class="text-dark fw-medium fs-13 text-truncate d-inline-block" style="max-width: 130px;">{{ $topP['name'] }}</a>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="badge bg-light text-dark fs-11">{{ $topP['category'] }}</span></td>
-                                <td class="fw-medium">{{ $currencySymbol }}{{ number_format($topP['price'], 2) }}</td>
-                                <td><i class="bx bxs-star text-warning"></i> {{ $topP['rating'] }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <tr><td colspan="3" class="text-center py-3 text-muted">All products are sufficiently stocked.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -259,9 +272,6 @@
                                 <td>{{ $order['date'] }}</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        <div class="avatar-sm bg-light rounded d-flex align-items-center justify-content-center overflow-hidden">
-                                            <img src="{{ app(\App\Services\ImageStorageService::class)->resolveUrl($order['items'][0]['image'] ?? 'products/botanical-radiance-serum-01.jpg') }}" alt="" class="avatar-sm object-fit-cover">
-                                        </div>
                                         <span class="fs-13 text-dark fw-medium">{{ $order['items'][0]['name'] ?? 'Botanical Treatment' }}</span>
                                         @if(($order['items_count'] ?? 1) > 1)
                                             <span class="badge bg-light text-muted">+{{ $order['items_count'] - 1 }} more</span>
@@ -302,7 +312,7 @@
             </div>
             <div class="card-footer py-2 bg-light bg-opacity-50">
                 <div class="d-flex align-items-center justify-content-between">
-                    <p class="mb-0 text-muted fs-12">Displaying {{ count($recentOrders) }} of {{ count($orders) }} orders</p>
+                    <p class="mb-0 text-muted fs-12">Displaying {{ count($recentOrders) }} of {{ $totalOrders }} orders</p>
                     <a href="{{ route('admin.orders.index') }}" class="text-reset fw-semibold fs-12">Go to Order Management &rarr;</a>
                 </div>
             </div>
@@ -312,11 +322,43 @@
 @endsection
 
 @push('scripts')
-<!-- Vector Map Js -->
-<script src="{{ asset('admin/assets/vendor/jsvectormap/js/jsvectormap.min.js') }}"></script>
-<script src="{{ asset('admin/assets/vendor/jsvectormap/maps/world-merc.js') }}"></script>
-<script src="{{ asset('admin/assets/vendor/jsvectormap/maps/world.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const initialChart = @json($chartData);
+    const chartEl = document.querySelector('#dash-performance-chart');
+    if (!chartEl || typeof ApexCharts === 'undefined') return;
 
-<!-- Dashboard Page Js (ApexCharts + Map) -->
-<script src="{{ asset('admin/assets/js/pages/dashboard.js') }}"></script>
+    const chart = new ApexCharts(chartEl, {
+        chart: { type: 'line', height: 280, toolbar: { show: false } },
+        series: [
+            { name: 'Revenue', type: 'column', data: initialChart.revenue || [] },
+            { name: 'Orders', type: 'line', data: initialChart.orders || [] }
+        ],
+        xaxis: { categories: initialChart.labels || [] },
+        yaxis: [
+            { title: { text: 'Revenue' } },
+            { opposite: true, title: { text: 'Orders' } }
+        ],
+        stroke: { width: [0, 3] },
+        colors: ['#3b7ddd', '#22c55e']
+    });
+    chart.render();
+
+    document.querySelectorAll('#chart-period-btns button').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('#chart-period-btns button').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            fetch(@js(route('admin.dashboard.chart')) + '?period=' + encodeURIComponent(this.dataset.period))
+                .then(r => r.json())
+                .then(data => {
+                    chart.updateOptions({ xaxis: { categories: data.labels || [] } });
+                    chart.updateSeries([
+                        { name: 'Revenue', type: 'column', data: data.revenue || [] },
+                        { name: 'Orders', type: 'line', data: data.orders || [] }
+                    ]);
+                });
+        });
+    });
+});
+</script>
 @endpush

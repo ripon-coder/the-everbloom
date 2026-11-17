@@ -88,23 +88,25 @@
         'sku' => $sku,
         'brand' => [
             '@type' => 'Brand',
-            'name' => 'The Everbloom',
+            'name' => !empty($product['brand']) ? $product['brand'] : config('demo.site.name', 'The Everbloom'),
         ],
         'offers' => [
             '@type' => 'Offer',
-            'url' => url()->current(),
+            'url' => !empty($product['canonical_url']) ? $product['canonical_url'] : url()->current(),
             'priceCurrency' => $currencyCode,
             'price' => number_format($basePrice, 2, '.', ''),
             'availability' => ($defaultVariant['stock_status'] ?? 'in_stock') !== 'out_of_stock'
                 ? 'https://schema.org/InStock'
                 : 'https://schema.org/OutOfStock',
         ],
-        'aggregateRating' => [
-            '@type' => 'AggregateRating',
-            'ratingValue' => $product['rating'] ?? 5,
-            'reviewCount' => $product['review_count'] ?? 0,
-        ],
     ];
+    if ((int) ($product['review_count'] ?? 0) > 0) {
+        $productSchema['aggregateRating'] = [
+            '@type' => 'AggregateRating',
+            'ratingValue' => (float) ($product['rating'] ?? 5),
+            'reviewCount' => (int) ($product['review_count'] ?? 0),
+        ];
+    }
 @endphp
 
 @push('structured-data')
@@ -802,16 +804,10 @@
 </div>
 
 @php
-    $ratingBreakdown = config('demo.site.rating_breakdown', [
-        5 => 78,
-        4 => 16,
-        3 => 4,
-        2 => 1,
-        1 => 1,
-    ]);
-    $avgRating = (float) ($product['rating'] ?? 4.8);
-    $totalRatingsCount = (int) ($product['review_count'] ?? 94);
-    $reviewSource = !empty($reviews) ? $reviews : config('demo.reviews', []);
+    $ratingBreakdown = $ratingBreakdown ?? [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+    $avgRating = (float) ($product['rating'] ?? 5.0);
+    $totalRatingsCount = (int) ($product['review_count'] ?? count($reviews ?? []));
+    $reviewSource = $reviews ?? [];
     $sampleReviews = collect($reviewSource)->map(function ($rev) use ($defaultVariant) {
         return [
             'id' => $rev['id'] ?? 1,
@@ -820,7 +816,7 @@
             'rating' => (int) ($rev['rating'] ?? 5),
             'date' => $rev['date'] ?? '',
             'date_iso' => $rev['date_iso'] ?? '2026-10-01',
-            'label' => (!empty($rev['label']) && $rev['label'] !== 'Sample review') ? $rev['label'] : 'Verified buyer',
+            'label' => $rev['label'] ?? 'Customer review',
             'headline' => $rev['headline'] ?? '',
             'body' => $rev['body'] ?? '',
         ];
@@ -934,12 +930,42 @@
                 return;
             }
 
-            this.resetForm();
-            this.reviewDemoNotice = true;
-            this.closeTimer = setTimeout(() => {
-                this.reviewDemoNotice = false;
-                this.closeForm(true);
-            }, 2500);
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            fetch(@js(route('shop.product.reviews.store', $product['slug'])), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrf
+                },
+                body: JSON.stringify({
+                    rating: ratingVal,
+                    author: this.reviewName.trim(),
+                    author_email: emailVal,
+                    headline: this.reviewTitle.trim(),
+                    body: this.reviewBody.trim()
+                })
+            })
+            .then(async (res) => {
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    if (data.errors) {
+                        this.errors.body = Object.values(data.errors).flat()[0] || 'Could not submit review.';
+                    } else {
+                        this.errors.body = data.message || 'Could not submit review.';
+                    }
+                    return;
+                }
+                this.resetForm();
+                this.reviewDemoNotice = true;
+                this.closeTimer = setTimeout(() => {
+                    this.reviewDemoNotice = false;
+                    this.closeForm(true);
+                }, 2500);
+            })
+            .catch(() => {
+                this.errors.body = 'Network error. Please try again.';
+            });
         }
     }"
     @keydown.escape.window="if (reviewFormOpen) { closeForm(true); }"
