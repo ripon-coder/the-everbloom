@@ -31,12 +31,35 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0">All Botanical Categories ({{ count($categories) }})</h4>
-                <a href="{{ route('admin.categories.create') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
-                    <iconify-icon icon="solar:add-circle-bold" class="fs-16"></iconify-icon>
-                    <span>Create Category</span>
-                </a>
+            @php
+                $categoryFilterCount = collect([
+                    request('search'),
+                    request('level'),
+                    request('sort') && request('sort') !== 'hierarchy' ? request('sort') : null,
+                ])->filter()->count();
+            @endphp
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <h4 class="card-title mb-0">All Botanical Categories ({{ count($categories) }})</h4>
+                    @if($categoryFilterCount > 0)
+                        <a href="{{ route('admin.categories.index') }}" class="badge bg-soft-danger text-danger text-decoration-none fs-11">
+                            <i class="bx bx-x align-middle"></i> Clear Filters
+                        </a>
+                    @endif
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-soft-secondary d-flex align-items-center gap-1 position-relative" data-bs-toggle="offcanvas" data-bs-target="#categoryFilterDrawer" aria-controls="categoryFilterDrawer">
+                        <iconify-icon icon="solar:filter-bold-duotone" class="fs-16"></iconify-icon>
+                        <span>Filter</span>
+                        @if($categoryFilterCount > 0)
+                            <span class="badge bg-primary rounded-pill ms-1">{{ $categoryFilterCount }}</span>
+                        @endif
+                    </button>
+                    <a href="{{ route('admin.categories.create') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
+                        <iconify-icon icon="solar:add-circle-bold" class="fs-16"></iconify-icon>
+                        <span>Create Category</span>
+                    </a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -129,4 +152,33 @@
         </div>
     </div>
 </div>
+<x-admin.filter-drawer
+    id="categoryFilterDrawer"
+    title="Filter Categories"
+    :action="route('admin.categories.index')"
+    :reset-url="route('admin.categories.index')">
+    <div class="mb-3">
+        <label for="cat-filter-search" class="form-label fw-semibold">Search</label>
+        <input type="text" id="cat-filter-search" name="search" class="form-control" placeholder="Category name or slug..." value="{{ request('search') }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="cat-filter-level" class="form-label fw-semibold">Hierarchy Level</label>
+        <select id="cat-filter-level" name="level" class="form-select">
+            <option value="">All Levels</option>
+            <option value="1" {{ request('level') === '1' ? 'selected' : '' }}>Step 1: Main</option>
+            <option value="2" {{ request('level') === '2' ? 'selected' : '' }}>Step 2: Subcategory</option>
+            <option value="3" {{ request('level') === '3' ? 'selected' : '' }}>Step 3: Child</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="cat-filter-sort" class="form-label fw-semibold">Sort By</label>
+        <select id="cat-filter-sort" name="sort" class="form-select">
+            <option value="hierarchy" {{ request('sort', 'hierarchy') === 'hierarchy' ? 'selected' : '' }}>Hierarchy Order</option>
+            <option value="products_desc" {{ request('sort') === 'products_desc' ? 'selected' : '' }}>Most Products</option>
+            <option value="name_asc" {{ request('sort') === 'name_asc' ? 'selected' : '' }}>Name: A → Z</option>
+        </select>
+    </div>
+</x-admin.filter-drawer>
 @endsection

@@ -99,33 +99,34 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
+            @php
+                $customerFilterCount = collect([
+                    request('search'),
+                    request('status'),
+                ])->filter()->count();
+            @endphp
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <h4 class="card-title mb-0">Registered Botanical Skincare Clients ({{ $customers->total() }})</h4>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <h4 class="card-title mb-0">Registered Botanical Skincare Clients ({{ $customers->total() }})</h4>
+                    @if($customerFilterCount > 0)
+                        <a href="{{ route('admin.customers.index') }}" class="badge bg-soft-danger text-danger text-decoration-none fs-11">
+                            <i class="bx bx-x align-middle"></i> Clear Filters
+                        </a>
+                    @endif
+                </div>
 
                 <div class="d-flex flex-wrap align-items-center gap-2">
-                    <form method="GET" action="{{ route('admin.customers.index') }}" class="d-flex flex-wrap align-items-center gap-2">
-                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 120px;">
-                            <option value="">All Status</option>
-                            <option value="Active" {{ request('status') === 'Active' ? 'selected' : '' }}>Active</option>
-                            <option value="Inactive" {{ request('status') === 'Inactive' ? 'selected' : '' }}>Inactive</option>
-                        </select>
-
-                        <div class="input-group input-group-sm" style="max-width: 220px;">
-                            <input type="text" name="search" class="form-control" placeholder="Name, email or phone..." value="{{ request('search') }}">
-                            <button class="btn btn-outline-secondary" type="submit">
-                                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
-                            </button>
-                        </div>
-
-                        @if(request()->hasAny(['search', 'status']))
-                            <a href="{{ route('admin.customers.index') }}" class="btn btn-sm btn-soft-danger" title="Clear Filters">
-                                <i class="bx bx-x"></i>
-                            </a>
+                    <button type="button" class="btn btn-sm btn-soft-secondary d-flex align-items-center gap-1 position-relative" data-bs-toggle="offcanvas" data-bs-target="#customerFilterDrawer" aria-controls="customerFilterDrawer">
+                        <iconify-icon icon="solar:filter-bold-duotone" class="fs-16"></iconify-icon>
+                        <span>Filter</span>
+                        @if($customerFilterCount > 0)
+                            <span class="badge bg-primary rounded-pill ms-1">{{ $customerFilterCount }}</span>
                         @endif
-                    </form>
+                    </button>
 
-                    <a href="{{ route('admin.customers.export', request()->query()) }}" class="btn btn-sm btn-soft-secondary">
-                        <iconify-icon icon="solar:download-minimalistic-linear" class="me-1"></iconify-icon> Export CSV
+                    <a href="{{ route('admin.customers.export', request()->query()) }}" class="btn btn-sm btn-soft-primary d-flex align-items-center gap-1">
+                        <iconify-icon icon="solar:download-minimalistic-linear" class="fs-16"></iconify-icon>
+                        <span>Export CSV</span>
                     </a>
                 </div>
             </div>
@@ -221,4 +222,23 @@
         </div>
     </div>
 </div>
+<x-admin.filter-drawer
+    id="customerFilterDrawer"
+    title="Filter Customers"
+    :action="route('admin.customers.index')"
+    :reset-url="route('admin.customers.index')">
+    <div class="mb-3">
+        <label for="customer-filter-search" class="form-label fw-semibold">Search</label>
+        <input type="text" id="customer-filter-search" name="search" class="form-control" placeholder="Name, email or phone..." value="{{ request('search') }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="customer-filter-status" class="form-label fw-semibold">Account Status</label>
+        <select id="customer-filter-status" name="status" class="form-select">
+            <option value="">All Status</option>
+            <option value="Active" {{ request('status') === 'Active' ? 'selected' : '' }}>Active</option>
+            <option value="Inactive" {{ request('status') === 'Inactive' ? 'selected' : '' }}>Inactive</option>
+        </select>
+    </div>
+</x-admin.filter-drawer>
 @endsection

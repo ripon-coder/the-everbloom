@@ -7,24 +7,29 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
+            @php
+                $reviewFilterCount = collect([
+                    $search ?: null,
+                    ($statusFilter && $statusFilter !== 'all') ? $statusFilter : null,
+                    $ratingFilter ?: null,
+                ])->filter()->count();
+            @endphp
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <h4 class="card-title mb-0">Client Product Reviews & Moderation ({{ $reviews->total() }})</h4>
-                <form method="GET" action="{{ route('admin.reviews.index') }}" class="d-flex flex-wrap gap-2">
-                    <select name="status" class="form-select form-select-sm" style="width:auto;">
-                        <option value="all" {{ ($statusFilter ?: 'all') === 'all' ? 'selected' : '' }}>All Statuses</option>
-                        @foreach(['Pending', 'Approved', 'Rejected'] as $st)
-                            <option value="{{ $st }}" {{ $statusFilter === $st ? 'selected' : '' }}>{{ $st }}</option>
-                        @endforeach
-                    </select>
-                    <select name="rating" class="form-select form-select-sm" style="width:auto;">
-                        <option value="">All Ratings</option>
-                        @for($r = 5; $r >= 1; $r--)
-                            <option value="{{ $r }}" {{ (int)$ratingFilter === $r ? 'selected' : '' }}>{{ $r }} Stars</option>
-                        @endfor
-                    </select>
-                    <input type="text" name="search" value="{{ $search }}" class="form-control form-control-sm" style="width:200px;" placeholder="Search author, product...">
-                    <button type="submit" class="btn btn-sm btn-soft-primary">Filter</button>
-                </form>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <h4 class="card-title mb-0">Client Product Reviews &amp; Moderation ({{ $reviews->total() }})</h4>
+                    @if($reviewFilterCount > 0)
+                        <a href="{{ route('admin.reviews.index') }}" class="badge bg-soft-danger text-danger text-decoration-none fs-11">
+                            <i class="bx bx-x align-middle"></i> Clear Filters
+                        </a>
+                    @endif
+                </div>
+                <button type="button" class="btn btn-sm btn-soft-secondary d-flex align-items-center gap-1 position-relative" data-bs-toggle="offcanvas" data-bs-target="#reviewFilterDrawer" aria-controls="reviewFilterDrawer">
+                    <iconify-icon icon="solar:filter-bold-duotone" class="fs-16"></iconify-icon>
+                    <span>Filter</span>
+                    @if($reviewFilterCount > 0)
+                        <span class="badge bg-primary rounded-pill ms-1">{{ $reviewFilterCount }}</span>
+                    @endif
+                </button>
             </div>
 
             <form id="bulk-review-form" method="POST" action="{{ route('admin.reviews.bulk') }}">
@@ -156,6 +161,36 @@
         </div>
     </div>
 </div>
+<x-admin.filter-drawer
+    id="reviewFilterDrawer"
+    title="Filter Reviews"
+    :action="route('admin.reviews.index')"
+    :reset-url="route('admin.reviews.index')">
+    <div class="mb-3">
+        <label for="review-filter-search" class="form-label fw-semibold">Search</label>
+        <input type="text" id="review-filter-search" name="search" value="{{ $search }}" class="form-control" placeholder="Search author, product...">
+    </div>
+
+    <div class="mb-3">
+        <label for="review-filter-status" class="form-label fw-semibold">Status</label>
+        <select id="review-filter-status" name="status" class="form-select">
+            <option value="all" {{ ($statusFilter ?: 'all') === 'all' ? 'selected' : '' }}>All Statuses</option>
+            @foreach(['Pending', 'Approved', 'Rejected'] as $st)
+                <option value="{{ $st }}" {{ $statusFilter === $st ? 'selected' : '' }}>{{ $st }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="review-filter-rating" class="form-label fw-semibold">Rating</label>
+        <select id="review-filter-rating" name="rating" class="form-select">
+            <option value="">All Ratings</option>
+            @for($r = 5; $r >= 1; $r--)
+                <option value="{{ $r }}" {{ (int)$ratingFilter === $r ? 'selected' : '' }}>{{ $r }} Stars</option>
+            @endfor
+        </select>
+    </div>
+</x-admin.filter-drawer>
 @endsection
 
 @push('scripts')

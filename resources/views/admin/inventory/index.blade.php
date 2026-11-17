@@ -103,11 +103,36 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0">Batch Stock & Laboratory Inventory</h4>
-                <a href="{{ route('admin.purchases.create') }}" class="btn btn-sm btn-primary">
-                    <iconify-icon icon="solar:add-circle-bold" class="me-1"></iconify-icon> Receive New Batch
-                </a>
+            @php
+                $inventoryFilterCount = collect([
+                    request('search'),
+                    request('category'),
+                    request('stock_status'),
+                    request('sort') && request('sort') !== 'default' ? request('sort') : null,
+                ])->filter()->count();
+            @endphp
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <h4 class="card-title mb-0">Batch Stock &amp; Laboratory Inventory ({{ count($inventory) }})</h4>
+                    @if($inventoryFilterCount > 0)
+                        <a href="{{ route('admin.inventory.index') }}" class="badge bg-soft-danger text-danger text-decoration-none fs-11">
+                            <i class="bx bx-x align-middle"></i> Clear Filters
+                        </a>
+                    @endif
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-soft-secondary d-flex align-items-center gap-1 position-relative" data-bs-toggle="offcanvas" data-bs-target="#inventoryFilterDrawer" aria-controls="inventoryFilterDrawer">
+                        <iconify-icon icon="solar:filter-bold-duotone" class="fs-16"></iconify-icon>
+                        <span>Filter</span>
+                        @if($inventoryFilterCount > 0)
+                            <span class="badge bg-primary rounded-pill ms-1">{{ $inventoryFilterCount }}</span>
+                        @endif
+                    </button>
+                    <a href="{{ route('admin.purchases.create') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
+                        <iconify-icon icon="solar:add-circle-bold" class="fs-16"></iconify-icon>
+                        <span>Receive New Batch</span>
+                    </a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -301,4 +326,43 @@
         </div>
     </div>
 </div>
+<x-admin.filter-drawer
+    id="inventoryFilterDrawer"
+    title="Filter Inventory"
+    :action="route('admin.inventory.index')"
+    :reset-url="route('admin.inventory.index')">
+    <div class="mb-3">
+        <label for="inv-filter-search" class="form-label fw-semibold">Search</label>
+        <input type="text" id="inv-filter-search" name="search" class="form-control" placeholder="Product name, SKU, or batch lot..." value="{{ request('search') }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="inv-filter-category" class="form-label fw-semibold">Category</label>
+        <select id="inv-filter-category" name="category" class="form-select">
+            <option value="">All Categories</option>
+            @foreach($categories as $cat)
+                <option value="{{ $cat->slug }}" {{ request('category') === $cat->slug ? 'selected' : '' }}>{{ $cat->name }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="inv-filter-status" class="form-label fw-semibold">Stock Health</label>
+        <select id="inv-filter-status" name="stock_status" class="form-select">
+            <option value="">All Stock Levels</option>
+            <option value="in_stock" {{ request('stock_status') === 'in_stock' ? 'selected' : '' }}>In Stock</option>
+            <option value="low_stock" {{ request('stock_status') === 'low_stock' ? 'selected' : '' }}>Low Stock</option>
+            <option value="out_of_stock" {{ request('stock_status') === 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="inv-filter-sort" class="form-label fw-semibold">Sort By</label>
+        <select id="inv-filter-sort" name="sort" class="form-select">
+            <option value="default" {{ request('sort', 'default') === 'default' ? 'selected' : '' }}>Default Order</option>
+            <option value="stock_asc" {{ request('sort') === 'stock_asc' ? 'selected' : '' }}>Stock: Low → High</option>
+            <option value="stock_desc" {{ request('sort') === 'stock_desc' ? 'selected' : '' }}>Stock: High → Low</option>
+        </select>
+    </div>
+</x-admin.filter-drawer>
 @endsection

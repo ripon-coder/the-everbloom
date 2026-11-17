@@ -17,6 +17,12 @@
 </div>
 
 <div class="card">
+    @php
+        $flashFilterCount = collect([
+            $search ?: null,
+            ($statusFilter && $statusFilter !== 'all') ? $statusFilter : null,
+        ])->filter()->count();
+    @endphp
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
         <ul class="nav nav-pills card-header-pills">
             @foreach(['all' => 'All', 'active' => 'Active', 'scheduled' => 'Scheduled', 'draft' => 'Draft', 'expired' => 'Expired', 'disabled' => 'Disabled'] as $key => $label)
@@ -25,11 +31,20 @@
                 </li>
             @endforeach
         </ul>
-        <form method="GET" action="{{ route('admin.flash-sales.index') }}" class="d-flex gap-2">
-            @if($statusFilter)<input type="hidden" name="status" value="{{ $statusFilter }}">@endif
-            <input type="text" name="search" value="{{ $search }}" class="form-control form-control-sm" placeholder="Search flash sales...">
-            <button type="submit" class="btn btn-soft-secondary btn-sm">Search</button>
-        </form>
+        <div class="d-flex align-items-center gap-2">
+            @if($flashFilterCount > 0)
+                <a href="{{ route('admin.flash-sales.index') }}" class="badge bg-soft-danger text-danger text-decoration-none fs-11">
+                    <i class="bx bx-x align-middle"></i> Clear
+                </a>
+            @endif
+            <button type="button" class="btn btn-sm btn-soft-secondary d-flex align-items-center gap-1 position-relative" data-bs-toggle="offcanvas" data-bs-target="#flashSaleFilterDrawer" aria-controls="flashSaleFilterDrawer">
+                <iconify-icon icon="solar:filter-bold-duotone" class="fs-16"></iconify-icon>
+                <span>Filter</span>
+                @if($flashFilterCount > 0)
+                    <span class="badge bg-primary rounded-pill ms-1">{{ $flashFilterCount }}</span>
+                @endif
+            </button>
+        </div>
     </div>
 
     <div class="card-body p-0">
@@ -116,5 +131,24 @@
         <div class="card-footer">{{ $flashSales->links() }}</div>
     @endif
 </div>
+<x-admin.filter-drawer
+    id="flashSaleFilterDrawer"
+    title="Filter Flash Sales"
+    :action="route('admin.flash-sales.index')"
+    :reset-url="route('admin.flash-sales.index')">
+    <div class="mb-3">
+        <label for="flash-filter-search" class="form-label fw-semibold">Search</label>
+        <input type="text" id="flash-filter-search" name="search" value="{{ $search }}" class="form-control" placeholder="Campaign title or slug...">
+    </div>
+
+    <div class="mb-3">
+        <label for="flash-filter-status" class="form-label fw-semibold">Status</label>
+        <select id="flash-filter-status" name="status" class="form-select">
+            @foreach(['all' => 'All', 'active' => 'Active', 'scheduled' => 'Scheduled', 'draft' => 'Draft', 'expired' => 'Expired', 'disabled' => 'Disabled'] as $key => $label)
+                <option value="{{ $key }}" {{ ($statusFilter ?: 'all') === $key ? 'selected' : '' }}>{{ $label }}</option>
+            @endforeach
+        </select>
+    </div>
+</x-admin.filter-drawer>
 @endsection
 

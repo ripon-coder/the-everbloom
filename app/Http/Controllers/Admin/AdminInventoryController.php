@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\StockMovement;
@@ -12,11 +13,35 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminInventoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $inventory = Product::with(['categoryRelation', 'productVariants'])
-            ->orderBy('id')
-            ->get()
+        $search = trim((string) $request->input('search', ''));
+        $categorySlug = trim((string) $request->input('category', ''));
+        $stockStatus = trim((string) $request->input('stock_status', ''));
+        $sort = $request->input('sort', 'default');
+
+        $query = Product::with(['categoryRelation', 'productVariants'])
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%")
+                        ->orWhere('batch_lot', 'like', "%{$search}%");
+                });
+            })
+            ->when($categorySlug !== '', function ($q) use ($categorySlug) {
+                $q->where('category_slug', $categorySlug);
+            })
+            ->when($stockStatus === 'in_stock', fn ($q) => $q->whereColumn('stock_count', '>', 'min_threshold'))
+            ->when($stockStatus === 'low_stock', fn ($q) => $q->where('stock_count', '>', 0)->whereColumn('stock_count', '<=', 'min_threshold'))
+            ->when($stockStatus === 'out_of_stock', fn ($q) => $q->where('stock_count', '<=', 0));
+
+        match ($sort) {
+            'stock_asc' => $query->orderBy('stock_count')->orderBy('id'),
+            'stock_desc' => $query->orderByDesc('stock_count')->orderBy('id'),
+            default => $query->orderBy('id'),
+        };
+
+        $inventory = $query->get()
             ->map(function (Product $p) {
                 $stock = (int) $p->stock_count;
                 $threshold = (int) $p->min_threshold;
@@ -63,7 +88,9 @@ class AdminInventoryController extends Controller
             ->take(25)
             ->get();
 
-        return view('admin.inventory.index', compact('inventory', 'lowStockItems', 'stockMovements'));
+        $categories = Category::orderBy('name')->get(['name', 'slug']);
+
+        return view('admin.inventory.index', compact('inventory', 'lowStockItems', 'stockMovements', 'categories'));
     }
 
     public function updateStock(Request $request, Product $product, StockService $stockService)

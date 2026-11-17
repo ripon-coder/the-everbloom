@@ -7,23 +7,27 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
+            @php
+                $brandFilterCount = request()->filled('search') ? 1 : 0;
+            @endphp
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <h4 class="card-title mb-0">Botanical Brands ({{ $brands->total() }})</h4>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <h4 class="card-title mb-0">Botanical Brands ({{ $brands->total() }})</h4>
+                    @if($brandFilterCount > 0)
+                        <a href="{{ route('admin.brands.index') }}" class="badge bg-soft-danger text-danger text-decoration-none fs-11">
+                            <i class="bx bx-x align-middle"></i> Clear Filters
+                        </a>
+                    @endif
+                </div>
 
                 <div class="d-flex flex-wrap align-items-center gap-2">
-                    <form method="GET" action="{{ route('admin.brands.index') }}" class="d-flex align-items-center gap-2">
-                        <div class="input-group input-group-sm" style="max-width: 220px;">
-                            <input type="text" name="search" class="form-control" placeholder="Search brands..." value="{{ request('search') }}">
-                            <button class="btn btn-outline-secondary" type="submit">
-                                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
-                            </button>
-                        </div>
-                        @if(request()->filled('search'))
-                            <a href="{{ route('admin.brands.index') }}" class="btn btn-sm btn-soft-danger" title="Clear Filters">
-                                <i class="bx bx-x"></i>
-                            </a>
+                    <button type="button" class="btn btn-sm btn-soft-secondary d-flex align-items-center gap-1 position-relative" data-bs-toggle="offcanvas" data-bs-target="#brandFilterDrawer" aria-controls="brandFilterDrawer">
+                        <iconify-icon icon="solar:filter-bold-duotone" class="fs-16"></iconify-icon>
+                        <span>Filter</span>
+                        @if($brandFilterCount > 0)
+                            <span class="badge bg-primary rounded-pill ms-1">{{ $brandFilterCount }}</span>
                         @endif
-                    </form>
+                    </button>
 
                     <a href="{{ route('admin.brands.create') }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
                         <iconify-icon icon="solar:add-circle-bold" class="fs-16"></iconify-icon>
@@ -103,5 +107,15 @@
         </div>
     </div>
 </div>
+<x-admin.filter-drawer
+    id="brandFilterDrawer"
+    title="Filter Brands"
+    :action="route('admin.brands.index')"
+    :reset-url="route('admin.brands.index')">
+    <div class="mb-3">
+        <label for="brand-filter-search" class="form-label fw-semibold">Search</label>
+        <input type="text" id="brand-filter-search" name="search" class="form-control" placeholder="Brand name or slug..." value="{{ request('search') }}">
+    </div>
+</x-admin.filter-drawer>
 @endsection
 

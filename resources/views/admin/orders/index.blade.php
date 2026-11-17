@@ -100,35 +100,25 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
+            @php
+                $orderFilterCount = collect([
+                    request('search'),
+                    request('payment_status'),
+                    request('date_from'),
+                    request('date_to'),
+                ])->filter()->count();
+            @endphp
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <h4 class="card-title mb-0">Customer Orders ({{ $orders->total() }})</h4>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <h4 class="card-title mb-0">Customer Orders ({{ $orders->total() }})</h4>
+                    @if($orderFilterCount > 0 || request('status'))
+                        <a href="{{ route('admin.orders.index') }}" class="badge bg-soft-danger text-danger text-decoration-none fs-11">
+                            <i class="bx bx-x align-middle"></i> Clear Filters
+                        </a>
+                    @endif
+                </div>
 
                 <div class="d-flex flex-wrap align-items-center gap-2">
-                    <form method="GET" action="{{ route('admin.orders.index') }}" class="d-flex flex-wrap align-items-center gap-2">
-                        @if(request('status'))
-                            <input type="hidden" name="status" value="{{ request('status') }}">
-                        @endif
-                        <select name="payment_status" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 130px;">
-                            <option value="">All Payments</option>
-                            <option value="Pending" {{ request('payment_status') === 'Pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="Paid" {{ request('payment_status') === 'Paid' ? 'selected' : '' }}>Paid</option>
-                            <option value="Failed" {{ request('payment_status') === 'Failed' ? 'selected' : '' }}>Failed</option>
-                        </select>
-                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control form-control-sm" style="width: 135px;" title="From date">
-                        <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control form-control-sm" style="width: 135px;" title="To date">
-                        <div class="input-group input-group-sm" style="max-width: 210px;">
-                            <input type="text" name="search" class="form-control" placeholder="Order #, email, phone..." value="{{ request('search') }}">
-                            <button class="btn btn-outline-secondary" type="submit">
-                                <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
-                            </button>
-                        </div>
-                        @if(request()->hasAny(['status', 'payment_status', 'search', 'date_from', 'date_to']))
-                            <a href="{{ route('admin.orders.index') }}" class="btn btn-sm btn-soft-danger" title="Clear Filters">
-                                <i class="bx bx-x"></i>
-                            </a>
-                        @endif
-                    </form>
-
                     <!-- Status Filter Tabs -->
                     <div class="btn-group btn-group-sm" role="group">
                         <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary {{ !request('status') ? 'active' : '' }}">All</a>
@@ -138,6 +128,14 @@
                         <a href="{{ route('admin.orders.index', ['status' => 'delivered']) }}" class="btn btn-outline-secondary {{ request('status') === 'delivered' ? 'active' : '' }}">Delivered</a>
                         <a href="{{ route('admin.orders.index', ['status' => 'cancelled']) }}" class="btn btn-outline-secondary {{ request('status') === 'cancelled' ? 'active' : '' }}">Cancelled</a>
                     </div>
+
+                    <button type="button" class="btn btn-sm btn-soft-secondary d-flex align-items-center gap-1 position-relative" data-bs-toggle="offcanvas" data-bs-target="#orderFilterDrawer" aria-controls="orderFilterDrawer">
+                        <iconify-icon icon="solar:filter-bold-duotone" class="fs-16"></iconify-icon>
+                        <span>Filter</span>
+                        @if($orderFilterCount > 0)
+                            <span class="badge bg-primary rounded-pill ms-1">{{ $orderFilterCount }}</span>
+                        @endif
+                    </button>
                 </div>
             </div>
 
@@ -263,4 +261,45 @@
         </div>
     </div>
 </div>
+<x-admin.filter-drawer
+    id="orderFilterDrawer"
+    title="Filter Orders"
+    :action="route('admin.orders.index')"
+    :reset-url="route('admin.orders.index')">
+    <div class="mb-3">
+        <label for="order-filter-search" class="form-label fw-semibold">Search</label>
+        <input type="text" id="order-filter-search" name="search" class="form-control" placeholder="Order #, email, phone..." value="{{ request('search') }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="order-filter-status" class="form-label fw-semibold">Order Status</label>
+        <select id="order-filter-status" name="status" class="form-select">
+            <option value="">All Statuses</option>
+            @foreach(['placed' => 'Placed', 'processing' => 'Processing', 'shipped' => 'Shipped', 'delivered' => 'Delivered', 'cancelled' => 'Cancelled'] as $val => $lbl)
+                <option value="{{ $val }}" {{ request('status') === $val ? 'selected' : '' }}>{{ $lbl }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="order-filter-payment" class="form-label fw-semibold">Payment Status</label>
+        <select id="order-filter-payment" name="payment_status" class="form-select">
+            <option value="">All Payments</option>
+            <option value="Pending" {{ request('payment_status') === 'Pending' ? 'selected' : '' }}>Pending</option>
+            <option value="Paid" {{ request('payment_status') === 'Paid' ? 'selected' : '' }}>Paid</option>
+            <option value="Failed" {{ request('payment_status') === 'Failed' ? 'selected' : '' }}>Failed</option>
+        </select>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-6">
+            <label for="order-filter-from" class="form-label fw-semibold">From Date</label>
+            <input type="date" id="order-filter-from" name="date_from" value="{{ request('date_from') }}" class="form-control">
+        </div>
+        <div class="col-6">
+            <label for="order-filter-to" class="form-label fw-semibold">To Date</label>
+            <input type="date" id="order-filter-to" name="date_to" value="{{ request('date_to') }}" class="form-control">
+        </div>
+    </div>
+</x-admin.filter-drawer>
 @endsection

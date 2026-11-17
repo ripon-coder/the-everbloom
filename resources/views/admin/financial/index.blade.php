@@ -5,58 +5,35 @@
 
 @section('content')
 <!-- Filter Bar -->
-<div class="card mb-4">
-    <div class="card-body">
-        <form action="{{ route('admin.financial.index') }}" method="GET" class="row g-2 align-items-end">
-            <div class="col-md-2">
-                <label class="form-label fs-12">Period</label>
-                <select name="period" class="form-select form-select-sm">
-                    <option value="all" {{ $period === 'all' ? 'selected' : '' }}>All Time</option>
-                    <option value="today" {{ $period === 'today' ? 'selected' : '' }}>Today</option>
-                    <option value="7d" {{ $period === '7d' ? 'selected' : '' }}>Last 7 Days</option>
-                    <option value="this_month" {{ $period === 'this_month' ? 'selected' : '' }}>This Month</option>
-                    <option value="last_month" {{ $period === 'last_month' ? 'selected' : '' }}>Last Month</option>
-                    <option value="this_year" {{ $period === 'this_year' ? 'selected' : '' }}>This Year</option>
-                    <option value="custom" {{ $period === 'custom' ? 'selected' : '' }}>Custom Range</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label fs-12">From</label>
-                <input type="date" name="date_from" value="{{ $dateFrom }}" class="form-control form-control-sm">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label fs-12">To</label>
-                <input type="date" name="date_to" value="{{ $dateTo }}" class="form-control form-control-sm">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label fs-12">Category</label>
-                <select name="category_id" class="form-select form-select-sm">
-                    <option value="">All Categories</option>
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}" {{ (string) $categoryId === (string) $cat->id ? 'selected' : '' }}>{{ $cat->hierarchy_path }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label fs-12">Vendor</label>
-                <select name="vendor_id" class="form-select form-select-sm">
-                    <option value="">All Vendors</option>
-                    @foreach($vendors as $v)
-                        <option value="{{ $v->id }}" {{ (string) $vendorId === (string) $v->id ? 'selected' : '' }}>{{ $v->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-2 d-flex gap-1">
-                <select name="status" class="form-select form-select-sm">
-                    <option value="all_valid" {{ $status === 'all_valid' ? 'selected' : '' }}>All Valid</option>
-                    <option value="Delivered" {{ $status === 'Delivered' ? 'selected' : '' }}>Delivered</option>
-                    <option value="Shipped" {{ $status === 'Shipped' ? 'selected' : '' }}>Shipped</option>
-                    <option value="Processing" {{ $status === 'Processing' ? 'selected' : '' }}>Processing</option>
-                    <option value="Placed" {{ $status === 'Placed' ? 'selected' : '' }}>Placed</option>
-                </select>
-                <button type="submit" class="btn btn-sm btn-primary">Filter</button>
-            </div>
-        </form>
+@php
+    $finFilterCount = collect([
+        ($period && $period !== 'all') ? $period : null,
+        $dateFrom ?: null,
+        $dateTo ?: null,
+        $categoryId ?: null,
+        $vendorId ?: null,
+        ($status && $status !== 'all_valid') ? $status : null,
+    ])->filter()->count();
+@endphp
+<div class="row mb-3">
+    <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="badge bg-primary-subtle text-primary fs-12 px-2 py-1">
+                Period: {{ ucwords(str_replace('_', ' ', $period ?: 'all')) }}
+            </span>
+            @if($finFilterCount > 0)
+                <a href="{{ route('admin.financial.index') }}" class="badge bg-soft-danger text-danger text-decoration-none fs-11">
+                    <i class="bx bx-x align-middle"></i> Reset Filters
+                </a>
+            @endif
+        </div>
+        <button type="button" class="btn btn-sm btn-soft-secondary d-flex align-items-center gap-1 position-relative" data-bs-toggle="offcanvas" data-bs-target="#financialFilterDrawer" aria-controls="financialFilterDrawer">
+            <iconify-icon icon="solar:filter-bold-duotone" class="fs-16"></iconify-icon>
+            <span>Filter Ledger</span>
+            @if($finFilterCount > 0)
+                <span class="badge bg-primary rounded-pill ms-1">{{ $finFilterCount }}</span>
+            @endif
+        </button>
     </div>
 </div>
 
@@ -184,6 +161,66 @@
         </div>
     </div>
 </div>
+<x-admin.filter-drawer
+    id="financialFilterDrawer"
+    title="Filter Financial Ledger"
+    :action="route('admin.financial.index')"
+    :reset-url="route('admin.financial.index')">
+    <div class="mb-3">
+        <label for="fin-filter-period" class="form-label fw-semibold">Period</label>
+        <select id="fin-filter-period" name="period" class="form-select">
+            <option value="all" {{ $period === 'all' ? 'selected' : '' }}>All Time</option>
+            <option value="today" {{ $period === 'today' ? 'selected' : '' }}>Today</option>
+            <option value="7d" {{ $period === '7d' ? 'selected' : '' }}>Last 7 Days</option>
+            <option value="this_month" {{ $period === 'this_month' ? 'selected' : '' }}>This Month</option>
+            <option value="last_month" {{ $period === 'last_month' ? 'selected' : '' }}>Last Month</option>
+            <option value="this_year" {{ $period === 'this_year' ? 'selected' : '' }}>This Year</option>
+            <option value="custom" {{ $period === 'custom' ? 'selected' : '' }}>Custom Range</option>
+        </select>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-6">
+            <label for="fin-filter-from" class="form-label fw-semibold">From Date</label>
+            <input type="date" id="fin-filter-from" name="date_from" value="{{ $dateFrom }}" class="form-control">
+        </div>
+        <div class="col-6">
+            <label for="fin-filter-to" class="form-label fw-semibold">To Date</label>
+            <input type="date" id="fin-filter-to" name="date_to" value="{{ $dateTo }}" class="form-control">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="fin-filter-category" class="form-label fw-semibold">Category</label>
+        <select id="fin-filter-category" name="category_id" class="form-select">
+            <option value="">All Categories</option>
+            @foreach($categories as $cat)
+                <option value="{{ $cat->id }}" {{ (string) $categoryId === (string) $cat->id ? 'selected' : '' }}>{{ $cat->hierarchy_path }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="fin-filter-vendor" class="form-label fw-semibold">Vendor</label>
+        <select id="fin-filter-vendor" name="vendor_id" class="form-select">
+            <option value="">All Vendors</option>
+            @foreach($vendors as $v)
+                <option value="{{ $v->id }}" {{ (string) $vendorId === (string) $v->id ? 'selected' : '' }}>{{ $v->name }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="fin-filter-status" class="form-label fw-semibold">Order Status</label>
+        <select id="fin-filter-status" name="status" class="form-select">
+            <option value="all_valid" {{ $status === 'all_valid' ? 'selected' : '' }}>All Valid</option>
+            <option value="Delivered" {{ $status === 'Delivered' ? 'selected' : '' }}>Delivered</option>
+            <option value="Shipped" {{ $status === 'Shipped' ? 'selected' : '' }}>Shipped</option>
+            <option value="Processing" {{ $status === 'Processing' ? 'selected' : '' }}>Processing</option>
+            <option value="Placed" {{ $status === 'Placed' ? 'selected' : '' }}>Placed</option>
+        </select>
+    </div>
+</x-admin.filter-drawer>
 @endsection
 
 @push('scripts')

@@ -13,13 +13,32 @@ use Illuminate\Validation\ValidationException;
 
 class AdminCategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::with(['parent.parent', 'assignedAttributes'])
+        $search = trim((string) $request->input('search', ''));
+        $level = $request->input('level');
+        $sort = $request->input('sort', 'hierarchy');
+
+        $query = Category::with(['parent.parent', 'assignedAttributes'])
             ->withCount('products')
-            ->orderBy('level')
-            ->orderBy('sort_order')
-            ->get()
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%")
+                        ->orWhere('short_name', 'like', "%{$search}%");
+                });
+            })
+            ->when(in_array((string) $level, ['1', '2', '3'], true), function ($q) use ($level) {
+                $q->where('level', (int) $level);
+            });
+
+        match ($sort) {
+            'products_desc' => $query->orderByDesc('products_count')->orderBy('name'),
+            'name_asc' => $query->orderBy('name'),
+            default => $query->orderBy('level')->orderBy('sort_order'),
+        };
+
+        $categories = $query->get()
             ->map(function (Category $cat) {
                 $arr = $cat->toArray();
                 $arr['image'] = $cat->resolvedImage();

@@ -163,83 +163,93 @@
             </div>
 
             <!-- Card Footer -->
-            <div class="card-footer py-2 bg-light bg-opacity-50">
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                    <div class="d-flex flex-wrap align-items-center gap-2">
-                        <form id="bulk-products-form" action="{{ route('admin.products.bulk') }}" method="POST" class="d-flex align-items-center gap-2">
+            <div class="card-footer border-top py-3 bg-light bg-opacity-50">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-auto">
+                        <form id="bulk-products-form" action="{{ route('admin.products.bulk') }}" method="POST" class="d-flex align-items-center">
                             @csrf
-                            <select name="action" class="form-select form-select-sm" style="width: 150px;" required>
-                                <option value="">Bulk Actions...</option>
-                                <option value="activate">Activate Selected</option>
-                                <option value="deactivate">Deactivate Selected</option>
-                                <option value="delete">Delete Selected</option>
-                            </select>
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">Apply</button>
+                            <div class="input-group input-group-sm" style="width: 230px;">
+                                <select name="action" class="form-select" required>
+                                    <option value="">Bulk Actions...</option>
+                                    <option value="activate">Activate Selected</option>
+                                    <option value="deactivate">Deactivate Selected</option>
+                                    <option value="delete">Delete Selected</option>
+                                </select>
+                                <button type="submit" class="btn btn-soft-primary fw-medium">Apply</button>
+                            </div>
                         </form>
-                        <p class="mb-0 text-muted fs-12">Showing {{ $products->firstItem() ?? 0 }} to {{ $products->lastItem() ?? 0 }} of {{ $products->total() }} formulations</p>
                     </div>
-                    <div>
-                        {{ $products->links('pagination::bootstrap-5') }}
+                    <div class="col-md text-md-center text-muted fs-13">
+                        Showing {{ $products->firstItem() ?? 0 }} to {{ $products->lastItem() ?? 0 }} of {{ $products->total() }} formulations
                     </div>
+                    @if($products->hasPages())
+                    <div class="col-md-auto">
+                        <ul class="pagination m-0 justify-content-md-end">
+                            <li class="page-item {{ $products->onFirstPage() ? 'disabled' : '' }}">
+                                <a href="{{ $products->previousPageUrl() ?? '#' }}" class="page-link" aria-label="Previous">
+                                    <i class="bx bx-left-arrow-alt"></i>
+                                </a>
+                            </li>
+                            @foreach($products->getUrlRange(1, $products->lastPage()) as $page => $url)
+                                <li class="page-item {{ $page === $products->currentPage() ? 'active' : '' }}">
+                                    <a href="{{ $url }}" class="page-link">{{ $page }}</a>
+                                </li>
+                            @endforeach
+                            <li class="page-item {{ $products->hasMorePages() ? '' : 'disabled' }}">
+                                <a href="{{ $products->nextPageUrl() ?? '#' }}" class="page-link" aria-label="Next">
+                                    <i class="bx bx-right-arrow-alt"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </div>
 <!-- Right-Side Filter Offcanvas Drawer -->
-<div class="offcanvas offcanvas-end border-0" tabindex="-1" id="productFilterDrawer" aria-labelledby="productFilterDrawerLabel" style="max-width: 380px; width: 100%;">
-    <div class="d-flex align-items-center bg-primary p-3 offcanvas-header">
-        <h5 class="text-white m-0 fw-semibold" id="productFilterDrawerLabel">
-            <iconify-icon icon="solar:filter-bold-duotone" class="align-middle me-1"></iconify-icon>
-            Filter Formulations
-        </h5>
-        <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+<x-admin.filter-drawer
+    id="productFilterDrawer"
+    title="Filter Formulations"
+    :action="route('admin.products.index')"
+    :reset-url="route('admin.products.index')">
+    <div class="mb-3">
+        <label for="filter-search" class="form-label fw-semibold">Search</label>
+        <input type="text" id="filter-search" name="search" class="form-control" placeholder="Name, SKU, or keyword..." value="{{ request('search') }}">
     </div>
-    <div class="offcanvas-body p-3">
-        <form method="GET" action="{{ route('admin.products.index') }}" class="d-flex flex-column h-100">
-            <div class="mb-3">
-                <label for="filter-search" class="form-label fw-semibold">Search</label>
-                <input type="text" id="filter-search" name="search" class="form-control" placeholder="Name, SKU, or keyword..." value="{{ request('search') }}">
-            </div>
 
-            <div class="mb-3">
-                <label for="filter-category" class="form-label fw-semibold">Category</label>
-                <select id="filter-category" name="category" class="form-select">
-                    <option value="">All Categories</option>
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat['slug'] }}" {{ request('category') === $cat['slug'] ? 'selected' : '' }}>
-                            {{ $cat['name'] }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="filter-status" class="form-label fw-semibold">Status</label>
-                <select id="filter-status" name="status" class="form-select">
-                    <option value="">All Status</option>
-                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="filter-sort" class="form-label fw-semibold">Sort By</label>
-                <select id="filter-sort" name="sort" class="form-select">
-                    <option value="latest" {{ request('sort', 'latest') === 'latest' ? 'selected' : '' }}>Latest</option>
-                    <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Price: Low → High</option>
-                    <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Price: High → Low</option>
-                    <option value="stock_asc" {{ request('sort') === 'stock_asc' ? 'selected' : '' }}>Stock: Low → High</option>
-                </select>
-            </div>
-
-            <div class="mt-auto pt-3 border-top d-flex gap-2">
-                <a href="{{ route('admin.products.index') }}" class="btn btn-light w-50">Reset</a>
-                <button type="submit" class="btn btn-primary w-50">Apply Filters</button>
-            </div>
-        </form>
+    <div class="mb-3">
+        <label for="filter-category" class="form-label fw-semibold">Category</label>
+        <select id="filter-category" name="category" class="form-select">
+            <option value="">All Categories</option>
+            @foreach($categories as $cat)
+                <option value="{{ $cat['slug'] }}" {{ request('category') === $cat['slug'] ? 'selected' : '' }}>
+                    {{ $cat['name'] }}
+                </option>
+            @endforeach
+        </select>
     </div>
-</div>
+
+    <div class="mb-3">
+        <label for="filter-status" class="form-label fw-semibold">Status</label>
+        <select id="filter-status" name="status" class="form-select">
+            <option value="">All Status</option>
+            <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="filter-sort" class="form-label fw-semibold">Sort By</label>
+        <select id="filter-sort" name="sort" class="form-select">
+            <option value="latest" {{ request('sort', 'latest') === 'latest' ? 'selected' : '' }}>Latest</option>
+            <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Price: Low → High</option>
+            <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Price: High → Low</option>
+            <option value="stock_asc" {{ request('sort') === 'stock_asc' ? 'selected' : '' }}>Stock: Low → High</option>
+        </select>
+    </div>
+</x-admin.filter-drawer>
 
 <script>
     document.getElementById('checkAll')?.addEventListener('change', function () {
